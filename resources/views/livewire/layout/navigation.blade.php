@@ -45,19 +45,19 @@ new class extends Component
                         <!-- Dropdown submenu: shows on hover -->
                         <div class="absolute left-0 mt-2 w-56 bg-white shadow-lg rounded hidden group-hover:block z-20">
                             <a href="{{ route('projects.index', ['status' => 'Draft']) }}" 
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                               class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100">
                                 مشاريع (مسودة)
                             </a>
                             <a href="{{ route('projects.index', ['status' => 'Submitted']) }}" 
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                               class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100">
                                 مشاريع (مقدمة)
                             </a>
                             <a href="{{ route('projects.index', ['status' => 'Approve']) }}" 
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                               class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100">
                                 مشاريع (موافقة)
                             </a>
                             <a href="{{ route('projects.index', ['status' => 'UnderProcessing']) }}" 
-                               class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                               class="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100">
                                 مشاريع (قيد التنفيذ)
                             </a>
                         </div>
@@ -72,8 +72,8 @@ new class extends Component
                     <x-nav-link :href="route('adhoc')" :active="request()->routeIs('adhoc')" wire:navigate>
                         مهام إضافية (Ad-Hoc)
                     </x-nav-link>
-                    <x-nav-link :href="route('my-tasks')" :active="request()->routeIs('my-tasks')" wire:navigate>
-                        مهامي
+                    <x-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
+                        إدارة المؤشرات
                     </x-nav-link>
                 </div>
             </div>
@@ -94,6 +94,9 @@ new class extends Component
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
+                        </x-dropdown-link>
+                        <x-dropdown-link :href="route('my-tasks')" wire:navigate>
+                            مهامي
                         </x-dropdown-link>
                         <!-- Authentication -->
                         <button wire:click="logout" class="w-full text-start">

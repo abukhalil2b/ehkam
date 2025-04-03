@@ -29,6 +29,14 @@ Route::view('adhoc', 'adhoc')
     ->middleware(['auth'])
     ->name('adhoc');
 
+Route::view('indicator/index', 'indicator.index')
+    ->middleware(['auth'])
+    ->name('indicator.index');
+
+    Route::view('indicator/show', 'indicator.show')
+    ->middleware(['auth'])
+    ->name('indicator.show');
+
 Route::view('my-tasks', 'my-tasks')
     ->middleware(['auth'])
     ->name('my-tasks');
