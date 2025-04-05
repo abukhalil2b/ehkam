@@ -75,6 +75,9 @@ new class extends Component
                     <x-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
                         إدارة المؤشرات
                     </x-nav-link>
+                    <x-nav-link :href="route('indicator.contribute')" :active="request()->routeIs('indicator.contribute')" wire:navigate>
+                        حصر المؤشرات
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -164,8 +167,12 @@ new class extends Component
             <x-responsive-nav-link :href="route('adhoc')" :active="request()->routeIs('adhoc')" wire:navigate>
                 مهام إضافية (Ad-Hoc)
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('my-tasks')" :active="request()->routeIs('my-tasks')" wire:navigate>
-                مهامي
+            
+            <x-responsive-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
+                إدارة المؤشرات
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('indicator.contribute')" :active="request()->routeIs('indicator.contribute')" wire:navigate>
+                حصر المؤشرات
             </x-responsive-nav-link>
         </div>
 
@@ -182,6 +189,9 @@ new class extends Component
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile')" wire:navigate>
                     {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('my-tasks')" wire:navigate>
+                    مهامي
                 </x-responsive-nav-link>
                 <!-- Authentication -->
                 <button wire:click="logout" class="w-full text-start">

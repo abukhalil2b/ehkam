@@ -29,10 +29,18 @@ Route::view('adhoc', 'adhoc')
     ->middleware(['auth'])
     ->name('adhoc');
 
+    Route::view('indicator/contribute', 'indicator.contribute')
+    ->middleware(['auth'])
+    ->name('indicator.contribute');
+
+    Route::view('indicator/contribute/details', 'indicator.contribute.details')
+    ->middleware(['auth'])
+    ->name('indicator.contribute.details');
+
 Route::view('indicator/index', 'indicator.index')
     ->middleware(['auth'])
     ->name('indicator.index');
-
+    
     Route::view('indicator/show', 'indicator.show')
     ->middleware(['auth'])
     ->name('indicator.show');
