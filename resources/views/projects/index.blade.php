@@ -175,17 +175,52 @@
                                     <option value="">المديرية العامة للأوقاف</option>
                                 </select>
                             </label>
+                            <div x-data="{ open: false, selected: [] }" class="relative w-full max-w-sm">
+                                <label class="block text-xs text-blue-800 mb-1">الدائرة</label>
+                            
+                                <!-- Trigger -->
+                                <div @click="open = !open" class="form-select w-full cursor-pointer flex flex-wrap items-center gap-1 border border-gray-300 rounded px-2 py-1 min-h-[38px] bg-white">
+                                    <template x-if="selected.length === 0">
+                                        <span class="text-gray-400 text-sm">اختر الدوائر</span>
+                                    </template>
+                                    <template x-for="item in selected" :key="item">
+                                        <span class="bg-blue-100 text-blue-800 text-xs rounded-full px-2 py-0.5">
+                                            <span x-text="item"></span>
+                                        </span>
+                                    </template>
+                                </div>
+                            
+                                <!-- Dropdown -->
+                                <div x-show="open" @click.outside="open = false" class="absolute mt-1 w-full z-10 bg-white border border-gray-300 rounded shadow max-h-60 overflow-y-auto">
+                                    <label class="flex items-center px-3 py-2 hover:bg-gray-100">
+                                        <input type="checkbox" value="دائرة التخطيط" @change="(e) => {
+                                            if(e.target.checked) selected.push(e.target.value);
+                                            else selected = selected.filter(i => i !== e.target.value);
+                                        }" :checked="selected.includes('دائرة التخطيط')" class="form-checkbox text-blue-800 ml-2">
+                                        <span>دائرة التخطيط</span>
+                                    </label>
+                                    <label class="flex items-center px-3 py-2 hover:bg-gray-100">
+                                        <input type="checkbox" value="دائرة الحوكمة" @change="(e) => {
+                                            if(e.target.checked) selected.push(e.target.value);
+                                            else selected = selected.filter(i => i !== e.target.value);
+                                        }" :checked="selected.includes('دائرة الحوكمة')" class="form-checkbox text-blue-800 ml-2">
+                                        <span>دائرة الحوكمة</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            
                             <label class="flex-1">
-                                <span class="block text-xs text-blue-800">قطاع الفرعي</span>
+                                <span class="block text-xs text-blue-800">القسم</span>
                                 <select class="form-select">
                                     <option value="" disabled selected></option>
-                                    <option value="">دائرة التخطيط</option>
-                                    <option value="">دائرة الحوكمة</option>
+                                    <option value=""> قسم</option>
+                                    <option value="">قسم   </option>
                                 </select>
                             </label>
                         </div>
                         <label class="block mb-1 text-xs text-blue-800">
-                            <span class="block">نوع المؤشر</span>
+                            <span class="block">نوع المشروع</span>
                             <select class="form-select">
                                 <option value="" disabled selected></option>
                                 <option value="">مشروع</option>

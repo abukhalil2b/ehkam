@@ -12,7 +12,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Indicator Type -->
                 <div>
-                    <span class="text-indigo-600">نوع المؤشر:</span>
+                    <span class="text-indigo-600">نوع المشروع:</span>
                     <span class="font-medium text-gray-900">مبادرة تمكينية</span>
                 </div>
                 <!-- Name -->
@@ -120,7 +120,7 @@
                         </td>
                     </tr>
 
-                    <tr class="bg-white border-b border-gray-200 hover:bg-gray-50">
+                    <tr class="bg-red-100 border-b border-gray-200 hover:bg-gray-50">
                         <td class="w-4 p-4">1</td>
                         <td class="px-6 py-4">إعدد قاعدة بيانات الأنظمة الألكترونية والخدمات</td>
                         <td class="px-6 py-4">
