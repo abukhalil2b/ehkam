@@ -25,9 +25,9 @@ Route::view('achievements', 'achievements')
     ->middleware(['auth'])
     ->name('achievements');
 
-Route::view('adhoc', 'adhoc')
+Route::view('task/index', 'task.index')
     ->middleware(['auth'])
-    ->name('adhoc');
+    ->name('task.index');
 
     Route::view('indicator/contribute', 'indicator.contribute')
     ->middleware(['auth'])

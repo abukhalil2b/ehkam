@@ -12,7 +12,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                droid: ['DroidKufi', 'sans-serif'],
+                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
     },
