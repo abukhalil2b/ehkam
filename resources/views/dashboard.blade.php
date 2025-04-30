@@ -11,7 +11,6 @@
             
         </div>
     </header>
-    <button wire:click="logout">Logout Test</button>
     <div class="container py-6 mx-auto px-4 sm:px-6">
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
