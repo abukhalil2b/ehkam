@@ -4,77 +4,114 @@
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold flex items-center">
                 <svg class="w-6 h-6 mr-2 rtl:ml-2 rtl:mr-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                    <path
+                        d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
                 </svg>
                 الصفحة الرئيسية
             </h1>
-            
+
         </div>
     </header>
     <div class="container py-6 mx-auto px-4 sm:px-6">
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-blue-600 mb-1"><i class="fas fa-project-diagram"></i></div>
                 <div class="text-xl text-gray-500">رفع نمو إيرادات الزكاة من خلال الوعي المجتمعي</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
+                <div class="mt-5 flex gap-2 text-[10px]">
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show') }}"
+                        >
+                        إدارة المؤشر
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
+                        >
+                        إدارة المشاريع
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
+                </div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-amber-500 mb-1"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="text-xl text-gray-500">عدد الجوامع والمساجد ومدارس القرآن الكريم التي تغطي مصاريف الخدمات الأساسية</div>
+                <div class="text-xl text-gray-500">عدد الجوامع والمساجد ومدارس القرآن الكريم التي تغطي مصاريف الخدمات
+                    الأساسية</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-green-600 mb-1"><i class="fas fa-check-circle"></i></div>
                 <div class="text-xl text-gray-500">عدد متعلمي القرآن الكريم</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">قيمة الأصول الوقفية الجديدة سنويًا</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">زيادة نسبة المستفيدين من الأنشطة الدينية وخدمات الإفتاء</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">رفع نسبة رضا المستفيدين عن الخدمات المقدمة من الوزارة</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">عدد المستفيدين من برامج تعزيز قيم التسامح والتعايش والمؤتلف الإنساني (دولياً)</div>
+                <div class="text-xl text-gray-500">عدد المستفيدين من برامج تعزيز قيم التسامح والتعايش والمؤتلف الإنساني
+                    (دولياً)</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">عدد المستفيدين من برامج تعزيز الهوية الوطنية (محلياً)</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">زيادة نسبة إيرادات أصول بيت المال</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
+                <div class="text-xl text-gray-500">زيادة نسبة إيرادات أصول بيت المال والأوقاف والأيتام والقصر</div>
+                <p class="text-sm text-gray-400">زيادة نسبة إيرادات بيت المال</p>
+                <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأوقاف</p>
+                <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأيتام والقصر</p>
+
+                <div class="mt-5 flex gap-2 text-[10px]">
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show') }}"
+                        >
+                        إدارة المؤشر
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
+                        >
+                        إدارة المشاريع
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
+                </div>
             </div>
-        
-            <div class="cursor-pointer bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+
+            <div
+                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">زيادة نسبة إيرادات الأصول</div>
                 <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
             </div>
-        
+
         </div>
 
         <!-- Main Dashboard -->
@@ -86,10 +123,12 @@
                     <p class="text-sm text-gray-400 mt-1">نظرة عامة على تقدم المشروع والتنبيهات</p>
                 </div>
                 <div class="flex items-center space-x-3 rtl:space-x-reverse">
-                    <button class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+                    <button
+                        class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                         <i class="fas fa-download ml-1 rtl:mr-1 rtl:ml-0"></i> تصدير
                     </button>
-                    <button class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
+                    <button
+                        class="px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">
                         <i class="fas fa-plus ml-1 rtl:mr-1 rtl:ml-0"></i> إضافة تقرير
                     </button>
                 </div>
@@ -107,7 +146,7 @@
                         <div class="h-1.5 bg-green-500 rounded-full" style="width: 78%"></div>
                     </div>
                 </div>
-                
+
                 <div class="bg-amber-50 p-4 rounded-xl border border-amber-100 hover:shadow-xs transition">
                     <div class="flex justify-between">
                         <span class="text-amber-800 text-sm font-medium">تنبيهات نشطة</span>
@@ -118,7 +157,7 @@
                         <div class="h-1.5 bg-amber-500 rounded-full" style="width: 60%"></div>
                     </div>
                 </div>
-                
+
                 <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 hover:shadow-xs transition">
                     <div class="flex justify-between">
                         <span class="text-blue-800 text-sm font-medium">الوقت المتبقي للتسليم</span>
@@ -142,23 +181,25 @@
                                 <span class="w-2 h-2 bg-blue-500 rounded-full ml-2 rtl:mr-2 rtl:ml-0"></span>
                                 الخطوات - الحالة
                             </h3>
-                           
+
                         </div>
-                        <div>التحضير</div> 
-                           <div>التخطيط والتطوير</div> 
-                           <div>التنفيذ</div> 
-                           <div>المراجعة</div> 
-                           <div>الاعتماد والإغلاق</div> 
+                        <div>التحضير</div>
+                        <div>التخطيط والتطوير</div>
+                        <div>التنفيذ</div>
+                        <div>المراجعة</div>
+                        <div>الاعتماد والإغلاق</div>
                         <div id="projectStatusContainer" class="h-60 flex items-center justify-center">
                             <!-- Chart.js will render here -->
                             <canvas id="projectStatusChart"></canvas>
                         </div>
                         <div class="flex justify-center mt-3 space-x-4 rtl:space-x-reverse">
-                            <button class="text-xs text-blue-600 hover:text-blue-800 hover:underline">عرض التفاصيل</button>
-                            <button class="text-xs text-gray-500 hover:text-gray-700 hover:underline">مقارنة بالفترة الماضية</button>
+                            <button class="text-xs text-blue-600 hover:text-blue-800 hover:underline">عرض
+                                التفاصيل</button>
+                            <button class="text-xs text-gray-500 hover:text-gray-700 hover:underline">مقارنة بالفترة
+                                الماضية</button>
                         </div>
                     </div>
-                    
+
                     <!-- Flag Status Chart -->
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 hover:shadow-xs transition">
                         <div class="flex items-center justify-between mb-4">
@@ -166,7 +207,8 @@
                                 <span class="w-2 h-2 bg-amber-500 rounded-full ml-2 rtl:mr-2 rtl:ml-0"></span>
                                 حالة التنبيهات
                             </h3>
-                            <select class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white hover:border-gray-300 transition">
+                            <select
+                                class="text-xs border border-gray-200 rounded-lg px-2 py-1 bg-white hover:border-gray-300 transition">
                                 <option>جميع الفئات</option>
                                 <option>حرجة</option>
                                 <option>متوسطة</option>
@@ -179,11 +221,12 @@
                         </div>
                         <div class="flex justify-center mt-3 space-x-4 rtl:space-x-reverse">
                             <button class="text-xs text-blue-600 hover:text-blue-800 hover:underline">عرض الكل</button>
-                            <button class="text-xs text-gray-500 hover:text-gray-700 hover:underline">إدارة التنبيهات</button>
+                            <button class="text-xs text-gray-500 hover:text-gray-700 hover:underline">إدارة
+                                التنبيهات</button>
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Legend & Actions -->
                 <div class="w-full lg:w-80 xl:w-96 space-y-6">
                     <!-- Color Legend -->
@@ -193,24 +236,36 @@
                             مفتاح الألوان
                         </h3>
                         <div class="space-y-3">
-                            <div class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
-                                <div class="w-3 h-3 rounded-full bg-red-500 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform"></div>
+                            <div
+                                class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-red-500 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform">
+                                </div>
                                 <span class="text-gray-700 flex-1">تأخر > 8 أسابيع</span>
-                                <span class="text-red-500 text-xs font-medium bg-red-50 px-2 py-0.5 rounded">12 مشروع</span>
+                                <span class="text-red-500 text-xs font-medium bg-red-50 px-2 py-0.5 rounded">12
+                                    مشروع</span>
                             </div>
-                            <div class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
-                                <div class="w-3 h-3 rounded-full bg-yellow-400 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform"></div>
+                            <div
+                                class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-yellow-400 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform">
+                                </div>
                                 <span class="text-gray-700 flex-1">تأخر 6-8 أسابيع</span>
-                                <span class="text-yellow-500 text-xs font-medium bg-yellow-50 px-2 py-0.5 rounded">8 مشاريع</span>
+                                <span class="text-yellow-500 text-xs font-medium bg-yellow-50 px-2 py-0.5 rounded">8
+                                    مشاريع</span>
                             </div>
-                            <div class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
-                                <div class="w-3 h-3 rounded-full bg-green-500 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform"></div>
+                            <div
+                                class="flex items-center p-3 hover:bg-white rounded-lg transition-colors cursor-pointer group">
+                                <div
+                                    class="w-3 h-3 rounded-full bg-green-500 mr-3 rtl:ml-3 rtl:mr-0 group-hover:scale-125 transition-transform">
+                                </div>
                                 <span class="text-gray-700 flex-1">وفق الخطة</span>
-                                <span class="text-green-500 text-xs font-medium bg-green-50 px-2 py-0.5 rounded">32 مشروع</span>
+                                <span class="text-green-500 text-xs font-medium bg-green-50 px-2 py-0.5 rounded">32
+                                    مشروع</span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Quick Actions -->
                     <div class="bg-blue-50 p-5 rounded-xl border border-blue-200 hover:shadow-xs transition">
                         <h3 class="text-lg font-medium text-blue-700 mb-4 flex items-center">
@@ -218,21 +273,24 @@
                             إجراءات سريعة
                         </h3>
                         <div class="space-y-2">
-                            <button class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
+                            <button
+                                class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
                                 <span>إنشاء تقرير جديد</span>
                                 <i class="fas fa-file-alt"></i>
                             </button>
-                            <button class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
+                            <button
+                                class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
                                 <span>إرسال تنبيه للفريق</span>
                                 <i class="fas fa-bell"></i>
                             </button>
-                            <button class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
+                            <button
+                                class="w-full flex items-center justify-between p-3 hover:bg-blue-100 rounded-lg transition-colors text-blue-800">
                                 <span>جدولة اجتماع</span>
                                 <i class="fas fa-calendar-alt"></i>
                             </button>
                         </div>
                     </div>
-                    
+
                     <!-- Performance Summary -->
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-xs hover:shadow-sm transition">
                         <div class="flex items-center justify-between mb-3">
@@ -273,7 +331,8 @@
             </div>
             <div class="bg-white p-5 rounded-xl border border-gray-200 hover:shadow-xs transition">
                 <div class="border-r-4 rtl:border-l-4 rtl:border-r-0 border-purple-500 pr-4 rtl:pl-4 rtl:pr-0 py-1">
-                    <h3 class="font-medium text-gray-800">عدد الجوامع والمساجد ومدارس القرآن الكريم التي تغطي مصاريف الخدمات الأساسية</h3>
+                    <h3 class="font-medium text-gray-800">عدد الجوامع والمساجد ومدارس القرآن الكريم التي تغطي مصاريف
+                        الخدمات الأساسية</h3>
                     <p class="text-sm text-gray-600 mt-2">تم رفع محضر الإجتماع</p>
                     <div class="flex items-center mt-3">
                         <span class="text-xs text-gray-500 mr-auto rtl:ml-auto rtl:mr-0">منذ 3 أيام</span>
@@ -300,8 +359,12 @@
             },
             options: {
                 cutout: '75%',
-                plugins: { legend: false },
-                animation: { duration: 1500 }
+                plugins: {
+                    legend: false
+                },
+                animation: {
+                    duration: 1500
+                }
             }
         });
 
@@ -318,9 +381,17 @@
                 }]
             },
             options: {
-                plugins: { legend: false },
-                scales: { y: { beginAtZero: true } },
-                animation: { duration: 1500 }
+                plugins: {
+                    legend: false
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                },
+                animation: {
+                    duration: 1500
+                }
             }
         });
     </script>

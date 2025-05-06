@@ -12,6 +12,7 @@
                     <th class="p-3 font-bold border border-gray-300">المؤشر</th>
                     <th class="p-3 font-bold border border-gray-300">المجموع</th>
                     <th class="p-3 font-bold border border-gray-300">التفاصيل</th>
+                    <th class="p-3 font-bold border border-gray-300">إدارة</th>
                 </tr>
             </thead>
             <tbody>
@@ -23,6 +24,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -30,6 +37,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -39,6 +52,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -46,6 +65,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -55,6 +80,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
                     <td class="p-3 border border-gray-300">رئيسي</td>
@@ -62,6 +93,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -71,6 +108,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -78,6 +121,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-green-100">
@@ -87,6 +136,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -94,6 +149,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -103,6 +164,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
                     <td class="p-3 border border-gray-300">رئيسي</td>
@@ -110,6 +177,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-green-100">
@@ -119,6 +192,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -126,6 +205,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-green-100">
@@ -135,6 +220,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -142,6 +233,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-green-100">
@@ -151,6 +248,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
                     <td class="p-3 border border-gray-300">رئيسي</td>
@@ -158,6 +261,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -167,6 +276,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
                     <td class="p-3 border border-gray-300">رئيسي</td>
@@ -174,6 +289,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-green-100">
@@ -183,6 +304,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -190,6 +317,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -199,6 +332,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -206,6 +345,12 @@
                     <td class="p-3 border border-gray-300"></td>
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
+                    </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
                     </td>
                 </tr>
                 <tr class="bg-[#1e3d4f] text-white">
@@ -215,6 +360,12 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
                 <tr class="bg-green-100">
                     <td class="p-3 border border-gray-300">فرعي</td>
@@ -223,12 +374,24 @@
                     <td class="p-3 border border-gray-300"> 
                         <a href="{{ route('indicator.contribute.details') }}">التفاصيل</a>
                     </td>
+                    <td class="p-3 border border-gray-300">
+                        <div class="flex gap-2 text-xs">
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المؤشر</a>
+                            <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">إدارة المشاريع</a>
+                        </div> 
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
-    
-
+   
 </x-app-layout>
 
-<script></script>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('modalComponent', () => ({
+            open: false
+        }));
+    });
+</script>

@@ -74,9 +74,8 @@
         <div class="container mx-auto px-6 py-3">
             <div class="flex justify-between items-center">
                 <!-- Logo -->
-                <div class="flex items-center">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">و</div>
-                    <a href="#" class="mr-3 text-xl font-bold text-primary">منصة متابعة المشاريع</a>
+                <div class="mx-1 flex items-center">
+                    <div class="p-1 w-full h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">منصة متابعة المشاريع</div>
                 </div>
                 
                 <!-- Desktop Navigation -->
