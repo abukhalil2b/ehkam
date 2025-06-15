@@ -5,205 +5,8 @@
         </div>
     </div>
 
-    <div class="container py-4 mx-auto px-4">
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-200 mb-8">
-            <table class="min-w-full divide-y divide-gray-200 text-right" dir="rtl">
-                <tbody class="divide-y divide-gray-200">
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            المعيار الرئيسي</th>
-                        <td class="p-4 text-base text-gray-900">الوعظ والإرشاد (دائرة الزكاة)</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            المعيار الفرعي</th>
-                        <td class="p-4 text-base text-gray-900">(دائرة الزكاة)</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            رمز المؤشر</th>
-                        <td class="p-4 text-base text-gray-900">MARA 5</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            المؤشر</th>
-                        <td class="p-4 text-base text-gray-900">رفع نمو إيرادات الزكاة من خلال الوعي المجتمعي</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            مالك المؤشر</th>
-                        <td class="p-4 text-gray-900">
-                            دائرة الزكاة
-                        </td>
-                    </tr>
-
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            وصف المؤشر</th>
-                        <td class="p-4 text-base text-gray-900">مؤشر يقيس زيادة مبلغ إيرادات الزكاة</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            أداة القياس</th>
-                        <td class="p-4 text-base text-gray-900">البيانات المتوفرة في برنامج الزكاة والحسابات المصرفية
-                            تقارير لجان الزكاة.</td>
-                    </tr>
-
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            قطبية القياس</th>
-                        <td class="p-4 text-base text-gray-900">موجبة</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            شرح قطبية القياس</th>
-                        <td class="p-4 text-base text-gray-900">موجبة حيث يرتفع المؤشر بارتفاع إيرادات الزكاة.</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            وحدة القياس</th>
-                        <td class="p-4 text-base text-gray-900">رقم</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            معادلة القياس</th>
-                        <td class="p-4 text-base text-gray-900">رقم</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            تاريخ الرصد الأول</th>
-                        <td class="p-4 text-base text-gray-900">يناير</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            معادلة احتساب خط الأساس للربع الأول في السنة الأولى من التطبيق</th>
-                        <td class="p-4 text-base text-gray-900">خط الأساس (العوائد في العام السابق) * نسبة المستهدف
-                            للعام الحالي + قيمة العام السابق</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            خط الأساس بعد التطبيق</th>
-                        <td class="p-4 text-base text-gray-900">1.5% (80,000,000)</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            اسئلة الاستبيان (سؤال للتحقق)</th>
-                        <td class="p-4 text-base text-gray-900">-</td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            مبادرات ومشاريع مقترحة</th>
-                        <td class="p-4 text-base text-gray-900">رفع الوعي المجتمعي بالزكاة، رفع مستوى فاعلية لجان
-                            الزكاة.</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
     <div x-data="indicatorManagement()" class="container py-2 mx-auto px-4">
 
-        <!-- Sub‑indicators & Supporting Evidence Section -->
-        <div class="bg-white rounded-lg shadow-xl overflow-hidden border border-gray-200 mb-8">
-            <table role="table" class="min-w-full divide-y divide-gray-200 text-right" dir="rtl">
-                <tbody class="divide-y divide-gray-200">
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            المؤشرات الفرعية
-                        </th>
-                        <td class="p-4 text-gray-900">
-                            <p class="text-gray-500 text-sm">لا توجد مؤشرات فرعية مضافة حالياً.</p>
-                        </td>
-                    </tr>
-                    <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
-                        <th scope="row"
-                            class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
-                            نوع الدليل الداعم
-                        </th>
-                        <td class="p-4 text-base text-gray-900">
-
-                            <!-- Evidence Table Wrapper for Horizontal Scroll -->
-                            <template x-if="supportingEvidences.length > 0">
-                                <div class="overflow-x-auto">
-                                    <table role="table"
-                                        class="min-w-full text-right rtl text-sm border border-gray-200 rounded-lg shadow">
-                                        <thead class="bg-gray-100 text-gray-700">
-                                            <tr>
-                                                <th class="px-4 py-3 border-b">المستند</th>
-                                                <th class="px-4 py-3 border-b">القالب</th>
-                                                <th class="px-4 py-3 border-b">الإجراءات</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="divide-y divide-gray-200">
-                                            <template x-for="(evidence, index) in supportingEvidences"
-                                                :key="index">
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-4 py-3" x-text="evidence.document"></td>
-                                                    <td class="px-4 py-3">
-                                                        <template x-if="evidence.template">
-                                                            <a :href="evidence.template" target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                class="inline-flex items-center hover:underline text-blue-600">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                    class="w-4 h-4 me-1" fill="none"
-                                                                    viewBox="0 0 24 24" stroke="currentColor"
-                                                                    stroke-width="2">
-                                                                    <path stroke-linecap="round"
-                                                                        stroke-linejoin="round"
-                                                                        d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" />
-                                                                </svg>
-                                                                <span>تحميل القالب</span>
-                                                            </a>
-                                                        </template>
-                                                        <template x-if="!evidence.template">
-                                                            <span class="text-gray-400 text-xs">لا يوجد قالب</span>
-                                                        </template>
-                                                    </td>
-                                                    <td class="px-4 py-3">
-                                                        <button @click="removeSupportingEvidence(index)"
-                                                            aria-label="إزالة دليل داعم"
-                                                            class="text-red-600 hover:text-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded-md transition duration-150 ease-in-out">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </template>
-                            <template x-if="supportingEvidences.length === 0">
-                                <p class="text-gray-500 text-sm">لا توجد أدلة داعمة مضافة.</p>
-                            </template>
-
-                            <button @click="openEvidenceModal()" type="button"
-                                class="mt-4 inline-flex items-center gap-2 px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-                                aria-label="إضافة دليل داعم">
-                                <i class="fas fa-plus"></i>
-                                <span>إضافة دليل داعم</span>
-                            </button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
 
         <!-- Year Target & Frequency Selector -->
         <div class="p-6 bg-white rounded-xl shadow space-y-4 border mb-8">
@@ -247,8 +50,8 @@
                                 <div class="font-semibold text-gray-800" x-text="c.name"></div>
                                 <button @click="removeContribute(idx)" aria-label="إزالة مساهمة"
                                     class="px-3 py-1 bg-red-600 text-white text-xs rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1">
-                                    <i class="fas fa-trash-alt"></i>
-                                    <span class="sr-only">إزالة</span>
+                                    <i class="fas fa-trash-alt">إزالة</i>
+                                    <span class="sr-only"></span>
                                 </button>
                             </div>
                             <div class="flex gap-2 text-sm text-gray-600">
@@ -375,9 +178,7 @@
         </div>
 
         <!-- Evidence Modal -->
-        <div x-cloak 
-        x-show="isEvidenceModalOpen" 
-        @keydown.escape.window="closeEvidenceModal()"
+        <div x-cloak x-show="isEvidenceModalOpen" @keydown.escape.window="closeEvidenceModal()"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
@@ -455,7 +256,7 @@
                     newEvidenceDocument: ''
                 },
 
-                // --- Contributing Sectors ("الجهات المساندة") ---
+
                 sectorNames: [
                     'ديوان عام الوزارة',
                     'إدارة الأوقاف والشؤون الدينة بمحافظة جنوب الباطنة',

@@ -14,7 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call(PeriodTemplateSeeder::class);
+        $this->call(SectorSeeder::class);
+        $this->call(IndicatorSeeder::class);
 
         User::create([
             'name' => 'إدارة النظام',

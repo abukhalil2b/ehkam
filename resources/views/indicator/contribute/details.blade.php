@@ -248,7 +248,8 @@
                             <td class="p-3 border text-gray-800">40,000,000</td>
                             <td class="p-3 border">
                                 <div>المستهدف: 200000</div>
-                                المحقق 220000
+                         <div>       المحقق 220000</div>
+                         بنسبة 110 %
                             </td>
                             <td class="p-3 border">
                                 <div>المستهدف: 4000</div>

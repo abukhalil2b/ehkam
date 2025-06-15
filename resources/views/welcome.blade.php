@@ -78,14 +78,7 @@
                     <div class="p-1 w-full h-10 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">منصة متابعة المشاريع</div>
                 </div>
                 
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-6 space-x-reverse">
-                    <a href="#" class="text-gray-800 hover:text-primary">الرئيسية</a>
-                    <a href="#kpis" class="text-gray-800 hover:text-primary">المؤشرات</a>
-                    <a href="#projects" class="text-gray-800 hover:text-primary">المشاريع</a>
-                    <a href="#" class="text-gray-800 hover:text-primary">التقارير</a>
-                    <a href="#" class="text-gray-800 hover:text-primary">اتصل بنا</a>
-                </div>
+               
                 
                 <!-- Auth Buttons -->
                 @if (Route::has('login'))
@@ -103,16 +96,7 @@
             </div>
         </div>
         
-        <!-- Mobile Menu -->
-        <div class="hidden mobile-menu">
-            <div class="container mx-auto px-6 py-3 bg-gray-50">
-                <a href="#" class="block py-2 text-gray-800 hover:text-primary">الرئيسية</a>
-                <a href="#kpis" class="block py-2 text-gray-800 hover:text-primary">المؤشرات</a>
-                <a href="#projects" class="block py-2 text-gray-800 hover:text-primary">المشاريع</a>
-                <a href="#" class="block py-2 text-gray-800 hover:text-primary">التقارير</a>
-                <a href="#" class="block py-2 text-gray-800 hover:text-primary">اتصل بنا</a>
-            </div>
-        </div>
+        
     </nav>
 
     <!-- Hero Section -->
@@ -121,7 +105,7 @@
             <h1 class="text-4xl md:text-5xl font-bold mb-6">نظام متكامل لمتابعة مشاريع ومؤشرات الوزارة</h1>
             <p class="text-xl md:text-2xl mb-8 opacity-90">حوكمة فاعلة، مؤشرات قياس أداء ومتابعة دقيقة لتحقيق الأهداف الاستراتيجية</p>
             <div class="flex justify-center space-x-4 space-x-reverse">
-                <a href="#" class="bg-white text-primary px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition duration-300">الدخول للنظام</a>
+                <a href="login" class="bg-white text-primary px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition duration-300">الدخول للنظام</a>
                 <a href="#kpis" class="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-primary transition duration-300">استعراض المؤشرات</a>
             </div>
         </div>
@@ -321,13 +305,13 @@
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
-                            <span>966123456789+</span>
+                            <span>98626878889+</span>
                         </li>
                         <li class="flex items-center">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            <span>info@platform.gov.sa</span>
+                            <span>info@platform.gov.om</span>
                         </li>
                     
                     </ul>

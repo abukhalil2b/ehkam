@@ -16,75 +16,7 @@
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-blue-600 mb-1"><i class="fas fa-project-diagram"></i></div>
-                <div class="text-xl text-gray-500">رفع نمو إيرادات الزكاة من خلال الوعي المجتمعي</div>
-                <div class="mt-5 flex gap-2 text-[10px]">
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show') }}"
-                        >
-                        إدارة المؤشر
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
-                        >
-                        إدارة المشاريع
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
-                </div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-amber-500 mb-1"><i class="fas fa-exclamation-triangle"></i></div>
-                <div class="text-xl text-gray-500">عدد الجوامع والمساجد ومدارس القرآن الكريم التي تغطي مصاريف الخدمات
-                    الأساسية</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-green-600 mb-1"><i class="fas fa-check-circle"></i></div>
-                <div class="text-xl text-gray-500">عدد متعلمي القرآن الكريم</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">قيمة الأصول الوقفية الجديدة سنويًا</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">زيادة نسبة المستفيدين من الأنشطة الدينية وخدمات الإفتاء</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">رفع نسبة رضا المستفيدين عن الخدمات المقدمة من الوزارة</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">عدد المستفيدين من برامج تعزيز قيم التسامح والتعايش والمؤتلف الإنساني
-                    (دولياً)</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">عدد المستفيدين من برامج تعزيز الهوية الوطنية (محلياً)</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
-            </div>
-
-            <div
+           <div
                 class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">زيادة نسبة إيرادات أصول بيت المال والأوقاف والأيتام والقصر</div>
@@ -93,7 +25,7 @@
                 <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأيتام والقصر</p>
 
                 <div class="mt-5 flex gap-2 text-[10px]">
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show') }}"
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show',1) }}"
                         >
                         إدارة المؤشر
                     </a>
@@ -105,12 +37,26 @@
                 </div>
             </div>
 
-            <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
+            @foreach ($indicators as $indicator)
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">زيادة نسبة إيرادات الأصول</div>
-                <div class="text-sm font-bold">حالة المؤشر: على المسار</div>
+                <div class="text-xl text-gray-500">
+                    {{ $indicator->title }}
+                </div>
+
+                <div class="mt-5 flex gap-2 text-[10px]">
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show',$indicator->id) }}"
+                        >
+                        إدارة المؤشر
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
+                        >
+                        إدارة المشاريع
+                    </a>
+                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
+                </div>
             </div>
+            @endforeach
 
         </div>
 

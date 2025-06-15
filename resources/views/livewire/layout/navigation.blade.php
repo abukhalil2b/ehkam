@@ -36,11 +36,8 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         لوحة القيادة
                     </x-nav-link>
-                    <x-nav-link :href="route('report')" :active="request()->routeIs('report')" wire:navigate>
-                        تقديم التقرير
-                    </x-nav-link>
-                     <x-nav-link :href="route('achievements')" :active="request()->routeIs('achievements')" wire:navigate>
-                        الإنجازات و التحديات
+                    <x-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
+                        المؤشرات 
                     </x-nav-link>
                     <x-nav-link :href="route('indicator.contribute')" :active="request()->routeIs('indicator.contribute')" wire:navigate>
                         حصر المؤشرات
@@ -71,13 +68,6 @@ new class extends Component
                         <x-dropdown-link :href="route('profile')" wire:navigate>
                             {{ __('Profile') }}
                         </x-dropdown-link>
-
-                        {{-- Optional: Link to 'مهامي' here if it relates to the user's tasks --}}
-                         {{--
-                         <x-dropdown-link :href="route('task.index')" wire:navigate>
-                             مهامي
-                         </x-dropdown-link>
-                         --}}
 
                         {{-- Using a button for the logout action is semantically correct --}}
                         <button wire:click="logout" class="block w-full text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 transition duration-150 ease-in-out px-4 py-2">
@@ -112,14 +102,8 @@ new class extends Component
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 لوحة القيادة
             </x-responsive-nav-link>
-
-            <x-responsive-nav-link :href="route('report')" :active="request()->routeIs('report')" wire:navigate>
-                تقديم التقرير
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('achievements')" :active="request()->routeIs('achievements')" wire:navigate>
-                الإنجازات و التحديات
-            </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('indicator.contribute')" :active="request()->routeIs('indicator.contribute')" wire:navigate>
+           
+            <x-responsive-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
                 المؤشرات
             </x-responsive-nav-link>
              <x-responsive-nav-link :href="route('task.index')" :active="request()->routeIs('task.index')" wire:navigate>

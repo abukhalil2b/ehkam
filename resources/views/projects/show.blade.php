@@ -25,7 +25,7 @@
                 <!-- Name -->
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                     <h3 class="text-sm font-medium text-gray-500 mb-1">الاسم</h3>
-                    <p class="font-medium text-gray-900">رضاكم</p>
+                    <p class="font-medium text-gray-900"></p>
                 </div>
 
                 <!-- Description -->
@@ -121,13 +121,14 @@
                             <th scope="col" class="px-6 py-3 min-w-[100px]">إلى</th>
                             <th scope="col" class="px-6 py-3 min-w-[120px]">المستهدف</th>
                             <th scope="col" class="px-6 py-3 min-w-[150px]">الحالة</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">عدد المهام المسندة</th>
                             <th scope="col" class="px-6 py-3 min-w-[100px]">عمليات</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200">
                         <!-- Preparation Phase -->
                         <tr>
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التحضير</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
@@ -151,6 +152,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
                                 <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
@@ -171,6 +175,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
                                 <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
@@ -179,7 +186,7 @@
 
                         <!-- Planning Phase -->
                         <tr>
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التخطيط والتطوير</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
@@ -207,6 +214,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
                                 <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
@@ -227,6 +237,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
                                 <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
@@ -235,7 +248,7 @@
 
                         <!-- Implementation Phase -->
                         <tr>
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التنفيذ</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
@@ -259,6 +272,9 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
                                 <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
@@ -267,7 +283,7 @@
 
                         <!-- Review Phase -->
                         <tr>
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>المراجعة</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
@@ -279,7 +295,7 @@
 
                         <!-- Approval Phase -->
                         <tr>
-                            <td colspan="7" class="p-0">
+                            <td colspan="8" class="p-0">
                                 <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>الاعتماد والإغلاق</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
@@ -348,7 +364,7 @@
                 </div>
 
                 <!-- Modal Footer -->
-                <div class="bg-gray-50 px-6 py-3 flex justify-end border-t border-gray-200">
+                <div class="bg-gray-50 px-6 py-3 flex gap-2 justify-end border-t border-gray-200">
                     <button @click="open = false" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2">
                         إلغاء
                     </button>
