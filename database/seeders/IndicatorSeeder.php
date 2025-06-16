@@ -47,6 +47,7 @@ class IndicatorSeeder extends Seeder
                 'survey_question' => '-',
                 'proposed_initiatives' => 'رفع الوعي المجتمعي بالزكاة، رفع مستوى فاعلية لجان الزكاة.',
                 'parent_id' => 1,
+                'period' => 1,
                 'year_statement_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
