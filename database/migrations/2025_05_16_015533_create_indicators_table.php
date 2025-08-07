@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('baseline_after_application')->nullable(); // خط الأساس بعد التطبيق
             $table->text('survey_question')->nullable(); // اسئلة الاستبيان (سؤال للتحقق)
             $table->text('proposed_initiatives')->nullable(); // مبادرات ومشاريع مقترحة
-            $table->string('period',11);
+            $table->string('period',11);//period_templates
             $table->foreignIdFor(Indicator::class,'parent_id')->nullable();
             $table->foreignIdFor(YearStatement::class,'year_statement_id');
             $table->timestamps();

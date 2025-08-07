@@ -4,6 +4,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\StatisticController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -45,6 +47,13 @@ Route::get('projects/show', [ProjectController::class, 'show'])
 Route::get('projects/steps/show', [ProjectController::class, 'stepsShow'])
     ->name('projects.steps.show');
 
+
+    Route::get('statistic/index', [StatisticController::class, 'index'])
+    ->name('statistic.index');
+
+    Route::get('statistic/quran', [StatisticController::class, 'quran'])
+    ->name('statistic.quran');
+
 Route::view('report', 'report')
     ->middleware(['auth'])
     ->name('report');
@@ -75,6 +84,8 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
+
+    
 require __DIR__ . '/auth.php';
 Route::post('logout', [DashboardController::class, 'logout'])
     ->middleware(['auth'])

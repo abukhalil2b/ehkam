@@ -9,7 +9,8 @@
         <section class="p-6 bg-white rounded-lg shadow-md border border-gray-200 mb-6">
             <div class="flex justify-between items-start mb-4">
                 <h2 class="text-xl font-bold text-green-700">رفع نسبة رضا المستفيدين عن الخدمات المقدمة من الوزارة</h2>
-                <a href="#" class="flex items-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition-colors duration-200">
+                <a href="#"
+                    class="flex items-center text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition-colors duration-200">
                     <i class="fas fa-edit ml-2"></i> تعديل البيانات
                 </a>
             </div>
@@ -70,7 +71,8 @@
                 <!-- Review -->
                 <div class="bg-gray-50 p-3 rounded-lg border border-gray-200">
                     <h3 class="text-sm font-medium text-gray-500 mb-1">المراجعة</h3>
-                    <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    <span
+                        class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                         <i class="fas fa-check-circle mr-1"></i>
                         تم الأعتماد النهائي (فريق تقييم الأداء)
                     </span>
@@ -129,7 +131,8 @@
                         <!-- Preparation Phase -->
                         <tr>
                             <td colspan="8" class="p-0">
-                                <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التحضير</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
                                         الوزن: 15%
@@ -141,12 +144,14 @@
                         <!-- Step 1 -->
                         <tr class="bg-red-50 hover:bg-gray-50 transition-colors">
                             <td class="p-4">1</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">إعداد قاعدة بيانات الأنظمة الألكترونية والخدمات</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">إعداد قاعدة بيانات الأنظمة الألكترونية
+                                والخدمات</td>
                             <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
                             <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
                             <td class="px-6 py-4">12.54%</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="fas fa-exclamation-circle mr-1"></i>
                                     متأخر
                                 </span>
@@ -155,7 +160,8 @@
                                 0
                             </td>
                             <td class="px-6 py-4">
-                                <a href="{{ route('projects.steps.show') }}" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                <a href="{{ route('projects.steps.show') }}"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
                             </td>
@@ -169,7 +175,8 @@
                             <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
                             <td class="px-6 py-4">12.54%</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="fas fa-exclamation-circle mr-1"></i>
                                     متأخر
                                 </span>
@@ -178,7 +185,8 @@
                                 0
                             </td>
                             <td class="px-6 py-4">
-                                <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
                             </td>
@@ -187,7 +195,8 @@
                         <!-- Planning Phase -->
                         <tr>
                             <td colspan="8" class="p-0">
-                                <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التخطيط والتطوير</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
                                         الوزن: 20%
@@ -204,11 +213,13 @@
                             <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
                             <td class="px-6 py-4">12.54%</td>
                             <td class="px-6 py-4 space-y-1">
-                                <span class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="fas fa-exclamation-circle mr-1"></i>
                                     متأخر
                                 </span>
-                                <span class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="fas fa-check-circle mr-1"></i>
                                     معتمد (ممثل القطاع)
                                 </span>
@@ -217,7 +228,8 @@
                                 0
                             </td>
                             <td class="px-6 py-4">
-                                <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
                             </td>
@@ -226,12 +238,14 @@
                         <!-- Step 4 -->
                         <tr class="bg-white hover:bg-gray-50 transition-colors">
                             <td class="p-4">4</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">جمع البيانات والاحصائيات عبر بيانات الخدمات وتجربة المستخدم</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">جمع البيانات والاحصائيات عبر بيانات الخدمات
+                                وتجربة المستخدم</td>
                             <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
                             <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
                             <td class="px-6 py-4">12.54%</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="fas fa-spinner mr-1"></i>
                                     في الإجراء
                                 </span>
@@ -240,7 +254,8 @@
                                 0
                             </td>
                             <td class="px-6 py-4">
-                                <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
                             </td>
@@ -249,7 +264,8 @@
                         <!-- Implementation Phase -->
                         <tr>
                             <td colspan="8" class="p-0">
-                                <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>التنفيذ</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
                                         الوزن: 30%
@@ -261,12 +277,14 @@
                         <!-- Step 5 -->
                         <tr class="bg-white hover:bg-gray-50 transition-colors">
                             <td class="p-4">5</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">متابعة فريق التحول الرقمي عملية تبسيط الإجراءات</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">متابعة فريق التحول الرقمي عملية تبسيط
+                                الإجراءات</td>
                             <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
                             <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
                             <td class="px-6 py-4">12.54%</td>
                             <td class="px-6 py-4">
-                                <span class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                <span
+                                    class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
                                     <i class="far fa-clock mr-1"></i>
                                     لم يبدأ
                                 </span>
@@ -275,7 +293,8 @@
                                 0
                             </td>
                             <td class="px-6 py-4">
-                                <a href="#" class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                     عرض
                                 </a>
                             </td>
@@ -284,7 +303,8 @@
                         <!-- Review Phase -->
                         <tr>
                             <td colspan="8" class="p-0">
-                                <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>المراجعة</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
                                         الوزن: 20%
@@ -296,7 +316,8 @@
                         <!-- Approval Phase -->
                         <tr>
                             <td colspan="8" class="p-0">
-                                <div class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
                                     <span>الاعتماد والإغلاق</span>
                                     <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
                                         الوزن: 15%
@@ -310,44 +331,51 @@
         </section>
 
         <!-- Enhanced Modal -->
-        <div x-show="open" @keydown.escape.window="open = false" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        <!-- Modal Wrapper -->
+        <div x-show="open" @keydown.escape.window="open = false"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
             style="display: none;">
-            
-            <div class="bg-white w-full max-w-2xl rounded-lg shadow-xl overflow-hidden" x-show="open"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
-                x-transition:leave="transition ease-in duration-200"
+
+            <!-- Modal Content -->
+            <div class="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl" x-show="open"
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
-                
+
                 <!-- Modal Header -->
                 <div class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-white p-4">
                     <h3 class="text-lg font-bold">إضافة خطوة عمل جديدة</h3>
                 </div>
-                
+
                 <!-- Modal Content -->
                 <div class="p-6 space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
-                        <input type="text" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" placeholder="أدخل اسم الخطوة">
+                        <input type="text"
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                            placeholder="أدخل اسم الخطوة">
                     </div>
-                    
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">من</label>
-                            <input type="date" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                            <input type="date"
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">إلى</label>
-                            <input type="date" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                            <input type="date"
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                         </div>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">المرحلة</label>
-                        <select class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                        <select
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                             <option value="" disabled selected>اختر المرحلة</option>
                             <option value="1">التحضير</option>
                             <option value="2">التخطيط والتطوير</option>
@@ -356,19 +384,70 @@
                             <option value="5">الإعتماد والاغلاق</option>
                         </select>
                     </div>
-                    
+
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">الوثائق الداعمة</label>
-                        <textarea rows="3" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5" placeholder="أدخل الوثائق الداعمة"></textarea>
+                        <textarea rows="3"
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                            placeholder="أدخل الوثائق الداعمة"></textarea>
                     </div>
                 </div>
+                <div>
+                    <label class="px-6 block text-sm font-medium text-gray-700 mb-1">حدد المنفذين والأقسام</label>
+                    <!-- Select All Button -->
+                    <div class="px-6 pt-2 flex justify-between">
+                        <button type="button"
+                            @click="sectors.forEach(s => s.divisions.forEach(d => { if (!selectedDivisions.includes(d)) selectedDivisions.push(d); }))"
+                            class="text-sm text-blue-600 hover:underline mb-3">
+                            تحديد كل القطاعات والأقسام
+                        </button>
+                        <button type="button" @click="selectedDivisions = []"
+                            class="text-sm text-red-600 hover:underline">
+                            إلغاء تحديد الكل
+                        </button>
+                    </div>
+                    <div class="px-6 space-y-4">
+                        <template x-for="sector in sectors" :key="sector.name">
+                            <div class="border rounded-md p-4 bg-gray-50 shadow-sm">
+                                <h4 class="text-sm font-semibold text-gray-800 mb-2" x-text="sector.name"></h4>
 
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-2">
+                                    <template x-for="division in sector.divisions" :key="division">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                            <input type="checkbox" :value="division"
+                                                :checked="isDivisionSelected(division)"
+                                                @change="toggleDivision(division)">
+                                            <span x-text="division"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+
+                    <div class="px-6 mt-6">
+                        <p class="font-medium text-sm text-gray-700 mb-1">الأقسام المختارة:</p>
+                        <template x-if="selectedDivisions.length > 0">
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <template x-for="division in selectedDivisions" :key="division">
+                                    <li x-text="division"></li>
+                                </template>
+                            </ul>
+                        </template>
+                        <template x-if="selectedDivisions.length === 0">
+                            <p class="text-sm text-gray-400">لم يتم اختيار أي قسم.</p>
+                        </template>
+                    </div>
+                </div>
                 <!-- Modal Footer -->
                 <div class="bg-gray-50 px-6 py-3 flex gap-2 justify-end border-t border-gray-200">
-                    <button @click="open = false" class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2">
+                    <button @click="open = false"
+                        class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2">
                         إلغاء
                     </button>
-                    <button @click="open = false" class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                    <button @click="open = false"
+                        class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                         حفظ الخطوة
                     </button>
                 </div>
@@ -381,10 +460,70 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('modalComponent', () => ({
-            open: false
+            open: false,
+            sectors: [{
+                    name: 'ديوان عام الوزارة',
+                    divisions: ['section1', 'section2']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة جنوب الباطنة',
+                    divisions: ['division1', 'division2']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة شمال الباطنة',
+                    divisions: ['division3', 'division4']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة الداخلية',
+                    divisions: ['division5']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة الظاهرة',
+                    divisions: ['division6', 'division7']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية الوسطى',
+                    divisions: ['division8']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون بمحافظة ظفار',
+                    divisions: ['division9', 'division10']
+                },
+                {
+                    name: 'لجنة الزكاة بولاية السيب',
+                    divisions: ['division11']
+                },
+                {
+                    name: 'لجنة الزكاة بولاية العوابي',
+                    divisions: ['division12']
+                },
+                {
+                    name: 'المؤسسة الوقفية بولاية بوشر',
+                    divisions: ['division13', 'division14']
+                },
+                {
+                    name: 'مؤسسة جابر بن زيد الوقفية',
+                    divisions: ['division15']
+                }
+            ],
+            selectedDivisions: [],
+
+            toggleDivision(division) {
+                const index = this.selectedDivisions.indexOf(division);
+                if (index === -1) {
+                    this.selectedDivisions.push(division);
+                } else {
+                    this.selectedDivisions.splice(index, 1);
+                }
+            },
+
+            isDivisionSelected(division) {
+                return this.selectedDivisions.includes(division);
+            }
         }));
     });
 </script>
+
 
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
