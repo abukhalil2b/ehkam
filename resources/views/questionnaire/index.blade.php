@@ -1,0 +1,22 @@
+<x-app-layout>
+
+    <div class="max-w-4xl mx-auto mt-6 space-y-4">
+        <h2 class="text-xl font-bold">الاستبيانات</h2>
+        <a href="{{ route('questionnaire.create') }}" class="w-44 flex items-center text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 focus:ring-2 focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors duration-200 shadow-sm">
+            جديد
+        </a>
+        @foreach ($questionnaires as $q)
+            <div class="p-6 bg-white rounded-2xl shadow">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-semibold">{{ $q->title }}</h3>
+                        <p class="text-gray-500 text-sm">{{ $q->description }}</p>
+                    </div>
+                    <div class="space-x-2">
+                        <a href="{{ route('questionnaire.show', $q) }}" class="text-blue-600 font-semibold">عرض</a>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+</x-app-layout>

@@ -4,6 +4,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\StatisticController;
 
 use Illuminate\Support\Facades\Route;
@@ -48,10 +49,10 @@ Route::get('projects/steps/show', [ProjectController::class, 'stepsShow'])
     ->name('projects.steps.show');
 
 
-    Route::get('statistic/index', [StatisticController::class, 'index'])
+Route::get('statistic/index', [StatisticController::class, 'index'])
     ->name('statistic.index');
 
-    Route::get('statistic/quran', [StatisticController::class, 'quran'])
+Route::get('statistic/quran', [StatisticController::class, 'quran'])
     ->name('statistic.quran');
 
 Route::view('report', 'report')
@@ -85,7 +86,46 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 
-    
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('questionnaire/index', [QuestionnaireController::class, 'index'])
+        ->name('questionnaire.index');
+
+    Route::get('questionnaire/create', [QuestionnaireController::class, 'create'])
+        ->name('questionnaire.create');
+
+    Route::get('questionnaire/show/{questionnaire}', [QuestionnaireController::class, 'show'])
+        ->name('questionnaire.show');
+
+    Route::get('questionnaire/edit/{questionnaire}', [QuestionnaireController::class, 'edit'])
+        ->name('questionnaire.edit');
+
+    Route::put('questionnaire/update/{questionnaire}', [QuestionnaireController::class, 'update'])
+        ->name('questionnaire.update');
+
+    Route::get('questionnaire/take/{questionnaire}', [QuestionnaireController::class, 'take'])
+        ->name('questionnaire.take');
+
+    Route::get('questionnaire/duplicate/{questionnaire}', [QuestionnaireController::class, 'duplicate'])
+        ->name('questionnaire.duplicate');
+
+    Route::post('questionnaire/store', [QuestionnaireController::class, 'store'])
+        ->name('questionnaire.store');
+
+    Route::post('questionnaire/submit/{questionnaire}', [QuestionnaireController::class, 'submit'])
+        ->name('questionnaire.submit');
+
+         Route::delete('questionnaire/delete/{questionnaire}', [QuestionnaireController::class, 'delete'])
+        ->name('questionnaire.delete');
+
+    Route::get('questionnaire/answer_show/{answer}', [QuestionnaireController::class, 'answerShow'])
+        ->name('questionnaire.answer_show');
+
+    Route::put('questionnaire/answer_update/{answer}', [QuestionnaireController::class, 'updateAnswer'])
+        ->name('questionnaire.answer_update');
+});
+
+
 require __DIR__ . '/auth.php';
 Route::post('logout', [DashboardController::class, 'logout'])
     ->middleware(['auth'])
