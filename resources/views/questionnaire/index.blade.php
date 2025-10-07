@@ -12,8 +12,9 @@
                         <h3 class="text-lg font-semibold">{{ $q->title }}</h3>
                         <p class="text-gray-500 text-sm">{{ $q->description }}</p>
                     </div>
-                    <div class="space-x-2">
-                        <a href="{{ route('questionnaire.show', $q) }}" class="text-blue-600 font-semibold">عرض</a>
+                    <div class="flex gap-2">
+                        <a href="{{ route('questionnaire.show', $q) }}" class="text-orange-600 font-semibold text-sm">إدارة</a>
+                        <a href="{{ route('questionnaire.take', $q) }}" class="text-blue-600 font-semibold text-sm">تعبئة الاستبيان</a>
                     </div>
                 </div>
             </div>

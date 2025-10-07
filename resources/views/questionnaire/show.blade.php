@@ -35,10 +35,6 @@
                 </div>
 
                 <div class="flex flex-wrap gap-2 justify-end">
-                    <a href="{{ route('questionnaire.take', $questionnaire) }}"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
-                        تعبئة الاستبيان
-                    </a>
 
                     <a href="{{ route('questionnaire.duplicate', $questionnaire) }}"
                         class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
