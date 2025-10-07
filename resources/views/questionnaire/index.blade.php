@@ -11,6 +11,15 @@
                     <div>
                         <h3 class="text-lg font-semibold">{{ $q->title }}</h3>
                         <p class="text-gray-500 text-sm">{{ $q->description }}</p>
+                        <span class="flex items-center gap-1">
+                            @if ($q->is_active)
+                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                                نشط
+                            @else
+                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+                                غير نشط
+                            @endif
+                        </span>
                     </div>
                     <div class="flex gap-2">
                         <a href="{{ route('questionnaire.show', $q) }}" class="text-orange-600 font-semibold text-sm">إدارة</a>

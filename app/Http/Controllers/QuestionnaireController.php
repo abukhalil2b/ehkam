@@ -10,6 +10,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Exports\QuestionnaireAnswersExport;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionnaireController extends Controller
 {
@@ -140,6 +143,7 @@ class QuestionnaireController extends Controller
             'questions.choices',
         ])->loadCount([
             'questions',
+            'answers',
         ]);
 
         return view('questionnaire.show', compact('questionnaire'));
@@ -263,23 +267,64 @@ class QuestionnaireController extends Controller
             ->with('success', 'تم إرسال الإجابات بنجاح');
     }
 
-
     public function edit(Questionnaire $questionnaire)
     {
-        // Load questions and their choices
-        $questionnaire->load('questions.choices');
-
         return view('questionnaire.edit', compact('questionnaire'));
     }
-
 
     public function update(Request $request, Questionnaire $questionnaire)
     {
         // return $request->all();
-        // Validate basic structure
-        $validator = Validator::make($request->all(), [
+
+        $request->validate([
             'title' => 'required|string|max:255',
             'is_active' => 'boolean',
+        ]);
+
+        $questionnaire->update([
+            'title' => $request->input('title'),
+            'is_active' => $request->boolean('is_active'),
+        ]);
+
+        return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
+    }
+
+    public function question_edit(Questionnaire $questionnaire)
+    {
+        // 1. Load questions and their choices, eager-loaded for efficiency
+        //    We also order them by the 'ordered' column to match the front-end structure
+        $questionnaire->load(['questions' => function ($query) {
+            $query->orderBy('ordered')->with(['choices' => function ($query) {
+                $query->orderBy('ordered');
+            }]);
+        }]);
+
+        // 2. Prepare the data for Alpine.js (Convert to JSON)
+        //    We use json_encode on the collection of questions
+        $questionsJson = $questionnaire->questions->toJson();
+
+        // 3. Pass both the Questionnaire model and the JSON string to the view
+        return view('questionnaire.question_edit', compact('questionnaire', 'questionsJson'));
+    }
+
+    public function answer_index(Questionnaire $questionnaire)
+    {
+        $questionnaire->load([
+            'questions.choices',
+        ])->loadCount([
+            'questions',
+            'answers',
+        ]);
+
+        return view('questionnaire.answer_index', compact('questionnaire'));
+    }
+
+
+    public function question_update(Request $request, Questionnaire $questionnaire)
+    {
+        // return $request->all();
+        // Validate basic structure
+        $validator = Validator::make($request->all(), [
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
             'questions.*.type' => 'required|in:single,multiple,range,text,date',
@@ -344,13 +389,7 @@ class QuestionnaireController extends Controller
         }
 
         // Persist updates inside transaction
-        DB::transaction(function () use ($questionnaire, $questions, $request) {
-
-            // Update questionnaire
-            $questionnaire->update([
-                'title' => $request->input('title'),
-                'is_active' => $request->boolean('is_active'),
-            ]);
+        DB::transaction(function () use ($questionnaire, $questions) {
 
             // Delete old questions and choices
             foreach ($questionnaire->questions as $oldQuestion) {
@@ -388,7 +427,6 @@ class QuestionnaireController extends Controller
 
         return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
     }
-
 
     public function delete(Questionnaire $questionnaire)
     {
@@ -477,5 +515,74 @@ class QuestionnaireController extends Controller
         return redirect()
             ->route('questionnaire.show', $answer->questionnaire_id)
             ->with('success', 'تم حذف الإجابة بنجاح');
+    }
+
+    public function export(Questionnaire $questionnaire)
+    {
+        // Generate a friendly file name
+        $fileName = 'Responses-' . Str::slug($questionnaire->title) . '-' . now()->format('Ymd') . '.xlsx';
+
+        // Use the Excel facade to download the export
+        return Excel::download(new QuestionnaireAnswersExport($questionnaire), $fileName);
+    }
+
+
+    public function statistics(Questionnaire $questionnaire)
+    {
+        $questionnaire->load(['questions.choices', 'questions.answers', 'answers.user']);
+
+        // Calculate overall statistics
+        $totalParticipants = $questionnaire->answers->groupBy('user_id')->count();
+        $totalAnswers = $questionnaire->answers_count;
+        $completionRate = $questionnaire->questions_count > 0 ?
+            ($totalAnswers / ($totalParticipants * $questionnaire->questions_count)) * 100 : 0;
+
+        // Get question statistics
+        $questionStats = [];
+        foreach ($questionnaire->questions as $question) {
+            $questionStats[] = [
+                'question' => $question,
+                'statistics' => $question->getAnswerStatistics()
+            ];
+        }
+
+        // Response over time data
+        $responseOverTime = $this->getResponseOverTime($questionnaire);
+
+        // Participant demographics (if you have user data)
+        $participantStats = $this->getParticipantStats($questionnaire);
+
+        return view('questionnaire.statistics', compact(
+            'questionnaire',
+            'totalParticipants',
+            'totalAnswers',
+            'completionRate',
+            'questionStats',
+            'responseOverTime',
+            'participantStats'
+        ));
+    }
+
+    private function getResponseOverTime($questionnaire)
+    {
+        $answers = $questionnaire->answers()
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        return [
+            'labels' => $answers->pluck('date'),
+            'data' => $answers->pluck('count')
+        ];
+    }
+
+    private function getParticipantStats($questionnaire)
+    {
+        // This is a placeholder - implement based on your user model fields
+        return [
+            'total' => $questionnaire->answers->groupBy('user_id')->count(),
+            // Add more demographic data as needed
+        ];
     }
 }

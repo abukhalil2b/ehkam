@@ -103,6 +103,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('questionnaire/update/{questionnaire}', [QuestionnaireController::class, 'update'])
         ->name('questionnaire.update');
 
+    Route::get('questionnaire/question_edit/{questionnaire}', [QuestionnaireController::class, 'question_edit'])
+        ->name('questionnaire.question_edit');
+
+    Route::put('questionnaire/question_update/{questionnaire}', [QuestionnaireController::class, 'question_update'])
+        ->name('questionnaire.question_update');
+
     Route::get('questionnaire/take/{questionnaire}', [QuestionnaireController::class, 'take'])
         ->name('questionnaire.take');
 
@@ -115,14 +121,26 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('questionnaire/submit/{questionnaire}', [QuestionnaireController::class, 'submit'])
         ->name('questionnaire.submit');
 
-         Route::delete('questionnaire/delete/{questionnaire}', [QuestionnaireController::class, 'delete'])
+    Route::delete('questionnaire/delete/{questionnaire}', [QuestionnaireController::class, 'delete'])
         ->name('questionnaire.delete');
+
+    Route::get('questionnaire/answer_index/{questionnaire}', [QuestionnaireController::class, 'answer_index'])
+        ->name('questionnaire.answer_index');
 
     Route::get('questionnaire/answer_show/{answer}', [QuestionnaireController::class, 'answerShow'])
         ->name('questionnaire.answer_show');
 
     Route::put('questionnaire/answer_update/{answer}', [QuestionnaireController::class, 'updateAnswer'])
         ->name('questionnaire.answer_update');
+
+
+    Route::get('questionnaire/export', [QuestionnaireController::class, 'export'])
+        ->name('questionnaire.export');
+
+
+    Route::get('questionnaire/statistics/{questionnaire}', [QuestionnaireController::class, 'statistics'])
+        ->name('questionnaire.statistics');
+        
 });
 
 
