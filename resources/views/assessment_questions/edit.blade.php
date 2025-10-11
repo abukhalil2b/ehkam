@@ -20,6 +20,15 @@
             </div>
 
             <div class="mb-6">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">شرح السؤال:</label>
+                <input type="text" name="description" id="description" 
+                       value="{{ old('description', $question->description) }}" 
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 text-lg" 
+                       required>
+                @error('description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div class="mb-6">
                 <label for="type" class="block text-sm font-medium text-gray-700 mb-2">نوع السؤال:</label>
                 <select name="type" id="type" 
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 appearance-none bg-white cursor-pointer" 

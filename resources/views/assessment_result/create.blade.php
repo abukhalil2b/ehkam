@@ -22,6 +22,9 @@
                         <p class="text-lg font-semibold mb-3">
                             <span class="text-gray-800">{{ $loop->iteration }}. </span>
                             {{ $question->content }}
+                        <div class="py-1 text-xs text-gray-400">
+                            {{ $question->description }}
+                        </div>
                         </p>
 
                         <div class="mb-4 p-4 border rounded bg-white shadow-sm">
@@ -44,6 +47,17 @@
                                 <p class="text-xs text-gray-500 mt-1">
                                     (الحد الأقصى: {{ $question->max_point }}. اترك فارغاً لتجاهل السؤال.)
                                 </p>
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <label for="note_{{ $question->id }}"
+                                        class="block text-sm font-medium text-gray-700 mb-2">
+                                        ملاحظة خاصة بهذا السؤال (اختياري):
+                                    </label>
+                                    <textarea name="note_{{ $question->id }}" id="note_{{ $question->id }}" rows="2"
+                                        class="block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm">{{ old('note_' . $question->id) }}</textarea>
+                                    @error('note_' . $question->id)
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
                             @elseif ($question->type === 'text')
                                 <textarea name="question_{{ $question->id }}" id="question_{{ $question->id }}" rows="3"
                                     class="block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3">{{ old('question_' . $question->id) }}</textarea>
@@ -55,18 +69,6 @@
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-                        <div class="mt-4 pt-4 border-t border-gray-200">
-                            <label for="note_{{ $question->id }}" class="block text-sm font-medium text-gray-700 mb-2">
-                                ملاحظة خاصة بهذا السؤال (اختياري):
-                            </label>
-                            <textarea name="note_{{ $question->id }}" id="note_{{ $question->id }}" rows="2"
-                                class="block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm">{{ old('note_' . $question->id) }}</textarea>
-                            @error('note_' . $question->id)
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                     </div>
                 @empty
                     <p class="text-center text-gray-500">لا توجد أسئلة تقييم متاحة لإنشاء تقييم.</p>

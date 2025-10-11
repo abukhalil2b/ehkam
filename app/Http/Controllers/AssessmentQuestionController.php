@@ -25,6 +25,7 @@ class AssessmentQuestionController extends Controller
         $validatedData = $request->validate([
             'type' => 'required|in:range,text',
             'content' => 'required|string|nullable|max:255',
+            'description' => 'nullable',
             'max_point' => 'nullable|integer|min:1|max:20', 
         ]);
 
@@ -68,6 +69,7 @@ class AssessmentQuestionController extends Controller
             // Add 'sometimes' rule so if the content or type is not sent, it won't fail (though in a full form, they usually are required)
             'type' => 'required|in:range,text', 
             'content' => 'required|string|max:255',
+            'description' => 'nullable',
             'max_point' => 'nullable|integer|min:1|max:20', 
         ]);
 

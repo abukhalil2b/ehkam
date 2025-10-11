@@ -23,6 +23,7 @@ return new class extends Migration
             $table->enum('type', ['range', 'text']);
             $table->tinyInteger('max_point')->nullable(); // (1-5) incase type = range
             $table->string('content')->nullable(); // e.g (how do you advice your relative for purchase from our store?) 
+            $table->string('description')->nullable();
         });
 
         Schema::create('assessment_results', function (Blueprint $table) {

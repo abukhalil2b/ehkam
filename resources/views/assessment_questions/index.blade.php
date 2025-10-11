@@ -33,7 +33,10 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($questions as $question)
                             <tr>
-                                <td class="px-6 py-4 text-gray-900 font-medium">{{ $question->content }}</td>
+                                <td class="px-6 py-4 text-gray-900 font-medium">
+                                    {{ $question->content }}
+                                    <div class="text-xs text-gray-400">{{ $question->description }}</div>
+                                </td>
                                 <td class="px-6 py-4 text-center">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
                                         {{ $question->type == 'range' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' }}">
