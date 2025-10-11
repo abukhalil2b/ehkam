@@ -24,15 +24,15 @@
                 <select name="type" id="type" 
                         class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 appearance-none bg-white cursor-pointer" 
                         required onchange="toggleMaxPointField(this.value)">
-                    <option value="range" {{ old('type', $question->type) == 'range' ? 'selected' : '' }}>Range (تقييم بالنقاط)</option>
-                    <option value="text" {{ old('type', $question->type) == 'text' ? 'selected' : '' }}>Text (إجابة نصية مفتوحة)</option>
+                    <option value="range" {{ old('type', $question->type) == 'range' ? 'selected' : '' }}> (تقييم بالنقاط)</option>
+                    <option value="text" {{ old('type', $question->type) == 'text' ? 'selected' : '' }}> (إجابة نصية مفتوحة)</option>
                 </select>
                 @error('type') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="mb-8" id="max_point_field">
-                <label for="max_point" class="block text-sm font-medium text-gray-700 mb-2">الحد الأقصى للنقاط (1-10):</label>
-                <input type="number" name="max_point" id="max_point" min="1" max="10" 
+                <label for="max_point" class="block text-sm font-medium text-gray-700 mb-2">الحد الأقصى للنقاط (1-20):</label>
+                <input type="range" name="max_point" id="max_point" min="1" max="20" 
                        value="{{ old('max_point', $question->max_point) }}"
                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3">
                 @error('max_point') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror

@@ -22,32 +22,34 @@
         <livewire:layout.navigation />
         <!-- Page Heading -->
         @if (isset($header))
-            <header class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-2xl text-white font-bold py-4 sm:px-6 md:px-28 shadow-md">
+            <header
+                class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-2xl text-white font-bold py-4 sm:px-6 md:px-28 shadow-md">
                 {{ $header }}
             </header>
         @endif
+        <div class="py-4">
+            @if ($errors->any())
+                <div class="p-5 bg-red-100 text-red-500">
+                    @foreach ($errors->all() as $e)
+                        <div>
+                            {{ $e }}
+                        </div>
+                    @endforeach
+                </div>
+            @endif
 
-        @if ($errors->any())
-            <div class="p-5 bg-red-100 text-red-500">
-                @foreach ($errors->all() as $e)
-                    <div>
-                        {{ $e }}
-                    </div>
-                @endforeach
-            </div>
-        @endif
+            @if (session('error'))
+                <div class="max-w-2xl mx-auto mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-        @if (session('error'))
-            <div class="max-w-2xl mx-auto mb-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if (session('success'))
-            <div class="max-w-2xl mx-auto mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
-                {{ session('success') }}
-            </div>
-        @endif
+            @if (session('success'))
+                <div class="max-w-2xl mx-auto mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                    {{ session('success') }}
+                </div>
+            @endif
+        </div>
         <!-- Page Content -->
         <main>
             {{ $slot }}
