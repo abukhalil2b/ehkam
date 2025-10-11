@@ -45,6 +45,9 @@ new class extends Component {
                     <x-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.index')" wire:navigate>
                         الاستبيانات
                     </x-nav-link>
+                    <x-nav-link :href="route('activity.index')" :active="request()->routeIs('activity.index')" wire:navigate>
+                       الأنشطة
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -123,6 +126,9 @@ new class extends Component {
 
             <x-responsive-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.index')" wire:navigate>
                 الاستبيانات
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('activity.index')" :active="request()->routeIs('activity.index')" wire:navigate>
+                الأنشطة
             </x-responsive-nav-link>
         </div>
 

@@ -5,7 +5,7 @@
 
     <div class="container py-8 mx-auto px-4">
         <h2 class="text-2xl font-bold mb-6">قائمة الأنشطة</h2>
-        <a href="{{ route('assessment_questions.create') }}"
+        <a href="{{ route('assessment_questions.index') }}"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             أسئلة الأنشطة
         </a>
@@ -37,7 +37,7 @@
                             <td class="px-6 py-4 whitespace-nowrap">{{ $activity->project->title ?? 'N/A' }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="{{ route('activity.show', $activity) }}"
-                                    class="text-indigo-600 hover:text-indigo-900">عرض التفاصيل</a>
+                                    class="text-indigo-600 hover:text-indigo-900 text-xs">عرض تفاصيل التقييم</a>
                             </td>
                         </tr>
                     @endforeach

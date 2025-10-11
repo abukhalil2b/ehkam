@@ -10,6 +10,10 @@
 
         <!-- Action Button for Current User -->
         <div class="mb-8">
+            <a href="{{ route('activity.index') }}"
+                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
+                الأنشطة
+            </a>
             @if ($userSubmitted)
                 <a href="{{ route('assessment_result.edit', $activity->id) }}"
                     class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded transition duration-150 inline-block">

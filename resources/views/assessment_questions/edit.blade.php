@@ -24,7 +24,7 @@
                 <input type="text" name="description" id="description" 
                        value="{{ old('description', $question->description) }}" 
                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 text-lg" 
-                       required>
+                       >
                 @error('description') <p class="text-red-500 text-sm mt-1">{{ $message }}</p> @enderror
             </div>
 

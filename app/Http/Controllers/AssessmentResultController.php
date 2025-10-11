@@ -27,7 +27,7 @@ class AssessmentResultController extends Controller
                              ->with('warning', 'لقد قمت بتقييم هذا النشاط مسبقاً. يمكنك تعديل تقييمك الحالي.');
         }
         
-        $questions = AssessmentQuestion::latest('id')->get();
+        $questions = AssessmentQuestion::orderBy('ordered')->get();
         return view('assessment_result.create', compact('activity', 'questions'));
     }
 
@@ -122,7 +122,7 @@ class AssessmentResultController extends Controller
                              ->with('error', 'لم تقم بتقديم تقييم لهذا النشاط بعد. يرجى البدء بتقييم جديد.');
         }
 
-        $allQuestions = AssessmentQuestion::latest('id')->get();
+        $allQuestions = AssessmentQuestion::orderBy('ordered')->get();
         
         // Pass both questions and the user's existing results to the view
         return view('assessment_result.edit', compact('activity', 'allQuestions', 'userResults'));

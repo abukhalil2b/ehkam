@@ -24,6 +24,7 @@ return new class extends Migration
             $table->tinyInteger('max_point')->nullable(); // (1-5) incase type = range
             $table->string('content')->nullable(); // e.g (how do you advice your relative for purchase from our store?) 
             $table->string('description')->nullable();
+            $table->tinyInteger('ordered')->default(1);
         });
 
         Schema::create('assessment_results', function (Blueprint $table) {

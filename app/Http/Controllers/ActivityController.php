@@ -55,7 +55,7 @@ class ActivityController extends Controller
 
     public function show(Activity $activity)
     {
-        $allQuestions = AssessmentQuestion::latest('id')->get();
+        $allQuestions = AssessmentQuestion::orderBy('ordered')->get();
         $totalMaxPoints = 0;
 
         // Calculate the theoretical maximum possible score for range questions
