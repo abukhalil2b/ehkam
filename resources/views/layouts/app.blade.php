@@ -20,13 +20,10 @@
 <body>
     <div class="min-h-screen bg-gray-100">
         <livewire:layout.navigation />
-
         <!-- Page Heading -->
         @if (isset($header))
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    {{ $header }}
-                </div>
+            <header class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-2xl text-white font-bold py-4 sm:px-6 md:px-28 shadow-md">
+                {{ $header }}
             </header>
         @endif
 
@@ -46,7 +43,11 @@
             </div>
         @endif
 
-
+        @if (session('success'))
+            <div class="max-w-2xl mx-auto mb-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                {{ session('success') }}
+            </div>
+        @endif
         <!-- Page Content -->
         <main>
             {{ $slot }}

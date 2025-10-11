@@ -12,6 +12,8 @@ return new class extends Migration {
             $table->id();
             $table->string('title');
             $table->boolean('is_active')->default(true);
+            $table->enum('target_response', ['open_for_all', 'registerd_only']);
+            $table->string('public_hash', 64)->unique()->nullable();
             $table->timestamps();
         });
 
@@ -41,13 +43,13 @@ return new class extends Migration {
         // Answers (users’ responses)
         Schema::create('answers', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('questionnaire_id')->constrained('questionnaires')->onDelete('cascade');
             $table->foreignId('question_id')->constrained('questions')->onDelete('cascade');
             $table->text('text_answer')->nullable();
             $table->unsignedTinyInteger('range_value')->nullable();
-            $table->json('choice_ids')->nullable(); // supports both single and multiple
-            $table->text('note')->nullable(); // extra field for note
+            $table->json('choice_ids')->nullable();
+            $table->text('note')->nullable();
             $table->timestamps();
         });
     }

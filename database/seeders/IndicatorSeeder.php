@@ -33,7 +33,6 @@ class IndicatorSeeder extends Seeder
                 'main_criteria' => 'الوعظ والإرشاد (دائرة الزكاة)',
                 'sub_criteria' => '(دائرة الزكاة)',
                 'code' => 'MARA 5',
-                'title' => 'نسبة نمو إيرادات الزكاة سنويًا',
                 'owner' => 'دائرة الزكاة',
                 'description' => 'مؤشر يقيس زيادة مبلغ إيرادات الزكاة',
                 'measurement_tool' => 'البيانات المتوفرة في برنامج الزكاة والحسابات المصرفية تقارير لجان الزكاة.',
@@ -48,7 +47,6 @@ class IndicatorSeeder extends Seeder
                 'proposed_initiatives' => 'رفع الوعي المجتمعي بالزكاة، رفع مستوى فاعلية لجان الزكاة.',
                 'parent_id' => 1,
                 'period' => 1,
-                'year_statement_id' => 1,
                 'created_at' => now(),
                 'updated_at' => now()
             ]);

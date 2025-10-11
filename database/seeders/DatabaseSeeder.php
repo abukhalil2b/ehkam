@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'إدارة النظام',
             'email' => 'admin@ehkam.com',
             'password' => Hash::make('admin@ehkam.com'),
+            'user_type'=>'admin'
         ]);
     }
 }

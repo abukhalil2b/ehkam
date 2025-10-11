@@ -24,17 +24,7 @@
                 <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأوقاف</p>
                 <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأيتام والقصر</p>
 
-                <div class="mt-5 flex gap-2 text-[10px]">
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show',1) }}"
-                        >
-                        إدارة المؤشر
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
-                        >
-                        إدارة المشاريع
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
-                </div>
+            
             </div>
 
             @foreach ($indicators as $indicator)
@@ -45,15 +35,8 @@
                 </div>
 
                 <div class="mt-5 flex gap-2 text-[10px]">
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.show',$indicator->id) }}"
-                        >
-                        إدارة المؤشر
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('projects.index', ['status' => 'Draft']) }}"
-                        >
-                        إدارة المشاريع
-                    </a>
-                    <a class="px-3 py-1.5 text-sm rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors" href="{{ route('indicator.contribute.details') }}">بيانات المؤشر</a>
+                  
+              
                 </div>
             </div>
             @endforeach

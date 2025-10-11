@@ -36,11 +36,9 @@ new class extends Component {
                         لوحة القيادة
                     </x-nav-link>
                     <x-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
-                        المؤشرات
+                        إدارة المؤشرات
                     </x-nav-link>
-                    <x-nav-link :href="route('indicator.contribute')" :active="request()->routeIs('indicator.contribute')" wire:navigate>
-                        حصر المؤشرات
-                    </x-nav-link>
+
                     <x-nav-link :href="route('statistic.index')" :active="request()->routeIs('statistic.index')" wire:navigate>
                         الإحصائيات
                     </x-nav-link>
@@ -117,14 +115,14 @@ new class extends Component {
             </x-responsive-nav-link>
 
             <x-responsive-nav-link :href="route('indicator.index')" :active="request()->routeIs('indicator.index')" wire:navigate>
-                المؤشرات
+                إدارة المؤشرات
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('task.index')" :active="request()->routeIs('task.index')" wire:navigate>
                 مهامي
             </x-responsive-nav-link>
 
-             <x-responsive-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.index')" wire:navigate>
-                  الاستبيانات
+            <x-responsive-nav-link :href="route('questionnaire.index')" :active="request()->routeIs('questionnaire.index')" wire:navigate>
+                الاستبيانات
             </x-responsive-nav-link>
         </div>
 

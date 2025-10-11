@@ -9,7 +9,7 @@ class Answer extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'choice_ids' => 'array'
+        'choice_ids' => 'array',
     ];
 
     public function user()

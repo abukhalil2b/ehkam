@@ -2,8 +2,12 @@
     <div class="max-w-2xl mx-auto py-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $questionnaire->title }}</h2>
 
-        <form method="POST" action="{{ route('questionnaire.submit', $questionnaire->id) }}"
-            class="bg-white p-6 rounded-2xl shadow space-y-6">
+        @php
+            $submitRoute = $questionnaire->public_hash
+                ? route('questionnaire.public_submit', $questionnaire->public_hash)
+                : route('questionnaire.submit', $questionnaire->id);
+        @endphp
+        <form method="POST" action="{{ $submitRoute }}" class="bg-white p-6 rounded-2xl shadow space-y-6">
             @csrf
 
             @foreach ($questionnaire->questions as $index => $question)

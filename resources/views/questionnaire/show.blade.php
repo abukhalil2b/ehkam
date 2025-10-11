@@ -31,6 +31,11 @@
                                 غير نشط
                             @endif
                         </span>
+                        @if($questionnaire->target_response == 'open_for_all')
+                         <div>مفتوح للكل</div>
+                        @else
+                        <div>فقط المسجلين</div>
+                        @endif
                     </div>
                 </div>
 

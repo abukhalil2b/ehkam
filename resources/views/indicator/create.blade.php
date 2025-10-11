@@ -1,11 +1,10 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight text-right" dir="rtl">
-            إضافة مؤشر جديد
-        </h2>
+        إضافة مؤشر جديد
     </x-slot>
+    
     <form method="POST" action="{{ route('indicator.store') }}">
-         @csrf
+        @csrf
         <div x-data="indicatorManagement" class="container py-2 mx-auto px-4" dir="rtl">
             <div class="bg-white shadow-md rounded-lg p-6">
 

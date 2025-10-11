@@ -90,7 +90,7 @@
                                                 @endif
                                             </div>
                                         @elseif(in_array($answer->question->type, ['single', 'multiple']))
-                                            @php $selected = $answer->choices(); @endphp
+                                            @php $selected = $answer->choices; @endphp
                                             @if ($selected->count() > 0)
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     @foreach ($selected as $choice)

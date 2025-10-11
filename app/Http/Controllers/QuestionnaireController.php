@@ -6,10 +6,10 @@ use App\Models\Question;
 use App\Models\Questionnaire;
 use App\Models\Choice;
 use App\Models\Answer;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use Carbon\Carbon;
 use App\Exports\QuestionnaireAnswersExport;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,7 +28,6 @@ class QuestionnaireController extends Controller
     {
         return view('questionnaire.create');
     }
-
 
     public function store(Request $request)
     {
@@ -107,6 +106,7 @@ class QuestionnaireController extends Controller
             $questionnaire = Questionnaire::create([
                 'title' => $request->input('title'),
                 'is_active' => $request->boolean('is_active'),
+                'target_response' => $request->input('target_response')
             ]);
 
             foreach ($questions as $index => $q) {
@@ -170,101 +170,223 @@ class QuestionnaireController extends Controller
             ->with('success', 'تم إنشاء نسخة من الاستبيان مع الأسئلة بنجاح.');
     }
 
+    public function publicTake(string $hash)
+    {
+        // 1. Find the questionnaire by hash and check if it's set to 'open_for_all'
+        $questionnaire = Questionnaire::where('public_hash', $hash)
+            ->where('target_response', 'open_for_all')
+            ->firstOrFail();
+
+        // 2. Call the core processing logic (see next step)
+        return $this->processTakeRequest($questionnaire, null);
+    }
 
     public function take(Questionnaire $questionnaire)
     {
         $user = auth()->user();
 
+        // Enforce permissions for the authenticated route
+        if ($questionnaire->target_response !== 'registerd_only') {
+            // Redirect registered users to the public URL if it's open for all
+            if ($questionnaire->is_open_for_all) {
+                return redirect()->route('questionnaire.public_take', $questionnaire->public_hash);
+            }
+            // Or just abort if the settings are wrong
+            return abort(404);
+        }
+
+        // Call the core processing logic
+        return $this->processTakeRequest($questionnaire, $user);
+    }
+
+    private function processTakeRequest(Questionnaire $questionnaire, ?User $user = null)
+    {
         if (!$questionnaire->is_active) {
             return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
         }
 
-        // Check if user already answered
-        $answered = Answer::where('questionnaire_id', $questionnaire->id)
-            ->where('user_id', $user->id)
-            ->exists();
+        // Check if the user is authenticated AND has already answered (only relevant for registered users)
+        if ($user) {
+            $answered = Answer::where('questionnaire_id', $questionnaire->id)
+                ->where('user_id', $user->id)
+                ->exists();
 
-        if ($answered) {
-            return redirect()->back()->with('error', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+            if ($answered) {
+                return redirect()->back()->with('error', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+            }
         }
+
+        // The main difference in the view will be whether you include user_id in the form submission.
+        // The form submission logic must be updated to handle this as well.
 
         $questionnaire->load(['questions.choices' => function ($query) {
             $query->orderBy('ordered');
         }]);
 
-        return view('questionnaire.take', compact('questionnaire'));
+        // Pass the user state to the view
+        return view('questionnaire.take', compact('questionnaire', 'user'));
     }
 
+
+    // New method to handle public submission via hash
+    public function publicSubmit(Request $request, string $hash)
+    {
+        $questionnaire = Questionnaire::where('public_hash', $hash)
+            ->where('target_response', 'open_for_all')
+            ->firstOrFail();
+
+        // Pass null for $user since it's a public submission
+        return $this->processSubmission($request, $questionnaire, null);
+    }
+
+    // Rename your existing submit method to handle the authenticated path
     public function submit(Request $request, Questionnaire $questionnaire)
     {
         $user = auth()->user();
 
-        $alreadyAnswered = Answer::where('questionnaire_id', $questionnaire->id)
-            ->where('user_id', $user->id)
-            ->exists();
+        // Pass the authenticated user
+        return $this->processSubmission($request, $questionnaire, $user);
+    }
 
-        if ($alreadyAnswered) {
-            return abort(403, 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+
+    private function processSubmission(Request $request, Questionnaire $questionnaire, ?User $user = null)
+    {
+        // --- 1. Access and Restriction Checks (Unchanged) ---
+
+        $isRegisteredOnly = $questionnaire->target_response === 'registerd_only';
+
+        if ($isRegisteredOnly && !$user) {
+            return abort(403, 'يجب عليك تسجيل الدخول للإجابة على هذا الاستبيان.');
         }
 
+        if ($user) {
+            $alreadyAnswered = Answer::where('questionnaire_id', $questionnaire->id)
+                ->where('user_id', $user->id)
+                ->exists();
 
-        // Loop through each question in this questionnaire
+            if ($alreadyAnswered) {
+                return abort(403, 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+            }
+        }
+
+        // --- 2. Dynamic Validation Rule Generation (New Logic) ---
+
+        $rules = [];
+        $messages = [];
+
+        foreach ($questionnaire->questions as $question) {
+            $inputName = "question_{$question->id}";
+
+            // **A. Define Base Rules (Assuming all questions are required by default)**
+            // You might need to adjust 'required' based on a field in your 'questions' table.
+            $baseRules = ['required'];
+
+            // **B. Define Type-Specific Rules**
+            switch ($question->type) {
+                case 'text':
+                    $rules[$inputName] = array_merge($baseRules, ['string', 'max:5000']);
+                    break;
+
+                case 'date':
+                    $rules[$inputName] = array_merge($baseRules, ['date']);
+                    break;
+
+                case 'range':
+                    // Assuming min/max are stored on the question, e.g., $question->min_value
+                    $min = $question->min_value ?? 1;
+                    $max = $question->max_value ?? 10;
+                    $rules[$inputName] = array_merge($baseRules, ['integer', 'min:' . $min, 'max:' . $max]);
+                    break;
+
+                case 'single':
+                    // Must be an integer and must exist in the question's allowed choices (IDs)
+                    $choiceIds = $question->choices->pluck('id')->toArray();
+                    $rules[$inputName] = array_merge($baseRules, ['integer', 'in:' . implode(',', $choiceIds)]);
+                    break;
+
+                case 'multiple':
+                    // Must be an array, and all items in the array must be valid choice IDs
+                    $choiceIds = $question->choices->pluck('id')->toArray();
+                    $rules[$inputName] = array_merge($baseRules, ['array', 'min:1']);
+                    $rules["{$inputName}.*"] = ['integer', 'in:' . implode(',', $choiceIds)];
+
+                    // Add an Arabic message for the main array field
+                    $messages["{$inputName}.required"] = "يجب اختيار خيار واحد على الأقل لسؤال '{$question->question_text}'";
+                    break;
+            }
+
+            // Custom message for general required fields
+            if (!isset($messages["{$inputName}.required"])) {
+                $messages["{$inputName}.required"] = "الرجاء الإجابة على سؤال '{$question->question_text}'.";
+            }
+        }
+
+        // --- 3. Execute Validation ---
+
+        // Check for validation failures
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // --- 4. Answer Processing Loop (Using Validated Data) ---
+
+        // Loop through each question again to process the now-validated data
         foreach ($questionnaire->questions as $question) {
 
-            // Build input field names (matching your form field names)
             $inputName = "question_{$question->id}";
             $noteName  = "note_{$question->id}";
 
-            // Skip this question if user didn’t answer it
-            if (!$request->has($inputName)) {
+            // Since validation passed, we only skip if the field *wasn't* required and is empty
+            // For simplicity here, we rely on the validator to check 'required'.
+            if (!$request->has($inputName) && !in_array('required', $rules[$inputName] ?? [])) {
                 continue;
             }
 
-            // 🗂️ Prepare base answer data
             $answerData = [
-                'user_id'          => $user->id,
+                'user_id'          => optional($user)->id,
                 'questionnaire_id' => $questionnaire->id,
                 'question_id'      => $question->id,
-                'note'             => $request->input($noteName), // Optional note per question
+                'note'             => $request->filled($noteName) ? $request->input($noteName) : null,
+                'text_answer'      => null,
+                'range_value'      => null,
+                'choice_ids'       => null,
             ];
 
-            // Handle each question type accordingly
+            // 5. Handle each question type and assign data
             switch ($question->type) {
 
                 case 'text':
                 case 'date':
-                    // Save the answer as plain text (or date string)
+                    // Use the validated text/date input
                     $answerData['text_answer'] = $request->input($inputName);
                     break;
 
                 case 'range':
-                    // Save numeric range value (e.g. 1–5)
+                    // Use the validated integer range input
                     $answerData['range_value'] = intval($request->input($inputName));
                     break;
 
                 case 'single':
-                    // Save a single choice (wrapped in JSON for consistency)
-                    $choiceId = $request->input($inputName)[0] ?? null;
-                    $answerData['choice_ids'] = $choiceId
-                        ? json_encode([$choiceId])
-                        : null;
+                    // Single choice: Wrap validated ID in an array
+                    $choiceId = $request->input($inputName);
+                    $answerData['choice_ids'] = $choiceId ? [$choiceId] : null;
                     break;
 
                 case 'multiple':
-                    // Save multiple choices as a JSON array
+                    // Multiple choice: Use validated array of IDs
                     $choiceIds = $request->input($inputName, []);
-                    $answerData['choice_ids'] = json_encode($choiceIds);
+                    $answerData['choice_ids'] = !empty($choiceIds) ? $choiceIds : null;
                     break;
             }
 
-            //Store the answer record
+            // 6. Store the answer record
             Answer::create($answerData);
         }
 
-        //  Redirect back with a success message
-        return redirect()
-            ->route('questionnaire.show', $questionnaire->id)
-            ->with('success', 'تم إرسال الإجابات بنجاح');
+        // 7. Redirect back
+        return redirect()->back()->with('success', 'تم إرسال الإجابات بنجاح');
     }
 
     public function edit(Questionnaire $questionnaire)
@@ -272,20 +394,33 @@ class QuestionnaireController extends Controller
         return view('questionnaire.edit', compact('questionnaire'));
     }
 
+
     public function update(Request $request, Questionnaire $questionnaire)
     {
-        // return $request->all();
-
-        $request->validate([
+        // 1. Validate all incoming data, including the new target_response
+        $data = $request->validate([
             'title' => 'required|string|max:255',
+            // 'target_response' is required to determine public/registered access
+            'target_response' => 'required|in:open_for_all,registerd_only',
+            // 'is_active' validation works for '1' or '0' string values
             'is_active' => 'boolean',
         ]);
 
-        $questionnaire->update([
-            'title' => $request->input('title'),
-            'is_active' => $request->boolean('is_active'),
-        ]);
+        // 2. Hash Management based on target_response
 
+        // Check if the type is set to 'open_for_all' AND a hash doesn't exist yet
+        if ($data['target_response'] === 'open_for_all' && !$questionnaire->public_hash) {
+            $data['public_hash'] = Str::random(32); // Generate unique public hash
+        }
+        // If it's set back to 'registerd_only', we must clear the hash
+        elseif ($data['target_response'] === 'registerd_only') {
+            $data['public_hash'] = null;
+        }
+
+        // 3. Update the database record
+        $questionnaire->update($data);
+
+        // 4. Redirect
         return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
     }
 
@@ -318,7 +453,6 @@ class QuestionnaireController extends Controller
 
         return view('questionnaire.answer_index', compact('questionnaire'));
     }
-
 
     public function question_update(Request $request, Questionnaire $questionnaire)
     {
@@ -439,7 +573,6 @@ class QuestionnaireController extends Controller
             ->with('success', 'تم حذف الاستبيان بنجاح.');
     }
 
-
     public function answerShow(Answer $answer)
     {
         $user = auth()->user();
@@ -501,7 +634,6 @@ class QuestionnaireController extends Controller
             ->with('success', 'تم تحديث الإجابة بنجاح');
     }
 
-
     public function destroyAnswer(Answer $answer)
     {
         $user = auth()->user();
@@ -525,7 +657,6 @@ class QuestionnaireController extends Controller
         // Use the Excel facade to download the export
         return Excel::download(new QuestionnaireAnswersExport($questionnaire), $fileName);
     }
-
 
     public function statistics(Questionnaire $questionnaire)
     {

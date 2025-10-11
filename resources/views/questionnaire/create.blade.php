@@ -13,12 +13,16 @@
                         required>
                 </div>
 
-                <!-- ensure a value is always sent for is_active -->
-                <input type="hidden" name="is_active" value="0">
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_active" value="1" checked
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                     <span class="text-gray-700">مفعل</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <select name="target_response" id="" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <option value="open_for_all">مفتوح للكل</option>
+                        <option value="registerd_only">فقط المسجلين</option>
+                    </select>
                 </div>
             </div>
 

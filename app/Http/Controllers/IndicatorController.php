@@ -4,11 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Indicator;
 use App\Models\PeriodTemplate;
-use App\Models\YearStatement;
+use App\Models\Sector;
 use Illuminate\Http\Request;
 
 class IndicatorController extends Controller
 {
+
+    public function target(Indicator $indicator)
+    {
+        return view('indicator.target');
+    }
+
+    public function achieved(Indicator $indicator)
+    {
+        return view('indicator.achieved');
+    }
 
     public function index()
     {
@@ -26,10 +36,7 @@ class IndicatorController extends Controller
     public function store(Request $request)
     {
 
-        $year_statement = YearStatement::latest('id')->first();
-
-        if (!$year_statement) abort(404);
-
+   
         // return $request->all();
         $validated = $request->validate([
             'target_for_indicator' => 'string',
@@ -52,11 +59,10 @@ class IndicatorController extends Controller
             'period' => 'required',
         ]);
 
-        $validated['year_statement_id'] = $year_statement->id;
 
         Indicator::create($validated);
 
-        return redirect()->route('indicator.index')->with('success', 'Indicator created successfully.');
+        return redirect()->route('indicator.index')->with('success', ' تم اضافة المؤشر.');
     }
 
     /**
@@ -64,7 +70,8 @@ class IndicatorController extends Controller
      */
     public function show(Indicator $indicator)
     {
-        return view('indicator.show', compact('indicator'));
+        $sectors = Sector::all();
+        return view('indicator.show', compact('indicator','sectors'));
     }
 
     /**

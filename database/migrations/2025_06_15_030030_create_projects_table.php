@@ -3,19 +3,18 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Every Year create new projects and related Activities
      */
     public function up(): void
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->text('title');
-            $table->text('owner_name');
-            $table->text('department_name');
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->foreignId('sector_id')->constrained('sectors')->onDelete('cascade');
             $table->timestamps();
         });
     }

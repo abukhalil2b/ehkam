@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Indicator;
-use App\Models\YearStatement;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -33,7 +32,6 @@ return new class extends Migration
             $table->text('proposed_initiatives')->nullable(); // مبادرات ومشاريع مقترحة
             $table->string('period',11);//period_templates
             $table->foreignIdFor(Indicator::class,'parent_id')->nullable();
-            $table->foreignIdFor(YearStatement::class,'year_statement_id');
             $table->timestamps();
         });
     }

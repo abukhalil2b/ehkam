@@ -55,7 +55,7 @@
 
                     @case('single')
                         @php
-                            $selected = collect(json_decode($answer->choice_ids))->first() ?? null;
+                            $selected = collect($answer->choice_ids)->first() ?? null;
                         @endphp
                         <div class="space-y-2">
                             @foreach ($answer->question->choices as $choice)
