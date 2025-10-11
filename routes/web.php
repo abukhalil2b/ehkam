@@ -56,6 +56,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('project/index', [ProjectController::class, 'index'])
         ->name('project.index');
 
+        Route::get('project/edit/{project}', [ProjectController::class, 'edit'])
+        ->name('project.edit');
+
+
+// Route for submitting the updated data (PUT/PATCH request)
+Route::put('project/update/{project}', [ProjectController::class, 'update'])
+        ->name('project.update');
+
     Route::get('project/create', [ProjectController::class, 'create'])
         ->name('project.create');
 
