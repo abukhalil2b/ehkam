@@ -11,16 +11,29 @@ use Illuminate\Support\Facades\Auth;
 
 class ActivityController extends Controller
 {
-    /**
-     * Display a listing of the activity.
-     */
+  
     public function index()
     {
-        // Fetch all activities, ordered by creation date, for the index view
-        // Adjust the query if you need to filter by user or project.
+        // 1. Get all activities, ordered latest first
         $activities = Activity::latest()->get();
 
-        return view('activity.index', compact('activities'));
+        // 2. Check if the user is authenticated
+        $userId = Auth::id();
+        $submittedActivityIds = [];
+
+        if ($userId) {
+            // 3. Efficiently fetch the IDs of all activities the authenticated user has submitted a result for
+            $submittedActivityIds = AssessmentResult::where('user_id', $userId)
+                ->pluck('activity_id') // Pluck only the activity_id column
+                ->unique()             // Ensure unique IDs
+                ->toArray();
+        }
+
+        // Pass both the activities and the array of submitted IDs to the view
+        return view('activity.index', [
+            'activities' => $activities,
+            'submittedActivityIds' => $submittedActivityIds,
+        ]);
     }
 
     // The create method isn't strictly necessary for the route definition provided,

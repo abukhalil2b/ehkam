@@ -22,7 +22,7 @@
             @else
                 <a href="{{ route('assessment_result.create', $activity->id) }}"
                     class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-150 inline-block">
-                    إضافة تقييم جديد
+                     تقييم جديد
                 </a>
             @endif
         </div>
