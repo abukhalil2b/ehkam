@@ -21,13 +21,14 @@ return new class extends Migration {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('questionnaire_id')->constrained()->onDelete('cascade');
-            $table->enum('type', ['single', 'multiple', 'range', 'text', 'date']);
+            $table->enum('type', ['single', 'multiple', 'range', 'text', 'date', 'dropdown']);
             $table->string('question_text');
             $table->text('description')->nullable();
             $table->unsignedTinyInteger('min_value')->nullable(); // for range questions
             $table->unsignedTinyInteger('max_value')->nullable(); // for range questions
             $table->unsignedInteger('ordered')->default(0);
             $table->boolean('note_attachment')->default(false);
+            $table->bigInteger('parent_question_id')->nullable();
             $table->timestamps();
         });
 
@@ -36,6 +37,7 @@ return new class extends Migration {
             $table->id();
             $table->foreignId('question_id')->constrained('questions')->onDelete('cascade');
             $table->text('choice_text')->nullable();
+            $table->foreignId('parent_choice_id')->nullable()->constrained('choices')->onDelete('cascade');
             $table->unsignedTinyInteger('ordered')->default(0);
             $table->timestamps();
         });

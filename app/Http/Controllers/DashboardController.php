@@ -10,14 +10,7 @@ use Illuminate\Support\Facades\Session;
 
 class DashboardController extends Controller
 {
-    public function logout()
-    {
-        Auth::guard('web')->logout();
 
-        Session::invalidate();
-        Session::regenerateToken();
-        return back();
-    }
 
     public function dashboard()
     {
@@ -25,10 +18,10 @@ class DashboardController extends Controller
 
         $indicators = Indicator::all();
         // return view('dashboard_sector',compact('indicators'));
-        if($loggedUser->user_type == 'sector'){
+        if ($loggedUser->user_type == 'sector') {
         }
 
-        return view('dashboard',compact('indicators'));
+        return view('dashboard', compact('indicators'));
     }
 
     /**

@@ -1,126 +1,428 @@
 <x-app-layout>
-    <div class="container py-8 mx-auto px-4">
-        <div class="grid grid-cols-1 gap-4">
-            <div class="bg-white rounded-xl shadow p-4 border">
-                <div class="mb-2">
-                    <h3 class="text-base font-semibold text-gray-900">
-                        إعداد قاعدة بيانات الأنظمة الألكترونية والخدمات
-                    </h3>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-sm text-gray-700">
-                    <div>
-                        <span class="font-medium text-gray-500">من:</span>
-                        <div class="mt-1">01-01-2025</div>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-500">إلى:</span>
-                        <div class="mt-1">29-03-2025</div>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-500">المستهدف:</span>
-                        <div class="mt-1">12.54%</div>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-500">الحالة:</span>
-                        <div class="mt-1">
-                            <span
-                                class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
-                                <i class="fas fa-exclamation-circle mr-1"></i>
-                                متأخر
-                            </span>
-                        </div>
-                    </div>
-                    <div>
-                        <span class="font-medium text-gray-500">عدد المهام:</span>
-                        <div class="mt-1">0</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
-<div class="bg-gray-50 p-6" x-data="{ showModal: false }">
-
-    <div class="max-w-5xl mx-auto">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-xl font-bold text-gray-700">📋 قائمة المهام</h2>
-            <button @click="showModal = true"
-                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
-                + إضافة مهمة
-            </button>
-        </div>
-
-        <!-- 🗂️ Dummy Task Cards -->
-        <div class="grid gap-4">
-            <div class="bg-white rounded-xl shadow p-4 border flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                    <p class="font-semibold text-gray-800">تصميم قاعدة بيانات للمشروع</p>
-                    <p class="text-sm text-gray-500 mt-1">المستخدم: علي</p>
-                    <p class="text-sm text-gray-500">من: 2025-06-10 إلى: 2025-06-20</p>
-                </div>
-                <div class="mt-3 sm:mt-0">
-                    <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">جاري التنفيذ</span>
-                </div>
-            </div>
-
-            <div class="bg-white rounded-xl shadow p-4 border flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                <div>
-                    <p class="font-semibold text-gray-800">إعداد تقرير الأداء الشهري</p>
-                    <p class="text-sm text-gray-500 mt-1">المستخدم: ناصر</p>
-                    <p class="text-sm text-gray-500">من: 2025-06-01 إلى: 2025-06-15</p>
-                </div>
-                <div class="mt-3 sm:mt-0">
-                    <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">متأخر</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 📝 Modal for New Task -->
-    <div x-show="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" x-cloak>
-        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold">إضافة مهمة جديدة</h3>
-                <button @click="showModal = false" class="text-gray-500 hover:text-red-500">
-                    <i class="fas fa-times"></i>
+    <div x-data="modalComponent()" class="container py-8 mx-auto px-4">
+        <!-- Work Steps Section -->
+        <section class="p-6 bg-white rounded-lg shadow-md border border-gray-200">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-green-700 mb-4 sm:mb-0">خطوات العمل</h2>
+                <button @click="open = true" type="button"
+                    class="flex items-center text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-2 rounded-lg text-sm transition-colors duration-200 shadow-sm">
+                    <i class="fas fa-plus ml-2"></i> إضافة خطوة جديدة
                 </button>
             </div>
 
-            <form class="space-y-4">
-                <div>
-                    <label class="block mb-1 text-sm text-gray-600">المهمة</label>
-                    <input type="text" name="task" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="مثال: إعداد خطة العمل">
+            <!-- Responsive Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-600">
+                    <thead class="text-xs text-gray-700 bg-gray-100">
+                        <tr>
+                            <th scope="col" class="p-4 w-12">#</th>
+                            <th scope="col" class="px-6 py-3 min-w-[200px]">الاسم</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">من</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">إلى</th>
+                            <th scope="col" class="px-6 py-3 min-w-[120px]">المستهدف</th>
+                            <th scope="col" class="px-6 py-3 min-w-[150px]">الحالة</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">عدد المهام المسندة</th>
+                            <th scope="col" class="px-6 py-3 min-w-[100px]">عمليات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <!-- Preparation Phase -->
+                        <tr>
+                            <td colspan="8" class="p-0">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                    <span>التحضير</span>
+                                    <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
+                                        الوزن: 15%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Step 1 -->
+                        <tr class="bg-red-50 hover:bg-gray-50 transition-colors">
+                            <td class="p-4">1</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">إعداد قاعدة بيانات الأنظمة الألكترونية
+                                والخدمات</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
+                            <td class="px-6 py-4">12.54%</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    متأخر
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="{{ route('project.task.show',$project->id) }}"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                    عرض المهام
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Step 2 -->
+                        <tr class="bg-white hover:bg-gray-50 transition-colors">
+                            <td class="p-4">2</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">تشكيل فريق عمل مشروع رضاكم</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
+                            <td class="px-6 py-4">12.54%</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    متأخر
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                    عرض
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Planning Phase -->
+                        <tr>
+                            <td colspan="8" class="p-0">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                    <span>التخطيط والتطوير</span>
+                                    <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
+                                        الوزن: 20%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Step 3 -->
+                        <tr class="bg-white hover:bg-gray-50 transition-colors">
+                            <td class="p-4">3</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">إعداد خطة عمل مشروع رضاكم</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
+                            <td class="px-6 py-4">12.54%</td>
+                            <td class="px-6 py-4 space-y-1">
+                                <span
+                                    class="inline-flex items-center bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-exclamation-circle mr-1"></i>
+                                    متأخر
+                                </span>
+                                <span
+                                    class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-check-circle mr-1"></i>
+                                    معتمد (ممثل القطاع)
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                    عرض
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Step 4 -->
+                        <tr class="bg-white hover:bg-gray-50 transition-colors">
+                            <td class="p-4">4</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">جمع البيانات والاحصائيات عبر بيانات الخدمات
+                                وتجربة المستخدم</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
+                            <td class="px-6 py-4">12.54%</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="fas fa-spinner mr-1"></i>
+                                    في الإجراء
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                    عرض
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Implementation Phase -->
+                        <tr>
+                            <td colspan="8" class="p-0">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                    <span>التنفيذ</span>
+                                    <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
+                                        الوزن: 30%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Step 5 -->
+                        <tr class="bg-white hover:bg-gray-50 transition-colors">
+                            <td class="p-4">5</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">متابعة فريق التحول الرقمي عملية تبسيط
+                                الإجراءات</td>
+                            <td class="px-6 py-4 whitespace-nowrap">01-01-2025</td>
+                            <td class="px-6 py-4 whitespace-nowrap">29-03-2025</td>
+                            <td class="px-6 py-4">12.54%</td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="inline-flex items-center bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                                    <i class="far fa-clock mr-1"></i>
+                                    لم يبدأ
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                0
+                            </td>
+                            <td class="px-6 py-4">
+                                <a href="#"
+                                    class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                    عرض
+                                </a>
+                            </td>
+                        </tr>
+
+                        <!-- Review Phase -->
+                        <tr>
+                            <td colspan="8" class="p-0">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                    <span>المراجعة</span>
+                                    <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
+                                        الوزن: 20%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Approval Phase -->
+                        <tr>
+                            <td colspan="8" class="p-0">
+                                <div
+                                    class="w-full p-3 text-white text-lg font-medium bg-blue-600 flex justify-between items-center">
+                                    <span>الاعتماد والإغلاق</span>
+                                    <span class="bg-white text-blue-600 px-2 py-1 rounded text-xs font-bold">
+                                        الوزن: 15%
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Enhanced Modal -->
+        <!-- Modal Wrapper -->
+        <div x-show="open" @keydown.escape.window="open = false"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            style="display: none;">
+
+            <!-- Modal Content -->
+            <div class="bg-white w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-lg shadow-xl" x-show="open"
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95"
+                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95">
+
+                <!-- Modal Header -->
+                <div class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-white p-4">
+                    <h3 class="text-lg font-bold">إضافة خطوة عمل جديدة</h3>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Modal Content -->
+                <div class="p-6 space-y-4">
                     <div>
-                        <label class="block mb-1 text-sm text-gray-600">تاريخ البداية</label>
-                        <input type="date" name="start_at" class="w-full border rounded px-3 py-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
+                        <input type="text"
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                            placeholder="أدخل اسم الخطوة">
                     </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">من</label>
+                            <input type="date"
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">إلى</label>
+                            <input type="date"
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block mb-1 text-sm text-gray-600">تاريخ الانتهاء</label>
-                        <input type="date" name="due_date" class="w-full border rounded px-3 py-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">المرحلة</label>
+                        <select
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                            <option value="" disabled selected>اختر المرحلة</option>
+                            <option value="1">التحضير</option>
+                            <option value="2">التخطيط والتطوير</option>
+                            <option value="3">التنفيذ</option>
+                            <option value="4">المراجعة</option>
+                            <option value="5">الإعتماد والاغلاق</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">الوثائق الداعمة</label>
+                        <textarea rows="3"
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+                            placeholder="أدخل الوثائق الداعمة"></textarea>
                     </div>
                 </div>
-
                 <div>
-                    <label class="block mb-1 text-sm text-gray-600">المنفذ</label>
-                    <select name="user_id" class="w-full border rounded px-3 py-2">
-                        <option value="1">علي</option>
-                        <option value="2">ناصر</option>
-                        <option value="3">خليفة</option>
-                    </select>
-                </div>
+                    <label class="px-6 block text-sm font-medium text-gray-700 mb-1">حدد المنفذين والأقسام</label>
+                    <!-- Select All Button -->
+                    <div class="px-6 pt-2 flex justify-between">
+                        <button type="button"
+                            @click="sectors.forEach(s => s.divisions.forEach(d => { if (!selectedDivisions.includes(d)) selectedDivisions.push(d); }))"
+                            class="text-sm text-blue-600 hover:underline mb-3">
+                            تحديد كل القطاعات والأقسام
+                        </button>
+                        <button type="button" @click="selectedDivisions = []"
+                            class="text-sm text-red-600 hover:underline">
+                            إلغاء تحديد الكل
+                        </button>
+                    </div>
+                    <div class="px-6 space-y-4">
+                        <template x-for="sector in sectors" :key="sector.name">
+                            <div class="border rounded-md p-4 bg-gray-50 shadow-sm">
+                                <h4 class="text-sm font-semibold text-gray-800 mb-2" x-text="sector.name"></h4>
 
-                <div class="text-right">
-                    <button type="submit"
-                        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">إسناد المهمة</button>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 ml-2">
+                                    <template x-for="division in sector.divisions" :key="division">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700">
+                                            <input type="checkbox" :value="division"
+                                                :checked="isDivisionSelected(division)"
+                                                @change="toggleDivision(division)">
+                                            <span x-text="division"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+
+                    <div class="px-6 mt-6">
+                        <p class="font-medium text-sm text-gray-700 mb-1">الأقسام المختارة:</p>
+                        <template x-if="selectedDivisions.length > 0">
+                            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                                <template x-for="division in selectedDivisions" :key="division">
+                                    <li x-text="division"></li>
+                                </template>
+                            </ul>
+                        </template>
+                        <template x-if="selectedDivisions.length === 0">
+                            <p class="text-sm text-gray-400">لم يتم اختيار أي قسم.</p>
+                        </template>
+                    </div>
                 </div>
-            </form>
+                <!-- Modal Footer -->
+                <div class="bg-gray-50 px-6 py-3 flex gap-2 justify-end border-t border-gray-200">
+                    <button @click="open = false"
+                        class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mr-2">
+                        إلغاء
+                    </button>
+                    <button @click="open = false"
+                        class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        حفظ الخطوة
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 </x-app-layout>
+
+<!-- Alpine.js Initialization Script -->
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('modalComponent', () => ({
+            open: false,
+            sectors: [{
+                    name: 'ديوان عام الوزارة',
+                    divisions: ['section1', 'section2']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة جنوب الباطنة',
+                    divisions: ['division1', 'division2']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة شمال الباطنة',
+                    divisions: ['division3', 'division4']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة الداخلية',
+                    divisions: ['division5']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية بمحافظة الظاهرة',
+                    divisions: ['division6', 'division7']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون الدينية الوسطى',
+                    divisions: ['division8']
+                },
+                {
+                    name: 'إدارة الأوقاف والشؤون بمحافظة ظفار',
+                    divisions: ['division9', 'division10']
+                },
+                {
+                    name: 'لجنة الزكاة بولاية السيب',
+                    divisions: ['division11']
+                },
+                {
+                    name: 'لجنة الزكاة بولاية العوابي',
+                    divisions: ['division12']
+                },
+                {
+                    name: 'المؤسسة الوقفية بولاية بوشر',
+                    divisions: ['division13', 'division14']
+                },
+                {
+                    name: 'مؤسسة جابر بن زيد الوقفية',
+                    divisions: ['division15']
+                }
+            ],
+            selectedDivisions: [],
+
+            toggleDivision(division) {
+                const index = this.selectedDivisions.indexOf(division);
+                if (index === -1) {
+                    this.selectedDivisions.push(division);
+                } else {
+                    this.selectedDivisions.splice(index, 1);
+                }
+            },
+
+            isDivisionSelected(division) {
+                return this.selectedDivisions.includes(division);
+            }
+        }));
+    });
+</script>
+
 
 <!-- Font Awesome for icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">

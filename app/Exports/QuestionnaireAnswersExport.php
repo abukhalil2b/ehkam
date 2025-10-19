@@ -31,7 +31,7 @@ class QuestionnaireAnswersExport implements FromCollection, WithHeadings
             $headings[] = $question->question_text;
             // If the question allows a note, add a separate column for it
             if ($question->note_attachment) {
-                $headings[] = $question->question_text . ' - ملاحظة';
+                $headings[] = $question->question_text . ' - ملحوظة';
             }
         }
         

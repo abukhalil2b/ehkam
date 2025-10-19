@@ -14,15 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(PeriodTemplateSeeder::class);
-        $this->call(SectorSeeder::class);
-        $this->call(IndicatorSeeder::class);
-
-        User::create([
-            'name' => 'إدارة النظام',
-            'email' => 'admin@ehkam.com',
-            'password' => Hash::make('admin@ehkam.com'),
-            'user_type'=>'admin'
-        ]);
+        // $this->call(PeriodTemplateSeeder::class);
+        // $this->call(SectorSeeder::class);
+        // $this->call(IndicatorSeeder::class);
     }
 }

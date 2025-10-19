@@ -7,7 +7,9 @@
         <h2 class="text-3xl font-bold mb-2 text-gray-800">إضافة نتائج تقييم</h2>
         <p class="text-xl text-gray-600 mb-6">النشاط: <span
                 class="font-medium text-purple-700">{{ $activity->title }}</span></p>
-
+        <p class="py-1 text-xs text-blue-500">
+            يمكنك حفظ الإستمارة وتعديل الإستمارة بعد الحفظ
+        </p>
         <form method="POST" action="{{ route('assessment_result.store') }}"
             class="bg-white shadow-xl rounded-lg p-6 md:p-8">
             @csrf
@@ -16,6 +18,11 @@
 
             <div class="space-y-8">
                 @forelse ($questions as $question)
+                    @php
+                        // On a create page, the initial value is 1 or the old value from a failed submission
+                        $current_value = old('question_' . $question->id, 1);
+                    @endphp
+
                     <div
                         class="p-5 border border-gray-200 rounded-lg {{ $question->type == 'range' ? 'bg-blue-50' : 'bg-green-50' }}">
 
@@ -31,26 +38,35 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">الإجابة:</label>
 
                             @if ($question->type === 'range')
-                                <div class="flex items-center space-x-4">
-                                    <input type="range" name="question_{{ $question->id }}"
-                                        id="question_{{ $question->id }}" min="1"
-                                        max="{{ $question->max_point }}"
-                                        value="{{ old('question_' . $question->id, 1) }}"
-                                        oninput="document.getElementById('range_value_{{ $question->id }}').innerText = this.value"
-                                        class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer range-lg focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50">
+                                <div class="flex flex-wrap gap-2" id="button_group_{{ $question->id }}">
 
-                                    <span id="range_value_{{ $question->id }}"
-                                        class="text-xl font-bold text-purple-600 w-8 text-center">
-                                        {{ old('question_' . $question->id, 1) }}
-                                    </span>
+                                    @for ($i = 1; $i <= $question->max_point; $i++)
+                                        <button type="button" data-value="{{ $i }}"
+                                            onclick="selectValue({{ $i }}, {{ $question->id }})"
+                                            class="
+                                                    w-10 h-10 flex items-center justify-center 
+                                                    text-base font-semibold border rounded-lg transition-colors duration-150
+                                                    {{ $i == $current_value ? 'bg-purple-600 text-white border-purple-600 shadow-md' : 'bg-white text-gray-700 border-gray-300 hover:bg-purple-50 hover:border-purple-400' }}
+                                                ">
+                                            {{ $i }}
+                                        </button>
+                                    @endfor
+
+                                    {{-- Hidden input to store the selected value for form submission --}}
+                                    <input type="hidden" name="question_{{ $question->id }}"
+                                        id="question_input_{{ $question->id }}" value="{{ $current_value }}">
+
                                 </div>
-                                <p class="text-xs text-gray-500 mt-1">
-                                    (الحد الأقصى: {{ $question->max_point }}. اترك فارغاً لتجاهل السؤال.)
+
+                                <p class="text-xs text-gray-500 mt-2">
+                                    (الحد الأقصى: {{ $question->max_point }}. تم تعيين القيمة إلى 1 تلقائيًا عند إنشاء
+                                    التقييم.)
                                 </p>
+
                                 <div class="mt-4 pt-4 border-t border-gray-200">
                                     <label for="note_{{ $question->id }}"
                                         class="block text-sm font-medium text-gray-700 mb-2">
-                                        ملاحظة خاصة بهذا السؤال (اختياري):
+                                        ملحوظة خاصة بهذا السؤال (اختياري):
                                     </label>
                                     <textarea name="note_{{ $question->id }}" id="note_{{ $question->id }}" rows="2"
                                         class="block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-2 text-sm">{{ old('note_' . $question->id) }}</textarea>
@@ -83,4 +99,39 @@
             </div>
         </form>
     </div>
+
+    {{-- REQUIRED JAVASCRIPT FOR BUTTON FUNCTIONALITY --}}
+    <script>
+        /**
+         * Updates the hidden input and button styles when a score button is clicked.
+         * @param {number} value - The score selected (e.g., 1, 5, 20).
+         * @param {number} questionId - The ID of the question the button belongs to.
+         */
+        function selectValue(value, questionId) {
+            // 1. Update the hidden input field's value, which submits to the form
+            document.getElementById('question_input_' + questionId).value = value;
+
+            // 2. Get the container of all score buttons for this question
+            const buttonGroup = document.getElementById('button_group_' + questionId);
+            const buttons = buttonGroup.querySelectorAll('button');
+
+            // 3. Iterate through all buttons to apply selection styles
+            buttons.forEach(button => {
+                const buttonValue = parseInt(button.getAttribute('data-value'));
+
+                // Define Tailwind classes for selected and unselected states
+                const selectedClasses =
+                    'w-10 h-10 flex items-center justify-center text-base font-semibold border rounded-lg transition-colors duration-150 bg-purple-600 text-white border-purple-600 shadow-md';
+                const unselectedClasses =
+                    'w-10 h-10 flex items-center justify-center text-base font-semibold border rounded-lg transition-colors duration-150 bg-white text-gray-700 border-gray-300 hover:bg-purple-50 hover:border-purple-400';
+
+                // Apply the correct style based on the clicked value
+                if (buttonValue === value) {
+                    button.className = selectedClasses;
+                } else {
+                    button.className = unselectedClasses;
+                }
+            });
+        }
+    </script>
 </x-app-layout>

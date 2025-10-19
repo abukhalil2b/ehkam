@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->bigInteger('project_id');
+            $table->string('current_year',4)->default('2025');
             $table->timestamps();
         });
 
@@ -25,6 +26,8 @@ return new class extends Migration
             $table->string('content')->nullable(); // e.g (how do you advice your relative for purchase from our store?) 
             $table->string('description')->nullable();
             $table->tinyInteger('ordered')->default(1);
+            $table->string('assessment_year')->default('2025');
+            $table->timestamps();
         });
 
         Schema::create('assessment_results', function (Blueprint $table) {
@@ -43,6 +46,10 @@ return new class extends Migration
 
             $table->foreignId('user_id')->constrained('users')->nullable()->onDelete('cascade');
 
+            $table->string('assessment_year')->default('2025');
+
+            $table->foreignId('position_id')->constrained('positions')->nullable()->onDelete('cascade');
+            
             $table->timestamps();
         });
     }

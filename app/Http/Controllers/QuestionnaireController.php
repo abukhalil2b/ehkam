@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Exports\QuestionnaireAnswersExport;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Validation\Rule;
 
 class QuestionnaireController extends Controller
 {
@@ -32,103 +33,153 @@ class QuestionnaireController extends Controller
     public function store(Request $request)
     {
         // return $request->all();
-        // basic shape validation
+
+        // 1. Basic Shape Validation
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'is_active' => 'boolean',
-            'note_attachment' => 'nullable|boolean',
+            'target_response' => 'required|in:open_for_all,registerd_only', // Ensure target_response is validated
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
-            'questions.*.type' => 'required|in:single,multiple,range,text,date',
-            'questions.*.description' => 'nullable|string',
+            // Add 'dropdown' to the allowed types
+            'questions.*.type' => ['required', Rule::in(['single', 'multiple', 'range', 'text', 'date', 'dropdown'])],
             'questions.*.ordered' => 'nullable|integer',
 
-            // Only single/multiple need choices
+            // Fields for linked questions (temporary index from form)
+            'questions.*.parent_question_index' => 'nullable', 
+
+            // Choices and their dependency fields (sent from Alpine.js)
             'questions.*.choices' => 'sometimes|array',
             'questions.*.choices.*.choice_text' => 'nullable|string',
+            'questions.*.choices.*.ordered' => 'nullable|integer',
+            'questions.*.choices.*.parent_question_index' => 'nullable|integer',
+            'questions.*.choices.*.parent_choice_index' => 'nullable|integer',
 
-            // Range questions: min/max values
+            // Range questions: min/max values with comparison
             'questions.*.min_value' => 'nullable|integer',
-            'questions.*.max_value' => 'nullable|integer',
+            'questions.*.max_value' => 'nullable|integer|gte:questions.*.min_value', // Max >= Min
         ]);
-
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // additional conditional checks for each question
+        // 2. Conditional/Existence Validation (e.g., ensuring choices exist)
         $questions = $request->input('questions', []);
 
         foreach ($questions as $i => $q) {
             $type = $q['type'] ?? null;
 
-            // Single / multiple choice validation
-            if (in_array($type, ['single', 'multiple'])) {
+            // Single / multiple / DROPDOWN choice validation: must have choices if non-text type
+            if (in_array($type, ['single', 'multiple', 'dropdown'])) {
                 if (empty($q['choices']) || !is_array($q['choices'])) {
                     return redirect()->back()
-                        ->withErrors(["questions.$i.choices" => "خيارات مطلوبة للأسئلة من نوع اختيار فردي/متعدد."])
+                        ->withErrors(["questions.$i.choices" => "خيارات مطلوبة للأسئلة من نوع اختيار فردي/متعدد/قائمة منسدلة."])
                         ->withInput();
                 }
 
+                // Ensure all choices have non-empty text
                 foreach ($q['choices'] as $j => $c) {
                     $hasText = isset($c['choice_text']) && trim($c['choice_text']) !== '';
                     if (!$hasText) {
                         return redirect()->back()
-                            ->withErrors(["questions.$i.choices.$j" => "يجب أن يحتوي الخيار على نص."])
+                            ->withErrors(["questions.$i.choices.$j.choice_text" => "يجب أن يحتوي الخيار على نص."])
                             ->withInput();
                     }
-                }
-            }
-
-            // Range question validation
-            if ($type === 'range') {
-                $min = $q['min_value'] ?? null;
-                $max = $q['max_value'] ?? null;
-
-                if (!is_numeric($min) || !is_numeric($max)) {
-                    return redirect()->back()
-                        ->withErrors(["questions.$i" => "أسئلة المقياس تتطلب قيم min_value و max_value."])
-                        ->withInput();
-                }
-
-                if ((int)$min > (int)$max) {
-                    return redirect()->back()
-                        ->withErrors(["questions.$i" => "الحد الأدنى يجب أن يكون أصغر أو يساوي الحد الأعلى."])
-                        ->withInput();
                 }
             }
         }
 
 
-        // persist
+        // 3. Persistence (Three-Pass Logic)
         DB::transaction(function () use ($request, $questions) {
+
+            // A. Create Questionnaire
             $questionnaire = Questionnaire::create([
                 'title' => $request->input('title'),
                 'is_active' => $request->boolean('is_active'),
                 'target_response' => $request->input('target_response')
             ]);
 
+            $questionIndexToIdMap = []; // Map: Form Array Index (0, 1, 2...) -> New Question ID
+            $questionChoiceData = [];    // Store choice data for Passes 2 & 3
+
+            // PASS 1: Create all Questions
             foreach ($questions as $index => $q) {
                 $question = Question::create([
                     'questionnaire_id' => $questionnaire->id,
                     'type' => $q['type'],
                     'question_text' => $q['question_text'],
-                    'description' => $q['description'] ?? null,
                     'min_value' => $q['min_value'] ?? null,
                     'max_value' => $q['max_value'] ?? null,
-                    'note_attachment' => isset($q['note_attachment']) && $q['note_attachment'] ? true : false,
                     'ordered' => $q['ordered'] ?? $index,
+                    'parent_question_id' => null, // Will be updated in Pass 2
                 ]);
 
+                // Map the form's temporary index to the newly created Question ID
+                $questionIndexToIdMap[$index] = $question->id;
 
-                if (in_array($q['type'], ['single', 'multiple']) && !empty($q['choices'])) {
+                // Store the original choice data for Pass 2 & 3
+                $questionChoiceData[$index] = [
+                    'question_id' => $question->id,
+                    'choices' => $q['choices'] ?? [],
+                ];
+            }
+
+
+            // PASS 2: Update Question Linkage and Create all Choices
+            foreach ($questions as $qIndex => $q) {
+                $questionId = $questionIndexToIdMap[$qIndex];
+                $type = $q['type'];
+
+                // 2.1. Update Question Linkage (if dependent dropdown)
+                $parentIndex = $q['parent_question_index'] ?? null;
+                if ($parentIndex !== null && isset($questionIndexToIdMap[$parentIndex])) {
+                    // Update the question with its parent's database ID
+                    Question::where('id', $questionId)->update([
+                        'parent_question_id' => $questionIndexToIdMap[$parentIndex]
+                    ]);
+                }
+
+                // 2.2. Create Choices
+                if (in_array($type, ['single', 'multiple', 'dropdown']) && !empty($q['choices'])) {
                     foreach ($q['choices'] as $cIndex => $c) {
-                        Choice::create([
-                            'question_id' => $question->id,
+                        $choice = Choice::create([
+                            'question_id' => $questionId,
                             'choice_text' => $c['choice_text'] ?? null,
-                            'ordered' => $cIndex,
+                            'ordered' => $c['ordered'] ?? $cIndex,
+                            'parent_choice_id' => null, // Will be updated in Pass 3
                         ]);
+
+                        // Store the choice ID in the main choice data array for reference in Pass 3
+                        $questionChoiceData[$qIndex]['choices'][$cIndex]['choice_id'] = $choice->id;
+                    }
+                }
+            }
+
+
+            // PASS 3: Update Choice Linkage (for dependent dropdown choices)
+            foreach ($questionChoiceData as $qIndex => $data) {
+                $choices = $data['choices'];
+                foreach ($choices as $cIndex => $c) {
+                    $parentChoiceIndex = $c['parent_choice_index'] ?? null;
+                    $parentQuestionIndex = $c['parent_question_index'] ?? null;
+
+                    // Check if this choice is dependent (it has parent indices from the form)
+                    if ($parentQuestionIndex !== null && $parentChoiceIndex !== null) {
+
+                        // Get the parent question's choice data array
+                        $parentChoiceDataArray = $questionChoiceData[$parentQuestionIndex]['choices'] ?? null;
+
+                        // Locate the parent choice's newly created ID using the temporary index
+                        if ($parentChoiceDataArray && isset($parentChoiceDataArray[$parentChoiceIndex]['choice_id'])) {
+                            $parentChoiceId = $parentChoiceDataArray[$parentChoiceIndex]['choice_id'];
+
+                            // Update the choice with its parent's database ID
+                            Choice::where('id', $c['choice_id'])->update([
+                                'parent_choice_id' => $parentChoiceId
+                            ]);
+                        }
                     }
                 }
             }
@@ -227,7 +278,6 @@ class QuestionnaireController extends Controller
         return view('questionnaire.take', compact('questionnaire', 'user'));
     }
 
-
     // New method to handle public submission via hash
     public function publicSubmit(Request $request, string $hash)
     {
@@ -247,7 +297,6 @@ class QuestionnaireController extends Controller
         // Pass the authenticated user
         return $this->processSubmission($request, $questionnaire, $user);
     }
-
 
     private function processSubmission(Request $request, Questionnaire $questionnaire, ?User $user = null)
     {
@@ -462,10 +511,7 @@ class QuestionnaireController extends Controller
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
             'questions.*.type' => 'required|in:single,multiple,range,text,date',
-            'questions.*.description' => 'nullable|string',
             'questions.*.ordered' => 'nullable|integer',
-            'questions.*.note_attachment' => 'nullable|boolean',
-
             // Only single/multiple need choices
             'questions.*.choices' => 'sometimes|array',
             'questions.*.choices.*.choice_text' => 'nullable|string',
@@ -537,10 +583,8 @@ class QuestionnaireController extends Controller
                     'questionnaire_id' => $questionnaire->id,
                     'type' => $q['type'],
                     'question_text' => $q['question_text'],
-                    'description' => $q['description'] ?? null,
                     'min_value' => $q['min_value'] ?? null,
                     'max_value' => $q['max_value'] ?? null,
-                    'note_attachment' => isset($q['note_attachment']) && $q['note_attachment'] ? true : false,
                     'ordered' => $q['ordered'] ?? $index,
                 ]);
 

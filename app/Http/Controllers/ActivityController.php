@@ -11,28 +11,36 @@ use Illuminate\Support\Facades\Auth;
 
 class ActivityController extends Controller
 {
-  
+
     public function index()
     {
-        // 1. Get all activities, ordered latest first
-        $activities = Activity::latest()->get();
+        $currentYear = now()->year;
 
-        // 2. Check if the user is authenticated
+        // Eager load the AssessmentResults and their associated User models to show who submitted each assessment, 
+        // preventing the N+1 query problem.
+        $activities = Activity::where('current_year', $currentYear)
+            ->with('assessmentResults.user')
+            ->latest()
+            ->get();
+
+        // 3. Check if the user is authenticated
         $userId = Auth::id();
         $submittedActivityIds = [];
 
         if ($userId) {
-            // 3. Efficiently fetch the IDs of all activities the authenticated user has submitted a result for
-            $submittedActivityIds = AssessmentResult::where('user_id', $userId)
-                ->pluck('activity_id') // Pluck only the activity_id column
+            // 4. Efficiently fetch the IDs of all activities the authenticated user has submitted a result for
+            // NOTE: This part remains the same as it checks against all submitted results, 
+            // regardless of the activity's year, ensuring consistency if a result was submitted later.
+            $submittedActivityIds = AssessmentResult::pluck('activity_id') // Pluck only the activity_id column
                 ->unique()             // Ensure unique IDs
                 ->toArray();
         }
 
-        // Pass both the activities and the array of submitted IDs to the view
+        // Pass activities, the array of submitted IDs, and the current year to the view
         return view('activity.index', [
             'activities' => $activities,
             'submittedActivityIds' => $submittedActivityIds,
+            'currentYear' => $currentYear, // Pass the year for display in the view
         ]);
     }
 
@@ -59,7 +67,8 @@ class ActivityController extends Controller
         // 2. Create the new Activity record
         $activity = Activity::create([
             'title' => $request->title,
-            'project_id' => $request->project_id
+            'project_id' => $request->project_id,
+            'current_year' => now()->year
         ]);
 
         // 3. Redirect with a success message
@@ -68,65 +77,64 @@ class ActivityController extends Controller
 
     public function show(Activity $activity)
     {
-        $allQuestions = AssessmentQuestion::orderBy('ordered')->get();
-        $totalMaxPoints = 0;
+        $currentYear = now()->year;
 
-        // Calculate the theoretical maximum possible score for range questions
+        // 1️⃣ Load only questions for the current assessment year
+        $allQuestions = AssessmentQuestion::where('assessment_year', $currentYear)
+            ->orderBy('ordered')
+            ->get();
+
+        // 2️⃣ Calculate total possible points for range-type questions
         $rangeQuestions = $allQuestions->where('type', 'range');
-        foreach ($rangeQuestions as $q) {
-            $totalMaxPoints += $q->max_point;
-        }
+        $totalMaxPoints = $rangeQuestions->sum('max_point');
 
-        // Fetch all existing results for this activity, grouped by user, and key by question ID for efficiency
-        $assessmentResultsByUser = $activity->assessmentResults()
+        // 3️⃣ Fetch current user's assessment results for this activity & year
+        $userResults = $activity->assessmentResults()
             ->with('assessmentQuestion', 'user')
-            ->get()
-            ->groupBy('user_id');
+            ->whereHas('assessmentQuestion', function ($q) use ($currentYear) {
+                $q->where('assessment_year', $currentYear);
+            })
+            ->get();
 
-        $summary = [];
+        $userSummary = null;
         $hasRangeResults = false;
 
-        foreach ($assessmentResultsByUser as $userId => $userResults) {
+        if ($userResults->isNotEmpty()) {
             $totalScore = 0;
-            $answeredRangeQuestions = 0;
-
-            // Key results by question ID for easy lookup
             $keyedResults = $userResults->keyBy('assessment_question_id');
 
-            // Loop through all range questions to calculate the user's total score
             foreach ($rangeQuestions as $question) {
                 $result = $keyedResults->get($question->id);
                 if ($result && is_numeric($result->range_answer)) {
                     $totalScore += $result->range_answer;
-                    $answeredRangeQuestions++;
                     $hasRangeResults = true;
                 }
             }
 
             $percentage = $totalMaxPoints > 0 ? ($totalScore / $totalMaxPoints) * 100 : 0;
 
-            $summary[$userId] = [
-                'user_name' => $userResults->first()->user->name ?? 'مستخدم غير معروف',
+            $userSummary = [
+                'user_name'   => $userResults->first()->user->name ?? '—',
                 'total_score' => $totalScore,
-                'max_score' => $totalMaxPoints,
-                'percentage' => round($percentage, 1),
-                'results' => $keyedResults, // Keep keyed results for detailed view
+                'max_score'   => $totalMaxPoints,
+                'percentage'  => round($percentage, 1),
+                'results'     => $keyedResults,
             ];
         }
 
-        // Check if the current authenticated user has submitted a result
-        $userSubmitted = AssessmentResult::where('activity_id', $activity->id)
-            ->where('user_id', Auth::id())
-            ->exists();
-
+        // 4️⃣ Determine if user can submit new or update
+        $canSubmitNew = $userResults->isEmpty();
+        $canUpdate    = $userResults->isNotEmpty();
 
         return view('activity.show', compact(
             'activity',
             'allQuestions',
-            'assessmentResultsByUser',
-            'summary',
+            'userResults',
+            'userSummary',
             'hasRangeResults',
-            'userSubmitted'
+            'canSubmitNew',
+            'canUpdate',
+            'currentYear'
         ));
     }
 }

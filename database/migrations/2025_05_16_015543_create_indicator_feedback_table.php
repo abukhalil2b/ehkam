@@ -16,7 +16,6 @@ return new class extends Migration
             $table->id();
             $table->string('target');
             $table->bigInteger('indicator_id');
-            $table->bigInteger('year_statement_id');
             $table->bigInteger('sector_id');
         });
 

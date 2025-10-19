@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        قائمة أسئلة التقييم
+       <div class="text-xl font-extrabold text-gray-900 tracking-tight"> قائمة أسئلة التقييم {{ $currentYear }} . عدد الأسئلة {{ count($questions) }} </div>
     </x-slot>
 
     <!-- Load SortableJS -->
@@ -8,10 +8,6 @@
 
     <div class="container py-8 mx-auto px-4" x-data="sortableQuestions('{{ route('assessment_questions.update_ordered') }}')">
         <div class="flex justify-between items-center mb-8 border-b pb-4">
-            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                إدارة أسئلة التقييم
-            </h2>
-
             <div class="flex items-center space-x-3 space-x-reverse">
                 <a href="{{ route('activity.index') }}"
                     class="px-4 py-2 text-sm font-semibold  rounded-lg shadow-sm transition duration-150 ease-in-out focus:outline-none bg-blue-500 hover:bg-blue-700 text-white">
@@ -72,6 +68,9 @@
                             <th
                                 class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
                                 الإجراءات</th>
+                                <th
+                                class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                                التاريخ</th>
                         </tr>
                     </thead>
                     <!-- The container for SortableJS -->
@@ -107,6 +106,9 @@
                                 <td class="px-6 py-4 text-right text-sm font-medium">
                                     <a href="{{ route('assessment_questions.edit', $question->id) }}"
                                         class="text-indigo-600 hover:text-indigo-900">تعديل</a>
+                                </td>
+                                <td class="px-6 py-4 text-gray-900 font-medium">
+                                    {{ $question->created_at->format('d-m-Y') }}
                                 </td>
                             </tr>
                         @endforeach

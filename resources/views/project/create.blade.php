@@ -1,9 +1,9 @@
 <x-app-layout>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <x-slot name="header">
-        إضافة مشروع جديد
+        إضافة مشروع جديد للمؤشر: {{ $indicator->title }}
     </x-slot>
-    <form action="{{ route('project.store') }}" method="POST">
+    <form action="{{ route('project.store',$indicator->id) }}" method="POST">
         @csrf
 
         <div class="container py-8 mx-auto px-4">

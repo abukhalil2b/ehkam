@@ -1,19 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
-        الأنشطة
+        <div class="flex items-center justify-between">
+            <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">
+                قائمة الأنشطة {{ $currentYear }}
+            </h2>
+            <div class="w-40 px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 shadow-sm">
+                <div> إجمالي: {{ count($activities) }}</div>
+                <div> تم تقييم: {{ count($submittedActivityIds) }}</div>
+            </div>
+        </div>
     </x-slot>
 
     <div class="container py-8 mx-auto px-4">
-        <div class="flex items-baseline justify-between mb-8 pb-3 border-b border-gray-200">
-            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">
-                قائمة الأنشطة
-            </h2>
 
-            <span
-                class="inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full bg-purple-100 text-purple-800 shadow-sm">
-                إجمالي: {{ count($activities) }}
-            </span>
-        </div>
         <a href="{{ route('assessment_questions.index') }}"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             أسئلة الأنشطة
@@ -22,7 +21,7 @@
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             إضافة نشاط جديد
         </a>
-        <a href="{{ route('assessment.report') }}"
+        <a href="{{ route('project_assessment_report') }}"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             تقرير
         </a>
@@ -37,6 +36,10 @@
                             المشروع</th>
                         <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             الإجراءات</th>
+                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            التقييم بواسطة</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            التاريخ</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -67,6 +70,8 @@
                                     @endif
                                 </div>
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->assessmentResults->first()?->user->name ?? '—' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->created_at->format('d-m-Y') }}</td>
                         </tr>
                     @endforeach
                 </tbody>

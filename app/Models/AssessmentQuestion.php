@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AssessmentQuestion extends Model
 {
-    public $timestamps = false;
-    
-    protected $guarded = [];
-    
+     protected $guarded = [];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
     public function assessmentResults()
     {
         return $this->hasMany(AssessmentResult::class);

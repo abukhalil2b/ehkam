@@ -2,7 +2,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <x-slot name="header">
-        إدارة المشروعات لمؤشر:رفع نمو إيرادات الزكاة من خلال الوعي المجتمعي
+       {{ $indicator->title }}
     </x-slot>
 
     <!-- Main Container -->
@@ -27,7 +27,7 @@
 
         <!-- Action Bar with better buttons -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <a href="{{ route('project.create') }}"
+            <a href="{{ route('project.create',$indicator->id) }}"
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                 إضافة مشروع جديد
             </a>
@@ -86,7 +86,10 @@
                                 <td class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
                                     مبادرة تمكينية
                                 </td>
-                                <td class="px-6 py-4">{{ $project->title }}</td>
+                                <td class="px-6 py-4">
+                                    {{ $project->title }}
+                                    {{ $project->current_year }}
+                                </td>
                                 <td class="px-6 py-4 space-y-1">
                                     <p class="text-gray-900 font-medium">لوحة مشروعات أداء وزارة الأوقاف</p>
                                     <p class="text-sm">وزارة الأوقاف والشؤون الدينية</p>
@@ -111,9 +114,13 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 space-y-1">
-                                    <a href="{{ route('project.steps.show', $project->id) }}"
+                                    <a href="{{ route('project.show', $project->id) }}"
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         عرض
+                                    </a>
+                                    <a href="{{ route('project.steps.show', $project->id) }}"
+                                        class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                        الخطوات
                                     </a>
                                     <a href="{{ route('project.edit', $project->id) }}"
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">

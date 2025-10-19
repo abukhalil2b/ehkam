@@ -14,47 +14,54 @@ class AssessmentQuestionController extends Controller
      */
     public function create()
     {
-        // This just loads the form view. No data fetching needed yet.
         return view('assessment_questions.create');
     }
 
-
     public function store(Request $request)
     {
-        // 1. Validate the incoming request data
+        // Validate inputs
         $validatedData = $request->validate([
             'type' => 'required|in:range,text',
-            'content' => 'required|string|nullable|max:255',
+            'content' => 'required|string|max:255',
             'description' => 'nullable|string',
             'max_point' => 'nullable|integer|min:1|max:20',
+            'assessment_year' => 'required|digits:4',
         ]);
 
-        // Clean up the data based on type
+        // Adjust max_point logic
         if ($validatedData['type'] === 'text') {
             $validatedData['max_point'] = null;
         } elseif ($validatedData['type'] === 'range' && empty($validatedData['max_point'])) {
             return back()->withErrors(['max_point' => 'الحد الأقصى للنقاط مطلوب لسؤال المدى.'])->withInput();
         }
 
-        // 2. Determine the next order value and add it to validated data
-        // The new question should be placed at the end of the list
-        $maxOrder = AssessmentQuestion::max('ordered');
+        // Determine order
+        $maxOrder = AssessmentQuestion::where('assessment_year', $validatedData['assessment_year'])->max('ordered');
         $validatedData['ordered'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
 
-        // 3. Create the new AssessmentQuestion record
+        // Create
         AssessmentQuestion::create($validatedData);
 
-        // 4. Redirect with a success message
+        // Redirect
         return redirect()->route('assessment_questions.index')
-            ->with('success', 'تم إنشاء سؤال التقييم بنجاح!');
+            ->with('success', 'تم إنشاء سؤال التقييم بنجاح للسنة ' . $validatedData['assessment_year'] . '!');
     }
 
     public function index()
     {
-        // Fetch all questions, sorted by the 'ordered' column for correct display order
-        $questions = AssessmentQuestion::orderBy('ordered')->get();
+        // 1. Determine the boundaries for the current year
+        $currentYear = now()->year;
+        $startOfYear = now()->startOfYear();
+        $endOfYear = now()->endOfYear();
 
-        return view('assessment_questions.index', compact('questions'));
+        // 2. Fetch questions created within the current year, sorted by the 'ordered' column
+        // IMPORTANT: Change 'created_at' if your table uses a different date column for the year filter.
+        $questions = AssessmentQuestion::whereBetween('created_at', [$startOfYear, $endOfYear])
+            ->orderBy('ordered')
+            ->get();
+
+        // 3. Pass the questions and the current year to the view
+        return view('assessment_questions.index', compact('questions', 'currentYear'));
     }
 
     public function edit(AssessmentQuestion $question)
@@ -116,7 +123,6 @@ class AssessmentQuestionController extends Controller
             DB::commit();
 
             return response()->json(['message' => 'تم تحديث الترتيب بنجاح.'], 200);
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -125,5 +131,4 @@ class AssessmentQuestionController extends Controller
             return response()->json(['message' => 'فشل في تحديث الترتيب.', 'error' => $e->getMessage()], 500);
         }
     }
-
 }

@@ -8,31 +8,45 @@ use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
-    public function projectAssessmentReport()
+    public function projectAssessmentReport($currentYear = null)
     {
-        // 1. Get all Projects with their activities and related assessment results
-        // We use Eager Loading to minimize database queries.
-        $projects = Project::with([
-            'activities.assessmentResults.assessmentQuestion',
-        ])->get();
+        $currentYear = $currentYear ? (int)$currentYear : now()->year;
 
-        // 2. Get the maximum points for each range question (to calculate max possible score)
+        $years = range(2025, 2040);
+        if (! in_array($currentYear, $years)) {
+            abort(403, 'لقد اخترت سنة تقرير الخطأ');
+        }
+
+        // 1. Determine the Current Year
+        $startOfYear = now()->startOfYear();
+        $endOfYear = now()->endOfYear();
+
+        // 2. Get all Projects for the current year with their activities and related assessment results
+        $projects = Project::where('current_year', $currentYear)
+            ->with([
+                'activities.assessmentResults' => fn($q) => $q->whereHas('assessmentQuestion', fn($q) => $q->where('assessment_year', $currentYear))
+                    ->with('assessmentQuestion')
+            ])
+            ->get();
+
+        // 3. Get the maximum points for each range question (to calculate max possible score)
         $maxPointsPerQuestion = AssessmentQuestion::where('type', 'range')
-                                                  ->pluck('max_point', 'id');
-        
+            ->where('assessment_year', $currentYear)
+            ->pluck('max_point', 'id');
+
         $reportData = collect();
 
-        // 3. Loop through Projects and calculate scores
+        // 4. Loop through Projects and calculate scores
         foreach ($projects as $project) {
             $projectTotalScore = 0;
             $projectTotalMaxScore = 0;
             $projectActivities = collect();
 
-            // 4. Loop through Activities within the project
+            // 5. Loop through Activities within the project
             foreach ($project->activities as $activity) {
                 $activityTotalScore = 0;
                 $activityTotalMaxScore = 0;
-                
+
                 // Group results by question ID to easily check scores
                 $resultsByQuestion = $activity->assessmentResults->keyBy('assessment_question_id');
 
@@ -47,11 +61,11 @@ class ReportController extends Controller
                         $activityTotalMaxScore += $maxScore;
                     }
                 }
-                
+
                 // Calculate percentage for the current activity
-                $activityPercentage = $activityTotalMaxScore > 0 
-                                      ? round(($activityTotalScore / $activityTotalMaxScore) * 100, 1) 
-                                      : 0;
+                $activityPercentage = $activityTotalMaxScore > 0
+                    ? round(($activityTotalScore / $activityTotalMaxScore) * 100, 1)
+                    : 0;
 
                 // Accumulate totals for the project
                 $projectTotalScore += $activityTotalScore;
@@ -65,11 +79,11 @@ class ReportController extends Controller
                     'percentage' => $activityPercentage,
                 ]);
             }
-            
+
             // Calculate final project percentage
-            $projectFinalPercentage = $projectTotalMaxScore > 0 
-                                      ? round(($projectTotalScore / $projectTotalMaxScore) * 100, 1) 
-                                      : 0;
+            $projectFinalPercentage = $projectTotalMaxScore > 0
+                ? round(($projectTotalScore / $projectTotalMaxScore) * 100, 1)
+                : 0;
 
             // Store final project data
             $reportData->push([
@@ -81,6 +95,7 @@ class ReportController extends Controller
             ]);
         }
 
-        return view('reports.assessment_report', compact('reportData'));
+        // 6. Pass the report data AND the current year to the view
+        return view('reports.assessment_report', compact('reportData', 'currentYear', 'years'));
     }
 }

@@ -20,7 +20,7 @@
                 <div class="flex items-center space-x-4 rtl:space-x-reverse">
                     <label for="measurementFrequencySelect" class="font-semibold text-gray-700">دورية قياس
                         المستهدف:</label>
-                    <select id="measurementFrequencySelect" x-model="measurementFrequency"
+                    <select id="measurementFrequencySelect" x-model="measurementFrequency" name="measurement_frequency"
                         @change="updateNewContributePeriods()"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                         <option value="annually">سنوي</option>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\Sector;
 use Illuminate\Http\Request;
@@ -11,21 +12,25 @@ class ProjectController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Indicator $indicator)
     {
-        $projects = Project::all();
+        $current_year = now()->year;
 
-        return view('project.index', compact('projects'));
+        $projects = Project::where('indicator_id', $indicator->id)
+            ->where('current_year', $current_year)
+            ->get();
+
+        return view('project.index', compact('projects', 'indicator'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Indicator $indicator)
     {
         $sectors = Sector::all();
 
-        return view('project.create', compact('sectors'));
+        return view('project.create', compact('sectors', 'indicator'));
     }
 
 
@@ -35,9 +40,11 @@ class ProjectController extends Controller
         $validatedData = $request->validate([
             'title' => 'required|string|max:255|unique:projects,title', // Ensure title is unique
             'description' => 'nullable|string',
-            // Check that the sector_id exists in the 'sectors' table
             'sector_id' => 'required|integer|exists:sectors,id',
+            'indicator_id' => 'required|integer|exists:indicators,id',
         ]);
+
+        $validatedData['current_year'] = now()->year;
 
         // 2. Create the new Project record
         $project = Project::create($validatedData);
@@ -92,5 +99,10 @@ class ProjectController extends Controller
     public function stepsShow(Project $project)
     {
         return view('project.steps.show', compact('project'));
+    }
+
+    public function taskShow(Project $project)
+    {
+        return view('project.task.show', compact('project'));
     }
 }
