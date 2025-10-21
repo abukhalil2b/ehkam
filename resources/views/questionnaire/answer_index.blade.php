@@ -1,7 +1,6 @@
 <x-app-layout>
     <div class="max-w-5xl mx-auto mt-10 space-y-8">
 
-        <!-- Header -->
         <div class="text-center space-y-2">
             <h1 class="text-2xl font-bold text-gray-800">📋 إجابات الاستبيان</h1>
             <p class="text-gray-500 text-sm">
@@ -9,28 +8,36 @@
             </p>
         </div>
 
-        <!-- Responses Section -->
         <div class="bg-white rounded-2xl shadow p-6">
             @if ($questionnaire->answers->count() > 0)
                 @foreach ($questionnaire->answers->groupBy('user_id')->take(10) as $userAnswers)
                     @php
                         $first = $userAnswers->first();
-                        $user = $first->user;
+                        $user = $first->user; // $user can be null
+                        
+                        // ✅ FIX 1: Safely determine the display name
+                        $displayName = optional($user)->name ?? 'مستجيب عام (ضيف)';
+                        
+                        // ✅ FIX 2: Get the first letter safely, defaulting to a symbol
+                        $firstLetter = $user ? mb_substr($user->name, 0, 1) : '?';
+                        
                         $date = $first->created_at->diffForHumans();
                     @endphp
 
                     <div x-data="{ open: {{ $loop->first ? 'true' : 'false' }} }"
                         class="border border-gray-200 rounded-xl mb-5 overflow-hidden transition">
-                        <!-- Header -->
                         <button @click="open = !open"
                             class="flex justify-between items-center w-full px-5 py-4 bg-gray-50 hover:bg-gray-100 transition-colors">
                             <div class="flex items-center gap-3">
                                 <div
-                                    class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold">
-                                    {{ mb_substr($user->name, 0, 1) }}
+                                    class="w-10 h-10 flex items-center justify-center rounded-full text-white font-semibold 
+                                    {{-- Use a different color if it's a guest user --}}
+                                    {{ $user ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gray-400' }}">
+                                    {{ $firstLetter }}
                                 </div>
                                 <div>
-                                    <p class="font-medium text-gray-800">{{ $user->name }}</p>
+                                    {{-- ✅ FIX 3: Use the safely determined display name --}}
+                                    <p class="font-medium text-gray-800">{{ $displayName }}</p> 
                                     <p class="text-xs text-gray-500">{{ $date }}</p>
                                 </div>
                             </div>
@@ -41,16 +48,15 @@
                             </svg>
                         </button>
 
-                        <!-- Content -->
                         <div x-show="open" x-collapse class="p-5 space-y-4 bg-white">
                             @foreach ($userAnswers as $answer)
                                 <div class="p-4 border border-gray-100 rounded-lg shadow-sm hover:shadow-md transition">
                                     <div class="flex justify-between items-start mb-3">
                                         <h3 class="text-sm font-semibold text-gray-800">
-                                            {{ $answer->question->question_text }}
+                                            {{ optional($answer->question)->question_text }}
                                         </h3>
                                         <span class="px-2 py-1 text-xs bg-gray-100 rounded-full text-gray-600">
-                                            @switch($answer->question->type)
+                                            @switch(optional($answer->question)->type)
                                                 @case('single')
                                                     🟢 اختيار فردي
                                                 @break
@@ -71,26 +77,27 @@
                                     </div>
 
                                     <div class="text-gray-700 leading-relaxed">
-                                        @if ($answer->question->type === 'text')
+                                        @if (optional($answer->question)->type === 'text')
                                             <div
                                                 class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-gray-800">
                                                 {{ $answer->text_answer ?: '—' }}
                                             </div>
-                                        @elseif($answer->question->type === 'range')
+                                        @elseif(optional($answer->question)->type === 'range')
                                             <div class="flex items-center gap-3 text-sm">
                                                 <span
                                                     class="bg-blue-100 text-blue-700 font-semibold px-3 py-1 rounded-lg text-base">
                                                     {{ $answer->range_value }}
                                                 </span>
-                                                @if ($answer->question->choices->first())
+                                                {{-- Note: Accessing choices for range type might be brittle; ensure the structure is correct --}}
+                                                @if (optional(optional($answer->question)->choices)->first())
                                                     <span class="text-gray-500">
-                                                        من {{ $answer->question->choices->first()->min_value }}
-                                                        إلى {{ $answer->question->choices->first()->max_value }}
+                                                        من {{ optional(optional($answer->question)->choices)->first()->min_value }}
+                                                        إلى {{ optional(optional($answer->question)->choices)->first()->max_value }}
                                                     </span>
                                                 @endif
                                             </div>
-                                        @elseif(in_array($answer->question->type, ['single', 'multiple']))
-                                            @php $selected = $answer->choices; @endphp
+                                        @elseif(in_array(optional($answer->question)->type, ['single', 'multiple', 'dropdown']))
+                                            @php $selected = $answer->choices; @endphp 
                                             @if ($selected->count() > 0)
                                                 <div class="flex flex-wrap gap-2 mt-1">
                                                     @foreach ($selected as $choice)
@@ -109,6 +116,7 @@
                             @endforeach
 
                             <div class="text-left">
+                                {{-- The 'answer_show' route typically expects the Answer ID, which is $first->id --}}
                                 <a href="{{ route('questionnaire.answer_show', $first->id) }}"
                                     class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 font-medium mt-3">
                                     <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +130,6 @@
                     </div>
                 @endforeach
 
-                <!-- Show more -->
                 @if ($questionnaire->answers->groupBy('user_id')->count() > 10)
                     <div class="text-center">
                         <button

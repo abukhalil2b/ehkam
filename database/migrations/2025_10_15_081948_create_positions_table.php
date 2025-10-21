@@ -66,6 +66,7 @@ return new class extends Migration
 
         // B. User Position History Table (The corrected pivot/history table)
         Schema::create('user_position_history', function (Blueprint $table) {
+            $table->id();
             // Foreign Keys
             $table->foreignId('position_id')->constrained('positions')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
@@ -83,10 +84,6 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('organizational_units')
                 ->onDelete('set null');
-
-
-            // Primary key must include start_date to allow a user to hold the same position multiple times.
-            $table->primary(['position_id', 'user_id', 'start_date'], 'user_position_primary');
 
             $table->timestamps(); // Record when this history entry was created/updated in the database.
         });

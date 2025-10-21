@@ -12,4 +12,9 @@ class Project extends Model
         // A Project has many Activities. The 'activities' table must contain the foreign key 'project_id'.
         return $this->hasMany(Activity::class);
     }
+
+    public function steps()
+    {
+        return $this->hasMany(Step::class);
+    }
 }

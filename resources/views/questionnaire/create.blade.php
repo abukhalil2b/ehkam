@@ -26,7 +26,6 @@
                 </div>
             </div>
 
-            ---
             {{-- Questions list --}}
             <div>
                 <div class="flex justify-between items-center mb-4">
@@ -179,7 +178,6 @@
                 </div>
             </div>
 
-            ---
             <div class="text-left mt-6">
                 <x-primary-button>حفظ الاستبيان</x-primary-button>
             </div>

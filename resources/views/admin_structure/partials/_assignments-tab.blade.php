@@ -39,10 +39,10 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-700 min-w-[150px]">
-                                @if ($user->currentPosition)
+                                @if ($user->currentPositionHistory)
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse">
                                         <span class="material-icons text-indigo-500 text-lg">badge</span>
-                                        <span class="font-bold text-indigo-600">{{ $user->currentPosition->title }}</span>
+                                        <span class="font-bold text-indigo-600">{{ $user->currentPositionHistory->title }}</span>
                                     </div>
                                 @else
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse text-red-500">
@@ -52,10 +52,10 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-700 min-w-[150px]">
-                                @if ($user->currentUnit)
+                                @if ($user->currentUnitHistory)
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse">
                                         <span class="material-icons text-green-500 text-lg">corporate_fare</span>
-                                        <span>{{ $user->currentUnit->name }} <span class="text-gray-500">({{ $user->currentUnit->type }})</span></span>
+                                        <span>{{ $user->currentUnitHistory->name }} <span class="text-gray-500">({{ $user->currentUnitHistory->type }})</span></span>
                                     </div>
                                 @else
                                     <div class="flex items-center space-x-2 rtl:space-x-reverse text-red-500">

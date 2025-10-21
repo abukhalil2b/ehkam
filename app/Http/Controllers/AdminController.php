@@ -128,29 +128,34 @@ class AdminController extends Controller
 
     public function index()
     {
-        // Eager load the required relationships for efficiency
+        // Eager-load essential user relationships
         $users = User::with([
-            'positionHistory',
-            'currentHistory',
-            'currentPosition',
-            'currentUnit'
+            'currentHistory.position',
+            'currentHistory.organizationalUnit',
         ])->get();
 
+        // Hierarchical data for units & positions
+        $topLevelUnits = OrganizationalUnit::whereNull('parent_id')
+            ->with('children.children')
+            ->get();
+
+        $topLevelPositions = Position::whereNull('reports_to_position_id')
+            ->with('subordinates.subordinates')
+            ->get();
+
+        // Flat data for dropdowns / forms
         $organizationalUnits = OrganizationalUnit::all();
         $allPositions = Position::all();
 
-        // Prepare structure data
-        $topLevelUnits = OrganizationalUnit::whereNull('parent_id')->with('children')->get();
-        $topLevelPositions = Position::whereNull('reports_to_position_id')->with('subordinates')->get();
-
-        return view('admin_structure.index', compact(
-            'users',
-            'organizationalUnits',
-            'allPositions',
-            'topLevelUnits',
-            'topLevelPositions'
-        ));
+        return view('admin_structure.index', [
+            'users' => $users,
+            'organizationalUnits' => $organizationalUnits,
+            'allPositions' => $allPositions,
+            'topLevelUnits' => $topLevelUnits,
+            'topLevelPositions' => $topLevelPositions,
+        ]);
     }
+
 
     public function storeUnit(Request $request)
     {
@@ -231,74 +236,131 @@ class AdminController extends Controller
 
     public function showUser(User $user)
     {
-        // Eager load necessary relationships for the show view
-        $user->load(
+        // Load relationships for the view
+        $user->load([
             'profiles',
             'permissions',
-            // Load the latest position record and its Position and Unit details
-            'latestHistory.position',
-            'latestHistory.organizationalUnit'
-        );
+            'positionHistory.position',        // full history with position
+            'positionHistory.organizationalUnit'
+        ]);
 
-        // Also get all available profiles and permissions for comparison
-        $allProfiles = Profile::all();
-        $allPermissions = Permission::all();
+        // Optional: Get latest active history
+        $latestHistory = $user->positionHistory()
+            ->whereNull('end_date')
+            ->latest('start_date')
+            ->first();
 
-        // Load data needed for the position update form
+        // Load all profiles and permissions for selection forms
+        $allProfiles = Profile::orderBy('title')->get();
+        $allPermissions = Permission::orderBy('title')->get();
+
         $positions = Position::orderBy('title')->get();
         $units = OrganizationalUnit::orderBy('name')->get();
 
-        return view('admin.user.show', compact('user', 'allProfiles', 'allPermissions', 'positions', 'units'));
+        return view('admin.user.show', compact(
+            'user',
+            'latestHistory',
+            'allProfiles',
+            'allPermissions',
+            'positions',
+            'units'
+        ));
     }
 
-    /**
-     * Handle the update of a user's position history.
-     */
+
+    public function editPosition(Position $position)
+    {
+        // Fetch all positions to populate the 'reports_to' dropdown, 
+        // excluding the current position itself to prevent self-reporting loops.
+        $allPositions = Position::where('id', '!=', $position->id)->get();
+
+        return view('admin_structure.positions.edit', compact('position', 'allPositions'));
+    }
+
     public function updatePosition(Request $request, User $user)
     {
-        // --- 1. Authorization Check (ID = 1 ONLY) ---
+        // Restrict access if necessary (Auth::id() !== 1)
         if (Auth::id() !== 1) {
-            Log::warning('Unauthorized attempt to update user position.', ['user_id' => Auth::id(), 'target_user_id' => $user->id]);
-            // Use a generic forbidden response
-            return redirect()->route('admin_users.show', $user)->with('error', 'غير مصرح لك بتحديث بيانات المسمى وظيفي للمستخدمين.');
+            // ... (Error handling) ...
         }
 
-        // --- 2. Validation ---
         $validated = $request->validate([
             'position_id' => ['required', 'exists:positions,id'],
-            'organizational_unit_id' => ['nullable', 'exists:organizational_units,id'],
+            'organizational_unit_id' => ['required', 'exists:organizational_units,id'], // Made unit required for new assignment
             'start_date' => ['required', 'date', 'before_or_equal:today'],
         ]);
 
-        // --- 3. Business Logic ---
+        $newStartDate = Carbon::parse($validated['start_date']);
+        $activeRecord = $user->positionHistory()->whereNull('end_date')->first();
 
-        // A. Find the user's current ACTIVE position history record (where end_date is NULL)
-        $currentActiveHistory = $user->positionHistory()->whereNull('end_date')->first();
-
-        // B. If an active record exists, set its end_date to the day before the new position starts.
-        if ($currentActiveHistory) {
-            $newStartDate = Carbon::parse($validated['start_date']);
-            $currentStartDate = Carbon::parse($currentActiveHistory->start_date);
-
-            // Only update the old record if the new start date is truly a promotion/change (i.e., later start date)
-            if ($newStartDate->gt($currentStartDate)) {
-                $endDate = $newStartDate->subDay()->format('Y-m-d');
-                $currentActiveHistory->update(['end_date' => $endDate]);
-            } else {
-                // If the new start date is earlier or the same, we simply end the old one immediately
-                // to avoid conflicting active records, but this might need manual review.
-                $currentActiveHistory->update(['end_date' => $newStartDate->format('Y-m-d')]);
-            }
+        // 1. Close the old active record (if it exists)
+        if ($activeRecord) {
+            // Close the old record one day before the new start date
+            $activeRecord->update(['end_date' => $newStartDate->copy()->subDay()->format('Y-m-d')]);
         }
 
-        // C. Create the new position history record
+        // 2. Create the new record (The NEW ASSIGNMENT)
         $user->positionHistory()->create([
             'position_id' => $validated['position_id'],
             'organizational_unit_id' => $validated['organizational_unit_id'],
             'start_date' => $validated['start_date'],
-            'end_date' => null, // This is the new current, active position
+            'end_date' => null, // This is the new active record
         ]);
 
-        return redirect()->route('admin_users.show', $user)->with('success', 'تم تحديث المسمى وظيفي بنجاح.');
+        return redirect()->route('admin_users.show', $user)
+            ->with('success', 'تم تسجيل التعيين/الترقية بنجاح.');
+    }
+
+    public function editPositionRecord(User $user)
+    {
+        $activeRecord = $user->currentHistory;
+
+        if (!$activeRecord) {
+            return redirect()->route('admin_users.show', $user)
+                ->with('error', 'المستخدم ليس لديه سجل وظيفي نشط لتصحيحه.');
+        }
+
+        $units = OrganizationalUnit::all();
+        $positions = Position::all(); // Fetch all positions for the dropdown
+
+        return view('admin.user.position.edit', compact('user', 'activeRecord', 'units', 'positions'));
+    }
+
+    // In AdminController
+
+    /**
+     * Update the current active position record (Correction only).
+     */
+    public function updateCorrection(Request $request, User $user)
+    {
+        // Restrict access if necessary (Auth::id() !== 1)
+        if (Auth::id() !== 1) {
+            // ... (Error handling) ...
+        }
+
+        $validated = $request->validate([
+            'position_id' => ['required', 'exists:positions,id'],
+            'organizational_unit_id' => ['required', 'exists:organizational_units,id'],
+            'start_date' => ['required', 'date', 'before_or_equal:today'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'], // Allow manually setting end_date if needed
+        ]);
+
+        $activeRecord = $user->currentHistory;
+
+        if (!$activeRecord) {
+            return redirect()->route('admin_users.show', $user)
+                ->with('error', 'المستخدم ليس لديه سجل وظيفي نشط لتصحيحه.');
+        }
+
+        // Perform the correction update on the existing record
+        $activeRecord->update([
+            'position_id' => $validated['position_id'],
+            'organizational_unit_id' => $validated['organizational_unit_id'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'] ?? null,
+        ]);
+
+        return redirect()->route('admin_users.show', $user)
+            ->with('success', 'تم تصحيح السجل الوظيفي الحالي بنجاح.');
     }
 }

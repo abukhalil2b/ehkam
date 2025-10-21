@@ -14,6 +14,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
+use App\Http\Controllers\StepController;
 use App\Http\Controllers\TaskController;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Route;
@@ -93,7 +94,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:project.create')
         ->name('project.create');
 
-    Route::post('project/store/{indicator}', [ProjectController::class, 'store'])
+    Route::post('project/store', [ProjectController::class, 'store'])
         ->middleware('permission:project.create')
         ->name('project.store');
 
@@ -101,12 +102,30 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:project.index')
         ->name('project.show');
 
-    Route::get('project/steps/show/{project}', [ProjectController::class, 'stepsShow'])
-        ->middleware('permission:project.index') // Assuming view access is sufficient
-        ->name('project.steps.show');
     Route::get('project/task/show/{project}', [ProjectController::class, 'taskShow'])
         ->middleware('permission:project.index') // Assuming view access is sufficient
         ->name('project.task.show');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('step/index/{project}', [StepController::class, 'index'])
+        ->name('step.index');
+
+    Route::post('step/store/{project}', [StepController::class, 'store'])->name('step.store');
+
+    Route::get('step/show/{step}', [StepController::class, 'show'])
+        ->name('step.show');
+
+    Route::post('step/{step}/upload_evidence', [StepController::class, 'uploadEvidence'])->name('step.uploadEvidence');
+
+    Route::get('step/{step}/edit', [StepController::class, 'edit'])->name('step.edit');
+Route::put('step/{step}', [StepController::class, 'update'])->name('step.update');
+
+
+    Route::delete('step/{step}', [StepController::class, 'destroy'])
+    ->name('step.destroy');
+
 });
 
 // ACTIVITY & ASSESSMENT ROUTES
@@ -179,7 +198,8 @@ Route::group(['middleware' => ['auth']], function () {
 Route::get('statistic/index', [StatisticController::class, 'index'])
     ->middleware('permission:statistic.index')
     ->name('statistic.index');
-
+Route::get('questionnaire/{questionnaire}/share', [QuestionnaireController::class, 'shareLink'])
+    ->name('questionnaire.share_link');
 Route::get('statistic/quran', [StatisticController::class, 'quran'])
     ->middleware('permission:statistic.quran')
     ->name('statistic.quran');
@@ -289,8 +309,24 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 // ADMINISTRATION ROUTES
+
+// --- API Route (Protected by auth middleware) ---
+Route::group(['middleware' => ['auth', 'permission:admin_structure.index']], function () {
+    // API Route for Dynamic Position Loading (used by user assignment forms)
+    Route::get('admin/api/positions-by-unit', [AdminController::class, 'getPositionsByUnit'])
+        ->name('admin.api.positions_by_unit');
+});
+
+// --- Main Admin Routes (Protected by auth middleware) ---
 Route::group(['middleware' => ['auth']], function () {
-    // User Management
+
+    /*
+    |--------------------------------------------------------------------------
+    | USER MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    // User Creation
     Route::get('admin_users/create', [AdminController::class, 'createUser'])
         ->middleware('permission:admin_users.create')
         ->name('admin_users.create');
@@ -298,52 +334,82 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin_users/store', [AdminController::class, 'storeUser'])
         ->middleware('permission:admin_users.create')
         ->name('admin_users.store');
-    // NEW: User Listing and Viewing Routes
+
+    // User Listing and Viewing
     Route::get('admin_users/index', [AdminController::class, 'indexUsers'])
         ->middleware('permission:admin_users.index')
         ->name('admin_users.index');
 
     Route::get('admin_users/show/{user}', [AdminController::class, 'showUser'])
-        ->middleware('permission:admin_users.index') // Viewing requires the index permission
-        ->name('admin_users.show');
-    // Structure Management
-    Route::get('admin_structure/index', [AdminController::class, 'index'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin_structure.index');
+        ->middleware('permission:admin_users.index')
+        ->name('admin_users.show'); // Matches your preferred style
 
-    Route::post('admin_unit/store', [AdminController::class, 'storeUnit'])
-        ->middleware('permission:admin_structure.index') // CRUD for structure
-        ->name('admin.unit.store');
-
-    Route::post('admin_position/store', [AdminController::class, 'storePosition'])
-        ->middleware('permission:admin_structure.index') // CRUD for structure
-        ->name('admin.position.store');
-
-    Route::post('admin_assign_user/store', [AdminController::class, 'assignUser'])
-        ->middleware('permission:admin_structure.index') // Assigning users
-        ->name('admin.assign.store');
-
-    // USER ASSIGNMENT
+    // Permissions Assignment
     Route::get('admin_users/permissions/edit/{user}', [AdminController::class, 'editUserPermissions'])
-        ->middleware('permission:admin_users.assign') // New permission slug
+        ->middleware('permission:admin_users.assign')
         ->name('admin_users.permissions.edit');
 
     Route::put('admin_users/permissions/{user}', [AdminController::class, 'updateUserPermissions'])
         ->middleware('permission:admin_users.assign')
         ->name('admin_users.permissions.update');
 
-    Route::put('admin_users/update_position/{user}', [AdminController::class, 'updatePosition'])
+    // POSITION ASSIGNMENT (New Promotion/Transfer)
+    Route::put('admin_users/{user}/position', [AdminController::class, 'updatePosition'])
+        ->middleware('permission:admin_users.assign')
         ->name('admin_users.update_position');
-});
 
-// API Route (Access usually tied to the calling page's permission)
-Route::get('/api/positions-by-unit', [AdminController::class, 'getPositionsByUnit'])
-    ->name('admin.api.positions_by_unit');
+    // 🌟 NEW: CORRECTION ROUTES 🌟
+
+    // 1. Show Correction Form
+    Route::get('admin_users/position/edit/{user}', [AdminController::class, 'editPositionRecord'])
+        ->middleware('permission:admin_users.assign')
+        ->name('admin_users.position.edit');
+
+    // 2. Handle Correction Update
+    Route::put('admin_users/{user}/position/correct-record', [AdminController::class, 'updateCorrection'])
+        ->middleware('permission:admin_users.assign')
+        ->name('admin_users.update_correction');
+
+    /*
+    |--------------------------------------------------------------------------
+    | STRUCTURE MANAGEMENT
+    |--------------------------------------------------------------------------
+    */
+
+    // Main Structure Index
+    Route::get('admin_structure/index', [AdminController::class, 'index'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin_structure.index');
+
+    // Unit Creation
+    Route::post('admin_unit/store', [AdminController::class, 'storeUnit'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin.unit.store');
+
+    // Position Creation
+    Route::post('admin_position/store', [AdminController::class, 'storePosition'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin.position.store');
+
+    // Generic User Assignment 
+    Route::post('admin_assign_user/store', [AdminController::class, 'assignUser'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin.assign.store');
+
+    // Position Editing Routes (For the Position Model structure)
+
+    Route::get('admin/structure/positions/{position}/edit', [AdminController::class, 'editPosition'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin_structure.positions.edit');
+
+    Route::put('admin/structure/positions/{position}', [AdminController::class, 'updatePositionData'])
+        ->middleware('permission:admin_structure.index')
+        ->name('admin_structure.positions.update');
+});
 
 
 // PERMISSION MANAGEMENT
-Route::group(['middleware' => ['auth', 'permission:permission.index']], function () {
-    // READ (Index)
+Route::group(['middleware' => ['auth']], function () {
     Route::get('permission/index', [PermissionController::class, 'index'])->name('permission.index');
 });
 

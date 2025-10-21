@@ -18,16 +18,11 @@ class OrganizationalUnit extends Model
     { 
         return $this->hasMany(OrganizationalUnit::class, 'parent_id'); 
     }
-    
-    // 👇 THIS IS THE MISSING OR INCORRECT METHOD THAT CAUSED THE ERROR
-    /**
-     * Get the positions allowed within this organizational unit.
-     * This uses the many-to-many relationship via the pivot table.
-     */
+
     public function positions()
     {
         // The second argument 'organizational_unit_position' specifies the pivot table name.
         return $this->belongsToMany(Position::class, 'organizational_unit_position');
     }
-    // 👆 END OF FIX
+   
 }

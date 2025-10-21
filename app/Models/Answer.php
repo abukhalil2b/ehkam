@@ -33,4 +33,5 @@ class Answer extends Model
         if (!$this->choice_ids) return collect();
         return Choice::whereIn('id', $this->choice_ids)->orderBy('ordered')->get();
     }
+    
 }

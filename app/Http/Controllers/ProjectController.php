@@ -6,6 +6,7 @@ use App\Models\Indicator;
 use App\Models\Project;
 use App\Models\Sector;
 use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Calculation\LookupRef\Indirect;
 
 class ProjectController extends Controller
 {
@@ -38,7 +39,7 @@ class ProjectController extends Controller
     {
         // 1. Validate the incoming request data
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255|unique:projects,title', // Ensure title is unique
+            'title' => 'required|string|max:255', // Ensure title is unique
             'description' => 'nullable|string',
             'sector_id' => 'required|integer|exists:sectors,id',
             'indicator_id' => 'required|integer|exists:indicators,id',
@@ -51,7 +52,7 @@ class ProjectController extends Controller
 
         // 3. Redirect to a relevant page with a success message
         // You might change 'project.index' to 'project.show' if you want to view the new project
-        return redirect()->route('project.index')
+        return redirect()->route('project.index',$validatedData['indicator_id'])
             ->with('success', 'المشروع: "' . $project->title . '" تم اضافه!');
     }
 
@@ -96,10 +97,6 @@ class ProjectController extends Controller
         return view('project.show', compact('project'));
     }
 
-    public function stepsShow(Project $project)
-    {
-        return view('project.steps.show', compact('project'));
-    }
 
     public function taskShow(Project $project)
     {

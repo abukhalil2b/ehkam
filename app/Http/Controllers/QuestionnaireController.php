@@ -14,6 +14,7 @@ use App\Exports\QuestionnaireAnswersExport;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\Rule;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QuestionnaireController extends Controller
 {
@@ -25,6 +26,36 @@ class QuestionnaireController extends Controller
         return view('questionnaire.index', compact('questionnaires'));
     }
 
+    // In QuestionnaireController.php
+
+
+    public function shareLink(Questionnaire $questionnaire)
+    {
+        // --- 1. Determine the Public Access URL ---
+        $accessUrl = null;
+        $qrCode = null;
+
+        if ($questionnaire->target_response === 'open_for_all' && $questionnaire->public_hash) {
+            // Use the public hash route for 'open_for_all'
+            $routeUrl = route('questionnaire.public_take', $questionnaire->public_hash);
+            $accessUrl = url($routeUrl); // Get the absolute URL for the QR code
+
+        } elseif ($questionnaire->target_response === 'registerd_only') {
+            // Use the direct authenticated route for 'registerd_only'
+            $routeUrl = route('questionnaire.take', $questionnaire);
+            $accessUrl = url($routeUrl); // Get the absolute URL for the QR code
+        }
+
+        // --- 2. Generate QR Code (if a valid URL exists and the survey is active) ---
+        if ($accessUrl && $questionnaire->is_active) {
+            // Generate the QR code as an SVG string
+            $qrCode = QrCode::size(300)
+                ->generate($accessUrl);
+        }
+
+        // 3. Pass data to a new view
+        return view('questionnaire.share_link', compact('questionnaire', 'accessUrl', 'qrCode'));
+    }
     public function create()
     {
         return view('questionnaire.create');
@@ -46,7 +77,7 @@ class QuestionnaireController extends Controller
             'questions.*.ordered' => 'nullable|integer',
 
             // Fields for linked questions (temporary index from form)
-            'questions.*.parent_question_index' => 'nullable', 
+            'questions.*.parent_question_index' => 'nullable',
 
             // Choices and their dependency fields (sent from Alpine.js)
             'questions.*.choices' => 'sometimes|array',
@@ -95,11 +126,19 @@ class QuestionnaireController extends Controller
         DB::transaction(function () use ($request, $questions) {
 
             // A. Create Questionnaire
-            $questionnaire = Questionnaire::create([
+            $data = [
                 'title' => $request->input('title'),
                 'is_active' => $request->boolean('is_active'),
                 'target_response' => $request->input('target_response')
-            ]);
+            ];
+
+            // ADDED: Generate hash if 'open_for_all' is selected upon creation
+            if ($request->input('target_response') === 'open_for_all') {
+                $data['public_hash'] = Str::random(32);
+            }
+            // No 'else' needed; it defaults to null if not set
+
+            $questionnaire = Questionnaire::create($data);
 
             $questionIndexToIdMap = []; // Map: Form Array Index (0, 1, 2...) -> New Question ID
             $questionChoiceData = [];    // Store choice data for Passes 2 & 3
@@ -239,7 +278,7 @@ class QuestionnaireController extends Controller
         // Enforce permissions for the authenticated route
         if ($questionnaire->target_response !== 'registerd_only') {
             // Redirect registered users to the public URL if it's open for all
-            if ($questionnaire->is_open_for_all) {
+            if ($questionnaire->public_hash) { // Using public_hash as the check
                 return redirect()->route('questionnaire.public_take', $questionnaire->public_hash);
             }
             // Or just abort if the settings are wrong
@@ -493,8 +532,14 @@ class QuestionnaireController extends Controller
 
     public function answer_index(Questionnaire $questionnaire)
     {
+        // ✅ FIX: Eager load the 'answers' collection and its nested relationships
+        // The view relies on answers, user, question, and choices being present.
         $questionnaire->load([
-            'questions.choices',
+            'questions.choices', // Needed for question options (min/max for range)
+            'answers.user',      // Needed for $first->user->name
+            'answers.question',  // Needed for $answer->question->question_text
+            // REMOVED: 'answers.choices' because 'choices' is an accessor (getChoicesAttribute)
+            // and cannot be efficiently eager loaded using this syntax. 
         ])->loadCount([
             'questions',
             'answers',

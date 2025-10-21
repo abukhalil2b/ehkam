@@ -3,7 +3,7 @@
     <x-slot name="header">
         إضافة مشروع جديد للمؤشر: {{ $indicator->title }}
     </x-slot>
-    <form action="{{ route('project.store',$indicator->id) }}" method="POST">
+    <form action="{{ route('project.store') }}" method="POST">
         @csrf
 
         <div class="container py-8 mx-auto px-4">
@@ -71,7 +71,7 @@
                         placeholder="أدخل وصف المشروع"></textarea>
                 </div>
             </div>
-
+            <input type="hidden" name="indicator_id" value="{{ $indicator->id }}">
             <button
                 class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
                 حفظ المشروع

@@ -1,8 +1,9 @@
 <x-app-layout>
-    <!-- Enhanced Header with Gradient -->
-    <header class="bg-gradient-to-r from-[#1e3d4f] to-[#2d5b7a] text-2xl text-white font-bold p-4 shadow-md">
-        <h1 class="container mx-auto px-4">تفاصيل المشروع</h1>
-    </header>
+
+    <x-slot name="header">
+       <h1 class="container mx-auto px-4">تفاصيل المشروع</h1>
+    </x-slot>
+
 
     <div x-data="modalComponent()" class="container py-8 mx-auto px-4">
         <!-- Indicator Details Card -->

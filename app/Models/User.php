@@ -12,20 +12,7 @@ use App\Models\Profile;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'user_type'
-    ];
+    protected $guarded = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -145,35 +132,39 @@ class User extends Authenticatable
             ->latest('start_date'); // Ensures we get the most recent active one if multiple somehow exist
     }
 
-    // 3. Relationship to the CURRENT Position via the current history record
+    // Current active position
     public function currentPosition()
     {
-        return $this->hasOneThrough(
-            Position::class,
-            UserPositionHistory::class,
-            'user_id', // Foreign key on UserPositionHistory table...
-            'id', // Local key on Position table...
-            'id', // Local key on User table...
-            'position_id' // Foreign key on UserPositionHistory table pointing to Position
-        )
-            ->whereNull('user_position_history.end_date')
-            ->latest('user_position_history.start_date');
+        return $this->hasOne(UserPositionHistory::class)
+            ->whereNull('end_date')
+            ->latest('start_date') // in case multiple active (defensive)
+            ->with('position')     // eager load position relation
+            ->first()?->position;  // return Position instance
     }
 
-    // 4. Relationship to the CURRENT Organizational Unit via the current history record
+    // Current active organizational unit
     public function currentUnit()
     {
-        return $this->hasOneThrough(
-            OrganizationalUnit::class,
-            UserPositionHistory::class,
-            'user_id', // Foreign key on UserPositionHistory table...
-            'id', // Local key on OrganizationalUnit table...
-            'id', // Local key on User table...
-            'organizational_unit_id' // Foreign key on UserPositionHistory table pointing to Unit
-        )
-            ->whereNull('user_position_history.end_date')
-            ->latest('user_position_history.start_date');
+        return $this->hasOne(UserPositionHistory::class)
+            ->whereNull('end_date')
+            ->latest('start_date')
+            ->with('organizationalUnit')
+            ->first()?->organizationalUnit; // return OrganizationalUnit instance
     }
+    public function currentPositionHistory()
+    {
+        return $this->hasOne(UserPositionHistory::class)
+            ->whereNull('end_date')
+            ->latest('start_date');
+    }
+
+    public function currentUnitHistory()
+    {
+        return $this->hasOne(UserPositionHistory::class)
+            ->whereNull('end_date')
+            ->latest('start_date');
+    }
+
     public function latestHistory()
     {
         return $this->hasOne(UserPositionHistory::class)->latest('start_date');

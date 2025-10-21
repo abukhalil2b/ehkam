@@ -2,7 +2,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
     <x-slot name="header">
-       {{ $indicator->title }}
+       <h1 class="text-xl">{{ $indicator->title }}</h1>
     </x-slot>
 
     <!-- Main Container -->
@@ -118,7 +118,7 @@
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         عرض
                                     </a>
-                                    <a href="{{ route('project.steps.show', $project->id) }}"
+                                    <a href="{{ route('step.index', $project->id) }}"
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         الخطوات
                                     </a>

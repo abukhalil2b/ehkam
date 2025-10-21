@@ -12,19 +12,6 @@
             </p>
         </header>
 
-        {{-- Session Success Message --}}
-        @if (session('success'))
-            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
-                class="p-4 mx-4 mt-4 md:mx-6 md:mt-6 rounded-lg bg-green-50 border border-green-200 text-green-700 font-medium flex justify-between items-center shadow-sm">
-                <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                    <span class="material-icons text-green-600">check_circle</span>
-                    <span>{{ session('success') }}</span>
-                </div>
-                <button @click="show = false"
-                    class="material-icons text-lg text-green-600 hover:text-green-800">close</button>
-            </div>
-        @endif
-
         {{-- Navigation Tabs --}}
         <nav class="p-4 md:p-6 border-b border-gray-200 bg-white flex overflow-x-auto whitespace-nowrap space-x-2 rtl:space-x-reverse">
             <button @click="activeTab = 'units'" :class="{ 'tab-active': activeTab === 'units' }"
@@ -50,16 +37,12 @@
             <div class="p-1">
 
                 <div x-show="activeTab === 'units'">
-                    @forelse ($topLevelUnits as $unit)
-                        @include('admin_structure.partials._units-tab', [
-                            'unit' => $unit,
-                            'users' => $users,
-                            'depth' => 0,
-                        ])
-                    @empty
-                        <p class="text-center text-gray-500">الرجاء إضافة أول مديرية عامة.</p>
-                    @endforelse
-                </div>
+    @include('admin_structure.partials._units-tab', [
+        'topLevelUnits' => $topLevelUnits,
+        'organizationalUnits' => $organizationalUnits,
+        'users' => $users,
+    ])
+</div>
 
                 <div x-show="activeTab === 'positions'">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
