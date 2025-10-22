@@ -91,8 +91,6 @@
                                     {{ $project->current_year }}
                                 </td>
                                 <td class="px-6 py-4 space-y-1">
-                                    <p class="text-gray-900 font-medium">لوحة مشروعات أداء وزارة الأوقاف</p>
-                                    <p class="text-sm">وزارة الأوقاف والشؤون الدينية</p>
                                     <p class="text-xs text-gray-500">المديرية العامة للتخطيط</p>
                                     <p class="text-xs text-gray-500">دائرة التخطيط والاحصاء</p>
                                 </td>

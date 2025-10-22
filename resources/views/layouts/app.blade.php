@@ -79,17 +79,15 @@
 
         <div class="main-content flex flex-col min-h-screen">
             <x-common.header />
-
-            <div class="**p-8** animate__animated flex-grow" :class="[$store.app.animation]">
-
-                <x-flash-messages />
-
-                @isset($header)
+         @isset($header)
                     <div
                         class="**mb-6 p-4 bg-white dark:bg-[#111827] shadow-sm** border-b border-gray-200 dark:border-gray-700">
                         {{ $header }}
                     </div>
                 @endisset
+            <div class="**p-8** animate__animated flex-grow" :class="[$store.app.animation]">
+
+                <x-flash-messages />
 
                 <div class="max-w-full">
                     {{ $slot }}

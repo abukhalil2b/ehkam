@@ -9,6 +9,8 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
+use App\Http\Controllers\MeetingMinuteController;
+use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QuestionnaireController;
@@ -120,13 +122,44 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('step/{step}/upload_evidence', [StepController::class, 'uploadEvidence'])->name('step.uploadEvidence');
 
     Route::get('step/{step}/edit', [StepController::class, 'edit'])->name('step.edit');
-Route::put('step/{step}', [StepController::class, 'update'])->name('step.update');
-
+    Route::put('step/{step}', [StepController::class, 'update'])->name('step.update');
 
     Route::delete('step/{step}', [StepController::class, 'destroy'])
-    ->name('step.destroy');
-
+        ->name('step.destroy');
 });
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('meeting_minute/index', [MeetingMinuteController::class, 'index'])
+        ->middleware('permission:meeting_minute.show')
+        ->name('meeting_minute.index');
+
+    Route::get('meeting_minute/create', [MeetingMinuteController::class, 'create'])
+        ->middleware('permission:meeting_minute.create')
+        ->name('meeting_minute.create');
+
+    Route::post('meeting_minute/store', [MeetingMinuteController::class, 'store'])
+        ->middleware('permission:meeting_minute.create')
+        ->name('meeting_minute.store');
+
+    Route::get('meeting_minute/show/{meeting_minute}', [MeetingMinuteController::class, 'show'])
+        ->middleware('permission:meeting_minute.show')
+        ->name('meeting_minute.show');
+
+    Route::get('meeting_minute/edit/{meeting_minute}', [MeetingMinuteController::class, 'edit'])
+        ->middleware('permission:meeting_minute.edit')
+        ->name('meeting_minute.edit');
+
+    Route::put('meeting_minute/update/{meeting_minute}', [MeetingMinuteController::class, 'update'])
+        ->middleware('permission:meeting_minute.edit')
+        ->name('meeting_minute.update');
+
+    Route::delete('meeting_minute/destroy/{meeting_minute}', [MeetingMinuteController::class, 'destroy'])
+        ->middleware('permission:meeting_minute.delete')
+        ->name('meeting_minute.destroy');
+});
+
+
 
 // ACTIVITY & ASSESSMENT ROUTES
 Route::group(['middleware' => ['auth']], function () {
@@ -376,15 +409,18 @@ Route::group(['middleware' => ['auth']], function () {
     |--------------------------------------------------------------------------
     */
 
-    // Main Structure Index
-    Route::get('admin_structure/index', [AdminController::class, 'index'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin_structure.index');
+    Route::get('organizational_unit/index', [OrganizationalUnitController::class, 'index'])
+        ->middleware('permission:organizational_unit.index')
+        ->name('organizational_unit.index');
 
     // Unit Creation
-    Route::post('admin_unit/store', [AdminController::class, 'storeUnit'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin.unit.store');
+    Route::post('organizational_unit/store', [OrganizationalUnitController::class, 'storeUnit'])
+        ->middleware('permission:organizational_unit.store')
+        ->name('organizational_unit.store');
+
+        Route::get('admin_position/index', [AdminController::class, 'index'])
+        ->middleware('permission:admin_position.index')
+        ->name('admin_position.index');
 
     // Position Creation
     Route::post('admin_position/store', [AdminController::class, 'storePosition'])

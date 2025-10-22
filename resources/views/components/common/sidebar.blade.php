@@ -43,10 +43,17 @@ $sidebarSections = [
             ['route' => 'questionnaire.export', 'permission' => 'questionnaire.export', 'label' => 'تصدير الكل في أكسل'],
         ]
     ],
-    'admin_structure' => [
-        'title' => 'الهيكل التنظيمي',
+    'meeting_minute' => [
+        'title' => 'محضر الاجتماعات',
         'links' => [
-            ['route' => 'admin_structure.index', 'permission' => 'admin_structure.index', 'label' => 'إدارة'],
+            ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
+        ]
+    ],
+    'admin_structure' => [
+        'title' => 'الهيكل',
+        'links' => [
+            ['route' => 'organizational_unit.index', 'permission' => 'organizational_unit.index', 'label' => 'إدارة هيكل الوحدة'],
+            ['route' => 'admin_position.index', 'permission' => 'admin_position.index', 'label' => 'إدارة الهيكل الوظيفي'],
             ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد'],
             ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين'],
         ]

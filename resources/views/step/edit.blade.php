@@ -38,8 +38,14 @@
 
                     <div>
                         <label class="block font-semibold mb-1 text-[#1b5e20]">المرحلة</label>
-                        <input type="text" name="phase" value="{{ old('phase', $step->phase) }}"
-                            class="w-full border-gray-300 rounded-lg shadow-sm">
+                        <select name="phase" class="w-full border-gray-300 rounded-lg shadow-sm">
+                            @foreach ($phases as $key => $phase)
+                                <option value="{{ $key }}"
+                                    {{ old('phase', $step->phase) === $key ? 'selected' : '' }}>
+                                    {{ $phase['title'] }} ({{ $phase['weight'] }})
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
@@ -54,22 +60,19 @@
 
                 <div>
                     <label class="block font-semibold mb-1 text-[#1b5e20]">الجهات المسندة</label>
-                    <textarea name="assigned_divisions[]" rows="3"
-                        class="w-full border-gray-300 rounded-lg shadow-sm">{{ implode("\n", json_decode($step->assigned_divisions ?? '[]', true)) }}</textarea>
+                    <textarea name="assigned_divisions[]" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm">{{ implode("\n", json_decode($step->assigned_divisions ?? '[]', true)) }}</textarea>
                     <p class="text-xs text-gray-500 mt-1">اكتب كل جهة في سطر منفصل.</p>
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_need_evidence_file" value="1"
-                        @checked($step->is_need_evidence_file)
+                    <input type="checkbox" name="is_need_evidence_file" value="1" @checked($step->is_need_evidence_file)
                         class="rounded border-gray-300 text-[#1b5e20]">
                     <label class="font-semibold text-[#1b5e20]">هل تتطلب ملفات داعمة؟</label>
                 </div>
 
                 <div>
                     <label class="block font-semibold mb-1 text-[#1b5e20]">الوثائق الداعمة</label>
-                    <textarea name="supporting_documents" rows="3"
-                        class="w-full border-gray-300 rounded-lg shadow-sm">{{ old('supporting_documents', $step->supporting_documents) }}</textarea>
+                    <textarea name="supporting_documents" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm">{{ old('supporting_documents', $step->supporting_documents) }}</textarea>
                 </div>
 
                 <div class="flex justify-between mt-6">

@@ -1,24 +1,16 @@
 <x-app-layout title="إدارة الهيكل التنظيمي والوظائف">
-
-    <div x-data="{ activeTab: 'units' }">
-
-        <header class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center rtl:space-x-reverse space-x-3">
-                <span class="material-icons text-4xl text-indigo-600">account_tree</span>
-                إدارة الهيكل التنظيمي والوظائف
-            </h1>
-            <p class="text-gray-600 mt-2 text-sm md:text-base">لوحة تحكم موحدة لإدارة الوحدات التنظيمية، المسميات
-                الوظيفية، وسجلات الموظفين.
-            </p>
-        </header>
+    <x-slot name="header">
+        <h1 class="text-xl font-bold text-gray-800 flex items-center rtl:space-x-reverse space-x-3">
+            <span class="material-icons text-4xl text-indigo-600">account_tree</span>
+            إدارة هيكل الوظائف
+        </h1>
+    </x-slot>
+    <div x-data="{ activeTab: 'positions' }">
 
         {{-- Navigation Tabs --}}
-        <nav class="p-4 md:p-6 border-b border-gray-200 bg-white flex overflow-x-auto whitespace-nowrap space-x-2 rtl:space-x-reverse">
-            <button @click="activeTab = 'units'" :class="{ 'tab-active': activeTab === 'units' }"
-                class="tab-button px-4 py-3 rounded-lg font-semibold text-gray-600 flex items-center space-x-2 rtl:space-x-reverse hover:bg-gray-50 transition-all">
-                <span class="material-icons text-xl">corporate_fare</span>
-                <span>الوحدات التنظيمية</span>
-            </button>
+        <nav
+            class="p-4 md:p-6 border-b border-gray-200 bg-white flex overflow-x-auto whitespace-nowrap space-x-2 rtl:space-x-reverse">
+            
             <button @click="activeTab = 'positions'" :class="{ 'tab-active': activeTab === 'positions' }"
                 class="tab-button px-4 py-3 rounded-lg font-semibold text-gray-600 flex items-center space-x-2 rtl:space-x-reverse hover:bg-gray-50 transition-all">
                 <span class="material-icons text-xl">badge</span>
@@ -35,14 +27,7 @@
         <div class="p-2 md:p-4 bg-gray-50 min-h-screen">
 
             <div class="p-1">
-
-                <div x-show="activeTab === 'units'">
-    @include('admin_structure.partials._units-tab', [
-        'topLevelUnits' => $topLevelUnits,
-        'organizationalUnits' => $organizationalUnits,
-        'users' => $users,
-    ])
-</div>
+            
 
                 <div x-show="activeTab === 'positions'">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

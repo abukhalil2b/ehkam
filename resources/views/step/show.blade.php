@@ -33,7 +33,7 @@
                     </div>
                     <div>
                         <p class="font-semibold text-[#1b5e20]">المرحلة:</p>
-                        <p>{{ $step->phase }}</p>
+                        <p>{{  $phases[$step->phase]['title'] }}</p>
                     </div>
                     <div>
                         <p class="font-semibold text-[#1b5e20]">الحالة:</p>

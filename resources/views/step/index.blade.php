@@ -3,7 +3,7 @@
         <h1 class="text-xl font-bold text-gray-800">{{ $project->title }}</h1>
     </x-slot>
 
-    <div x-data="{ open: false }" class="container mx-auto py-8 px-4">
+    <div x-data="{ open: false, is_need_evidence_file: false }" class="container mx-auto py-8 px-4">
 
         <!-- Work Steps Section -->
         <section class="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
@@ -16,17 +16,6 @@
                     <span>إضافة خطوة جديدة</span>
                 </button>
             </div>
-
-            @php
-                $phases = [
-                    'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
-                    'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
-                    'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
-                    'review' => ['title' => 'المراجعة', 'weight' => '20%'],
-                    'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
-                ];
-            @endphp
-
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-right text-gray-600 border border-gray-200 rounded-lg">
                     <thead class="text-xs text-gray-700 bg-gray-100">
@@ -172,12 +161,19 @@
                             </select>
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">الوثائق الداعمة</label>
-                            <textarea name="supporting_documents" rows="3"
-                                class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-green-500 focus:border-green-500"
-                                placeholder="أدخل الوثائق الداعمة (اختياري)"></textarea>
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" x-model="is_need_evidence_file" name="is_need_evidence_file"
+                                value="1" @checked($step->is_need_evidence_file) class="rounded border-gray-300 text-[#1b5e20]">
+                            <label class="font-semibold text-[#1b5e20]">هل تتطلب ملفات داعمة؟</label>
                         </div>
+                        <template x-if="is_need_evidence_file">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">الوثائق الداعمة</label>
+                                <textarea name="supporting_documents" rows="3"
+                                    class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-green-500 focus:border-green-500"
+                                    placeholder="أدخل الوثائق الداعمة (اختياري)"></textarea>
+                            </div>
+                        </template>
                     </div>
                     <input type="hidden" name="project_id" value="{{ $project->id }}">
                     <div class="bg-gray-50 px-6 py-3 flex justify-end gap-2 border-t border-gray-200">

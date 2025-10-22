@@ -12,12 +12,21 @@ class StepController extends Controller
     // Show steps for the project
     public function index(Project $project)
     {
+
+        $phases = [
+            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
+            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
+            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
+            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
+            'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
+        ];
+
         // load steps for the project, ordered by `ordered` (or id if you prefer)
         $steps = Step::where('project_id', $project->id)
             ->orderBy('ordered', 'asc')
             ->get();
 
-        return view('step.index', compact('project', 'steps'));
+        return view('step.index', compact('project', 'steps', 'phases'));
     }
 
     // Store new step
@@ -57,8 +66,18 @@ class StepController extends Controller
 
     public function show(Step $step)
     {
+
+
+        $phases = [
+            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
+            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
+            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
+            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
+            'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
+        ];
+
         $step->load('stepEvidenceFiles');
-        return view('step.show', compact('step'));
+        return view('step.show', compact('step', 'phases'));
     }
 
     public function uploadEvidence(Request $request, Step $step)
@@ -86,45 +105,49 @@ class StepController extends Controller
             $step->delete();
 
             return redirect()
-                ->route('step.index',$projectId)
+                ->route('step.index', $projectId)
                 ->with('success', 'تم حذف الخطوة بنجاح.');
         } catch (\Exception $e) {
             return redirect()
-                ->route('step.index',$projectId)
+                ->route('step.index', $projectId)
                 ->with('error', 'حدث خطأ أثناء الحذف.');
         }
     }
 
     public function edit(Step $step)
-{
-    return view('step.edit', compact('step'));
-}
-
-public function update(Request $request, Step $step)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'start_date' => 'nullable|date',
-        'end_date' => 'nullable|date|after_or_equal:start_date',
-        'target_percentage' => 'nullable|numeric|min:0|max:100',
-        'phase' => 'nullable|string|max:255',
-        'status' => 'required|in:in_progress,completed,delayed',
-        'assigned_divisions' => 'nullable|array',
-        'assigned_divisions.*' => 'string|max:255',
-        'is_need_evidence_file' => 'boolean',
-        'supporting_documents' => 'nullable|string',
-    ]);
-
-    // Convert array to JSON
-    if (isset($validated['assigned_divisions'])) {
-        $validated['assigned_divisions'] = json_encode($validated['assigned_divisions']);
+    {
+        $phases = [
+            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
+            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
+            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
+            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
+        ];
+        return view('step.edit', compact('step','phases'));
     }
 
-    $step->update($validated);
+    public function update(Request $request, Step $step)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'target_percentage' => 'nullable|numeric|min:0|max:100',
+            'phase' => 'nullable|string|max:255',
+            'status' => 'required|in:in_progress,completed,delayed',
+            'assigned_divisions' => 'nullable|array',
+            'assigned_divisions.*' => 'string|max:255',
+            'is_need_evidence_file' => 'boolean',
+            'supporting_documents' => 'nullable|string',
+        ]);
 
-    return redirect()->route('step.show', $step->id)
-        ->with('success', 'تم تحديث بيانات الخطوة بنجاح.');
-}
+        // Convert array to JSON
+        if (isset($validated['assigned_divisions'])) {
+            $validated['assigned_divisions'] = json_encode($validated['assigned_divisions']);
+        }
 
+        $step->update($validated);
 
+        return redirect()->route('step.show', $step->id)
+            ->with('success', 'تم تحديث بيانات الخطوة بنجاح.');
+    }
 }
