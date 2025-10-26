@@ -4,17 +4,6 @@
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
 
-           <div
-                class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
-                <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
-                <div class="text-xl text-gray-500">زيادة نسبة إيرادات أصول بيت المال والأوقاف والأيتام والقصر</div>
-                <p class="text-sm text-gray-400">زيادة نسبة إيرادات بيت المال</p>
-                <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأوقاف</p>
-                <p class="text-sm text-gray-400">زيادة نسبة إيرادات الأيتام والقصر</p>
-
-            
-            </div>
-
             @foreach ($indicators as $indicator)
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>

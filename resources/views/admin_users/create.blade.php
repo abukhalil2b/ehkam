@@ -41,18 +41,9 @@
                         {{-- Password --}}
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">كلمة المرور</label>
-                            <input type="password" name="password" id="password" required
-                                class="form-input w-full border-gray-300 rounded-md shadow-sm p-2">
+                        افتراضيا  البريد الإلكتروني 
                         </div>
 
-                        {{-- Confirm Password --}}
-                        <div>
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700">
-                                تأكيد كلمة المرور
-                            </label>
-                            <input type="password" name="password_confirmation" id="password_confirmation" required
-                                class="form-input w-full border-gray-300 rounded-md shadow-sm p-2">
-                        </div>
                     </div>
                 </div>
 
@@ -61,7 +52,16 @@
                     <h2 class="text-lg font-semibold text-gray-700">2. التعيين الأولي (السجل الوظيفي)</h2>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {{-- Organizational Unit --}}
+                        {{-- UserType --}}
+                        <div>
+                            <label for="organizational_unit_id" class="block text-sm font-medium text-gray-700">
+                               نوع الحساب
+                            </label>
+                            <select  name="user_type" class="form-select w-full border-gray-300 rounded-md shadow-sm p-2">
+                                <option value="staff">حساب الموظف</option>
+                            </select>
+                        </div>
+
                         <div>
                             <label for="organizational_unit_id" class="block text-sm font-medium text-gray-700">
                                 الوحدة التنظيمية
@@ -78,6 +78,7 @@
                                 @endforeach
                             </select>
                         </div>
+
 
                         {{-- Position (Dynamic via API) --}}
                         <div>

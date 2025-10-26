@@ -707,3 +707,10 @@ hover:text-primary hover:before:!bg-primary ltr:before:mr-2 rtl:before:ml-2 dark
         transform: rotate(360deg);
     }
 }
+
+/* a subtle connector line for better tree visualization */
+[x-data] > div > [x-show] {
+  border-right: 1px dashed #cbd5e1;
+  margin-right: 0.75rem;
+  padding-right: 0.75rem;
+}

@@ -10,13 +10,18 @@ class OrganizationalUnit extends Model
 
     // Self-referencing relationship for unit hierarchy
     public function parent()
-    { 
-        return $this->belongsTo(OrganizationalUnit::class, 'parent_id'); 
+    {
+        return $this->belongsTo(OrganizationalUnit::class, 'parent_id');
     }
-    
+
     public function children()
-    { 
-        return $this->hasMany(OrganizationalUnit::class, 'parent_id'); 
+    {
+        return $this->hasMany(OrganizationalUnit::class, 'parent_id');
+    }
+
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
     }
 
     public function positions()
@@ -24,5 +29,4 @@ class OrganizationalUnit extends Model
         // The second argument 'organizational_unit_position' specifies the pivot table name.
         return $this->belongsToMany(Position::class, 'organizational_unit_position');
     }
-   
 }

@@ -22,10 +22,10 @@
 
 @php
     $courseRoute = route('dashboard');
-    if (auth()->user()->profile_using == 'super_admin') {
-    } elseif (auth()->user()->profile_using == 'admin') {
-    } elseif (auth()->user()->profile_using == 'trainer') {
-    } elseif (auth()->user()->profile_using == 'trainee') {
+    if (auth()->user()->user_type == 'super_admin') {
+    } elseif (auth()->user()->user_type == 'admin') {
+    } elseif (auth()->user()->user_type == 'trainer') {
+    } elseif (auth()->user()->user_type == 'trainee') {
         $courseRoute = route('trainee.my_courses');
     }
 @endphp
@@ -87,9 +87,9 @@
                         class="absolute top-0 right-0 mt-20 w-64 shadow-lg bg-white rounded p-2 z-50">
                         <a class="block px-4 py-3 text-base text-[#082623] hover:bg-gray-200" href="/profile">تعديل
                             البيانات الشخصية</a>
-                        @if (Auth::user()->profile_using != 'super_admin')
+                        @if (Auth::user()->user_type != 'super_admin')
                             @foreach (Auth::user()->profiles as $profile)
-                                @if (Auth::user()->profile_using != $profile->title)
+                                @if (Auth::user()->user_type != $profile->title)
                                     <a href="{{ route('switch-account', $profile->id) }}"
                                         class="block px-4 py-3 text-base bg-[#fffbf6] text-[#bd6e1e]">
                                         الدخول كـ{{ __($profile->title) }}

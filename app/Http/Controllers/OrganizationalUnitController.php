@@ -17,36 +17,39 @@ use Illuminate\Support\Facades\Log;
 class OrganizationalUnitController extends Controller
 {
 
-
     public function index()
+{
+    // Fetch all units in ONE query
+    $allUnits = OrganizationalUnit::all();
+
+    // Group by parent_id
+    $grouped = $allUnits->groupBy('parent_id');
+
+    // Recursive function to build tree in memory
+    $buildTree = function ($parentId) use (&$buildTree, $grouped) {
+        return $grouped->get($parentId, collect())->map(function ($unit) use ($buildTree, $grouped) {
+            $unit->children = $buildTree($unit->id);
+            return $unit;
+        });
+    };
+
+    // Build tree starting from null parent_id
+    $topLevelUnits = $buildTree(null);
+
+    return view('organizational_unit.index', compact('topLevelUnits'));
+}
+
+
+
+
+    public function create()
     {
-        // Eager-load essential user relationships
-        $users = User::with([
-            'currentHistory.position',
-            'currentHistory.organizationalUnit',
-        ])->get();
 
-        // Hierarchical data for units & positions
-        $topLevelUnits = OrganizationalUnit::whereNull('parent_id')
-            ->with('children.children')
-            ->get();
-
-        $topLevelPositions = Position::whereNull('reports_to_position_id')
-            ->with('subordinates.subordinates')
-            ->get();
-
-        // Flat data for dropdowns / forms
         $organizationalUnits = OrganizationalUnit::all();
-        $allPositions = Position::all();
 
-        return view('organizational_unit.index', [
-            'users' => $users,
-            'organizationalUnits' => $organizationalUnits,
-            'allPositions' => $allPositions,
-            'topLevelUnits' => $topLevelUnits,
-            'topLevelPositions' => $topLevelPositions,
-        ]);
+        return view('organizational_unit.create', compact('organizationalUnits'));
     }
+
 
 
     public function storeUnit(Request $request)

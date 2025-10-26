@@ -1,13 +1,14 @@
 import './bootstrap';
 
 import Alpine from 'alpinejs';
-
+import collapse from '@alpinejs/collapse'
 // 1. IMPORT THE PERSIST PLUGIN
 import persist from '@alpinejs/persist'; 
 
 // 2. REGISTER THE PERSIST PLUGIN WITH ALPINE
 // This makes the $persist magic property available for use in custom.js
 Alpine.plugin(persist);
+Alpine.plugin(collapse)
 
 window.Alpine = Alpine;
 

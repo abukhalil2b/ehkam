@@ -17,6 +17,7 @@ use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Route;
@@ -413,14 +414,23 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:organizational_unit.index')
         ->name('organizational_unit.index');
 
+    Route::get('organizational_unit/create', [OrganizationalUnitController::class, 'create'])
+        ->middleware('permission:organizational_unit.store')
+        ->name('organizational_unit.create');
+
+
     // Unit Creation
     Route::post('organizational_unit/store', [OrganizationalUnitController::class, 'storeUnit'])
         ->middleware('permission:organizational_unit.store')
         ->name('organizational_unit.store');
 
-        Route::get('admin_position/index', [AdminController::class, 'index'])
+    Route::get('admin_position/index', [AdminController::class, 'index'])
         ->middleware('permission:admin_position.index')
         ->name('admin_position.index');
+
+    Route::get('admin_position/create', [AdminController::class, 'create'])
+        ->middleware('permission:admin_position.create')
+        ->name('admin_position.create');
 
     // Position Creation
     Route::post('admin_position/store', [AdminController::class, 'storePosition'])
@@ -441,6 +451,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('admin/structure/positions/{position}', [AdminController::class, 'updatePositionData'])
         ->middleware('permission:admin_structure.index')
         ->name('admin_structure.positions.update');
+
+    Route::get('missing_units_assignment_attach_unit', [StructureController::class, 'missingUnitsIndex'])
+        ->name('missing_units_assignment');
+
+    Route::post('missing_units_assignment', [StructureController::class, 'attachUnitToPosition'])
+        ->name('admin.structure.attach_unit');
 });
 
 

@@ -149,7 +149,7 @@
                                         {{ Auth::user()->name }}
                                     </div>
                                     <div class="text-xs text-center bg-success-light rounded text-success p-1">
-                                        {{ __(Auth::user()->profile_using) }}
+                                        {{ __(Auth::user()->user_type) }}
                                     </div>
                                 </div>
                             </div>

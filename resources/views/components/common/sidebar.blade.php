@@ -52,8 +52,10 @@ $sidebarSections = [
     'admin_structure' => [
         'title' => 'الهيكل',
         'links' => [
-            ['route' => 'organizational_unit.index', 'permission' => 'organizational_unit.index', 'label' => 'إدارة هيكل الوحدة'],
-            ['route' => 'admin_position.index', 'permission' => 'admin_position.index', 'label' => 'إدارة الهيكل الوظيفي'],
+            ['route' => 'organizational_unit.index', 'permission' => 'organizational_unit.index', 'label' => 'عرض هيكل الوحدة'],
+            ['route' => 'organizational_unit.create', 'permission' => 'organizational_unit.store', 'label' => 'اضافة هيكل الوحدة'],
+            ['route' => 'admin_position.index', 'permission' => 'admin_position.index', 'label' => 'عرض الهيكل الوظيفي'],
+            ['route' => 'admin_position.create', 'permission' => 'admin_position.store', 'label' => 'إضافة الهيكل الوظيفي'],
             ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد'],
             ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين'],
         ]

@@ -1,21 +1,27 @@
-@php
-    // حساب عدد الموظفين الذين يشغلون هذا المسمى وظيفي حالياً
-    $staffCount = $users->filter(function ($user) use ($position) {
-        $currentHistory = $user->positionHistory->first(fn($h) => is_null($h->end_date));
-        return $currentHistory && $currentHistory->position_id === $position->id;
-    })->count();
-@endphp
+@php $hasSubordinates = $position->subordinates->isNotEmpty(); @endphp
 
-<div class="flex items-center space-x-2 text-right rtl:space-x-reverse" style="padding-right: {{ $depth * 20 }}px; padding-left: 0px;">
-    <span class="material-icons text-lg text-purple-600">person_pin</span>
-    <span class="font-bold">{{ $position->title }}</span>
-    
-    @if ($staffCount > 0)
-        <span class="ml-2 text-xs text-gray-500">({{ $staffCount }})</span>
+<div x-data="{ open: true }" class="mb-1">
+    <div class="flex items-center gap-2 cursor-pointer py-1"
+         style="padding-right: {{ $depth * 20 }}px;"
+         @click.stop="open = !open">
+
+        @if ($hasSubordinates)
+            <span class="material-icons transition-transform duration-200" :class="open ? 'rotate-90' : ''">chevron_right</span>
+        @else
+            <span class="w-4 inline-block"></span>
+        @endif
+
+        <span class="font-semibold">{{ $position->title }}</span>
+    </div>
+
+    @if ($hasSubordinates)
+        <div x-show="open" x-transition class="mt-1">
+            @foreach ($position->subordinates as $sub)
+                @include('admin_structure.partials._position-hierarchy-item', [
+                    'position' => $sub,
+                    'depth' => $depth + 1
+                ])
+            @endforeach
+        </div>
     @endif
 </div>
-
-{{-- التكرار الذاتي: لكل مرؤوس، نستدعي نفس الجزئية بزيادة العمق --}}
-@foreach ($position->subordinates as $subordinate)
-    @include('admin_structure.partials._position-hierarchy-item', ['position' => $subordinate, 'users' => $users, 'depth' => $depth + 1])
-@endforeach

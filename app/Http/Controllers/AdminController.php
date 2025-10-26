@@ -16,15 +16,10 @@ use Illuminate\Support\Facades\Log;
 
 class AdminController extends Controller
 {
-
-    public function index()
+    public function create()
     {
-        // Eager-load essential user relationships
-        $users = User::with([
-            'currentHistory.position',
-            'currentHistory.organizationalUnit',
-        ])->get();
 
+        $users = User::where('user_type', 'staff')->get();
         // Hierarchical data for units & positions
         $topLevelUnits = OrganizationalUnit::whereNull('parent_id')
             ->with('children.children')
@@ -38,15 +33,55 @@ class AdminController extends Controller
         $organizationalUnits = OrganizationalUnit::all();
         $allPositions = Position::all();
 
-        return view('admin_structure.index', [
-            'users' => $users,
+        return view('admin_structure.positions.create', [
             'organizationalUnits' => $organizationalUnits,
             'allPositions' => $allPositions,
             'topLevelUnits' => $topLevelUnits,
             'topLevelPositions' => $topLevelPositions,
+            'users' => $users,
         ]);
     }
-    
+
+
+    public function index()
+    {
+        // ------------------------------
+        // 1️⃣ Organizational Units (already optimized)
+        // ------------------------------
+        $allUnits = OrganizationalUnit::all();
+        $groupedUnits = $allUnits->groupBy('parent_id');
+
+        $buildUnitTree = function ($parentId) use (&$buildUnitTree, $groupedUnits) {
+            return $groupedUnits->get($parentId, collect())->map(function ($unit) use ($buildUnitTree) {
+                $unit->children = $buildUnitTree($unit->id);
+                return $unit;
+            });
+        };
+        $topLevelUnits = $buildUnitTree(null);
+
+        // ------------------------------
+        // 2️⃣ Positions (single query, fully recursive)
+        // ------------------------------
+        $allPositions = Position::all();
+        $groupedPositions = $allPositions->groupBy('reports_to_position_id');
+
+        $buildPositionTree = function ($parentId) use (&$buildPositionTree, $groupedPositions) {
+            return $groupedPositions->get($parentId, collect())->map(function ($pos) use ($buildPositionTree) {
+                $pos->subordinates = $buildPositionTree($pos->id);
+                return $pos;
+            });
+        };
+        $topLevelPositions = $buildPositionTree(null);
+
+        return view('admin_structure.index', compact(
+            'topLevelUnits',
+            'topLevelPositions',
+            'allUnits',
+            'allPositions'
+        ));
+    }
+
+
     // 1. Show the assignment form
     public function editUserPermissions(User $user)
     {
@@ -117,7 +152,6 @@ class AdminController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
 
             // New assignment fields
             'position_id' => 'required|exists:positions,id',
@@ -127,10 +161,10 @@ class AdminController extends Controller
 
         // 2. User Creation
         $user = User::create([
+            'user_type' => 'staff',
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            // Note: Additional user fields go here if needed
+            'password' => Hash::make($validatedData['email']),
         ]);
 
         // 3. Initial Position Assignment (UserPositionHistory creation)
@@ -142,7 +176,7 @@ class AdminController extends Controller
             'end_date' => null, // This is the current assignment
         ]);
 
-        return redirect()->route('admin_structure.index')
+        return redirect()->route('admin_users.index')
             ->with('success', "تم إنشاء المستخدم الجديد ({$user->name}) بنجاح.");
     }
 
@@ -163,15 +197,29 @@ class AdminController extends Controller
     public function storePosition(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255|unique:positions,title',
+            'title' => 'required|string|max:255',
             'reports_to_position_id' => 'nullable|exists:positions,id',
+
+            // 🚨 ADDED: Validation for the required unit ID
+            'organizational_unit_id' => 'required|exists:organizational_units,id',
         ]);
 
+        // 1. Create the new Position record
         $position = Position::create($request->only(['title', 'reports_to_position_id']));
 
-        return redirect()->route('admin_structure.index')->with('success', "تمت إضافة المسمى الوظيفي ({$position->title}) بنجاح.");
-    }
+        // 2. 🚨 ADDED: Attach the newly created position to the selected organizational unit
+        // The relationship is many-to-many, even if the UI only sends one unit ID
+        $organizationalUnitId = $request->input('organizational_unit_id');
 
+        // Use the attach method on the relationship
+        $position->organizationalUnits()->attach($organizationalUnitId);
+
+        // NOTE: If you decide a Position can exist in multiple units, you'd handle an array here.
+        // Given the UI only shows one selection, we assume one unit is attached initially.
+
+
+        return redirect()->route('admin_position.index')->with('success', "تمت إضافة المسمى الوظيفي ({$position->title}) بنجاح.");
+    }
     /**
      * تعيين/ترقية موظف عن طريق تحديث السجل القديم وإنشاء سجل جديد.
      */

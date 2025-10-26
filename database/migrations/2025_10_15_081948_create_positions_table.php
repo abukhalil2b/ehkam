@@ -33,7 +33,7 @@ return new class extends Migration
 
         Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->unique();
+            $table->string('title');
 
             $table->foreignId('reports_to_position_id')
                 ->nullable()

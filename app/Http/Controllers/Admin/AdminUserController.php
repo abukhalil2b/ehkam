@@ -18,7 +18,7 @@ class AdminUserController extends Controller
     {
         $loggedUser = auth()->user();
 
-        if (!in_array($loggedUser->profile_using, ['admin', 'super_admin'])) {
+        if (!in_array($loggedUser->user_type, ['admin', 'super_admin'])) {
             abort(403, 'لاتملك الصلاحية');
         }
 
@@ -57,7 +57,7 @@ class AdminUserController extends Controller
     {
         $loggedUser = auth()->user();
 
-        if (!in_array($loggedUser->profile_using, ['admin', 'super_admin'])) {
+        if (!in_array($loggedUser->user_type, ['admin', 'super_admin'])) {
             abort(403, 'لاتملك الصلاحية');
         }
 
@@ -91,7 +91,7 @@ class AdminUserController extends Controller
                 'civil_id' => $request->civil_id,
                 'name' => $request->name,
                 'password' =>  Hash::make($request->civil_id),
-                'profile_using' => $profile->title,
+                'user_type' => $profile->title,
                 'phone' => $request->phone,
                 'plain_password' => $request->civil_id,
             ]);
@@ -108,7 +108,7 @@ class AdminUserController extends Controller
             }
 
             DB::commit();
-            return redirect()->route('admin.user.index', $user->profile_using)->with('status', 'تم إنشاء الحساب بنجاح.');
+            return redirect()->route('admin.user.index', $user->user_type)->with('status', 'تم إنشاء الحساب بنجاح.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'حدث خطأ أثناء إنشاء الحساب.')->withInput();
@@ -212,7 +212,7 @@ class AdminUserController extends Controller
         // Use the `sync` method to attach/detach groups
         $user->groups()->sync($request->input('groups', []));
 
-        return redirect()->route('admin.user.index', $user->profile_using)->with('success', 'تم تحديث الملف.');
+        return redirect()->route('admin.user.index', $user->user_type)->with('success', 'تم تحديث الملف.');
     }
 
     public function passwordEdit(User $user)
@@ -225,12 +225,12 @@ class AdminUserController extends Controller
         $loggedUser = auth()->user();
 
         // Only admin or super_admin can reset passwords
-        if (!in_array($loggedUser->profile_using, ['admin', 'super_admin'])) {
+        if (!in_array($loggedUser->user_type, ['admin', 'super_admin'])) {
             abort(403, 'لاتملك الصلاحية');
         }
 
         // Prevent admin from resetting super_admin password
-        if ($loggedUser->profile_using !== 'super_admin' && $user->profile_using === 'super_admin') {
+        if ($loggedUser->user_type !== 'super_admin' && $user->user_type === 'super_admin') {
             abort(403, 'لاتملك الصلاحية');
         }
 
@@ -245,7 +245,7 @@ class AdminUserController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.user.index', $user->profile_using)
+            ->route('admin.user.index', $user->user_type)
             ->with('success', 'تم تحديث كلمة المرور بنجاح');
     }
 

@@ -54,7 +54,7 @@
                                         <div class="text-base">
                                             {{ Auth::user()->name }}
                                         </div>
-                                        <div class="text-xs bg-success-light rounded text-success px-1">{{ __(Auth::user()->profile_using) }}</div>
+                                        <div class="text-xs bg-success-light rounded text-success px-1">{{ __(Auth::user()->user_type) }}</div>
                                         <div class="text-black/60  hover:text-primary dark:text-dark-light/60 dark:hover:text-white">
                                             {{ Auth::user()->civil_id }}
                                         </div>
