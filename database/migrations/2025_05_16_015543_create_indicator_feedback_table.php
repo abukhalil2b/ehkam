@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->string('target');
             $table->bigInteger('indicator_id');
+            $table->string('current_year',4)->default('2025');
             $table->bigInteger('sector_id');
         });
 

@@ -14,8 +14,13 @@ class IndicatorController extends Controller
 
     public function target(Indicator $indicator)
     {
-        // return $indicator;
-        return view('indicator.target');
+        $current_year = date('Y');
+
+        $sectors = Sector::all();
+
+        $periods =  PeriodTemplate::where('cate',$indicator->period)->get();
+
+        return view('indicator.target',compact('indicator','current_year','sectors','periods'));
     }
 
     public function achieved(Indicator $indicator)
@@ -25,9 +30,11 @@ class IndicatorController extends Controller
 
     public function index()
     {
-        $indicators = Indicator::all();
+        $current_year = date('Y');
+
+        $indicators = Indicator::where('current_year',$current_year)->get();
         
-        return view('indicator.index', compact('indicators'));
+        return view('indicator.index', compact('indicators','current_year'));
     }
 
     public function show(Indicator $indicator)

@@ -3,6 +3,24 @@
         <table class="min-w-full divide-y divide-gray-200 text-right" dir="rtl">
             <tbody class="divide-y divide-gray-200">
 
+                <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
+                    <th scope="row"
+                        class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
+                        السنة</th>
+                    <td class="p-4 text-base text-gray-900">
+                        {{ $indicator->current_year}}
+                    </td>
+                </tr>
+
+                <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
+                    <th scope="row"
+                        class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
+                        المستهدف</th>
+                    <td class="p-4 text-base text-gray-900">
+                        {{ $indicator->target_for_indicator ?? 'N/A' }}
+                    </td>
+                </tr>
+
                 {{-- Row 1: Main Criteria --}}
                 <tr class="transition duration-150 ease-in-out hover:bg-gray-50">
                     <th scope="row"
@@ -79,7 +97,7 @@
                         class="w-1/4 bg-gray-100 p-4 text-sm font-semibold text-gray-700 border-l border-gray-200 align-top">
                         دورة القياس (الفترة)</th>
                     <td class="p-4 text-base text-gray-900">
-                       {{ $indicator->period ? __($indicator->period) : 'N/A' }}
+                        {{ $indicator->period ? __($indicator->period) : 'N/A' }}
 
                     </td>
                 </tr>

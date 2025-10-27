@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">إدارة المؤشرات</h1>
+            <h1 class="text-2xl font-bold text-gray-900">إدارة المؤشرات {{ $current_year }}</h1>
             <div class="mt-2 md:mt-0 flex items-center">
                 <span id="indicators-count" class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                     {{ count($indicators) }} مؤشر
@@ -127,6 +127,8 @@
                                 <div class="bg-green-600 h-2 rounded-full" style="width: 65%"></div>
                             </div>
                         </div>
+
+                        <div class="text-xs">المستهدف:{{ $indicator->target_for_indicator }} لسنة:{{ $indicator->current_year }}</div>
                     </div>
 
                     <!-- Card Footer - Action Buttons (3-column layout) -->

@@ -171,6 +171,12 @@
             class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('proposed_initiatives', $indicator->proposed_initiatives) }}</textarea>
         <x-input-error class="mt-2" :messages="$errors->get('proposed_initiatives')" />
     </div>
+    <div>
+        <x-input-label for="evidence_type" value="الأدلة ا لداعمة" />
+        <textarea id="evidence_type" name="evidence_type" rows="3"
+            class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('evidence_type', $indicator->evidence_type) }}</textarea>
+        <x-input-error class="mt-2" :messages="$errors->get('evidence_type')" />
+    </div>
 
     {{-- Hidden field for target_for_indicator --}}
     {{-- Note: target_for_indicator was missed in the initial form, adding it here. Assuming it is a number input --}}

@@ -163,7 +163,7 @@
 
                         <div class="flex items-center gap-2">
                             <input type="checkbox" x-model="is_need_evidence_file" name="is_need_evidence_file"
-                                value="1" @checked($step->is_need_evidence_file) class="rounded border-gray-300 text-[#1b5e20]">
+                                value="1" class="rounded border-gray-300 text-[#1b5e20]">
                             <label class="font-semibold text-[#1b5e20]">هل تتطلب ملفات داعمة؟</label>
                         </div>
                         <template x-if="is_need_evidence_file">

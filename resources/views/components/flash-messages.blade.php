@@ -49,7 +49,7 @@
 @endphp
 
 {{-- === Flash Message === --}}
-<div class="p-6">
+<div class="p-2">
     @if ($activeFlash)
     <div 
         x-data="{ show: true }" 

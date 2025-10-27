@@ -44,23 +44,7 @@ class Indicator extends Model
         return $this->hasMany(Indicator::class, 'parent_id');
     }
 
-    /**
-     * Get the period template associated with the indicator.
-     * NOTE: This assumes the 'period' column on indicators maps to either 'cate' or 'name' on period_templates.
-     * If 'period' stores the ID of the template, you'd use BelongsTo with 'period'.
-     */
-    public function periodTemplate()
-    {
-        // If 'period' on indicators stores the PeriodTemplate name/cate:
-        return $this->belongsTo(PeriodTemplate::class, 'period', 'name')
-                    ->orWhere(function ($query) {
-                        $query->whereColumn('indicators.period', 'period_templates.cate');
-                    });
-
-        // If 'period' on indicators stores the PeriodTemplate ID:
-        // return $this->belongsTo(PeriodTemplate::class, 'period');
-    }
-
+  
     /**
      * Get all feedback entries for the indicator.
      */

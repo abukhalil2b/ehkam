@@ -1,4 +1,4 @@
-<x-app-layout title="إدارة الهيكل التنظيمي والوظائف">
+<x-app-layout title="إدارة الهيكل التنظيمي">
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.store('tree', {
@@ -9,7 +9,7 @@
     <x-slot name="header">
         <h1 class="text-xl font-bold text-gray-800 flex items-center rtl:space-x-reverse space-x-3">
             <span class="material-icons text-4xl text-indigo-600">account_tree</span>
-            إدارة الهيكل التنظيمي والوظائف
+            إدارة الهيكل التنظيمي
         </h1>
     </x-slot>
 
@@ -17,7 +17,7 @@
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-bold text-blue-700 flex items-center space-x-2 rtl:space-x-reverse">
                 <span class="material-icons">apartment</span>
-                الهيكل التنظيمي الحالي
+                الهيكل التنظيمي
             </h3>
 
             <button @click="$store.tree.expandAll = !$store.tree.expandAll"

@@ -30,10 +30,12 @@ return new class extends Migration
             $table->string('baseline_after_application')->nullable(); // خط الأساس بعد التطبيق
             $table->text('survey_question')->nullable(); // اسئلة الاستبيان (سؤال للتحقق)
             $table->text('proposed_initiatives')->nullable(); // مبادرات ومشاريع مقترحة
+            $table->string('evidence_type')->nullable();
             $table->text('sectors')->nullable(); //array get it from sectors tables
             $table->integer('target_for_indicator')->nullable(); //20,000
-            $table->string('period',11);// 
+            $table->string('current_year',4)->default('2025');
             $table->foreignIdFor(Indicator::class,'parent_id')->nullable();
+            $table->string('period')->default('quarterly');//annually - half_yearly - quarterly - monthly
             $table->timestamps();
         });
     }

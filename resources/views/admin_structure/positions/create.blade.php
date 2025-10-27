@@ -1,4 +1,4 @@
-<x-app-layout title="إدارة الهيكل التنظيمي والوظائف">
+<x-app-layout title="إدارة الهيكل التنظيمي">
     <x-slot name="header">
         <h1 class="text-xl font-bold text-gray-800 flex items-center rtl:space-x-reverse space-x-3">
             <span class="material-icons text-4xl text-indigo-600">account_tree</span>

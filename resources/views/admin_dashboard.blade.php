@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الهيكل التنظيمي والوظائف</title>
+    <title>إدارة الهيكل التنظيمي</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
         <header class="p-6 border-b border-gray-100 bg-gray-50">
             <h1 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center rtl:space-x-reverse space-x-2">
                 <span class="material-icons text-4xl text-indigo-600">business</span>
-                إدارة الهيكل التنظيمي والوظائف
+                إدارة الهيكل التنظيمي
             </h1>
             <p class="text-gray-500 mt-1 text-sm md:text-base">لوحة تحكم موحدة لإدارة الوحدات التنظيمية، المسميات
                 الوظيفية، وسجلات الموظفين.
@@ -82,7 +82,7 @@
                 <div class="lg:col-span-2 bg-gray-50 p-6 rounded-lg border">
                     <h3 class="text-xl font-bold mb-4 text-blue-700 flex items-center space-x-2 rtl:space-x-reverse">
                         <span class="material-icons">apartment</span>
-                        الهيكل التنظيمي الحالي
+                        الهيكل التنظيمي
                     </h3>
                     <div class="border border-dashed border-blue-300 p-4 rounded-lg bg-white">
                         @forelse ($topLevelUnits as $unit)
