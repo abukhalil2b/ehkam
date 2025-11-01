@@ -2,16 +2,25 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssessmentQuestion; // Make sure to create this model
+use App\Models\AssessmentQuestion; 
+use App\Models\AssessmentResult; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AssessmentQuestionController extends Controller
 {
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function explain_assessment_to_audience()
+{
+    $questions = AssessmentQuestion::orderBy('ordered')->get();
+    $results = AssessmentResult::with('assessmentQuestion')
+        ->where('activity_id', 1)
+        ->get();
+
+    return view('explain_assessment_to_audience', compact('questions', 'results'));
+}
+
+
     public function create()
     {
         return view('assessment_questions.create');
@@ -55,7 +64,6 @@ class AssessmentQuestionController extends Controller
         $endOfYear = now()->endOfYear();
 
         // 2. Fetch questions created within the current year, sorted by the 'ordered' column
-        // IMPORTANT: Change 'created_at' if your table uses a different date column for the year filter.
         $questions = AssessmentQuestion::whereBetween('created_at', [$startOfYear, $endOfYear])
             ->orderBy('ordered')
             ->get();

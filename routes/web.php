@@ -26,8 +26,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome2')->name('home');
 
-Route::match(['get','post'],'workshow_attendance_register',[WorkshopController::class,'attendance_register'])
-->name('workshow_attendance_register');
+Route::match(['get', 'post'], 'workshow_attendance_register', [WorkshopController::class, 'attendance_register'])
+    ->name('workshow_attendance_register');
+
+Route::get('explain_assessment_to_audience', [AssessmentQuestionController::class, 'explain_assessment_to_audience'])
+    ->name('explain_assessment_to_audience');
 
 // Dashboard - Usually just requires authentication
 Route::group(['middleware' => ['auth']], function () {
