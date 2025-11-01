@@ -156,6 +156,7 @@ class WorkshopController extends Controller
         // return $request->all();
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'is_active' => 'boolean',
             'description' => 'nullable|string',
             'start_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -180,6 +181,7 @@ class WorkshopController extends Controller
 
         // Update workshop
         $workshop->update([
+           'is_active' => $validated['is_active'] ?? false,
             'title' => $validated['title'],
             'description' => $validated['description'],
             'starts_at' => $startsAt,

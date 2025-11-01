@@ -2,7 +2,7 @@
     <!-- Header Slot -->
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            إنشاء محضر ورشة عمل جديد
+            إنشاء ورشة عمل جديد
         </h2>
     </x-slot>
 

@@ -162,8 +162,8 @@
                 </div>
                 
                 @if($workshop->description)
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                    <p class="text-gray-600"><strong>الوصف:</strong> {{ $workshop->description }}</p>
+                <div class="mt-4 pt-4 border-t border-gray-200 text-gray-600 font-bold">
+                    {!! nl2br($workshop->description) !!}
                 </div>
                 @endif
             </div>

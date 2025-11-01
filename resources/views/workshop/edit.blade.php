@@ -97,6 +97,22 @@
                         @enderror
                     </div>
 
+                    <!-- Active Status -->
+                    <div class="mb-6">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_active" value="1"
+                                {{ old('is_active', $workshop->is_active) ? 'checked' : '' }} class="sr-only peer">
+                            <div
+                                class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                            </div>
+                            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                {{ old('is_active', $workshop->is_active) ? 'مفعلة' : 'غير مفعلة' }} </span>
+                        </label>
+                    </div>
+                    @error('is_active')
+                        <p class="text-red-500 text-xs mt-2">{{ $message }}</p>
+                    @enderror
+
                     {{-- Written By --}}
                     <div class="mb-5">
                         <label for="created_by" class="block text-gray-700 font-bold mb-2">كتب بواسطة</label>
@@ -134,7 +150,7 @@
                                         <input type="text" name="attendances[{{ $index }}][name]"
                                             value="{{ $attendance['attendee_name'] ?? ($attendance['name'] ?? '') }}"
                                             class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            placeholder="اسم الحاضر" required>
+                                            placeholder="اسم الحاضر">
                                     </div>
                                     <div>
                                         <input type="text" name="attendances[{{ $index }}][job_title]"
@@ -156,23 +172,7 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 attendance-item">
-                                    <div>
-                                        <input type="text" name="attendances[0][name]"
-                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            placeholder="اسم الحاضر" required>
-                                    </div>
-                                    <div>
-                                        <input type="text" name="attendances[0][job_title]"
-                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            placeholder="المسمى الوظيفي">
-                                    </div>
-                                    <div>
-                                        <input type="text" name="attendances[0][department]"
-                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            placeholder="القسم">
-                                    </div>
-                                </div>
+                                
                             @endforelse
                         </div>
 

@@ -24,7 +24,7 @@
                     {{-- 2. Place --}}
                     <p>
                         <strong class="font-semibold text-gray-900"> المكان:</strong>
-                        {{ $workshop->place ?? 'غير محدد' }}
+                        {{ $workshop->location ?? 'غير محدد' }}
                     </p>
 
                     {{-- 3. Written By --}}
