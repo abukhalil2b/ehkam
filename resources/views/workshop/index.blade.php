@@ -23,7 +23,7 @@
                         <td class="p-2">{{ $workshop->id }}</td>
                         <td class="p-2">{!! $workshop->title !!}</td>
                         <td class="p-2">{{ $workshop->date }}</td>
-                        <td class="p-2">{{ $workshop->writtenBy->name ?? '-' }}</td>
+                        <td class="p-2">{{ $workshop->createdBy->name ?? '-' }}</td>
                         <td class="p-2">{{ $workshop->attendances->count() }}</td>
                         <td class="p-2">
                             <a href="{{ route('workshop.show', $workshop) }}" class="text-blue-600">عرض</a> |

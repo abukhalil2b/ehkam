@@ -30,7 +30,7 @@
                     {{-- 3. Written By --}}
                     <p>
                         <strong class="font-semibold text-gray-900"> كتب بواسطة:</strong>
-                        <span class="text-blue-600">{{ $workshop->writtenBy->name ?? '—' }}</span>
+                        <span class="text-blue-600">{{ $workshop->createdBy->name ?? '—' }}</span>
                     </p>
 
                     {{-- 4. Creation Date (Optional but useful) --}}
@@ -43,27 +43,41 @@
 
                 <hr class="my-8 border-gray-200">
 
-                <div class="mt-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4">
-                        قائمة الحضور ({{ $workshop->attendances->count() }})
-                    </h3>
-
-                    @if ($workshop->attendances->isEmpty())
-                        <div class="bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-lg text-yellow-800">
-                            لا يوجد حضور مسجل لهذه الورشة حتى الآن.
-                        </div>
-                    @else
-                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 list-disc pr-6 marker:text-blue-500">
-                            @foreach ($workshop->attendances as $att)
-                                <li class="text-gray-700 hover:text-gray-900 transition duration-150">
-                                    <span class="font-medium">{{ $att->name }}</span>
-                                    @if ($att->job_title)
-                                        <span class="text-sm text-gray-500"> ({{ $att->job_title }})</span>
-                                    @endif
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                {{-- In your show.blade.php --}}
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-3">قائمة الحضور</h3>
+                    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">#</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">اسم الحاضر</th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">المسمى الوظيفي
+                                    </th>
+                                    <th class="px-4 py-3 text-right text-sm font-semibold text-gray-700">القسم</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse($workshop->attendances as $attendance)
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm text-gray-600">{{ $loop->iteration }}</td>
+                                        <td class="px-4 py-3 text-sm text-gray-800">{{ $attendance->attendee_name }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">{{ $attendance->job_title ?? '-' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-sm text-gray-600">{{ $attendance->department ?? '-' }}
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="4" class="px-4 py-4 text-center text-sm text-gray-500">
+                                            لا يوجد حضور مسجل
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="mt-8 pt-4 border-t flex justify-end">

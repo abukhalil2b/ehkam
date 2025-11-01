@@ -15,10 +15,10 @@ class WorkshopController extends Controller
     public function attendance_register(Request $request)
     {
         // 1. Find the currently active workshop
-        // We assume only one workshop should be active for attendance at a time.
-        $workshop = Workshop::where('active', true)->first();
+        $workshop = Workshop::where('is_active', true)->first();
 
         $qrImage = null;
+        $attendances = collect([]); // Initialize empty collection
 
         // Handle case where no active workshop is found
         if (!$workshop) {
@@ -28,13 +28,12 @@ class WorkshopController extends Controller
                 return back()->with('error', $message);
             }
 
-            return view('workshow_attendance_register', [
-                'workshop' => null,
-                'attendances' => collect([]), // Pass an empty collection
-            ])->with('warning', $message);
+            // For GET request, pass empty data
+            return view('workshow_attendance_register', compact('workshop', 'attendances', 'qrImage'))
+                ->with('warning', $message);
         }
 
-        // 2. Handle POST Request (Registration Submission)
+        // 2. Handle POST Request (Registration Submission) - Workshop exists
         if ($request->isMethod('POST')) {
             // Validate the incoming data
             $validated = $request->validate([
@@ -42,15 +41,14 @@ class WorkshopController extends Controller
                 'job_title' => 'nullable|string|max:255',
                 'department' => 'nullable|string|max:255',
             ], [
-                // Custom Arabic validation messages
                 'name.required' => 'حقل الاسم مطلوب.',
                 'name.string' => 'الاسم يجب أن يكون نصًا.',
                 'name.max' => 'الاسم لا يمكن أن يتجاوز 255 حرفًا.',
             ]);
 
-            // Check for duplicate registration based on name and workshop_id
+            // Check for duplicate registration
             $existingAttendance = WorkshopAttendance::where('workshop_id', $workshop->id)
-                ->where('name', $validated['name'])
+                ->where('attendee_name', $validated['name'])
                 ->first();
 
             if ($existingAttendance) {
@@ -62,25 +60,24 @@ class WorkshopController extends Controller
             // Create the attendance record
             WorkshopAttendance::create([
                 'workshop_id' => $workshop->id,
-                'name' => $validated['name'],
+                'attendee_name' => $validated['name'],
                 'job_title' => $validated['job_title'],
                 'department' => $validated['department'],
             ]);
 
-            // Redirect back with a success message
             return back()->with('success', 'تم تسجيل حضورك بنجاح! نرحب بك.');
         } else {
+            // Generate QR code only if workshop exists
             $qrImage = QrCodeGenerator::size(200)->generate(route('workshow_attendance_register'));
         }
 
-        // 3. Handle GET Request (Display form and list)
+        // 3. Handle GET Request (Display form and list) - Workshop exists
         $attendances = WorkshopAttendance::where('workshop_id', $workshop->id)
-            ->latest() // Order by creation date, newest first
+            ->latest()
             ->get();
 
-        return view('workshow_attendance_register', compact('attendances', 'workshop','qrImage'));
+        return view('workshow_attendance_register', compact('attendances', 'workshop', 'qrImage'));
     }
-
 
     // ---------------------- INDEX ----------------------
     public function index()
@@ -102,63 +99,44 @@ class WorkshopController extends Controller
     // ---------------------- STORE ----------------------
     public function store(Request $request)
     {
-        // 1. Validation
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'date' => 'required|date', // Validation for the date field
-            'attendances' => 'nullable|array',
-            'attendances.*' => 'nullable|string|max:255',
-        ], [
-            // Custom Arabic validation messages for better user experience
-            'title.required' => 'حقل العنوان مطلوب.',
-            'date.required' => 'حقل التاريخ مطلوب.',
-            'date.date' => 'التاريخ المدخل غير صحيح.',
-            'attendances.*.string' => 'يجب أن يكون اسم الحاضر نصًا.',
-            'attendances.*.max' => 'الاسم لا يمكن أن يتجاوز 255 حرفًا.'
+            'start_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_date' => 'nullable|date',
+            'end_time' => 'nullable|date_format:H:i',
+            'location' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean',
         ]);
 
+        // Combine start date and time
+        $startsAt = $validated['start_date'] . ' ' . $validated['start_time'];
 
-        // 2. Create the main Workshop record
-        $workshop = Workshop::create([
-            'title' => $validated['title'],
-            'date' => $validated['date'], // Storing the selected date
-            'written_by' => auth()->id(),
-            // Assuming 'place' and 'active' are handled by defaults in the model or database
-        ]);
-
-        // 3. Prepare and insert attendance records
-        if (!empty($validated['attendances'])) {
-            $attendanceRecords = [];
-            $now = Carbon::now();
-
-            foreach ($validated['attendances'] as $name) {
-                $trimmedName = trim($name);
-                if ($trimmedName !== '') {
-                    // Collect attendance data for batch insertion
-                    $attendanceRecords[] = [
-                        'workshop_id' => $workshop->id,
-                        'name' => htmlspecialchars($trimmedName), // Sanitize input name
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                }
-            }
-
-            // Use insert to batch create attendance records for performance
-            if (!empty($attendanceRecords)) {
-                WorkshopAttendance::insert($attendanceRecords);
-            }
+        // Combine end date and time if provided
+        $endsAt = null;
+        if ($validated['end_date'] && $validated['end_time']) {
+            $endsAt = $validated['end_date'] . ' ' . $validated['end_time'];
         }
 
-        // 4. Redirect with success message
+        Workshop::create([
+            'title' => $validated['title'],
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'location' => $validated['location'],
+            'description' => $validated['description'],
+            'is_active' => $validated['is_active'] ?? false,
+            'created_by' => auth()->id(),
+        ]);
+
         return redirect()->route('workshop.index')
-            ->with('success', 'تم إنشاء محضر الورشة بنجاح.');
+            ->with('success', 'تم إنشاء الورشة بنجاح.');
     }
 
     // ---------------------- SHOW ----------------------
     public function show(Workshop $workshop)
     {
-        $workshop->load(['writtenBy', 'attendances']);
+        $workshop->load(['createdBy', 'attendances']);
 
         return view('workshop.show', compact('workshop'));
     }
@@ -172,59 +150,67 @@ class WorkshopController extends Controller
     }
 
     // ---------------------- UPDATE ----------------------
+
     public function update(Request $request, Workshop $workshop)
     {
-        // 1. Validation: Includes all fields sent from the edit form.
+        // return $request->all();
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'place' => 'nullable|string|max:255',
-            'written_by' => 'required|exists:users,id',
+            'description' => 'nullable|string',
+            'start_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_date' => 'nullable|date',
+            'end_time' => 'nullable|date_format:H:i',
+            'location' => 'nullable|string|max:255',
+            'created_by' => 'required|exists:users,id',
             'attendances' => 'nullable|array',
-            'attendances.*' => 'nullable|string|max:255',
-        ], [
-            // Custom Arabic validation messages
-            'title.required' => 'حقل العنوان مطلوب.',
-            'date.required' => 'حقل التاريخ مطلوب.',
-            'written_by.required' => 'يجب اختيار كاتب المحضر.',
-            'written_by.exists' => 'المستخدم المحدد غير موجود.',
-            'place.string' => 'المكان يجب أن يكون نصًا.',
-            'attendances.*.string' => 'يجب أن يكون اسم الحاضر نصًا.',
+            'attendances.*.name' => 'required|string|max:255',
+            'attendances.*.job_title' => 'nullable|string|max:255',
+            'attendances.*.department' => 'nullable|string|max:255',
         ]);
 
-        // 2. Update the main Workshop record
-        $workshop->update([
-            'title' => $validated['title'],
-            'place' => $validated['place'] ?? null,
-            'written_by' => $validated['written_by'],
-        ]);
+        // Combine start date and time
+        $startsAt = $validated['start_date'] . ' ' . $validated['start_time'];
 
-        // 3. Refresh attendances (Delete old and insert new)
-        $workshop->attendances()->delete();
-
-        $attendanceRecords = [];
-        if (!empty($validated['attendances'])) {
-            $now = Carbon::now();
-            foreach ($validated['attendances'] as $name) {
-                $trimmedName = trim($name);
-                if ($trimmedName !== '') {
-                    $attendanceRecords[] = [
-                        'workshop_id' => $workshop->id,
-                        'name' => htmlspecialchars($trimmedName),
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ];
-                }
-            }
-
-            // Batch insert for performance
-            if (!empty($attendanceRecords)) {
-                WorkshopAttendance::insert($attendanceRecords);
-            }
+        // Combine end date and time if provided
+        $endsAt = null;
+        if ($validated['end_date'] && $validated['end_time']) {
+            $endsAt = $validated['end_date'] . ' ' . $validated['end_time'];
         }
 
-        // 4. Redirect
+        // Update workshop
+        $workshop->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'starts_at' => $startsAt,
+            'ends_at' => $endsAt,
+            'location' => $validated['location'],
+            'created_by' => $validated['created_by'],
+        ]);
+
+        // Handle attendances
+        $this->updateAttendances($workshop, $validated['attendances'] ?? []);
+
         return redirect()->route('workshop.index')
-            ->with('success', 'تم تحديث محضر الورشة بنجاح.');
+            ->with('success', 'تم تحديث الورشة والحضور بنجاح.');
+    }
+
+
+    private function updateAttendances(Workshop $workshop, array $attendanceData)
+    {
+        // Delete all existing attendances and create new ones
+        $workshop->attendances()->delete();
+
+        foreach ($attendanceData as $attendance) {
+            if (!empty($attendance['name'])) {
+                WorkshopAttendance::create([
+                    'workshop_id' => $workshop->id,
+                    'attendee_name' => $attendance['name'],
+                    'job_title' => $attendance['job_title'] ?? null,
+                    'department' => $attendance['department'] ?? null,
+                ]);
+            }
+        }
     }
 
     // ---------------------- DESTROY ----------------------

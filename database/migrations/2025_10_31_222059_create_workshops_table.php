@@ -14,23 +14,30 @@ return new class extends Migration
         Schema::create('workshops', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('place')->nullable();// conference rooms
-            $table->boolean('active')->default(false);
-           $table->foreignId('written_by')
+            $table->string('location')->nullable();
+            $table->boolean('is_active')->default(false);
+            $table->foreignId('created_by')
                 ->constrained('users')
                 ->onDelete('cascade');
+            $table->timestamp('starts_at');
+            $table->timestamp('ends_at')->nullable();
+            $table->text('description')->nullable();
             $table->timestamps();
+
+            $table->index('starts_at'); // For better query performance
+            $table->index('is_active');
         });
 
         Schema::create('workshop_attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('workshop_id')
                 ->constrained('workshops')
-                ->onDelete('cascade'); // cascade delete if parent deleted
-            $table->string('name'); // only attendee name
-            $table->string('job_title')->nullable(); // only attendee name
-            $table->string('department')->nullable(); // only attendee name
+                ->onDelete('cascade');
+            $table->string('attendee_name'); // More explicit than 'name'
+            $table->string('job_title')->nullable();
+            $table->string('department')->nullable();
             $table->timestamps();
+            $table->index('workshop_id');
         });
     }
 
