@@ -41,22 +41,20 @@
 
 <body class="bg-gray-50">
     <!-- Header -->
-    <div class="bg-blue-800 text-white py-8 shadow-lg">
-        <div class="max-w-4xl mx-auto px-4 text-center">
-            <h1 class="text-2xl font-extrabold mb-1">
+    <div class="bg-blue-800 text-white py-3 shadow-lg">
+        <div class="max-w-4xl mx-auto px-2 text-center">
+            <h1 class="text-2xl font-extrabold">
                المديرية العامة للتخطيط والدراسات
             </h1>
-           <h2 class="text-xl font-extrabold mb-1"> وزارة الأوقاف والشؤون الدينية</h2>
-            @if($workshop)
-                <p class="text-xl opacity-90">{{ $workshop->title }}</p>
-            @endif
+           <h2 class="text-xl font-extrabold"> وزارة الأوقاف والشؤون الدينية</h2>
         </div>
     </div>
 
-    <div class="max-w-6xl mx-auto p-4 md:p-8 -mt-6">
+    <div class="max-w-6xl mx-auto p-4">
         {{-- QR Code Section --}}
-        @if($workshop && $qrImage)
-            <div class="bg-white rounded-2xl shadow-xl p-6 mb-8 card-hover text-center">
+        <div class="hidden md:block">
+            @if($workshop && $qrImage)
+            <div class="p-2 mb-4 text-center">
                 <div class="flex flex-col items-center">
                     <div class="bg-white p-4 rounded-xl shadow-inner border-2 border-blue-200 inline-block">
                         {!! $qrImage !!}
@@ -70,6 +68,7 @@
                 </div>
             </div>
         @endif
+        </div>
 
         {{-- Session Messages --}}
         @if (session('success') || session('warning') || session('error'))
@@ -115,6 +114,7 @@
                     </svg>
                     <h2 class="text-xl font-bold text-blue-700">معلومات الورشة</h2>
                 </div>
+                <p class="text-xl opacity-90">{{ $workshop->title }}</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-gray-600">
                     <div class="flex items-center space-x-2 space-x-reverse bg-blue-50 p-3 rounded-lg">
@@ -264,7 +264,7 @@
                             <p class="text-sm mt-2">كن أول من يسجل!</p>
                         </div>
                     @else
-                        <div class="overflow-hidden rounded-lg border border-gray-200">
+                        <div class="overflow-scroll rounded-lg border border-gray-200">
                             <table class="min-w-full divide-y divide-gray-200 attendance-table">
                                 <thead class="bg-gray-50">
                                     <tr>
@@ -281,7 +281,7 @@
                                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                                 </svg>
-                                                المسمى الوظيفي
+                                               القسم/الدائرة/المديرية
                                             </div>
                                         </th>
                                         <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -306,12 +306,12 @@
                                                     </div>
                                                     <div>
                                                         <div class="text-sm font-medium text-gray-900">{{ $attendance->attendee_name }}</div>
-                                                        <div class="text-sm text-gray-500 md:hidden">{{ $attendance->job_title ?? '-' }}</div>
+                                                         <div class="text-xs text-gray-900">{{ $attendance->job_title ?? '-' }}</div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">
-                                                {{ $attendance->job_title ?? '-' }}
+                                                {{ $attendance->department ?? '-' }}
                                             </td>
                                             <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                                                 <div class="flex items-center">
