@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-           {{ $workshop->title }}
+            {{ $workshop->title }}
         </h2>
     </x-slot>
 
@@ -14,13 +14,13 @@
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-gray-700">
-                    
+
                     {{-- 1. Date --}}
                     <p>
                         <strong class="font-semibold text-gray-900"> التاريخ:</strong>
                         {{ \Carbon\Carbon::parse($workshop->date)->isoFormat('dddd، D MMMM YYYY') }}
                     </p>
-                    
+
                     {{-- 2. Place --}}
                     <p>
                         <strong class="font-semibold text-gray-900"> المكان:</strong>
@@ -32,7 +32,7 @@
                         <strong class="font-semibold text-gray-900"> كتب بواسطة:</strong>
                         <span class="text-blue-600">{{ $workshop->writtenBy->name ?? '—' }}</span>
                     </p>
-                    
+
                     {{-- 4. Creation Date (Optional but useful) --}}
                     <p>
                         <strong class="font-semibold text-gray-900"> تاريخ التسجيل:</strong>
@@ -47,7 +47,7 @@
                     <h3 class="text-2xl font-bold text-gray-800 mb-4">
                         قائمة الحضور ({{ $workshop->attendances->count() }})
                     </h3>
-                    
+
                     @if ($workshop->attendances->isEmpty())
                         <div class="bg-yellow-50 border-r-4 border-yellow-400 p-4 rounded-lg text-yellow-800">
                             لا يوجد حضور مسجل لهذه الورشة حتى الآن.
@@ -67,13 +67,14 @@
                 </div>
 
                 <div class="mt-8 pt-4 border-t flex justify-end">
-                    <a href="{{ route('workshop.edit', $workshop->id) }}" 
-                       class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
+                    <a href="{{ route('workshop.edit', $workshop->id) }}"
+                        class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
                         تعديل الورشة
                     </a>
                 </div>
 
             </div>
+
         </div>
     </div>
 </x-app-layout>

@@ -7,6 +7,7 @@ use App\Models\WorkshopAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
 
 class WorkshopController extends Controller
 {
@@ -16,6 +17,8 @@ class WorkshopController extends Controller
         // 1. Find the currently active workshop
         // We assume only one workshop should be active for attendance at a time.
         $workshop = Workshop::where('active', true)->first();
+
+        $qrImage = null;
 
         // Handle case where no active workshop is found
         if (!$workshop) {
@@ -66,6 +69,8 @@ class WorkshopController extends Controller
 
             // Redirect back with a success message
             return back()->with('success', 'تم تسجيل حضورك بنجاح! نرحب بك.');
+        } else {
+            $qrImage = QrCodeGenerator::size(200)->generate(route('workshow_attendance_register'));
         }
 
         // 3. Handle GET Request (Display form and list)
@@ -73,7 +78,7 @@ class WorkshopController extends Controller
             ->latest() // Order by creation date, newest first
             ->get();
 
-        return view('workshow_attendance_register', compact('attendances', 'workshop'));
+        return view('workshow_attendance_register', compact('attendances', 'workshop','qrImage'));
     }
 
 
@@ -172,8 +177,8 @@ class WorkshopController extends Controller
         // 1. Validation: Includes all fields sent from the edit form.
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'place' => 'nullable|string|max:255', 
-            'written_by' => 'required|exists:users,id', 
+            'place' => 'nullable|string|max:255',
+            'written_by' => 'required|exists:users,id',
             'attendances' => 'nullable|array',
             'attendances.*' => 'nullable|string|max:255',
         ], [
