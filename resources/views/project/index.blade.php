@@ -1,29 +1,26 @@
 <x-app-layout>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <x-slot name="header">
-       <h1 class="text-xl">{{ $indicator->title }}</h1>
-    </x-slot>
 
     <!-- Main Container -->
-    <div class="container py-8 mx-auto px-4">
-        <!-- Search Card with better spacing -->
-        <div class="mb-6 p-4 bg-white rounded-lg shadow-md border border-gray-100">
-            <div class="flex flex-col md:flex-row gap-4">
-                <select
-                    class="flex-grow bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                    <option value="">اختر الدائرة</option>
-                    <option value="197">دائرة القران الكريم</option>
-                    <option value="198">دائرة رسالة الإسلام والمؤتلف الإنساني</option>
-                    <option value="199">دائرة التخطيط والاحصاء</option>
-                    <option value="200">دائرة الحوكمة والأداء المؤسسي</option>
-                </select>
-                <button type="button"
-                    class="md:w-32 text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 transition-colors duration-200">
-                    بحث <i class="fas fa-search mr-1"></i>
-                </button>
+    <div class="container py-2 mx-auto px-4">
+       
+        <div class="p-6 bg-white rounded-xl shadow space-y-4 border mb-8">
+                <h1 class="text-xl md:text-2xl font-bold">
+                    {{ $indicator->title }}
+                </h1>
+
+
+                <h2 class="text-xl font-bold text-gray-700">
+                    بيانات المستهدف للمؤشر لعام
+                    <span class="text-blue-700">{{ $current_year }}</span>:
+                    <span class="text-red-800">{{ number_format($indicator->target_for_indicator) }}</span>
+                </h2>
+
+                <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                    <label class="font-semibold text-gray-700">دورية قياس
+                        المستهدف:</label>
+                    <span class="text-blue-700">{{ __($indicator->period) }}</span>
+                </div>
             </div>
-        </div>
 
         <!-- Action Bar with better buttons -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -35,15 +32,6 @@
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                 الأنشطة
             </a>
-            <div class="flex items-center gap-3 bg-white p-2 rounded-lg shadow-sm border border-gray-200">
-                <span class="text-sm text-gray-600">الخطة السنوية:</span>
-                <select
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1">
-                    <option selected value="">2025</option>
-                    <option value="">2024</option>
-                    <option value="">2023</option>
-                </select>
-            </div>
         </div>
 
         <!-- Data Table Container -->

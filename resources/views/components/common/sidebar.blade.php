@@ -49,6 +49,18 @@ $sidebarSections = [
             ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
         ]
     ],
+    'workshop' => [
+        'title' => 'الورش',
+        'links' => [
+            ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش'],
+        ]
+    ],
+    'qr' => [
+        'title' => 'الكيوآر',
+        'links' => [
+            ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
+        ]
+    ],
     'admin_structure' => [
         'title' => 'الهيكل',
         'links' => [

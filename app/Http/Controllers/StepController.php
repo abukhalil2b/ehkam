@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OrganizationalUnit;
 use App\Models\Project;
 use App\Models\Step;
 use App\Models\StepEvidenceFile;
@@ -26,7 +27,9 @@ class StepController extends Controller
             ->orderBy('ordered', 'asc')
             ->get();
 
-        return view('step.index', compact('project', 'steps', 'phases'));
+        $organizational_units = OrganizationalUnit::all();
+
+        return view('step.index', compact('project', 'steps', 'phases','organizational_units'));
     }
 
     // Store new step

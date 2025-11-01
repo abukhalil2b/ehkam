@@ -12,6 +12,23 @@
         <div class="container py-8 mx-auto px-4">
             <h3 class="mb-4 text-center text-green-700 text-lg font-bold">وزارة الأوقاف والشؤون الدينية</h3>
 
+           <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">المؤشرات</label>
+
+                        <select name="indicator_id"
+                            class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                            <option value="" disabled>اختر المؤشر</option>
+                            @foreach ($indicators as $indicator)
+                                <option value="{{ $indicator->id }}" 
+                                    @if ($indicator->id == old('indicator_id', $project->indicator_id)) selected @endif>
+                                    {{ $indicator->title }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('indicator_id')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
             <div class="p-3">
                 
                 {{-- Sector, Department, and Section Fields --}}

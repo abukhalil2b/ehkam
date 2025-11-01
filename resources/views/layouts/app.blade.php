@@ -41,6 +41,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.06);
         }
     </style>
+    @stack('styles')
 </head>
 
 <body x-data="main" class="antialiased relative text-sm font-normal overflow-x-hidden **leading-relaxed**"
@@ -96,6 +97,7 @@
     </div>
 
     <script src="/assets/js/custom.js"></script>
+    @stack('scripts')
 </body>
 
 </html>

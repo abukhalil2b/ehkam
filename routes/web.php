@@ -13,16 +13,21 @@ use App\Http\Controllers\MeetingMinuteController;
 use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\WorkshopController;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome')->name('home');
+Route::view('/', 'welcome2')->name('home');
+
+Route::match(['get','post'],'workshow_attendance_register',[WorkshopController::class,'attendance_register'])
+->name('workshow_attendance_register');
 
 // Dashboard - Usually just requires authentication
 Route::group(['middleware' => ['auth']], function () {
@@ -158,6 +163,56 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('meeting_minute/destroy/{meeting_minute}', [MeetingMinuteController::class, 'destroy'])
         ->middleware('permission:meeting_minute.delete')
         ->name('meeting_minute.destroy');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('workshop/index', [WorkshopController::class, 'index'])
+        ->middleware('permission:workshop.show')
+        ->name('workshop.index');
+
+    Route::get('workshop/create', [WorkshopController::class, 'create'])
+        ->middleware('permission:workshop.create')
+        ->name('workshop.create');
+
+    Route::post('workshop/store', [WorkshopController::class, 'store'])
+        ->middleware('permission:workshop.create')
+        ->name('workshop.store');
+
+    Route::get('workshop/show/{workshop}', [WorkshopController::class, 'show'])
+        ->middleware('permission:workshop.show')
+        ->name('workshop.show');
+
+    Route::get('workshop/edit/{workshop}', [WorkshopController::class, 'edit'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.edit');
+
+    Route::put('workshop/update/{workshop}', [WorkshopController::class, 'update'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.update');
+
+    Route::delete('workshop/destroy/{workshop}', [WorkshopController::class, 'destroy'])
+        ->middleware('permission:workshop.delete')
+        ->name('workshop.destroy');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('qr/index', [QrCodeController::class, 'index'])
+        ->middleware('permission:qr.show')
+        ->name('qr.index');
+
+    Route::post('qr/store', [QrCodeController::class, 'store'])
+        ->middleware('permission:qr.create')
+        ->name('qr.store');
+
+    Route::get('qr/show/{qr}', [QrCodeController::class, 'show'])
+        ->middleware('permission:qr.show')
+        ->name('qr.show');
+
+    Route::delete('qr/destroy/{qr}', [QrCodeController::class, 'destroy'])
+        ->middleware('permission:qr.delete')
+        ->name('qr.destroy');
 });
 
 

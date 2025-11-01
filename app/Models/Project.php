@@ -17,4 +17,8 @@ class Project extends Model
     {
         return $this->hasMany(Step::class);
     }
+
+    public function indicator(){
+        return $this->belongsTo(Indicator::class);
+    }
 }

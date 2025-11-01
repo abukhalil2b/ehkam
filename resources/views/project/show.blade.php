@@ -1,11 +1,26 @@
 <x-app-layout>
+    <div  class="container py-8 mx-auto px-4">
+    <div class="p-6 bg-white rounded-xl shadow space-y-4 border mb-8">
+                <h1 class="text-xl md:text-2xl font-bold">
+                    {{ $project->indicator->title }}
+                </h1>
 
-    <x-slot name="header">
-       <h1 class="container mx-auto px-4">تفاصيل المشروع</h1>
-    </x-slot>
+
+                <h2 class="text-xl font-bold text-gray-700">
+                    بيانات المستهدف للمؤشر لعام
+                    <span class="text-blue-700">{{ $current_year }}</span>:
+                    <span class="text-red-800">{{ number_format($project->indicator->target_for_indicator) }}</span>
+                </h2>
+
+                <div class="flex items-center space-x-4 rtl:space-x-reverse">
+                    <label class="font-semibold text-gray-700">دورية قياس
+                        المستهدف:</label>
+                    <span class="text-blue-700">{{ __($project->indicator->period) }}</span>
+                </div>
+            </div>
 
 
-    <div x-data="modalComponent()" class="container py-8 mx-auto px-4">
+
         <!-- Indicator Details Card -->
         <section class="p-6 bg-white rounded-lg shadow-md border border-gray-200 mb-6">
             <div class="flex justify-between items-start mb-4">

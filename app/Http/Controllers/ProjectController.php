@@ -21,7 +21,7 @@ class ProjectController extends Controller
             ->where('current_year', $current_year)
             ->get();
 
-        return view('project.index', compact('projects', 'indicator'));
+        return view('project.index', compact('projects', 'indicator','current_year'));
     }
 
     /**
@@ -61,8 +61,10 @@ class ProjectController extends Controller
         // Fetch all sectors to populate the dropdown
         $sectors = Sector::all();
 
+        $indicators = Indicator::all();
+
         // Pass the project data and sectors to the view
-        return view('project.edit', compact('project', 'sectors'));
+        return view('project.edit', compact('project', 'sectors','indicators'));
     }
 
     /**
@@ -77,6 +79,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             // Check that the sector_id exists in the 'sectors' table
             'sector_id' => 'required|integer|exists:sectors,id',
+            'indicator_id' => 'required|integer|exists:indicators,id',
             // Note: Add validation for other fields (like department, section, type) 
             // once you include them in the form and database.
         ]);
@@ -85,7 +88,7 @@ class ProjectController extends Controller
         $project->update($validatedData);
 
         // 3. Redirect to a relevant page with a success message
-        return redirect()->route('project.index') // Assuming 'project.index' is the list of projects
+        return redirect()->route('project.index',$request->indicator_id) // Assuming 'project.index' is the list of projects
             ->with('success', 'المشروع: "' . $project->title . '" تم تحديثه بنجاح!');
     }
 
@@ -94,7 +97,11 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        return view('project.show', compact('project'));
+        $project = Project::with('indicator')->where('id',$project->id)->first();
+
+        $current_year = date('Y');
+
+        return view('project.show', compact('project','current_year'));
     }
 
 
