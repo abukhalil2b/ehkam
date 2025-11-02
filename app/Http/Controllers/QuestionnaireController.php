@@ -26,9 +26,6 @@ class QuestionnaireController extends Controller
         return view('questionnaire.index', compact('questionnaires'));
     }
 
-    // In QuestionnaireController.php
-
-
     public function shareLink(Questionnaire $questionnaire)
     {
         // --- 1. Determine the Public Access URL ---
@@ -229,6 +226,9 @@ class QuestionnaireController extends Controller
 
     public function show(Questionnaire $questionnaire)
     {
+        if($questionnaire->target_response !='registerd_only'){
+            abort(403,'show registerd only type');
+        }
         $questionnaire->load([
             'questions.choices',
         ])->loadCount([
@@ -268,10 +268,10 @@ class QuestionnaireController extends Controller
             ->firstOrFail();
 
         // 2. Call the core processing logic (see next step)
-        return $this->processTakeRequest($questionnaire, null);
+        return $this->processTakeRequest($questionnaire, null, $hash);
     }
 
-    public function take(Questionnaire $questionnaire)
+    public function registeredTake(Questionnaire $questionnaire)
     {
         $user = auth()->user();
 
@@ -286,10 +286,110 @@ class QuestionnaireController extends Controller
         }
 
         // Call the core processing logic
-        return $this->processTakeRequest($questionnaire, $user);
+        return $this->processTakeRequest($questionnaire, $user, null);
     }
 
-    private function processTakeRequest(Questionnaire $questionnaire, ?User $user = null)
+
+    public function showPublicResults(Questionnaire $questionnaire)
+    {
+        // Ensure it's a public questionnaire or handle access based on your specific logic
+        if ($questionnaire->target_response !== 'open_for_all') {
+            // You might want to handle registered-only results differently or use a Gate
+            // For simplicity, we'll proceed assuming this is the correct route for results.
+        }
+
+        // Load questions and choices for closed-ended questions
+        $questionnaire->load(['questions.choices']);
+
+        // Total number of submissions (unique sets of answers based on creation timestamp)
+        $totalResponses = $questionnaire->answers()
+            ->selectRaw('count(DISTINCT created_at) as count')
+            ->first()
+            ->count ?? 0;
+
+        // Process the data to calculate stats
+        $results = $this->calculateQuestionStats($questionnaire);
+
+        return view('questionnaire.public_result', compact('questionnaire', 'results', 'totalResponses'));
+    }
+
+    /**
+     * Calculates statistics for each question type.
+     */
+    private function calculateQuestionStats(Questionnaire $questionnaire)
+    {
+        $results = [];
+
+        foreach ($questionnaire->questions as $question) {
+            $answers = $question->answers;
+            $stats = [
+                'type' => $question->type,
+                'total_answers' => $answers->count(),
+                'breakdown' => [],
+            ];
+
+            switch ($question->type) {
+                case 'single':
+                case 'dropdown':
+                    // For single-choice, count how many times each choice ID appears
+                    $choiceCounts = $answers->pluck('choice_ids')
+                        ->flatten() // choice_ids is stored as JSON array, so we flatten it
+                        ->filter() // Remove nulls
+                        ->countBy(); // Count the occurrences of each ID
+
+                    foreach ($question->choices as $choice) {
+                        $count = $choiceCounts->get($choice->id, 0);
+                        $stats['breakdown'][] = [
+                            'text' => $choice->choice_text,
+                            'count' => $count,
+                            'percentage' => $stats['total_answers'] > 0 ? round(($count / $stats['total_answers']) * 100, 1) : 0,
+                        ];
+                    }
+                    break;
+
+                case 'multiple':
+                    // For multiple-choice, count how many times each choice ID appears
+                    $allChoiceIds = $answers->pluck('choice_ids')
+                        ->flatten()
+                        ->filter();
+
+                    $choiceCounts = $allChoiceIds->countBy();
+
+                    foreach ($question->choices as $choice) {
+                        $count = $choiceCounts->get($choice->id, 0);
+                        // Percentage is based on the total number of responses for that question
+                        $stats['breakdown'][] = [
+                            'text' => $choice->choice_text,
+                            'count' => $count,
+                            'percentage' => $stats['total_answers'] > 0 ? round(($count / $stats['total_answers']) * 100, 1) : 0,
+                        ];
+                    }
+                    break;
+
+                case 'range':
+                    // Calculate average, min, max, and frequency distribution
+                    $values = $answers->pluck('range_value')->filter();
+                    if ($values->isNotEmpty()) {
+                        $stats['breakdown']['average'] = round($values->avg(), 2);
+                        $stats['breakdown']['min'] = $values->min();
+                        $stats['breakdown']['max'] = $values->max();
+                        $stats['breakdown']['distribution'] = $values->countBy()->sortKeys(); // Show frequency of each value
+                    }
+                    break;
+
+                case 'text':
+                case 'date':
+                    // Collect all text/date answers for display
+                    $stats['breakdown'] = $answers->pluck('text_answer')->filter()->take(50); // Limit to 50 for performance
+                    break;
+            }
+
+            $results[$question->id] = $stats;
+        }
+
+        return $results;
+    }
+    private function processTakeRequest(Questionnaire $questionnaire, ?User $user = null, $hash = null)
     {
         if (!$questionnaire->is_active) {
             return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
@@ -313,8 +413,10 @@ class QuestionnaireController extends Controller
             $query->orderBy('ordered');
         }]);
 
+        $qrImage = QrCode::size(300)
+            ->generate(route('questionnaire.public_take', $hash));
         // Pass the user state to the view
-        return view('questionnaire.take', compact('questionnaire', 'user'));
+        return view('questionnaire.take', compact('questionnaire', 'user', 'qrImage'));
     }
 
     // New method to handle public submission via hash
@@ -474,7 +576,7 @@ class QuestionnaireController extends Controller
         }
 
         // 7. Redirect back
-        return redirect()->back()->with('success', 'تم إرسال الإجابات بنجاح');
+        return view('questionnaire.thank_you_for_answer')->with('success', 'تم إرسال الإجابات بنجاح');
     }
 
     public function edit(Questionnaire $questionnaire)

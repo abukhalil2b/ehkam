@@ -6,7 +6,7 @@ use App\Models\Workshop;
 use App\Models\WorkshopAttendance;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
 
 class WorkshopController extends Controller
@@ -180,19 +180,32 @@ class WorkshopController extends Controller
         }
 
         // Update workshop
-        $workshop->update([
-           'is_active' => $validated['is_active'] ?? false,
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'starts_at' => $startsAt,
-            'ends_at' => $endsAt,
-            'location' => $validated['location'],
-            'created_by' => $validated['created_by'],
-        ]);
+        try {
+            DB::transaction(function () use ($workshop, $validated, $startsAt, $endsAt) {
 
-        // Handle attendances
-        $this->updateAttendances($workshop, $validated['attendances'] ?? []);
+                // 1. Update workshop
+                $workshop->update([
+                    'is_active' => $validated['is_active'] ?? false,
+                    'title' => $validated['title'],
+                    'description' => $validated['description'],
+                    'starts_at' => $startsAt,
+                    'ends_at' => $endsAt,
+                    'location' => $validated['location'],
+                    'created_by' => $validated['created_by'],
+                ]);
 
+                // 2. Handle attendances (Delete + Create)
+                $this->updateAttendances($workshop, $validated['attendances'] ?? []);
+            }); // Transaction automatically commits if no exceptions are thrown
+
+            return redirect()->route('workshop.index')
+                ->with('success', 'تم تحديث الورشة والحضور بنجاح.');
+        } catch (\Exception $e) {
+            // The transaction will be automatically rolled back if an exception occurs
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'حدث خطأ أثناء تحديث الورشة والحضور.'); // Or log the error
+        }
         return redirect()->route('workshop.index')
             ->with('success', 'تم تحديث الورشة والحضور بنجاح.');
     }

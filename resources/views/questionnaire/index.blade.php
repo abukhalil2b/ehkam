@@ -49,47 +49,40 @@
                     </div>
 
                     {{-- Action Buttons --}}
-<div class="flex flex-col items-end gap-2">
+                    <div class="flex flex-col items-end gap-2">
+                        <div class="flex gap-2">
 
-    <div class="flex gap-2">
-        {{-- Management Button --}}
-        <a href="{{ route('questionnaire.show', $q) }}"
-            class="text-orange-600 font-semibold text-sm">إدارة</a>
+                            @if ($q->target_response == 'registerd_only')
+                                <a href="{{ route('questionnaire.show', $q) }}"
+                                    class="text-orange-600 font-semibold text-sm">إدارة</a>
+                            @else
+                            <a href="{{ route('questionnaire.public_result', $q) }}"
+                                class="text-blue-600 font-semibold text-sm">نتائج العام</a>
+                            @if ($q->is_active)
+                                <a href="{{ route('questionnaire.share_link', $q) }}"
+                                    class="text-purple-600 font-semibold text-sm">مشاركة/رابط</a>
+                            @endif
+                             @endif
 
-        {{-- NEW DEDICATED SHARE/LINK PAGE BUTTON --}}
-        {{-- This button replaces the copy and QR code buttons/modals below --}}
-        @if ($q->is_active)
-            <a href="{{ route('questionnaire.share_link', $q) }}"
-                class="text-purple-600 font-semibold text-sm">مشاركة/رابط</a>
-        @endif
+                            {{-- Existing direct access links (Optional but useful for quick testing) --}}
+                            @if ($q->target_response === 'open_for_all' && $q->public_hash)
+                                <a href="{{ route('questionnaire.public_take', $q->public_hash) }}"
+                                    class="text-blue-600 font-semibold text-sm">تعبئة (عام)</a>
+                            @elseif ($q->target_response === 'registerd_only')
+                                <a href="{{ route('questionnaire.take', $q) }}"
+                                    class="text-blue-600 font-semibold text-sm">تعبئة (مسجل)</a>
+                            @else
+                                <span class="text-gray-500 text-sm">غير متاح</span>
+                            @endif
+                        </div>
 
-        {{-- Existing direct access links (Optional but useful for quick testing) --}}
-        @if ($q->target_response === 'open_for_all' && $q->public_hash)
-            <a href="{{ route('questionnaire.public_take', $q->public_hash) }}"
-                class="text-blue-600 font-semibold text-sm">تعبئة (عام)</a>
-        @elseif ($q->target_response === 'registerd_only')
-            <a href="{{ route('questionnaire.take', $q) }}"
-                class="text-blue-600 font-semibold text-sm">تعبئة (مسجل)</a>
-        @else
-            <span class="text-gray-500 text-sm">غير متاح</span>
-        @endif
-    </div>
-
-    {{-- 🛑 REMOVED: URL Sharing and QR Code Section. This is now on the share_link page. --}}
-    {{-- @if ($accessUrl)
-        <div class="flex gap-2 items-center mt-2">
-            ... Copy URL Button (Removed) ...
-            ... QR Code Button and Modal (Removed) ...
-        </div>
-    @endif --}}
-
-</div>
+                    </div>
                 </div>
 
                 {{-- QR Code Modal (Requires a basic Alpine/Tailwind modal component) --}}
                 <div x-data="{ open: false }"
-                    @open-modal.window="if ($event.detail === 'qr-code-{{ $q->id }}') open = true"
-                    x-show="open" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+                    @open-modal.window="if ($event.detail === 'qr-code-{{ $q->id }}') open = true" x-show="open"
+                    class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
 
                     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                         {{-- Background overlay --}}

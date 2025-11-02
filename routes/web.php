@@ -4,7 +4,6 @@ use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssessmentQuestionController;
 use App\Http\Controllers\AssessmentResultController;
-use App\Http\Controllers\ContributeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IndicatorController;
@@ -21,7 +20,6 @@ use App\Http\Controllers\StepController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\WorkshopController;
-use App\Models\Activity;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome2')->name('home');
@@ -286,7 +284,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('assessment_questions.update_ordered');
 });
 
-// STATISTIC ROUTES (Assuming these are for viewing reports/data)
 Route::get('statistic/index', [StatisticController::class, 'index'])
     ->middleware('permission:statistic.index')
     ->name('statistic.index');
@@ -333,8 +330,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.edit')
         ->name('questionnaire.question_update');
 
-    Route::get('questionnaire/take/{questionnaire}', [QuestionnaireController::class, 'take'])
-        ->name('questionnaire.take'); // Usually open to all authenticated users
 
     Route::get('questionnaire/duplicate/{questionnaire}', [QuestionnaireController::class, 'duplicate'])
         ->middleware('permission:questionnaire.create') // Duplicating is like creating
@@ -352,7 +347,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('questionnaire.answer_index');
 
     Route::get('questionnaire/answer_show/{answer}', [QuestionnaireController::class, 'answerShow'])
-        ->middleware('permission:questionnaire.answer_index') // Viewing answer is part of index
+        ->middleware('permission:questionnaire.answer_index')
         ->name('questionnaire.answer_show');
 
     Route::put('questionnaire/answer_update/{answer}', [QuestionnaireController::class, 'updateAnswer'])
@@ -364,8 +359,14 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('questionnaire.export');
 
     Route::get('questionnaire/statistics/{questionnaire}', [QuestionnaireController::class, 'statistics'])
-        ->middleware('permission:questionnaire.index') // Viewing stats is part of index
+        ->middleware('permission:questionnaire.index')
         ->name('questionnaire.statistics');
+
+    Route::get('questionnaire/registered_take/{questionnaire}', [QuestionnaireController::class, 'registeredTake'])
+        ->name('questionnaire.registered_take'); // Usually open to all authenticated users
+
+    Route::get('questionnaires/public_result/{questionnaire}', [QuestionnaireController::class, 'showPublicResults'])
+        ->name('questionnaire.public_result');
 });
 
 // Public Questionnaire Routes (No 'auth' middleware needed)
@@ -375,9 +376,10 @@ Route::get('q/{hash}', [QuestionnaireController::class, 'publicTake'])
 Route::post('q/submit/{hash}', [QuestionnaireController::class, 'publicSubmit'])
     ->name('questionnaire.public_submit');
 
-
 // TASK/KANBAN ROUTES (Using generic task permission)
 Route::group(['middleware' => ['auth', 'permission:task.index']], function () {
+
+
     Route::get('task/index', [TaskController::class, 'index'])
         ->name('task.index');
 
