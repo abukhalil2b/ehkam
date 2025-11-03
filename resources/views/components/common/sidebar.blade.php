@@ -40,7 +40,6 @@ $sidebarSections = [
         'links' => [
             ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
             ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
-            ['route' => 'questionnaire.export', 'permission' => 'questionnaire.export', 'label' => 'تصدير الكل في أكسل'],
         ]
     ],
     'meeting_minute' => [

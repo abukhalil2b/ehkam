@@ -15,106 +15,87 @@ class QuestionnaireAnswersExport implements FromCollection, WithHeadings
     public function __construct(Questionnaire $questionnaire)
     {
         $this->questionnaire = $questionnaire;
-        // Load questions in the correct order for column mapping
-        $this->questions = $questionnaire->questions()->orderBy('ordered')->get();
+        $this->questions = $questionnaire->questions()
+            ->with('choices')
+            ->orderBy('ordered')
+            ->get();
     }
 
-    /**
-     * Define the column headers (Question Texts)
-     */
     public function headings(): array
     {
         $headings = ['المستخدم (User)', 'تاريخ الإجابة (Submission Date)'];
 
-        // Add each question's text as a column header
         foreach ($this->questions as $question) {
             $headings[] = $question->question_text;
-            // If the question allows a note, add a separate column for it
             if ($question->note_attachment) {
                 $headings[] = $question->question_text . ' - ملحوظة';
             }
         }
-        
+
         return $headings;
     }
 
-    /**
-     * Retrieve and format the data collection
-     */
     public function collection()
-    {
-        // 1. Group all answers by the user who submitted them
-        $groupedAnswers = $this->questionnaire->answers()
-            ->with(['user', 'question.choices'])
-            ->get()
-            ->groupBy('user_id');
+{
+    $groupedAnswers = $this->questionnaire->answers()
+        ->with(['user', 'question.choices'])
+        ->orderBy('created_at')
+        ->get()
+        ->groupBy(function ($answer) {
+            return $answer->user_id . '_' . $answer->created_at->format('Y-m-d H:i:s');
+        });
 
-        $exportData = new Collection();
+    $exportData = new Collection();
 
-        // 2. Iterate through each user's submission
-        foreach ($groupedAnswers as $userId => $userAnswers) {
-            $user = $userAnswers->first()->user;
-            $submissionDate = $userAnswers->max('created_at')->format('Y-m-d H:i');
-            
-            // Start the row with User and Date
-            $row = [
-                $user->name . " (ID: {$userId})", 
-                $submissionDate
-            ];
+    foreach ($groupedAnswers as $group) {
+        $user = $group->first()->user;
+        $userId = $group->first()->user_id;
+        $userName = $user ? $user->name . " (ID: {$userId})" : 'مستخدم مجهول';
+        $submissionDate = optional($group->first()->created_at)->format('Y-m-d H:i');
 
-            // 3. Map answers to the correct question order
-            $answersMap = $userAnswers->keyBy('question_id');
+        $row = [$userName, $submissionDate];
 
-            // 4. Fill the row based on the required question order
-            foreach ($this->questions as $question) {
-                $answer = $answersMap->get($question->id);
-                $answerText = '';
-                $noteText = null;
+        $answersMap = $group->keyBy('question_id');
 
-                if ($answer) {
-                    $noteText = $answer->note;
-                    
-                    switch ($question->type) {
-                        case 'text':
-                            $answerText = $answer->text_answer;
-                            break;
-                            
-                        case 'date':
-                            $answerText = $answer->text_answer; // Assuming date is saved in text_answer
-                            break;
+        foreach ($this->questions as $question) {
+            $answer = $answersMap->get($question->id);
+            $answerText = '';
+            $noteText = '';
 
-                        case 'range':
-                            $answerText = $answer->range_value;
-                            break;
+            if ($answer) {
+                $noteText = $answer->note ?? '';
 
-                        case 'single':
-                        case 'multiple':
-                            // Decode choice_ids and fetch choice texts
-                            $choiceIds = json_decode($answer->choice_ids, true) ?? [];
-                            
-                            // Get the choice texts and join them with a comma
-                            $choiceTexts = $question->choices
-                                ->whereIn('id', $choiceIds)
-                                ->pluck('choice_text')
-                                ->implode(', ');
+                switch ($question->type) {
+                    case 'text':
+                    case 'date':
+                        $answerText = $answer->text_answer ?? '';
+                        break;
 
-                            $answerText = $choiceTexts;
-                            break;
-                    }
-                }
+                    case 'range':
+                        $answerText = $answer->range_value ?? '';
+                        break;
 
-                // Add the main answer value
-                $row[] = $answerText;
-
-                // Add the note value if permitted by the question schema
-                if ($question->note_attachment) {
-                    $row[] = $noteText;
+                    case 'single':
+                    case 'multiple':
+                        $choiceIds = json_decode($answer->choice_ids ?? '[]', true);
+                        $answerText = $question->choices
+                            ->whereIn('id', $choiceIds)
+                            ->pluck('choice_text')
+                            ->implode(', ');
+                        break;
                 }
             }
-            
-            $exportData->push($row);
+
+            $row[] = $answerText;
+            if ($question->note_attachment) {
+                $row[] = $noteText;
+            }
         }
 
-        return $exportData;
+        $exportData->push($row);
     }
+
+    return $exportData;
+}
+
 }

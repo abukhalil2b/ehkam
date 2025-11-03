@@ -5,10 +5,7 @@
         <div class="bg-white border border-gray-200 rounded-lg p-4">
             <h4 class="font-semibold text-gray-900 mb-3">إحصائيات النص</h4>
             <div class="space-y-3">
-                <div class="flex justify-between items-center">
-                    <span class="text-gray-600">متوسط عدد الكلمات:</span>
-                    <span class="font-semibold">{{ number_format($statistics['average_word_count'], 1) }}</span>
-                </div>
+               
                 <div class="flex justify-between items-center">
                     <span class="text-gray-600">إجمالي الإجابات النصية:</span>
                     <span class="font-semibold">{{ $statistics['total'] }}</span>

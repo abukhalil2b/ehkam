@@ -133,6 +133,25 @@ class WorkshopController extends Controller
             ->with('success', 'تم إنشاء الورشة بنجاح.');
     }
 
+    public function replicate(Workshop $workshop)
+    {
+        // Duplicate the workshop record
+        $newWorkshop = $workshop->replicate();
+
+        // Optionally, modify some fields before saving
+        $newWorkshop->title = $workshop->title . ' (نسخة)';
+        $newWorkshop->is_active = false; // You can reset status if you want
+        $newWorkshop->created_by = auth()->id();
+        $newWorkshop->starts_at = now(); // Optional: reset start date
+        $newWorkshop->ends_at = null;
+
+        // Save the new record
+        $newWorkshop->save();
+
+        return redirect()->route('workshop.index')
+            ->with('success', 'تم نسخ الورشة بنجاح.');
+    }
+
     // ---------------------- SHOW ----------------------
     public function show(Workshop $workshop)
     {
@@ -148,6 +167,25 @@ class WorkshopController extends Controller
         $users = User::all();
         return view('workshop.edit', compact('workshop', 'users'));
     }
+
+    public function editStatus(Workshop $workshop)
+    {
+        return view('workshop.edit_status', compact('workshop'));
+    }
+
+    public function updateStatus(Request $request, Workshop $workshop)
+    {
+        // return $request->all();
+        $validated = $request->validate([
+            'is_active' => 'boolean',
+        ]);
+        $workshop->update([
+            'is_active' => $validated['is_active'] ?? false,
+        ]);
+        return redirect()->route('workshop.index')
+            ->with('success', 'تم تحديث الورشة والحضور بنجاح.');
+    }
+
 
     // ---------------------- UPDATE ----------------------
 

@@ -30,7 +30,7 @@
                                 $accessUrl = route('questionnaire.public_take', $q->public_hash, false); // false for relative URL
                                 $accessText = 'مفتوح للكل';
                             } elseif ($q->target_response == 'registerd_only') {
-                                $accessUrl = route('questionnaire.take', $q, false);
+                                $accessUrl = route('questionnaire.registered_take', $q, false);
                                 $accessText = 'فقط المسجلين';
                             }
                         @endphp
@@ -51,25 +51,23 @@
                     {{-- Action Buttons --}}
                     <div class="flex flex-col items-end gap-2">
                         <div class="flex gap-2">
-
-                            @if ($q->target_response == 'registerd_only')
-                                <a href="{{ route('questionnaire.show', $q) }}"
-                                    class="text-orange-600 font-semibold text-sm">إدارة</a>
-                            @else
-                            <a href="{{ route('questionnaire.public_result', $q) }}"
-                                class="text-blue-600 font-semibold text-sm">نتائج العام</a>
-                            @if ($q->is_active)
-                                <a href="{{ route('questionnaire.share_link', $q) }}"
-                                    class="text-purple-600 font-semibold text-sm">مشاركة/رابط</a>
+                            <a href="{{ route('questionnaire.show', $q) }}"
+                                class="text-orange-600 font-semibold text-sm">إدارة</a>
+                            @if ($q->target_response == 'open_for_all')
+                                <a href="{{ route('questionnaire.public_result', $q) }}"
+                                    class="text-blue-600 font-semibold text-sm">نتائج العام</a>
+                                @if ($q->is_active)
+                                    <a href="{{ route('questionnaire.share_link', $q) }}"
+                                        class="text-purple-600 font-semibold text-sm">مشاركة/رابط</a>
+                                @endif
                             @endif
-                             @endif
 
                             {{-- Existing direct access links (Optional but useful for quick testing) --}}
                             @if ($q->target_response === 'open_for_all' && $q->public_hash)
                                 <a href="{{ route('questionnaire.public_take', $q->public_hash) }}"
                                     class="text-blue-600 font-semibold text-sm">تعبئة (عام)</a>
                             @elseif ($q->target_response === 'registerd_only')
-                                <a href="{{ route('questionnaire.take', $q) }}"
+                                <a href="{{ route('questionnaire.registered_take', $q) }}"
                                     class="text-blue-600 font-semibold text-sm">تعبئة (مسجل)</a>
                             @else
                                 <span class="text-gray-500 text-sm">غير متاح</span>

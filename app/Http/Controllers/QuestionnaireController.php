@@ -39,7 +39,7 @@ class QuestionnaireController extends Controller
 
         } elseif ($questionnaire->target_response === 'registerd_only') {
             // Use the direct authenticated route for 'registerd_only'
-            $routeUrl = route('questionnaire.take', $questionnaire);
+            $routeUrl = route('questionnaire.registered_take', $questionnaire);
             $accessUrl = url($routeUrl); // Get the absolute URL for the QR code
         }
 
@@ -226,9 +226,6 @@ class QuestionnaireController extends Controller
 
     public function show(Questionnaire $questionnaire)
     {
-        if($questionnaire->target_response !='registerd_only'){
-            abort(403,'show registerd only type');
-        }
         $questionnaire->load([
             'questions.choices',
         ])->loadCount([
@@ -267,8 +264,19 @@ class QuestionnaireController extends Controller
             ->where('target_response', 'open_for_all')
             ->firstOrFail();
 
-        // 2. Call the core processing logic (see next step)
-        return $this->processTakeRequest($questionnaire, null, $hash);
+         if (!$questionnaire->is_active) {
+            return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
+        }
+
+     
+        $questionnaire->load(['questions.choices' => function ($query) {
+            $query->orderBy('ordered');
+        }]);
+
+        $qrImage = QrCode::size(300)
+            ->generate(route('questionnaire.public_take', $hash));
+        // Pass the user state to the view
+        return view('questionnaire.take', compact('questionnaire','qrImage'));
     }
 
     public function registeredTake(Questionnaire $questionnaire)
@@ -285,8 +293,32 @@ class QuestionnaireController extends Controller
             return abort(404);
         }
 
-        // Call the core processing logic
-        return $this->processTakeRequest($questionnaire, $user, null);
+       if (!$questionnaire->is_active) {
+            return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
+        }
+
+        // Check if the user is authenticated AND has already answered (only relevant for registered users)
+        if ($user) {
+            $answered = Answer::where('questionnaire_id', $questionnaire->id)
+                ->where('user_id', $user->id)
+                ->exists();
+
+            if ($answered) {
+                return redirect()->back()->with('error', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
+            }
+        }
+
+        // The main difference in the view will be whether you include user_id in the form submission.
+        // The form submission logic must be updated to handle this as well.
+
+        $questionnaire->load(['questions.choices' => function ($query) {
+            $query->orderBy('ordered');
+        }]);
+
+        $qrImage = QrCode::size(300)
+            ->generate(route('questionnaire.registered_take', $questionnaire->id));
+        // Pass the user state to the view
+        return view('questionnaire.take', compact('questionnaire', 'user', 'qrImage'));
     }
 
 
@@ -389,35 +421,7 @@ class QuestionnaireController extends Controller
 
         return $results;
     }
-    private function processTakeRequest(Questionnaire $questionnaire, ?User $user = null, $hash = null)
-    {
-        if (!$questionnaire->is_active) {
-            return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
-        }
-
-        // Check if the user is authenticated AND has already answered (only relevant for registered users)
-        if ($user) {
-            $answered = Answer::where('questionnaire_id', $questionnaire->id)
-                ->where('user_id', $user->id)
-                ->exists();
-
-            if ($answered) {
-                return redirect()->back()->with('error', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
-            }
-        }
-
-        // The main difference in the view will be whether you include user_id in the form submission.
-        // The form submission logic must be updated to handle this as well.
-
-        $questionnaire->load(['questions.choices' => function ($query) {
-            $query->orderBy('ordered');
-        }]);
-
-        $qrImage = QrCode::size(300)
-            ->generate(route('questionnaire.public_take', $hash));
-        // Pass the user state to the view
-        return view('questionnaire.take', compact('questionnaire', 'user', 'qrImage'));
-    }
+ 
 
     // New method to handle public submission via hash
     public function publicSubmit(Request $request, string $hash)
@@ -842,8 +846,10 @@ class QuestionnaireController extends Controller
 
     public function export(Questionnaire $questionnaire)
     {
+        $substrname = Str::substr($questionnaire->title,1,10);
+        
         // Generate a friendly file name
-        $fileName = 'Responses-' . Str::slug($questionnaire->title) . '-' . now()->format('Ymd') . '.xlsx';
+        $fileName = 'Responses-' . Str::slug($substrname) . '-' . now()->format('Ymd') . '.xlsx';
 
         // Use the Excel facade to download the export
         return Excel::download(new QuestionnaireAnswersExport($questionnaire), $fileName);

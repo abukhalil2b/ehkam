@@ -180,6 +180,10 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workshop.create')
         ->name('workshop.store');
 
+        Route::post('workshop/replicate/{workshop}', [WorkshopController::class, 'replicate'])
+        ->middleware('permission:workshop.create')
+        ->name('workshop.replicate');
+
     Route::get('workshop/show/{workshop}', [WorkshopController::class, 'show'])
         ->middleware('permission:workshop.show')
         ->name('workshop.show');
@@ -191,6 +195,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('workshop/update/{workshop}', [WorkshopController::class, 'update'])
         ->middleware('permission:workshop.edit')
         ->name('workshop.update');
+
+    Route::get('workshop/edit_status/{workshop}', [WorkshopController::class, 'editStatus'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.edit_status');
+
+    Route::put('workshop/update_status/{workshop}', [WorkshopController::class, 'updateStatus'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.update_status');
 
     Route::delete('workshop/destroy/{workshop}', [WorkshopController::class, 'destroy'])
         ->middleware('permission:workshop.delete')
@@ -354,7 +366,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.answer_edit')
         ->name('questionnaire.answer_update');
 
-    Route::get('questionnaire/export', [QuestionnaireController::class, 'export'])
+    Route::get('questionnaire/export/{questionnaire}', [QuestionnaireController::class, 'export'])
         ->middleware('permission:questionnaire.export')
         ->name('questionnaire.export');
 
@@ -365,7 +377,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('questionnaire/registered_take/{questionnaire}', [QuestionnaireController::class, 'registeredTake'])
         ->name('questionnaire.registered_take'); // Usually open to all authenticated users
 
-    Route::get('questionnaires/public_result/{questionnaire}', [QuestionnaireController::class, 'showPublicResults'])
+    Route::get('questionnaire/public_result/{questionnaire}', [QuestionnaireController::class, 'showPublicResults'])
         ->name('questionnaire.public_result');
 });
 
