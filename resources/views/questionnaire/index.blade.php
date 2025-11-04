@@ -7,14 +7,6 @@
             جديد
         </a>
 
-        @if (session('success'))
-            {{-- Simple success notification for the copy feature --}}
-            <div x-data="{ show: true }" x-show="show" x-transition.opacity.duration.500ms x-init="setTimeout(() => show = false, 3000)"
-                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
-        @endif
-
         @foreach ($questionnaires as $q)
             {{-- Initialize Alpine component for copy feature --}}
             <div class="p-6 bg-white rounded-2xl shadow" x-data="{ copyMessage: '', urlToCopy: '' }">

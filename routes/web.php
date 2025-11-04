@@ -347,8 +347,8 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.create') // Duplicating is like creating
         ->name('questionnaire.duplicate');
 
-    Route::post('questionnaire/submit/{questionnaire}', [QuestionnaireController::class, 'submit'])
-        ->name('questionnaire.submit'); // Usually open to all authenticated users
+    Route::post('questionnaire/registerd_only_submit/{questionnaire}', [QuestionnaireController::class, 'registerd_only_submit'])
+        ->name('questionnaire.registerd_only_submit'); // Usually open to all authenticated users
 
     Route::delete('questionnaire/delete/{questionnaire}', [QuestionnaireController::class, 'delete'])
         ->middleware('permission:questionnaire.delete')

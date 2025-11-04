@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>تسجيل الحضور في الورشة</title>
+    <title>{{ $questionnaire->title }}</title>
     <!-- Tailwind CSS CDN for quick setup -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fonts - Ensure Tajawal is loaded -->
@@ -78,7 +78,7 @@
         @php
             $submitRoute = $questionnaire->public_hash
                 ? route('questionnaire.public_submit', $questionnaire->public_hash)
-                : route('questionnaire.submit', $questionnaire->id);
+                : route('questionnaire.registerd_only_submit', $questionnaire->id);
         @endphp
         
         <form method="POST" action="{{ $submitRoute }}" class="bg-white p-6 rounded-2xl shadow space-y-6">
@@ -94,7 +94,7 @@
                     {{-- Question Types --}}
                     @switch($question->type)
                         @case('text')
-                            <textarea name="question_{{ $question->id }}" class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200" required></textarea>
+                            <textarea name="question_{{ $question->id }}" class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200"></textarea>
                         @break
 
                         @case('date')

@@ -265,7 +265,7 @@ class QuestionnaireController extends Controller
             ->firstOrFail();
 
          if (!$questionnaire->is_active) {
-            return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
+            return abort(403, 'هذه الاستمارة معطلة.');
         }
 
      
@@ -321,13 +321,13 @@ class QuestionnaireController extends Controller
         return view('questionnaire.take', compact('questionnaire', 'user', 'qrImage'));
     }
 
-
     public function showPublicResults(Questionnaire $questionnaire)
     {
         // Ensure it's a public questionnaire or handle access based on your specific logic
         if ($questionnaire->target_response !== 'open_for_all') {
             // You might want to handle registered-only results differently or use a Gate
             // For simplicity, we'll proceed assuming this is the correct route for results.
+            abort(403,'هذا رابط عام');
         }
 
         // Load questions and choices for closed-ended questions
@@ -426,6 +426,7 @@ class QuestionnaireController extends Controller
     // New method to handle public submission via hash
     public function publicSubmit(Request $request, string $hash)
     {
+        // return $request->all();
         $questionnaire = Questionnaire::where('public_hash', $hash)
             ->where('target_response', 'open_for_all')
             ->firstOrFail();
