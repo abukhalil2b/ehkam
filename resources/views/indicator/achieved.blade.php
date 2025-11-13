@@ -18,10 +18,10 @@
                 <thead>
                     <tr>
                         <th class="bg-[#1e3d4f] text-white p-3 border">المحافظة</th>
-                        <th class="bg-[#1e3d4f] text-white p-3 border">المحقق الربع الأول</th>
-                        <th class="bg-[#1e3d4f] text-white p-3 border">المحقق الربع الثاني</th>
-                        <th class="bg-[#1e3d4f] text-white p-3 border">المحقق الربع الثالث</th>
-                        <th class="bg-[#1e3d4f] text-white p-3 border">المحقق الربع الرابع</th>
+                        <th class="bg-[#1e3d4f] text-white p-3 border"> الربع الأول</th>
+                        <th class="bg-[#1e3d4f] text-white p-3 border"> الربع الثاني</th>
+                        <th class="bg-[#1e3d4f] text-white p-3 border"> الربع الثالث</th>
+                        <th class="bg-[#1e3d4f] text-white p-3 border"> الربع الرابع</th>
                         <th class="bg-[#1e3d4f] text-white p-3 border">إدارة</th>
                     </tr>
                 </thead>

@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Indicator;
 use App\Models\OrganizationalUnit;
+use App\Models\PeriodTemplate;
 use App\Models\Project;
 use App\Models\Step;
 use App\Models\StepEvidenceFile;
+use App\Models\StepOrganizationalUnitPermission;
+use App\Models\StepOrganizationalUnitTask;
 use Illuminate\Http\Request;
 
 class StepController extends Controller
@@ -27,9 +31,17 @@ class StepController extends Controller
             ->orderBy('ordered', 'asc')
             ->get();
 
-        $organizational_units = OrganizationalUnit::all();
 
-        return view('step.index', compact('project', 'steps', 'phases','organizational_units'));
+        $organizational_units = OrganizationalUnit::where('type', 'Directorate')->get();
+
+        $indicator = Indicator::find($project->indicator_id);
+
+        $periodTemplates = $indicator
+            ? PeriodTemplate::where('cate', $indicator->period)->get()
+            : collect();
+
+
+        return view('step.index', compact('project', 'steps', 'phases', 'organizational_units', 'periodTemplates', 'indicator'));
     }
 
     // Store new step
@@ -42,12 +54,27 @@ class StepController extends Controller
             'target_percentage' => 'nullable|numeric|min:0|max:100',
             'phase' => 'nullable|string|max:50',
             'status' => 'nullable|string|max:50',
-            'supporting_documents' => 'nullable|string',
-            'assigned_divisions' => 'nullable|array',
+            'supporting_document' => 'nullable|string',
             'ordered' => 'nullable|integer',
+            'is_need_evidence_file' => 'boolean',
+            'is_need_to_put_target' => 'boolean',
+            'organizational_unit_ids' => [
+                'nullable',
+                'array',
+                'required_if:is_need_to_put_target,1',
+            ],
+            'organizational_unit_ids.*' => 'exists:organizational_units,id',
         ]);
 
-        Step::create([
+        $indicator = Indicator::findOrFail($project->indicator_id);
+
+        $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
+
+        if (! $request->boolean('is_need_to_put_target')) {
+            $validated['organizational_unit_ids'] = [];
+        }
+
+        $step = Step::create([
             'project_id' => $project->id,
             'name' => $validated['name'],
             'start_date' => $validated['start_date'] ?? null,
@@ -55,13 +82,32 @@ class StepController extends Controller
             'target_percentage' => $validated['target_percentage'] ?? 0,
             'phase' => $validated['phase'] ?? null,
             'status' => $validated['status'] ?? 'not_started',
-            'supporting_documents' => $validated['supporting_documents'] ?? null,
-            // store assigned divisions as JSON string in DB column (or as you prefer)
-            'assigned_divisions' => isset($validated['assigned_divisions'])
-                ? json_encode($validated['assigned_divisions'])
-                : null,
+            'is_need_evidence_file' => $validated['is_need_evidence_file'] ?? 0,
+            'is_need_to_put_target' => $validated['is_need_to_put_target'] ?? 0,
+            'supporting_document' => $validated['supporting_document'] ?? null,
             'ordered' => $validated['ordered'] ?? 0,
         ]);
+
+        if ($request->boolean('is_need_to_put_target') && !empty($validated['organizational_unit_ids'])) {
+
+            $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
+
+            $periodTargets = $request->input('period_targets', []);
+
+            foreach ($validated['organizational_unit_ids'] as $orgUnitId) {
+                foreach ($periodTemplates as $template) {
+                    StepOrganizationalUnitTask::create([
+                        'step_id' => $step->id,
+                        'organizational_unit_id' => $orgUnitId,
+                        'period_template_id' => $template->id,
+                        'target' => $periodTargets[$template->id] ?? 0,
+                        'achieved' => 0,
+                    ]);
+                }
+            }
+        }
+
+
 
         return redirect()->route('step.index', $project->id)
             ->with('success', 'تمت إضافة الخطوة بنجاح');
@@ -69,8 +115,6 @@ class StepController extends Controller
 
     public function show(Step $step)
     {
-
-
         $phases = [
             'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
             'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
@@ -79,9 +123,46 @@ class StepController extends Controller
             'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
         ];
 
-        $step->load('stepEvidenceFiles');
-        return view('step.show', compact('step', 'phases'));
+        // Load relations
+        $step->load([
+            'stepEvidenceFiles',
+            'stepOrganizationalUnitTasks.organizationalUnit',
+            'stepOrganizationalUnitTasks.periodTemplate'
+        ]);
+
+        // Group tasks by organizational unit
+        $unitData = [];
+        foreach ($step->stepOrganizationalUnitTasks as $task) {
+            $unitId = $task->organizational_unit_id;
+            $unitName = optional($task->organizationalUnit)->name ?? '—';
+
+            if (!isset($unitData[$unitId])) {
+                $unitData[$unitId] = [
+                    'name' => $unitName,
+                    'periods' => [],
+                    'total_target' => 0,
+                    'total_achieved' => 0,
+                ];
+            }
+
+            $unitData[$unitId]['periods'][$task->periodTemplate->name ?? '—'] = [
+                'target' => $task->target,
+                'achieved' => $task->achieved,
+                'percentage' => $task->target > 0 ? round(($task->achieved / $task->target) * 100, 2) : 0,
+            ];
+
+            $unitData[$unitId]['total_target'] += $task->target;
+            $unitData[$unitId]['total_achieved'] += $task->achieved;
+        }
+
+        // Calculate overall totals
+        $overallTarget = array_sum(array_column($unitData, 'total_target'));
+
+        return view('step.show', compact('step', 'phases', 'unitData', 'overallTarget'));
     }
+
+
+
 
     public function uploadEvidence(Request $request, Step $step)
     {
@@ -125,7 +206,7 @@ class StepController extends Controller
             'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
             'review' => ['title' => 'المراجعة', 'weight' => '20%'],
         ];
-        return view('step.edit', compact('step','phases'));
+        return view('step.edit', compact('step', 'phases'));
     }
 
     public function update(Request $request, Step $step)
@@ -137,16 +218,10 @@ class StepController extends Controller
             'target_percentage' => 'nullable|numeric|min:0|max:100',
             'phase' => 'nullable|string|max:255',
             'status' => 'required|in:in_progress,completed,delayed',
-            'assigned_divisions' => 'nullable|array',
-            'assigned_divisions.*' => 'string|max:255',
             'is_need_evidence_file' => 'boolean',
-            'supporting_documents' => 'nullable|string',
+            'is_need_to_put_target' => 'boolean',
+            'supporting_document' => 'nullable|string',
         ]);
-
-        // Convert array to JSON
-        if (isset($validated['assigned_divisions'])) {
-            $validated['assigned_divisions'] = json_encode($validated['assigned_divisions']);
-        }
 
         $step->update($validated);
 

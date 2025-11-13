@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('step_organizational_unit_tasks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('step_id')
+                ->constrained('steps')
+                ->onDelete('cascade');
+
+            $table->unsignedBigInteger('organizational_unit_id');
+            $table->foreign('organizational_unit_id', 'suot_unit_fk') // short name
+                ->references('id')
+                ->on('organizational_units')
+                ->onDelete('cascade');
+
+            $table->foreignId('period_template_id')
+                ->constrained('period_templates')
+                ->onDelete('cascade');
+
+            $table->integer('target')->default(0);
+            $table->integer('achieved')->default(0);
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('step_organizational_unit_tasks');
+    }
+};

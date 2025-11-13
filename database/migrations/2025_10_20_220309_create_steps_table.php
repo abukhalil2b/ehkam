@@ -24,10 +24,10 @@ return new class extends Migration
 
             // Phase / Stage (e.g. التحضير، التخطيط، التنفيذ، المراجعة، الإغلاق)
             $table->enum('phase', [
-                'preparation', 
-                'planning', 
-                'implementation', 
-                'review', 
+                'preparation',
+                'planning',
+                'implementation',
+                'review',
                 'approval'
             ])->comment('مرحلة العمل');
 
@@ -41,12 +41,11 @@ return new class extends Migration
             ])->default('not_started');
 
             // Supporting documents / notes
-            $table->text('supporting_documents')->nullable();
+            $table->text('supporting_document')->nullable();
 
             $table->boolean('is_need_evidence_file')->default(false);
-            
-            // JSON field to store selected divisions and sectors
-            $table->json('assigned_divisions')->nullable();
+
+            $table->boolean('is_need_to_put_target')->default(false);
 
             // For ordering or grouping
             $table->unsignedInteger('ordered')->default(0);

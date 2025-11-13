@@ -128,7 +128,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('step/{step}/upload_evidence', [StepController::class, 'uploadEvidence'])->name('step.uploadEvidence');
 
-    Route::get('step/{step}/edit', [StepController::class, 'edit'])->name('step.edit');
+    Route::get('step/edit/{step}', [StepController::class, 'edit'])->name('step.edit');
     Route::put('step/{step}', [StepController::class, 'update'])->name('step.update');
 
     Route::delete('step/{step}', [StepController::class, 'destroy'])

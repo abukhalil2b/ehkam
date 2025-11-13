@@ -23,7 +23,7 @@ class StructureController extends Controller
 
         // Check if there are any positions needing attachment
         if ($unattachedPositions->isEmpty()) {
-            return redirect()->route('admin.structure.index')->with('info', '✅ لا توجد مسميات وظيفية متبقية تحتاج لربط وحدة تنظيمية.');
+            return redirect()->route('admin_position.index')->with('info', '✅ لا توجد مسميات وظيفية متبقية تحتاج لربط وحدة تنظيمية.');
         }
 
         // Pass the data to the dedicated view

@@ -58,21 +58,21 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="block font-semibold mb-1 text-[#1b5e20]">الجهات المسندة</label>
-                    <textarea name="assigned_divisions[]" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm">{{ implode("\n", json_decode($step->assigned_divisions ?? '[]', true)) }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">اكتب كل جهة في سطر منفصل.</p>
-                </div>
-
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_need_evidence_file" value="1" @checked($step->is_need_evidence_file)
                         class="rounded border-gray-300 text-[#1b5e20]">
                     <label class="font-semibold text-[#1b5e20]">هل تتطلب ملفات داعمة؟</label>
                 </div>
 
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" name="is_need_to_put_traget" value="1" @checked($step->is_need_to_put_traget)
+                        class="rounded border-gray-300 text-[#1b5e20]">
+                    <label class="font-semibold text-[#1b5e20]">هل تغذي المؤشر</label>
+                </div>
+
                 <div>
                     <label class="block font-semibold mb-1 text-[#1b5e20]">الوثائق الداعمة</label>
-                    <textarea name="supporting_documents" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm">{{ old('supporting_documents', $step->supporting_documents) }}</textarea>
+                    <textarea name="supporting_document" rows="3" class="w-full border-gray-300 rounded-lg shadow-sm">{{ old('supporting_document', $step->supporting_document) }}</textarea>
                 </div>
 
                 <div class="flex justify-between mt-6">
