@@ -28,18 +28,25 @@ $sidebarSections = [
         'links' => [
             ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء'],
         ]
+    ],'questionnaire' => [
+        'title' => 'إستبانات',
+        'links' => [
+            ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
+            ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
+        ]
+    ]
+    ,'questionnaire' => [
+        'title' => 'استمارات المالية',
+        'links' => [
+            ['route' => 'admin.finance_form.index', 'permission' => 'admin.finance_form.index', 'label' => 'قائمة الاستمارات المالية'],
+            ['route' => 'admin.finance_need.index', 'permission' => 'admin.finance_need.index', 'label' => 'قائمة الاحتياجات'],
+        ]
     ],
     'statistics' => [
         'title' => 'إحصائيات',
         'links' => [
             ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات'],
             ['route' => 'statistic.quran', 'permission' => 'statistic.quran', 'label' =>'القرآن الكريم' ],
-        ]
-    ],'questionnaire' => [
-        'title' => 'إستبانات',
-        'links' => [
-            ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
-            ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
         ]
     ],
     'meeting_minute' => [

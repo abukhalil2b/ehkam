@@ -6,6 +6,8 @@ use App\Http\Controllers\AssessmentQuestionController;
 use App\Http\Controllers\AssessmentResultController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\FinanceFormController;
+use App\Http\Controllers\Admin\FinanceNeedController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
@@ -180,7 +182,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workshop.create')
         ->name('workshop.store');
 
-        Route::post('workshop/replicate/{workshop}', [WorkshopController::class, 'replicate'])
+    Route::post('workshop/replicate/{workshop}', [WorkshopController::class, 'replicate'])
         ->middleware('permission:workshop.create')
         ->name('workshop.replicate');
 
@@ -299,11 +301,33 @@ Route::group(['middleware' => ['auth']], function () {
 Route::get('statistic/index', [StatisticController::class, 'index'])
     ->middleware('permission:statistic.index')
     ->name('statistic.index');
+
 Route::get('questionnaire/{questionnaire}/share', [QuestionnaireController::class, 'shareLink'])
     ->name('questionnaire.share_link');
+
 Route::get('statistic/quran', [StatisticController::class, 'quran'])
     ->middleware('permission:statistic.quran')
     ->name('statistic.quran');
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('admin/finance_form/index', [FinanceFormController::class, 'index'])
+        // ->middleware('permission:finance_form.index')
+        ->name('admin.finance_form.index');
+
+    Route::post('admin/finance_form/store', [FinanceFormController::class, 'store'])
+        // ->middleware('permission:finance_form.store')
+        ->name('admin.finance_form.store');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('admin/finance_need/index', [FinanceNeedController::class, 'index'])
+        // ->middleware('permission:finance_need.index')
+        ->name('admin.finance_need.index');
+
+    Route::post('admin/finance_need/store', [FinanceNeedController::class, 'store'])
+        // ->middleware('permission:finance_need.store')
+        ->name('admin.finance_need.store');
+});
 
 // QUESTIONNAIRE ROUTES
 Route::group(['middleware' => ['auth']], function () {
@@ -311,7 +335,15 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.index')
         ->name('questionnaire.index');
 
-    // Create/Write Permissions
+    // Viewing and management
+    Route::get('questionnaire/show/{questionnaire}', [QuestionnaireController::class, 'show'])
+        ->middleware('permission:questionnaire.index') // Viewing is part of index
+        ->name('questionnaire.show');
+
+    Route::get('questionnaire/statistics/{questionnaire}', [QuestionnaireController::class, 'statistics'])
+        ->middleware('permission:questionnaire.index')
+        ->name('questionnaire.statistics');
+
     Route::get('questionnaire/create', [QuestionnaireController::class, 'create'])
         ->middleware('permission:questionnaire.create')
         ->name('questionnaire.create');
@@ -319,6 +351,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('questionnaire/store', [QuestionnaireController::class, 'store'])
         ->middleware('permission:questionnaire.create')
         ->name('questionnaire.store');
+
+    Route::get('questionnaire/duplicate/{questionnaire}', [QuestionnaireController::class, 'duplicate'])
+        ->middleware('permission:questionnaire.create') // Duplicating is like creating
+        ->name('questionnaire.duplicate');
 
     // Edit/Update Permissions
     Route::get('questionnaire/edit/{questionnaire}', [QuestionnaireController::class, 'edit'])
@@ -329,11 +365,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.edit')
         ->name('questionnaire.update');
 
-    // Viewing and management
-    Route::get('questionnaire/show/{questionnaire}', [QuestionnaireController::class, 'show'])
-        ->middleware('permission:questionnaire.index') // Viewing is part of index
-        ->name('questionnaire.show');
-
     Route::get('questionnaire/question_edit/{questionnaire}', [QuestionnaireController::class, 'question_edit'])
         ->middleware('permission:questionnaire.edit')
         ->name('questionnaire.question_edit');
@@ -341,11 +372,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('questionnaire/question_update/{questionnaire}', [QuestionnaireController::class, 'question_update'])
         ->middleware('permission:questionnaire.edit')
         ->name('questionnaire.question_update');
-
-
-    Route::get('questionnaire/duplicate/{questionnaire}', [QuestionnaireController::class, 'duplicate'])
-        ->middleware('permission:questionnaire.create') // Duplicating is like creating
-        ->name('questionnaire.duplicate');
 
     Route::post('questionnaire/registerd_only_submit/{questionnaire}', [QuestionnaireController::class, 'registerd_only_submit'])
         ->name('questionnaire.registerd_only_submit'); // Usually open to all authenticated users
@@ -370,9 +396,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:questionnaire.export')
         ->name('questionnaire.export');
 
-    Route::get('questionnaire/statistics/{questionnaire}', [QuestionnaireController::class, 'statistics'])
-        ->middleware('permission:questionnaire.index')
-        ->name('questionnaire.statistics');
+
 
     Route::get('questionnaire/registered_take/{questionnaire}', [QuestionnaireController::class, 'registeredTake'])
         ->name('questionnaire.registered_take'); // Usually open to all authenticated users
