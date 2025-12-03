@@ -12,21 +12,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indicator_feedback', function (Blueprint $table) {
-            $table->id();
-            $table->string('target');
-            $table->bigInteger('indicator_id');
-            $table->string('current_year',4)->default('2025');
-            $table->bigInteger('sector_id');
-        });
-
+     
         Schema::create('indicator_feedback_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_feedback_id');
-            $table->string('to_be_achieve', 12);
-            $table->string('achieved', 12)->nullable();
+            $table->foreignId('indicator_id');
+            $table->foreignId('sector_id');
+            $table->integer('achieved')->default(0);
             $table->string('evidence_title',50)->nullable();
             $table->string('evidence_url')->nullable();
+            $table->string('current_year')->default('2023');
+            $table->text('note')->nullable();
             $table->foreignIdFor(User::class,'createdby_user_id')->nullable();
             $table->timestamps();
         });
@@ -37,7 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicator_feedback');
 
         Schema::dropIfExists('indicator_feedback_values');
     }

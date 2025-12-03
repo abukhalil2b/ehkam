@@ -2,76 +2,147 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\IndicatorFeedbackSector;
-use App\Models\IndicatorFeedback;
+use App\Models\Indicator;
+use App\Models\IndicatorFeedbackValue;
 use Illuminate\Http\Request;
 
 class IndicatorFeedbackController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // ------------------------------------------------------------------
+    // INDEX
+    // ------------------------------------------------------------------
+    public function index(Indicator $indicator)
     {
-        //
+        $user = auth()->user();
+        $userSector = $user->sectors()->first();
+
+        $feedbacks = IndicatorFeedbackValue::where('indicator_id', $indicator->id)
+            ->where('sector_id', $userSector->id)
+            ->get();
+
+        return view('indicator_feedback_values.index', compact(
+            'indicator',
+            'feedbacks',
+            'userSector'
+        ));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // ------------------------------------------------------------------
+    // SHOW
+    // ------------------------------------------------------------------
+    public function show(IndicatorFeedbackValue $feedback)
     {
-        //
+        $user = auth()->user();
+
+        // Security: User can only view their own sector feedback
+        abort_if($feedback->createdby_user_id !== $user->id, 403);
+
+        return view('indicator_feedback_values.show', compact('feedback'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    // ------------------------------------------------------------------
+    // CREATE
+    // ------------------------------------------------------------------
+    public function create(Indicator $indicator)
     {
-        //
+        $years = ['2023','2024','2025'];
+        $user = auth()->user();
+        $userSector = $user->sectors()->first();
+
+        return view('indicator_feedback_values.create', compact(
+            'indicator',
+            'years',
+            'userSector'
+        ));
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show($indicator_id)
+    // ------------------------------------------------------------------
+    // STORE
+    // ------------------------------------------------------------------
+    public function store(Request $request, Indicator $indicator)
     {
-        $loggedUser = auth()->user();
+        $request->validate([
+            'achieved' => 'required|integer|min:0',
+            'evidence_title' => 'nullable|string|max:50',
+            'note' => 'nullable|string|max:1000',
+            'current_year' => 'required|in:2023,2024,2025',
+            'evidence_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+        ]);
 
-        //check if loggedUser has permission on this indicator.
-        $indicator =  IndicatorFeedbackSector::where(['indicator_id' => $indicator_id, 'user_id' => $loggedUser->id])
-            ->join('indicators', 'indicator_feedback_sectors.indicator_id', '=', 'indicators.id')
-            ->first();
+        $user = auth()->user();
+        $userSector = $user->sectors()->first();
 
-        if (!$indicator) {
-            abort(403);
+        $fileUrl = null;
+
+        if ($request->hasFile('evidence_file')) {
+            $file = $request->file('evidence_file');
+            $fileName = 'indicator_' . $indicator->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $fileUrl = $file->storeAs('indicator_feedback/indicator_evidence', $fileName, 'public');
         }
-        
-        return $indicator;
+
+        IndicatorFeedbackValue::create([
+            'indicator_id' => $indicator->id,
+            'sector_id' => $userSector->id,
+            'achieved' => $request->achieved,
+            'evidence_title' => $request->evidence_title,
+            'note' => $request->note,
+            'evidence_url' => $fileUrl,
+            'current_year' => $request->current_year,
+            'createdby_user_id' => $user->id,
+        ]);
+
+        return redirect()->route('indicator_feedback_values.index', $indicator)
+            ->with('success', 'تم إضافة التغذية الراجعة بنجاح');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(IndicatorFeedback $indicatorFeedback)
+    // ------------------------------------------------------------------
+    // EDIT
+    // ------------------------------------------------------------------
+    public function edit(IndicatorFeedbackValue $feedback)
     {
-        //
+        $years = ['2023','2024','2025'];
+        $user = auth()->user();
+
+        abort_if($feedback->createdby_user_id !== $user->id, 403);
+
+        return view('indicator_feedback_values.edit', compact(
+            'feedback',
+            'years'
+        ));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, IndicatorFeedback $indicatorFeedback)
+    // ------------------------------------------------------------------
+    // UPDATE
+    // ------------------------------------------------------------------
+    public function update(Request $request, IndicatorFeedbackValue $feedback)
     {
-        //
-    }
+        $request->validate([
+            'achieved' => 'required|integer|min:0',
+            'evidence_title' => 'nullable|string|max:50',
+            'note' => 'nullable|string|max:1000',
+            'current_year' => 'required|in:2023,2024,2025',
+            'evidence_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+        ]);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(IndicatorFeedback $indicatorFeedback)
-    {
-        //
+        abort_if(auth()->id() !== $feedback->createdby_user_id, 403);
+
+        $fileUrl = $feedback->evidence_url;
+
+        if ($request->hasFile('evidence_file')) {
+            $file = $request->file('evidence_file');
+            $fileName = 'indicator_' . $feedback->indicator_id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $fileUrl = $file->storeAs('indicator_feedback/indicator_evidence', $fileName, 'public');
+        }
+
+        $feedback->update([
+            'achieved' => $request->achieved,
+            'evidence_title' => $request->evidence_title,
+            'note' => $request->note,
+            'evidence_url' => $fileUrl,
+            'current_year' => $request->current_year,
+        ]);
+
+        return redirect()->route('indicator_feedback_values.show', $feedback)
+            ->with('success', 'تم تعديل التغذية الراجعة بنجاح');
     }
 }

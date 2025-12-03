@@ -23,7 +23,6 @@
         <!-- Header -->
         <div class="text-center mb-8">
             <h1 class="text-4xl font-bold text-green-800 mb-2">لوحة إحصائية لتعليم القرآن الكريم</h1>
-            <h2 class="text-2xl text-gray-700">سلطنة عمان</h2>
             <div class="w-40 h-1.5 bg-green-600 mx-auto mt-2"></div>
         </div>
 

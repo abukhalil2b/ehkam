@@ -46,14 +46,6 @@ class Indicator extends Model
 
   
     /**
-     * Get all feedback entries for the indicator.
-     */
-    public function feedback(): HasMany
-    {
-        return $this->hasMany(IndicatorFeedback::class);
-    }
-
-    /**
      * Get all sectors related to this indicator based on the 'sectors' JSON array.
      * NOTE: This is a complex relationship since 'sectors' is a JSON column, not a standard foreign key.
      * You might use a custom accessor or a scope for this in real applications, but a simple relationship isn't direct.

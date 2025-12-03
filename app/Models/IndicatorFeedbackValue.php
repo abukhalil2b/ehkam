@@ -9,12 +9,13 @@ class IndicatorFeedbackValue extends Model
 {
     protected $guarded = [];
 
-    /**
-     * Get the feedback entry this value belongs to.
-     */
-    public function feedback(): BelongsTo
+    public function sector()
     {
-        return $this->belongsTo(IndicatorFeedback::class, 'indicator_feedback_id');
+        return $this->belongsTo(Sector::class);
+    }
+    public function indicator()
+    {
+        return $this->belongsTo(Indicator::class);
     }
 
     /**

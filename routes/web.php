@@ -38,12 +38,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('dashboard');
 });
 
-// Indicator Feedback (Assuming viewing feedback is part of indicator access)
-Route::group(['middleware' => ['auth', 'permission:indicator_feedback.show']], function () {
-    Route::get('indicator_feedback/show/{indicator_id}', [IndicatorFeedbackController::class, 'show'])
-        ->name('indicator_feedback.show');
-});
-
 // INDICATOR ROUTES
 Route::group(['middleware' => ['auth']], function () {
     // Read Permissions (index/show)
@@ -456,6 +450,22 @@ Route::group(['middleware' => ['auth']], function () {
     |--------------------------------------------------------------------------
     */
 
+    Route::get('admin_users/create_for_sector', [AdminController::class, 'createUserForSector'])
+        ->middleware('permission:admin_users.create')
+        ->name('admin_users.create_for_sector');
+
+    Route::get('admin_users/link_user_with_sector_create/{user}', [AdminController::class, 'linkUserWithSectorCreate'])
+        ->middleware('permission:admin_users.create')
+        ->name('admin_users.link_user_with_sector_create');
+
+    Route::post('admin_users/link_user_with_sector_store/{user}', [AdminController::class, 'linkUserWithSectorStore'])
+        ->middleware('permission:admin_users.create')
+        ->name('admin_users.link_user_with_sector_store');
+
+    Route::post('admin_users/store_for_sector', [AdminController::class, 'storeUserForSector'])
+        ->middleware('permission:admin_users.create')
+        ->name('admin_users.store_for_sector');
+
     // User Creation
     Route::get('admin_users/create', [AdminController::class, 'createUser'])
         ->middleware('permission:admin_users.create')
@@ -554,6 +564,41 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('missing_units_assignment', [StructureController::class, 'attachUnitToPosition'])
         ->name('admin.structure.attach_unit');
 });
+
+
+Route::group(['middleware' => ['auth']], function () {
+
+    // INDEX – all feedback for one indicator
+    Route::get('indicator_feedback_values/index/{indicator}', 
+        [IndicatorFeedbackController::class, 'index'])
+        ->name('indicator_feedback_values.index');
+
+    // SHOW – details of a single feedback
+    Route::get('indicator_feedback_values/show/{feedback}', 
+        [IndicatorFeedbackController::class, 'show'])
+        ->name('indicator_feedback_values.show');
+
+    // CREATE
+    Route::get('indicator_feedback_values/create/{indicator}', 
+        [IndicatorFeedbackController::class, 'create'])
+        ->name('indicator_feedback_values.create');
+
+    // STORE
+    Route::post('indicator_feedback_values/store/{indicator}', 
+        [IndicatorFeedbackController::class, 'store'])
+        ->name('indicator_feedback_values.store');
+
+    // EDIT
+    Route::get('indicator_feedback_values/edit/{feedback}', 
+        [IndicatorFeedbackController::class, 'edit'])
+        ->name('indicator_feedback_values.edit');
+
+    // UPDATE
+    Route::post('indicator_feedback_values/update/{feedback}', 
+        [IndicatorFeedbackController::class, 'update'])
+        ->name('indicator_feedback_values.update');
+});
+
 
 
 // PERMISSION MANAGEMENT

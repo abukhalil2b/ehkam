@@ -40,6 +40,11 @@ class User extends Authenticatable
         $this->profiles()->syncWithoutDetaching($profileId);
     }
 
+    public function sectors()
+    {
+        return $this->belongsToMany(Sector::class);
+    }
+
     public function profiles()
     {
         // Use the default naming conventions or specify the custom pivot table 'user_profile'

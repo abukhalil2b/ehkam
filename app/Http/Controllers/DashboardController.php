@@ -17,8 +17,11 @@ class DashboardController extends Controller
         $loggedUser = auth()->user();
 
         $indicators = Indicator::all();
-        // return view('dashboard_sector',compact('indicators'));
-        if ($loggedUser->user_type == 'sector') {
+
+        $hasSector = $loggedUser->sectors()->first() ? 1 : 0;;
+
+        if ($hasSector) {
+            return view('dashboard_sector', compact('indicators'));
         }
 
         return view('dashboard', compact('indicators'));

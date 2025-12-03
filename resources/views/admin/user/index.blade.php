@@ -72,7 +72,10 @@
                                     </a>
                                     @endcan
 
-                                    {{-- Additional actions (e.g., Delete, Edit User Info) --}}
+                                   <a href="{{ route('admin_users.link_user_with_sector_create', $user) }}"
+                                       class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 transition duration-150">
+                                        ربط بالقطاعات
+                                    </a>
                                 </td>
                             </tr>
                         @empty

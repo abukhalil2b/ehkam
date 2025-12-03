@@ -15,6 +15,7 @@ return new class extends Migration
         Schema::create('indicators', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->boolean('is_main')->default(1);
             $table->string('main_criteria')->nullable(); // المعيار الرئيسي
             $table->string('sub_criteria')->nullable(); // المعيار الفرعي
             $table->string('code')->nullable(); // رمز المؤشر

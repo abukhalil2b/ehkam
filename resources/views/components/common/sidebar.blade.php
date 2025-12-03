@@ -76,6 +76,7 @@ $sidebarSections = [
             ['route' => 'admin_position.create', 'permission' => 'admin_position.store', 'label' => 'إضافة الهيكل الوظيفي'],
             ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد'],
             ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين'],
+            ['route' => 'admin_users.create_for_sector', 'permission' => 'admin_users.create', 'label' => 'إنشاء موظف لحصر الاسهامات'],
         ]
     ],
     'permission' => [

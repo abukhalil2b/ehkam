@@ -10,6 +10,7 @@ use App\Models\Position;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\Permission;
+use App\Models\Sector;
 use App\Models\UserPositionHistory;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -119,6 +120,59 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'تم تحديث الصلاحيات');
     }
+
+    public function createUserForSector()
+    {
+        $sectors = Sector::all();
+        $users = User::with('sectors')->whereHas('sectors')->get(); // eager loaded
+        return view('admin_users.create_for_sector', compact('sectors', 'users'));
+    }
+
+    public function storeUserForSector(Request $request)
+    {
+        // Validation
+        $validatedData = $request->validate([
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|max:255|unique:users',
+            'sector_id' => 'required|array',
+        ]);
+
+        // Create User
+        $user = User::create([
+            'user_type' => 'staff',
+            'name'      => $validatedData['name'],
+            'email'     => $validatedData['email'],
+            'password'  => Hash::make($validatedData['email']), // default
+        ]);
+
+        // Assign sectors
+        $user->sectors()->sync($request->sector_id);
+
+        return redirect()->route('admin_users.create_for_sector')
+            ->with('success', "تم إنشاء المستخدم الجديد ({$user->name}) بنجاح.");
+    }
+
+
+    public function linkUserWithSectorCreate(User $user)
+    {
+        $sectors = Sector::all();
+        return view('admin_users.link_user_with_sector_create', compact('sectors', 'user'));
+    }
+
+    public function linkUserWithSectorStore(Request $request, User $user)
+    {
+        $request->validate([
+            'sector_id' => 'required|array'
+        ]);
+
+        $user->sectors()->sync($request->sector_id);
+
+        return redirect()
+            ->route('admin_users.index', $user)
+            ->with('success', 'تم ربط المستخدم بالقطاعات بنجاح');
+    }
+
+
 
     public function createUser()
     {
@@ -275,7 +329,7 @@ class AdminController extends Controller
         $user->load([
             'profiles',
             'permissions',
-            'positionHistory.position',        // full history with position
+            'positionHistory.position',
             'positionHistory.organizationalUnit'
         ]);
 
