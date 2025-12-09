@@ -45,7 +45,7 @@
         @endif
     </div>
 
-    <a href="{{ route('indicator_feedback_values.edit', $feedback) }}"
+    <a href="{{ route('indicator_feedback_value.edit', $feedback) }}"
        class="px-4 py-2 bg-blue-600 text-white rounded mt-4 inline-block">
        تعديل
     </a>

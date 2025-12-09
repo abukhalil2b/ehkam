@@ -6,6 +6,7 @@ $sidebarSections = [
         'title' => 'المؤشرات',
         'links' => [
             ['route' => 'indicator.index', 'permission' => 'indicator.index', 'label' => 'قائمة المؤشرات'],
+             ['route' => 'admin.indicator_feedback_value.index', 'permission' => 'admin.indicator_feedback_value.index', 'label' => 'المحقق للمؤشرات','params'=>['2025']],
 
         ]
     ],
@@ -46,7 +47,8 @@ $sidebarSections = [
         'title' => 'إحصائيات',
         'links' => [
             ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات'],
-            ['route' => 'statistic.quran', 'permission' => 'statistic.quran', 'label' =>'القرآن الكريم' ],
+            ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' =>'القرآن الكريم','params'=>[1] ],
+            ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' =>'الزكاة','params'=>[1] ],
         ]
     ],
     'meeting_minute' => [
@@ -67,6 +69,7 @@ $sidebarSections = [
             ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
         ]
     ],
+   
     'admin_structure' => [
         'title' => 'الهيكل',
         'links' => [

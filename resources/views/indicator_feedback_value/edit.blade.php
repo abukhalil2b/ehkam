@@ -4,7 +4,7 @@
     <h2 class="text-xl font-bold mb-4">تعديل التغذية الراجعة</h2>
 
     <form method="POST" enctype="multipart/form-data"
-          action="{{ route('indicator_feedback_values.update', $feedback) }}">
+          action="{{ route('indicator_feedback_value.update', $feedback) }}">
         @csrf
 
         <div class="mb-3">

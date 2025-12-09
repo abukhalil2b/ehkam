@@ -18,10 +18,10 @@ class DashboardController extends Controller
 
         $indicators = Indicator::all();
 
-        $hasSector = $loggedUser->sectors()->first() ? 1 : 0;;
+        $sector = $loggedUser->sectors()->first();
 
-        if ($hasSector) {
-            return view('dashboard_sector', compact('indicators'));
+        if ($sector) {
+            return view('dashboard_sector', compact('indicators','sector'));
         }
 
         return view('dashboard', compact('indicators'));

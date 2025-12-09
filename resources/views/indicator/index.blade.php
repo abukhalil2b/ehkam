@@ -75,7 +75,7 @@
                                 <div class="flex items-center mt-2">
                                     <span
                                         class="indicator-type inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $indicator->period ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                        {{ $indicator->period ? 'فرعي' : 'رئيسي' }}
+                                        {{ $indicator->is_main ? 'رئيسي' :  'فرعي'  }}
                                     </span>
                                     <span class="text-xs text-gray-500 mr-2">{{ $indicator->code ?? 'بدون رمز' }}</span>
                                 </div>

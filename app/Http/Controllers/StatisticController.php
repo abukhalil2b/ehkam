@@ -13,8 +13,14 @@ class StatisticController extends Controller
         return view('statistic.index');
     }
 
-    public function quran()
+    public function quran($id)
     {
-        return view('statistic.quran');
+        return view("statistic.quran.{$id}");
     }
+
+    public function zakah($id)
+    {
+        return view("statistic.zakah.{$id}");
+    }
+
 }

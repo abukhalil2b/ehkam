@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Indicator;
 use App\Models\IndicatorFeedbackValue;
+use App\Models\Sector;
 use Illuminate\Http\Request;
 
 class IndicatorFeedbackController extends Controller
@@ -13,18 +14,19 @@ class IndicatorFeedbackController extends Controller
     // ------------------------------------------------------------------
     public function index(Indicator $indicator)
     {
+
         $user = auth()->user();
+
         $userSector = $user->sectors()->first();
 
+        if (!$userSector) {
+            abort(404);
+        }
         $feedbacks = IndicatorFeedbackValue::where('indicator_id', $indicator->id)
             ->where('sector_id', $userSector->id)
             ->get();
 
-        return view('indicator_feedback_values.index', compact(
-            'indicator',
-            'feedbacks',
-            'userSector'
-        ));
+        return view('indicator_feedback_value.index', compact('indicator','feedbacks','userSector'));
     }
 
     // ------------------------------------------------------------------
@@ -37,7 +39,7 @@ class IndicatorFeedbackController extends Controller
         // Security: User can only view their own sector feedback
         abort_if($feedback->createdby_user_id !== $user->id, 403);
 
-        return view('indicator_feedback_values.show', compact('feedback'));
+        return view('indicator_feedback_value.show', compact('feedback'));
     }
 
     // ------------------------------------------------------------------
@@ -45,14 +47,16 @@ class IndicatorFeedbackController extends Controller
     // ------------------------------------------------------------------
     public function create(Indicator $indicator)
     {
-        $years = ['2023','2024','2025'];
-        $user = auth()->user();
-        $userSector = $user->sectors()->first();
+        $years = ['2023', '2024', '2025'];
 
-        return view('indicator_feedback_values.create', compact(
+        $user = auth()->user();
+
+        $sector = $user->sectors()->first();
+
+        return view('indicator_feedback_value.create', compact(
             'indicator',
             'years',
-            'userSector'
+            'sector'
         ));
     }
 
@@ -91,7 +95,7 @@ class IndicatorFeedbackController extends Controller
             'createdby_user_id' => $user->id,
         ]);
 
-        return redirect()->route('indicator_feedback_values.index', $indicator)
+        return redirect()->route('indicator_feedback_value.index', $indicator)
             ->with('success', 'تم إضافة التغذية الراجعة بنجاح');
     }
 
@@ -100,12 +104,12 @@ class IndicatorFeedbackController extends Controller
     // ------------------------------------------------------------------
     public function edit(IndicatorFeedbackValue $feedback)
     {
-        $years = ['2023','2024','2025'];
+        $years = ['2023', '2024', '2025'];
         $user = auth()->user();
 
         abort_if($feedback->createdby_user_id !== $user->id, 403);
 
-        return view('indicator_feedback_values.edit', compact(
+        return view('indicator_feedback_value.edit', compact(
             'feedback',
             'years'
         ));
@@ -142,7 +146,7 @@ class IndicatorFeedbackController extends Controller
             'current_year' => $request->current_year,
         ]);
 
-        return redirect()->route('indicator_feedback_values.show', $feedback)
+        return redirect()->route('indicator_feedback_value.show', $feedback)
             ->with('success', 'تم تعديل التغذية الراجعة بنجاح');
     }
 }

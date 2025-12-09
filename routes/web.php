@@ -8,6 +8,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\FinanceFormController;
 use App\Http\Controllers\Admin\FinanceNeedController;
+use App\Http\Controllers\Admin\AdminIndicatorFeedbackController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
@@ -299,9 +300,13 @@ Route::get('statistic/index', [StatisticController::class, 'index'])
 Route::get('questionnaire/{questionnaire}/share', [QuestionnaireController::class, 'shareLink'])
     ->name('questionnaire.share_link');
 
-Route::get('statistic/quran', [StatisticController::class, 'quran'])
-    ->middleware('permission:statistic.quran')
+Route::get('statistic/quran/{id}', [StatisticController::class, 'quran'])
+    ->middleware('permission:statistic.index')
     ->name('statistic.quran');
+
+Route::get('statistic/zakah/{id}', [StatisticController::class, 'zakah'])
+    ->middleware('permission:statistic.index')
+    ->name('statistic.zakah');
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('admin/finance_form/index', [FinanceFormController::class, 'index'])
@@ -565,38 +570,46 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.structure.attach_unit');
 });
 
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('admin/indicator_feedback_value/index/{current_year}', [AdminIndicatorFeedbackController::class, 'index'])
+        ->name('admin.indicator_feedback_value.index');
+});
+
 
 Route::group(['middleware' => ['auth']], function () {
 
-    // INDEX – all feedback for one indicator
-    Route::get('indicator_feedback_values/index/{indicator}', 
-        [IndicatorFeedbackController::class, 'index'])
-        ->name('indicator_feedback_values.index');
+    Route::get('indicator_feedback_value/index/{indicator}', [IndicatorFeedbackController::class, 'index'])
+        ->name('indicator_feedback_value.index');
 
     // SHOW – details of a single feedback
-    Route::get('indicator_feedback_values/show/{feedback}', 
-        [IndicatorFeedbackController::class, 'show'])
-        ->name('indicator_feedback_values.show');
+    Route::get(
+        'indicator_feedback_value/show/{feedback}',
+        [IndicatorFeedbackController::class, 'show']
+    )
+        ->name('indicator_feedback_value.show');
 
     // CREATE
-    Route::get('indicator_feedback_values/create/{indicator}', 
-        [IndicatorFeedbackController::class, 'create'])
-        ->name('indicator_feedback_values.create');
+    Route::get('indicator_feedback_value/create/{indicator}', [IndicatorFeedbackController::class, 'create'])
+        ->name('indicator_feedback_value.create');
 
     // STORE
-    Route::post('indicator_feedback_values/store/{indicator}', 
-        [IndicatorFeedbackController::class, 'store'])
-        ->name('indicator_feedback_values.store');
+    Route::post('indicator_feedback_value/store/{indicator}', [IndicatorFeedbackController::class, 'store'])
+        ->name('indicator_feedback_value.store');
 
     // EDIT
-    Route::get('indicator_feedback_values/edit/{feedback}', 
-        [IndicatorFeedbackController::class, 'edit'])
-        ->name('indicator_feedback_values.edit');
+    Route::get(
+        'indicator_feedback_value/edit/{feedback}',
+        [IndicatorFeedbackController::class, 'edit']
+    )
+        ->name('indicator_feedback_value.edit');
 
     // UPDATE
-    Route::post('indicator_feedback_values/update/{feedback}', 
-        [IndicatorFeedbackController::class, 'update'])
-        ->name('indicator_feedback_values.update');
+    Route::post(
+        'indicator_feedback_value/update/{feedback}',
+        [IndicatorFeedbackController::class, 'update']
+    )
+        ->name('indicator_feedback_value.update');
 });
 
 

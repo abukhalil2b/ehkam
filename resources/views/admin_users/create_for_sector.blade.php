@@ -48,20 +48,16 @@
                     <h2 class="text-lg font-semibold text-gray-700">2. ربط المستخدم بالمديريات / القطاعات</h2>
 
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">اختر قطاع واحد أو أكثر</label>
+                        <label class="block text-sm font-medium text-gray-700">اختر قطاع واحد</label>
 
-                        <select name="sector_id[]" multiple required
+                        <select name="sector_id[]"  required
                             class="form-multiselect w-full border-gray-300 rounded-md p-2">
                             @foreach ($sectors as $sector)
                                 <option value="{{ $sector->id }}">
-                                    {{ $sector->name }}
+                                    {{ $sector->short_name }}
                                 </option>
                             @endforeach
                         </select>
-
-                        <p class="text-sm text-gray-500 mt-1">
-                            ملاحظة: يمكنك اختيار أكثر من مديرية أو قطاع.
-                        </p>
                     </div>
                 </div>
 

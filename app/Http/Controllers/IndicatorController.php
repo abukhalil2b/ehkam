@@ -18,9 +18,9 @@ class IndicatorController extends Controller
 
         $sectors = Sector::all();
 
-        $periods =  PeriodTemplate::where('cate',$indicator->period)->get();
+        $periods =  PeriodTemplate::where('cate', $indicator->period)->get();
 
-        return view('indicator.target',compact('indicator','current_year','sectors','periods'));
+        return view('indicator.target', compact('indicator', 'current_year', 'sectors', 'periods'));
     }
 
     public function achieved(Indicator $indicator)
@@ -32,9 +32,9 @@ class IndicatorController extends Controller
     {
         $current_year = date('Y');
 
-        $indicators = Indicator::where('current_year',$current_year)->get();
-        
-        return view('indicator.index', compact('indicators','current_year'));
+        $indicators = Indicator::where('current_year', $current_year)->get();
+
+        return view('indicator.index', compact('indicators', 'current_year'));
     }
 
     public function show(Indicator $indicator)
@@ -82,6 +82,7 @@ class IndicatorController extends Controller
         $validated = $request->validate([
             'target_for_indicator' => 'nullable|numeric',
             'main_criteria' => 'nullable|string',
+            'is_main' => 'required|numeric',
             'sub_criteria' => 'nullable|string',
             'code' => 'nullable|string|max:255',
             'title' => 'required|string|max:255',
