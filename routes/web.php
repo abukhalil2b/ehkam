@@ -574,6 +574,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('admin/indicator_feedback_value/index/{current_year}', [AdminIndicatorFeedbackController::class, 'index'])
         ->name('admin.indicator_feedback_value.index');
+
+    Route::get('admin/indicator_feedback_value/show/{indicator}/{sector}', [AdminIndicatorFeedbackController::class, 'show'])
+        ->name('admin.indicator_feedback_value.show');
 });
 
 
@@ -583,33 +586,16 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('indicator_feedback_value.index');
 
     // SHOW – details of a single feedback
-    Route::get(
-        'indicator_feedback_value/show/{feedback}',
-        [IndicatorFeedbackController::class, 'show']
-    )
+    Route::get('indicator_feedback_value/show/{feedback}', [IndicatorFeedbackController::class, 'show'])
         ->name('indicator_feedback_value.show');
 
     // CREATE
-    Route::get('indicator_feedback_value/create/{indicator}', [IndicatorFeedbackController::class, 'create'])
+    Route::get('indicator_feedback_value/create/{indicator}/{current_year}', [IndicatorFeedbackController::class, 'create'])
         ->name('indicator_feedback_value.create');
 
     // STORE
     Route::post('indicator_feedback_value/store/{indicator}', [IndicatorFeedbackController::class, 'store'])
         ->name('indicator_feedback_value.store');
-
-    // EDIT
-    Route::get(
-        'indicator_feedback_value/edit/{feedback}',
-        [IndicatorFeedbackController::class, 'edit']
-    )
-        ->name('indicator_feedback_value.edit');
-
-    // UPDATE
-    Route::post(
-        'indicator_feedback_value/update/{feedback}',
-        [IndicatorFeedbackController::class, 'update']
-    )
-        ->name('indicator_feedback_value.update');
 });
 
 

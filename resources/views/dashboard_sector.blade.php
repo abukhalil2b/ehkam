@@ -20,7 +20,7 @@
                         {{ $indicator->title }}
                     </div>
                     <a class="block mt-4 px-3 py-2 text-center text-sm rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
-                        href="{{ route('indicator_feedback_values.index', $indicator->id) }}">
+                        href="{{ route('indicator_feedback_value.index', $indicator->id) }}">
                         بيانات المؤشر
                     </a>
                 </div>

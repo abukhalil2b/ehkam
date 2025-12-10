@@ -1,38 +1,69 @@
 <x-app-layout>
-<div class="p-6">
+    <div class="p-6" dir="rtl">
 
-    <h2 class="text-xl font-bold mb-4">قيم المؤشرات لسنة {{ $current_year }}</h2>
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">
+                قيم المؤشرات لسنة {{ $current_year }}
+            </h2>
 
-    <table class="w-full border text-center">
-        <thead>
-            <tr class="bg-gray-200">
-                <th class="border p-2">المؤشر</th>
-
-                @foreach($sectors as $sector)
-                    <th class="border p-2">{{ $sector->short_name }}</th>
+            {{-- Year Switcher --}}
+            <div class="flex gap-2 bg-gray-100 rounded-xl p-1">
+                @foreach ($years as $year)
+                    <a href="{{ route('admin.indicator_feedback_value.index', $year) }}"
+                        class="px-4 py-2 rounded-lg text-sm font-semibold
+                            {{ $year == $current_year 
+                                ? 'bg-[#00bab1] text-white shadow' 
+                                : 'text-gray-600 hover:bg-white' }}">
+                        {{ $year }}
+                    </a>
                 @endforeach
-            </tr>
-        </thead>
+            </div>
+        </div>
 
-        <tbody>
-            @foreach($indicators as $indicator)
-                <tr>
-                    <td class="border p-2 font-semibold">{{ $indicator->title }}</td>
+        <div class="overflow-x-auto bg-white shadow-md rounded-xl border border-gray-200">
+            <table class="w-full text-center text-sm">
+                <thead>
+                    <tr class="bg-gray-100 border-b">
+                        <th class="p-3 font-bold text-gray-700">المؤشر</th>
 
-                    @foreach($sectors as $sector)
-                        @php
-                            // Find achieved value for this indicator + sector + year
-                            $value = $indicator->indicatorFeedbackValues
-                                ->where('sector_id', $sector->id)
-                                ->first()
-                                ->achieved ?? 0;
-                        @endphp
-                        <td class="border p-2">{{ $value }}</td>
+                        @foreach ($sectors as $sector)
+                            <th class="p-3 font-bold text-gray-700">
+                                {{ $sector->short_name }}
+                            </th>
+                        @endforeach
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-100">
+                    @foreach ($indicators as $indicator)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-3 font-semibold text-gray-800 w-64">
+                                {{ $indicator->title }}
+                            </td>
+
+                            @foreach ($sectors as $sector)
+                                @php
+                                    $value =
+                                        $indicator->indicatorFeedbackValues
+                                            ->where('sector_id', $sector->id)
+                                            ->first()->achieved ?? 0;
+                                @endphp
+
+                                <td class="p-3">
+                                    <a href="{{ route('admin.indicator_feedback_value.show', [
+                                        'indicator' => $indicator,
+                                        'sector' => $sector,
+                                    ]) }}"
+                                        class="text-lg font-bold text-[#00bab1] hover:text-[#008a84] transition">
+                                        {{ $value }}
+                                    </a>
+                                </td>
+                            @endforeach
+                        </tr>
                     @endforeach
-                </tr>
-            @endforeach
-        </tbody>
-    </table>
+                </tbody>
+            </table>
+        </div>
 
-</div>
+    </div>
 </x-app-layout>
