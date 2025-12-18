@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\FinanceFormController;
 use App\Http\Controllers\Admin\FinanceNeedController;
 use App\Http\Controllers\Admin\AdminIndicatorFeedbackController;
+use App\Http\Controllers\AnnualCalendarController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkshopController;
 use Illuminate\Support\Facades\Route;
 
@@ -224,6 +226,35 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:qr.delete')
         ->name('qr.destroy');
 });
+
+
+Route::group(['middleware' => ['auth']], function () {
+    // Activity
+    Route::get('timeline/index', [TimelineController::class, 'index'])
+        ->middleware('permission:timeline.index')
+        ->name('timeline.index');
+    Route::get('timeline/show', [TimelineController::class, 'show'])
+        ->middleware('permission:timeline.show')
+        ->name('timeline.show');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('calendar/index', [AnnualCalendarController::class, 'index'])
+        ->name('calendar.index');
+
+    Route::get('calendar/create', [AnnualCalendarController::class, 'create'])
+        ->name('calendar.create');
+
+    Route::post('calendar/store', [AnnualCalendarController::class, 'store'])
+        ->name('calendar.store');
+
+        Route::get('calendar/{calendarEvent}/edit', [AnnualCalendarController::class, 'edit'])
+        ->name('calendar.edit');
+
+    Route::put('calendar/{calendarEvent}', [AnnualCalendarController::class, 'update'])
+        ->name('calendar.update');
+});
+
 
 
 

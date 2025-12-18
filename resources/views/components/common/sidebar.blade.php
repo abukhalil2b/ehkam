@@ -17,6 +17,19 @@ $sidebarSections = [
             ['route' => 'activity.create', 'permission' => 'activity.create', 'label' => 'جديد'],
         ]
     ],
+    'timeline' => [
+        'title' => 'timeline',
+        'links' => [
+            ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline'],
+        ]
+    ],
+    'calendar' => [
+        'title' => 'calendar',
+        'links' => [
+            ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'index'],
+            ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'create'],
+        ]
+    ],
     'assessment_questions' => [
         'title' => 'أسئلة التقييم',
         'links' => [

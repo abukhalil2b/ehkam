@@ -11,9 +11,7 @@
                 @foreach ($years as $year)
                     <a href="{{ route('admin.indicator_feedback_value.index', $year) }}"
                         class="px-4 py-2 rounded-lg text-sm font-semibold
-                            {{ $year == $current_year 
-                                ? 'bg-[#00bab1] text-white shadow' 
-                                : 'text-gray-600 hover:bg-white' }}">
+                            {{ $year == $current_year ? 'bg-[#00bab1] text-white shadow' : 'text-gray-600 hover:bg-white' }}">
                         {{ $year }}
                     </a>
                 @endforeach
@@ -31,22 +29,26 @@
                                 {{ $sector->short_name }}
                             </th>
                         @endforeach
+                        <th class="p-3 font-bold text-gray-700">
+                            المجموع
+                        </th>
                     </tr>
                 </thead>
-
                 <tbody class="divide-y divide-gray-100">
                     @foreach ($indicators as $indicator)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="p-3 font-semibold text-gray-800 w-64">
                                 {{ $indicator->title }}
                             </td>
-
+                            @php
+                                $total = 0;
+                            @endphp
                             @foreach ($sectors as $sector)
                                 @php
                                     $value =
-                                        $indicator->indicatorFeedbackValues
-                                            ->where('sector_id', $sector->id)
-                                            ->first()->achieved ?? 0;
+                                        $indicator->indicatorFeedbackValues->where('sector_id', $sector->id)->first()
+                                            ->achieved ?? 0;
+                                    $total = $total + $value;
                                 @endphp
 
                                 <td class="p-3">
@@ -59,6 +61,9 @@
                                     </a>
                                 </td>
                             @endforeach
+                            <td class="text-lg font-bold text-green-600 ">
+                                {{ $total }}
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
