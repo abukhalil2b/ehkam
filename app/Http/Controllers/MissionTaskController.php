@@ -14,7 +14,7 @@ class MissionTaskController extends Controller
 {
     public function missionIndex()
     {
-       $missions = Mission::with([
+        $missions = Mission::with([
             'leader',
             'members.user'
         ])->withCount('tasks')->latest()->get();
@@ -68,8 +68,8 @@ class MissionTaskController extends Controller
                         'mission_id' => $mission->id,
                         'user_id' => $userId,
                         'role' => 'member',
-                        'can_create_tasks' => $perm['can_create_tasks'] ?? false,
-                        'can_view_all_tasks' => $perm['can_view_all_tasks'] ?? false,
+                        'can_create_tasks' => !empty($perm['can_create_tasks']) ? 1 : 0,
+                        'can_view_all_tasks' => !empty($perm['can_view_all_tasks']) ? 1 : 0,
                     ]);
                 }
             }
