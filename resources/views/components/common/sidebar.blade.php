@@ -81,8 +81,12 @@ $sidebarSections = [
         'links' => [
             ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
         ]
+    ],'mission' => [
+        'title' => 'المهام',
+        'links' => [
+            ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام'],
+        ]
     ],
-   
     'admin_structure' => [
         'title' => 'الهيكل',
         'links' => [

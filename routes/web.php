@@ -13,6 +13,7 @@ use App\Http\Controllers\AnnualCalendarController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\IndicatorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
+use App\Http\Controllers\MissionTaskController;
 use App\Http\Controllers\OrganizationalUnitController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProjectController;
@@ -248,7 +249,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('calendar/store', [AnnualCalendarController::class, 'store'])
         ->name('calendar.store');
 
-        Route::get('calendar/{calendarEvent}/edit', [AnnualCalendarController::class, 'edit'])
+    Route::get('calendar/{calendarEvent}/edit', [AnnualCalendarController::class, 'edit'])
         ->name('calendar.edit');
 
     Route::put('calendar/{calendarEvent}', [AnnualCalendarController::class, 'update'])
@@ -448,7 +449,6 @@ Route::group(['middleware' => ['auth', 'permission:task.index']], function () {
 
     Route::get('task/index', [TaskController::class, 'index'])
         ->name('task.index');
-
     Route::get('kanban', [TaskController::class, 'kanban'])
         ->name('kanban');
 
@@ -460,6 +460,40 @@ Route::group(['middleware' => ['auth', 'permission:task.index']], function () {
 
     Route::get('question_result', [TaskController::class, 'question_result'])
         ->name('question_result');
+});
+
+Route::middleware(['auth'])->group(function () {
+
+    Route::get('mission/index', [MissionTaskController::class, 'missionIndex'])
+        ->name('mission.index');
+
+    Route::post('mission/store', [MissionTaskController::class, 'missionStore'])
+        ->name('mission.store');
+
+    Route::post('mission/update', [MissionTaskController::class, 'missionUpdate'])
+        ->name('mission.update');
+
+    Route::get('missions/task/{mission}', [MissionTaskController::class, 'show'])
+        ->name('missions.task.show');
+    // إنشاء مهمة
+    Route::post('missions/task/{mission}', [MissionTaskController::class, 'store'])
+        ->name('missions.task.store');
+
+    // تحديث مهمة
+    Route::put('missions/task/{mission}/{task}', [MissionTaskController::class, 'update'])
+        ->name('missions.task.update');
+
+    // إعادة ترتيب (Drag & Drop)
+    Route::patch('missions/task/{mission}/{task}/reorder', [MissionTaskController::class, 'reorder'])
+        ->name('missions.task.reorder');
+
+    // تحديث الحالة
+    Route::patch('missions/task/{mission}/{task}/status', [MissionTaskController::class, 'updateStatus'])
+        ->name('missions.task.status');
+
+    // حذف مهمة
+    Route::delete('missions/task/{mission}/{task}', [MissionTaskController::class, 'destroy'])
+        ->name('missions.task.destroy');
 });
 
 // PROFILE ROUTE (Usually only requires authentication)

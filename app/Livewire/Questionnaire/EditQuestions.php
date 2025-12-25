@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Livewire\Questionnaire;
+namespace App\Livewire\Questionnaire;
 
 use App\Models\Questionnaire;
 use Livewire\Component;

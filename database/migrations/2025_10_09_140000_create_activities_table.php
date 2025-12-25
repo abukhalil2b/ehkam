@@ -48,8 +48,7 @@ return new class extends Migration
 
             $table->string('assessment_year')->default('2025');
 
-            $table->foreignId('position_id')->constrained('positions')->nullable()->onDelete('cascade');
-            
+            $table->bigInteger('position_id')->nullable();
             $table->timestamps();
         });
     }

@@ -20,6 +20,8 @@
     "females": "اناث",
     "type": "النوع",
     "active": "مفعل",
+    "completed": "مكتمل",
+    "archived": "مؤرشف",
     "Department": "الدوائر",
     "Directorate": "المديريات",
     "Expert": "الخبراء",

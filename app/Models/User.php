@@ -174,4 +174,200 @@ class User extends Authenticatable
     {
         return $this->hasOne(UserPositionHistory::class)->latest('start_date');
     }
+
+        // ========== Missions Relations ==========
+
+    /**
+     * المهام التي أنشأها المستخدم
+     */
+    public function createdMissions()
+    {
+        return $this->hasMany(Mission::class, 'creator_id');
+    }
+
+    /**
+     * المهام التي يقودها المستخدم
+     */
+    public function ledMissions()
+    {
+        return $this->hasMany(Mission::class, 'leader_id');
+    }
+
+    /**
+     * المهام التي المستخدم عضو فيها
+     */
+    public function missions()
+    {
+        return $this->belongsToMany(Mission::class, 'mission_members')
+            ->withPivot('role', 'can_create_tasks', 'can_view_all_tasks')
+            ->withTimestamps();
+    }
+
+    /**
+     * عضوية المستخدم في المهام
+     */
+    public function missionMemberships()
+    {
+        return $this->hasMany(MissionMember::class);
+    }
+
+    // ========== Tasks Relations ==========
+
+    /**
+     * المهام التي أنشأها المستخدم
+     */
+    public function createdTasks()
+    {
+        return $this->hasMany(Task::class, 'creator_id');
+    }
+
+    /**
+     * المهام المخصصة للمستخدم
+     */
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to');
+    }
+
+    /**
+     * المهام المشتركة (عبر task_assignees)
+     */
+    public function sharedTasks()
+    {
+        return $this->belongsToMany(Task::class, 'task_assignees')
+            ->withPivot('status', 'notes', 'completed_at')
+            ->withTimestamps();
+    }
+
+    // ========== Comments & Logs ==========
+
+    /**
+     * تعليقات المستخدم
+     */
+    public function taskComments()
+    {
+        return $this->hasMany(TaskComment::class);
+    }
+
+    /**
+     * سجلات نشاط المستخدم
+     */
+    public function taskLogs()
+    {
+        return $this->hasMany(TaskLog::class);
+    }
+
+    /**
+     * المرفقات التي رفعها المستخدم
+     */
+    public function uploadedAttachments()
+    {
+        return $this->hasMany(TaskAttachment::class, 'uploaded_by');
+    }
+
+    // ========== Helper Methods ==========
+
+    /**
+     * هل المستخدم قائد في مهمة معينة؟
+     */
+    public function isLeaderOf(Mission $mission): bool
+    {
+        return $mission->leader_id === $this->id;
+    }
+
+    /**
+     * هل المستخدم عضو في مهمة معينة؟
+     */
+    public function isMemberOf(Mission $mission): bool
+    {
+        return $this->missionMemberships()
+            ->where('mission_id', $mission->id)
+            ->exists();
+    }
+
+    /**
+     * الحصول على دور المستخدم في مهمة معينة
+     */
+    public function getRoleIn(Mission $mission): ?string
+    {
+        $membership = $this->missionMemberships()
+            ->where('mission_id', $mission->id)
+            ->first();
+
+        return $membership?->role;
+    }
+
+    /**
+     * هل يمكن للمستخدم إنشاء مهام في هذه المهمة؟
+     */
+    public function canCreateTasksIn(Mission $mission): bool
+    {
+        if ($this->isLeaderOf($mission)) {
+            return true;
+        }
+
+        $membership = $this->missionMemberships()
+            ->where('mission_id', $mission->id)
+            ->first();
+
+        return $membership && $membership->can_create_tasks;
+    }
+
+    /**
+     * هل يمكن للمستخدم رؤية جميع المهام في هذه المهمة؟
+     */
+    public function canViewAllTasksIn(Mission $mission): bool
+    {
+        if ($this->isLeaderOf($mission)) {
+            return true;
+        }
+
+        $membership = $this->missionMemberships()
+            ->where('mission_id', $mission->id)
+            ->first();
+
+        return $membership && $membership->can_view_all_tasks;
+    }
+
+    /**
+     * احصائيات المستخدم
+     */
+    public function getStatistics(): array
+    {
+        return [
+            'total_missions' => $this->missions()->count(),
+            'led_missions' => $this->ledMissions()->count(),
+            'total_tasks' => $this->assignedTasks()->count(),
+            'completed_tasks' => $this->assignedTasks()->where('status', 'completed')->count(),
+            'pending_tasks' => $this->assignedTasks()->where('status', 'pending')->count(),
+            'overdue_tasks' => $this->assignedTasks()
+                ->where('status', '!=', 'completed')
+                ->where('due_date', '<', now())
+                ->count(),
+        ];
+    }
+
+    /**
+     * المهام القادمة (خلال أسبوع)
+     */
+    public function getUpcomingTasks(int $days = 7)
+    {
+        return $this->assignedTasks()
+            ->where('status', '!=', 'completed')
+            ->whereBetween('due_date', [now(), now()->addDays($days)])
+            ->orderBy('due_date')
+            ->get();
+    }
+
+    /**
+     * المهام المتأخرة
+     */
+    public function getOverdueTasks()
+    {
+        return $this->assignedTasks()
+            ->where('status', '!=', 'completed')
+            ->where('due_date', '<', now())
+            ->orderBy('due_date')
+            ->get();
+    }
 }
