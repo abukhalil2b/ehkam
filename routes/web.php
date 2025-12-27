@@ -121,9 +121,6 @@ Route::group(['middleware' => ['auth']], function () {
 // مسار جلب الوحدات التابعة (للـ Ajax)
 Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
 
-// مسار حفظ المشروع
-Route::post('/projects', [ProjectController::class, 'store'])->name('project.store');
-});
 
 Route::group(['middleware' => ['auth']], function () {
 
