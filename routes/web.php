@@ -118,9 +118,9 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:project.index') // Assuming view access is sufficient
         ->name('project.task.show');
 
-// مسار جلب الوحدات التابعة (للـ Ajax)
-Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
-
+    // مسار جلب الوحدات التابعة (للـ Ajax)
+    Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
+});
 
 Route::group(['middleware' => ['auth']], function () {
 
