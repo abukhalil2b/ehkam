@@ -26,6 +26,9 @@ use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkshopController;
+use App\Http\Controllers\Admin\CompetitionController as AdminCompetitionController;
+use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
+use App\Http\Controllers\SwotController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome2')->name('home');
@@ -669,5 +672,70 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth']], function () {
     Route::get('permission/index', [PermissionController::class, 'index'])->name('permission.index');
 });
+
+
+// Admin Routes (add your auth middleware)
+Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () {
+
+    // Competition Management
+    Route::resource('competitions', AdminCompetitionController::class);
+
+    // Question Management
+    Route::post('competitions/{competition}/questions', [AdminCompetitionController::class, 'storeQuestion'])
+        ->name('competitions.questions.store');
+    Route::delete('questions/{question}', [AdminCompetitionController::class, 'destroyQuestion'])
+        ->name('questions.destroy');
+
+    // Competition Control
+    Route::post('competitions/{competition}/start', [AdminCompetitionController::class, 'start'])
+        ->name('competitions.start');
+    Route::post('competitions/{competition}/push-question/{question}', [AdminCompetitionController::class, 'pushQuestion'])
+        ->name('competitions.push-question');
+    Route::post('competitions/{competition}/close-question', [AdminCompetitionController::class, 'closeQuestion'])
+        ->name('competitions.close-question');
+    Route::post('competitions/{competition}/finish', [AdminCompetitionController::class, 'finish'])
+        ->name('competitions.finish');
+
+    // Live Data
+    Route::get('competitions/{competition}/live', [AdminCompetitionController::class, 'liveData'])
+        ->name('competitions.live');
+    Route::get('competitions/{competition}/results', [AdminCompetitionController::class, 'results'])
+        ->name('competitions.results');
+});
+
+// Participant Routes (Public)
+Route::prefix('compete')->name('participant.competition.')->group(function () {
+    Route::get('join/{code}', [ParticipantCompetitionController::class, 'join'])
+        ->name('join');
+    Route::post('register/{code}', [ParticipantCompetitionController::class, 'register'])
+        ->name('register');
+    Route::get('wait/{competition}', [ParticipantCompetitionController::class, 'wait'])
+        ->name('wait');
+    Route::get('play/{competition}', [ParticipantCompetitionController::class, 'play'])
+        ->name('play');
+    Route::post('answer/{competition}', [ParticipantCompetitionController::class, 'submitAnswer'])
+        ->name('answer');
+    Route::get('live/{competition}', [ParticipantCompetitionController::class, 'liveData'])
+        ->name('live');
+});
+
+// Admin routes (requires authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/swot', [SwotController::class, 'index'])->name('swot.index');
+    Route::get('/swot/create', [SwotController::class, 'create'])->name('swot.create');
+    Route::post('/swot', [SwotController::class, 'store'])->name('swot.store');
+    Route::get('/swot/admin/{id}', [SwotController::class, 'admin'])->name('swot.admin');
+    Route::get('/swot/admin/{id}/display', [SwotController::class, 'display'])
+        ->name('swot.display');
+    Route::get('/swot/admin/{id}/finalize', [SwotController::class, 'finalize'])->name('swot.finalize');
+    Route::post('/swot/admin/{id}/finalize', [SwotController::class, 'finalizeSave'])->name('swot.finalize.save');
+    Route::get('/swot/admin/{id}/export-excel', [SwotController::class, 'exportExcel'])->name('swot.export.excel');
+});
+
+// Public routes (no authentication required)
+Route::get('/swot/board/{token}', [SwotController::class, 'show'])->name('swot.public');
+Route::post('/swot/board/{token}/init', [SwotController::class, 'initSession'])->name('swot.init');
+Route::post('/swot/board/{token}/add', [SwotController::class, 'addItem'])->name('swot.add');
+Route::get('/swot/board/{token}/items', [SwotController::class, 'getItems'])->name('swot.items');
 
 require __DIR__ . '/auth.php';

@@ -17,6 +17,12 @@ $sidebarSections = [
             ['route' => 'activity.create', 'permission' => 'activity.create', 'label' => 'جديد'],
         ]
     ],
+    'swot' => [
+        'title' => 'swot',
+        'links' => [
+            ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'swot'],
+        ]
+    ],
     'timeline' => [
         'title' => 'timeline',
         'links' => [
@@ -35,6 +41,11 @@ $sidebarSections = [
         'links' => [
             ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة'],
             ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال'],
+        ]
+    ],'competitions' => [
+        'title' => 'competitions',
+        'links' => [
+            ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات'],
         ]
     ],
     'project_assessment_report' => [
