@@ -15,10 +15,15 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->foreignId('indicator_id')->constrained('indicators')->onDelete('cascade');
-            $table->bigInteger('sector_id')->nullable();
             $table->string('current_year',4)->default('2025');
             $table->timestamps();
         });
+        Schema::create('project_owners', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
+            $table->bigInteger('organizational_unit_id')->nullable();
+        });
+        
     }
 
     /**

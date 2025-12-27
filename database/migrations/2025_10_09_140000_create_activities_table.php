@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->bigInteger('project_id');
             $table->string('current_year',4)->default('2025');
+            $table->boolean('is_feed_indicator')->default(false);
             $table->timestamps();
         });
 

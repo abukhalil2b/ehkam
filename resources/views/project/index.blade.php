@@ -59,7 +59,6 @@
                             <th scope="col" class="p-4 w-12">#</th>
                             <th scope="col" class="px-6 py-3 min-w-[120px]">نوع المشروع</th>
                             <th scope="col" class="px-6 py-3 min-w-[150px]">الاسم</th>
-                            <th scope="col" class="px-6 py-3 min-w-[200px]">البرنامج/الوحدة/القطاع</th>
                             <th scope="col" class="px-6 py-3 min-w-[120px]">الفترة الزمنية</th>
                             <th scope="col" class="px-6 py-3 min-w-[150px]">المراجعة</th>
                             <th scope="col" class="px-6 py-3 min-w-[150px]">الحالة</th>
@@ -78,10 +77,7 @@
                                     {{ $project->title }}
                                     {{ $project->current_year }}
                                 </td>
-                                <td class="px-6 py-4 space-y-1">
-                                    <p class="text-xs text-gray-500">المديرية العامة للتخطيط</p>
-                                    <p class="text-xs text-gray-500">دائرة التخطيط والاحصاء</p>
-                                </td>
+                               
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div>من 1-1-2025</div>
                                     <div>إلى 31-12-2025</div>

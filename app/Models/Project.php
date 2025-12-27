@@ -21,4 +21,9 @@ class Project extends Model
     public function indicator(){
         return $this->belongsTo(Indicator::class);
     }
+
+    public function owners()
+    {
+        return $this->hasMany(ProjectOwner::class);
+    }
 }

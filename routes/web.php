@@ -117,6 +117,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('project/task/show/{project}', [ProjectController::class, 'taskShow'])
         ->middleware('permission:project.index') // Assuming view access is sufficient
         ->name('project.task.show');
+
+// مسار جلب الوحدات التابعة (للـ Ajax)
+Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
+
+// مسار حفظ المشروع
+Route::post('/projects', [ProjectController::class, 'store'])->name('project.store');
 });
 
 Route::group(['middleware' => ['auth']], function () {

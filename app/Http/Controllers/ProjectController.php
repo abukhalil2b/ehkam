@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Indicator;
+use App\Models\OrganizationalUnit;
 use App\Models\Project;
 use App\Models\Sector;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ProjectController extends Controller
             ->where('current_year', $current_year)
             ->get();
 
-        return view('project.index', compact('projects', 'indicator','current_year'));
+        return view('project.index', compact('projects', 'indicator', 'current_year'));
     }
 
     /**
@@ -35,73 +36,99 @@ class ProjectController extends Controller
     }
 
 
+
+    // دالة لجلب الوحدات التابعة بناءً على الأب
+    public function getUnitChildren($parentId)
+    {
+        $children = OrganizationalUnit::where('parent_id', $parentId)->get(['id', 'name']);
+        return response()->json($children);
+    }
+
+    // دالة حفظ المشروع
     public function store(Request $request)
     {
-        // 1. Validate the incoming request data
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255', // Ensure title is unique
-            'description' => 'nullable|string',
-            'sector_id' => 'required|integer|exists:sectors,id',
-            'indicator_id' => 'required|integer|exists:indicators,id',
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'indicator_id' => 'required|exists:indicators,id',
+            'organizational_unit_id' => 'required', // القيمة النهائية المختارة
         ]);
 
-        $validatedData['current_year'] = now()->year;
+        // 1. إنشاء المشروع
+        $project = Project::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'indicator_id' => $request->indicator_id,
+            'current_year' => date('Y'),
+        ]);
 
-        // 2. Create the new Project record
-        $project = Project::create($validatedData);
+        // 2. ربط المالك بالمشروع (Project Owner)
+        $project->owners()->create([
+            'organizational_unit_id' => $request->organizational_unit_id
+        ]);
 
-        // 3. Redirect to a relevant page with a success message
-        // You might change 'project.index' to 'project.show' if you want to view the new project
-        return redirect()->route('project.index',$validatedData['indicator_id'])
-            ->with('success', 'المشروع: "' . $project->title . '" تم اضافه!');
+        return redirect()->back()->with('success', 'تم حفظ المشروع بنجاح');
     }
 
     public function edit(Project $project)
-    {
-        // Fetch all sectors to populate the dropdown
-        $sectors = Sector::all();
+{
+    // تحميل المالك والمؤشرات
+    $project->load('owners.unit');
+    $indicators = Indicator::all();
+    
+    // جلب المديريات (التي ليس لها أب) لتبدأ بها القوائم
+    $sectors = OrganizationalUnit::whereNull('parent_id')->get();
 
-        $indicators = Indicator::all();
+    // تحديد المالك الحالي ومعرفة تسلسله الهرمي
+    $currentOwner = $project->owners->first();
+    $currentUnit = $currentOwner ? $currentOwner->unit : null;
 
-        // Pass the project data and sectors to the view
-        return view('project.edit', compact('project', 'sectors','indicators'));
-    }
+    return view('project.edit', compact('project', 'indicators', 'sectors', 'currentUnit'));
+}
 
-    /**
-     * Update the specified project in storage.
-     */
-    public function update(Request $request, Project $project)
-    {
-        // 1. Validate the incoming request data
-        $validatedData = $request->validate([
-            // Ensure title is unique, but ignore the current project's title
-            'title' => 'required|string|max:255|unique:projects,title,' . $project->id,
-            'description' => 'nullable|string',
-            // Check that the sector_id exists in the 'sectors' table
-            'sector_id' => 'required|integer|exists:sectors,id',
-            'indicator_id' => 'required|integer|exists:indicators,id',
-            // Note: Add validation for other fields (like department, section, type) 
-            // once you include them in the form and database.
-        ]);
+public function update(Request $request, Project $project)
+{
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255|unique:projects,title,' . $project->id,
+        'description' => 'nullable|string',
+        'indicator_id' => 'required|exists:indicators,id',
+        'organizational_unit_id' => 'required', // الوحدة الجديدة المختارة
+    ]);
 
-        // 2. Update the Project record
-        $project->update($validatedData);
+    // 1. تحديث بيانات المشروع
+    $project->update([
+        'title' => $validatedData['title'],
+        'description' => $validatedData['description'],
+        'indicator_id' => $validatedData['indicator_id'],
+    ]);
 
-        // 3. Redirect to a relevant page with a success message
-        return redirect()->route('project.index',$request->indicator_id) // Assuming 'project.index' is the list of projects
-            ->with('success', 'المشروع: "' . $project->title . '" تم تحديثه بنجاح!');
-    }
+    // 2. تحديث المالك (نحذف القديم ونضيف الجديد أو نعدله)
+    $project->owners()->updateOrCreate(
+        ['project_id' => $project->id],
+        ['organizational_unit_id' => $request->organizational_unit_id]
+    );
+
+    return redirect()->route('project.show', $project->id)
+        ->with('success', 'تم تحديث المشروع بنجاح!');
+}
 
     /**
      * Display the specified resource.
      */
     public function show(Project $project)
     {
-        $project = Project::with('indicator')->where('id',$project->id)->first();
+        $project->load(['indicator', 'owners', 'activities']);
+
+        // جلب الخطوات وحساب نسبة الإنجاز
+        $steps = $project->steps; // تأكد من إضافة steps في الـ load أعلاه إذا أردت تحسين الأداء
+        $totalSteps = $steps->count();
+        $stepsDoneCount = $steps->where('status', 'completed')->count();
+
+        // حساب النسبة المئوية
+        $completionPercentage = $totalSteps > 0 ? round(($stepsDoneCount / $totalSteps) * 100) : 0;
 
         $current_year = date('Y');
 
-        return view('project.show', compact('project','current_year'));
+        return view('project.show', compact('project', 'current_year', 'completionPercentage', 'steps', 'stepsDoneCount', 'totalSteps'));
     }
 
 
