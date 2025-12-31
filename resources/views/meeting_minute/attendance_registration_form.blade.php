@@ -1,178 +1,195 @@
-{{-- resources/views/meeting_minute/attendance_registration_form.blade.php --}}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل حضور الاجتماع</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
     <style>
-        body { background-color: #f8f9fa; }
-        .signature-container { border: 2px dashed #ddd; }
-        canvas { width: 100%; height: 200px; background: white; }
-        .signed-badge { background-color: #d4edda; color: #155724; }
+        body {
+            font-family: "Tajawal", Arial, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: auto;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .meta {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .qr {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .qr svg {
+            max-width: 100%;
+        }
+
+        form {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: none;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        .errors {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .attendees {
+            margin-top: 30px;
+        }
+
+        .attendees h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .attendees ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .attendees li {
+            background: #f1f5f9;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+        }
     </style>
 </head>
+
 <body>
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h3 class="mb-0">تسجيل حضور الاجتماع</h3>
-                        <h5 class="mb-0">{{ $meetingMinute->title }}</h5>
-                        <p class="mb-0">{{ $meetingMinute->date?->format('Y-m-d') }}</p>
-                    </div>
-                    
-                    <div class="card-body">
-                        {{-- QR Code Section --}}
-                        <div class="text-center mb-4">
-                            <h5>QR Code للحضور</h5>
-                            <div class="d-inline-block p-3 bg-white">
-                                {!! $qrCode !!}
-                            </div>
-                            <p class="text-muted mt-2">يمكن مسح هذا الكود لتسجيل الحضور</p>
-                        </div>
 
-                        {{-- Already Signed Attendees --}}
-                        @if(count($signedAttendees) > 0)
-                        <div class="mb-4">
-                            <h5>تم تسجيل الحضور من قبل:</h5>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($signedAttendees as $attendee)
-                                    <span class="badge signed-badge p-2">{{ $attendee }}</span>
-                                @endforeach
-                            </div>
-                        </div>
-                        @endif
+    <div class="container">
 
-                        <hr>
+        <h1>{{ $meetingMinute->title }}</h1>
 
-                        {{-- Registration Form --}}
-                        <form id="signatureForm">
-                            @csrf
-                            
-                            <div class="mb-3">
-                                <label for="name" class="form-label">الاسم</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                                <div class="form-text">يرجى كتابة اسمك كما هو مسجل في قائمة الحضور</div>
-                            </div>
+        <div class="meta">
+            @if ($meetingMinute->date)
+                تاريخ الاجتماع: {{ $meetingMinute->date->format('Y-m-d') }}
+            @endif
+        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">التوقيع</label>
-                                <div class="signature-container p-3 mb-2">
-                                    <canvas id="signatureCanvas"></canvas>
-                                </div>
-                                <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-secondary" id="clearSignature">
-                                        مسح التوقيع
-                                    </button>
-                                    <button type="button" class="btn btn-warning" id="undoSignature">
-                                        تراجع
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle"></i>
-                                بعد التوقيع سيتم حفظ حضورك بشكل تلقائي
-                            </div>
-
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-success btn-lg px-5" id="submitBtn">
-                                    <i class="fas fa-signature"></i> تأكيد التوقيع
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
+        <div class="qr">
+            {!! $qrCode !!}
+            <div style="font-size: 12px; color: #666; margin-top: 6px;">
+                امسح الرمز لتسجيل الحضور
             </div>
         </div>
+
+        {{-- Messages --}}
+        @if ($errors->any())
+            <div class="errors">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        @if (session('success'))
+            <div class="success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Attendance Form --}}
+        <form method="POST"
+            action="{{ route('meeting_minute.attendance_registration_store', $meetingMinute->public_token) }}">
+            @csrf
+
+            <input type="text" name="name" placeholder="الاسم الكامل" required autocomplete="off">
+
+            <button type="submit">
+                تسجيل الحضور
+            </button>
+        </form>
+
+        {{-- Already Registered Attendees --}}
+        <div class="attendees">
+            <h3>المسجلون بالحضور ({{ count($attendances) }})</h3>
+
+            @if (count($attendances))
+                <ul>
+                    @foreach ($attendances as $name)
+                        <li>{{ $name }}</li>
+                    @endforeach
+                </ul>
+            @else
+                <div style="color:#777;font-size:14px;">
+                    لم يتم تسجيل أي حضور بعد
+                </div>
+            @endif
+        </div>
+
+        <div class="footer-note">
+            يتم تسجيل عنوان IP تلقائياً لأغراض التحقق فقط
+        </div>
+
     </div>
 
-    <script>
-        // Initialize Signature Pad
-        const canvas = document.getElementById('signatureCanvas');
-        const signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'white',
-            penColor: 'black'
-        });
-
-        // Adjust canvas on resize
-        function resizeCanvas() {
-            const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-            signaturePad.clear();
-        }
-        window.addEventListener("resize", resizeCanvas);
-        resizeCanvas();
-
-        // Clear signature
-        document.getElementById('clearSignature').addEventListener('click', () => {
-            signaturePad.clear();
-        });
-
-        // Undo last stroke
-        document.getElementById('undoSignature').addEventListener('click', () => {
-            const data = signaturePad.toData();
-            if (data) {
-                data.pop();
-                signaturePad.fromData(data);
-            }
-        });
-
-        // Submit form
-        document.getElementById('signatureForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            if (signaturePad.isEmpty()) {
-                alert('يرجى إضافة توقيعك');
-                return;
-            }
-            
-            const name = document.getElementById('name').value;
-            if (!name.trim()) {
-                alert('يرجى إدخال اسمك');
-                return;
-            }
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> جاري الحفظ...';
-
-            try {
-                // Convert signature to base64
-                const signatureData = signaturePad.toDataURL('image/png');
-                
-                const response = await fetch('{{ route("meeting_minute.store_signature", $meetingMinute->public_token) }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        signature: signatureData
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    alert('تم تسجيل توقيعك بنجاح!');
-                    location.reload();
-                } else {
-                    throw new Error(result.message || 'حدث خطأ');
-                }
-            } catch (error) {
-                alert('حدث خطأ: ' + error.message);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-signature"></i> تأكيد التوقيع';
-            }
-        });
-    </script>
 </body>
+
 </html>

@@ -2,10 +2,7 @@
     <x-slot name="header">{{ $meeting_minute->title }}</x-slot>
 
     <div class="mt-4">
-        <a href="{{ route('meeting_minute.download_attendance_sheet', $meeting_minute) }}" class="btn btn-primary">
-            <i class="fas fa-download"></i> تحميل قائمة الحضور
-        </a>
-
+    
         <button class="btn btn-info" onclick="copyPublicLink()">
             <i class="fas fa-link"></i> نسخ رابط التسجيل العام
         </button>

@@ -12,7 +12,6 @@ class MeetingAttendance extends Model
     ];
 
 
-
     public function meetingMinute()
     {
         return $this->belongsTo(MeetingMinute::class);

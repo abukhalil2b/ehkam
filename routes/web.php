@@ -174,12 +174,9 @@ Route::group(['middleware' => ['auth']], function () {
 // public for attendance registration form
 Route::get('meeting_minute/attendance_registration_form/{token}', [MeetingMinuteController::class, 'attendanceRegistrationForm'])
     ->name('meeting_minute.attendance_registration_form');
-Route::post('meeting_minute/store_signature/{token}', [MeetingMinuteController::class, 'storeSignature'])
-    ->name('meeting_minute.store_signature');
+Route::post('meeting_minute/attendance_registration_store/{token}', [MeetingMinuteController::class, 'attendanceRegistrationStore'])
+    ->name('meeting_minute.attendance_registration_store');
 
-Route::get('meeting_minute/download_attendance_sheet/{meeting_minute}', [MeetingMinuteController::class, 'downloadAttendanceSheet'])
-    ->middleware(['auth', 'permission:meeting_minute.show'])
-    ->name('meeting_minute.download_attendance_sheet');
 
 Route::group(['middleware' => ['auth']], function () {
 
