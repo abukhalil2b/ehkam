@@ -1,6 +1,16 @@
 <x-app-layout>
     <x-slot name="header">{{ $meeting_minute->title }}</x-slot>
 
+    <div class="mt-4">
+        <a href="{{ route('meeting_minute.download_attendance_sheet', $meeting_minute) }}" class="btn btn-primary">
+            <i class="fas fa-download"></i> تحميل قائمة الحضور
+        </a>
+
+        <button class="btn btn-info" onclick="copyPublicLink()">
+            <i class="fas fa-link"></i> نسخ رابط التسجيل العام
+        </button>
+    </div>
+
     <div class="max-w-3xl mx-auto bg-white shadow p-6 rounded-lg">
         <p><strong>التاريخ:</strong> {{ $meeting_minute->date }}</p>
         <p><strong>كتب بواسطة:</strong> {{ $meeting_minute->writtenBy->name ?? '—' }}</p>
@@ -12,7 +22,8 @@
 
         @if ($meeting_minute->file_upload_link)
             <div class="mt-4">
-                <a href="{{ asset('storage/' . $meeting_minute->file_upload_link) }}" target="_blank" class="text-blue-600 underline">
+                <a href="{{ asset('storage/' . $meeting_minute->file_upload_link) }}" target="_blank"
+                    class="text-blue-600 underline">
                     عرض المرفق
                 </a>
             </div>
@@ -27,4 +38,13 @@
             </ul>
         </div>
     </div>
+
+    <script>
+        function copyPublicLink() {
+            const link = "{{ route('meeting_minute.attendance_registration_form', $meeting_minute->public_token) }}";
+            navigator.clipboard.writeText(link).then(() => {
+                alert('تم نسخ الرابط إلى الحافظة');
+            });
+        }
+    </script>
 </x-app-layout>

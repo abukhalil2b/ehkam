@@ -171,6 +171,15 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:meeting_minute.delete')
         ->name('meeting_minute.destroy');
 });
+// public for attendance registration form
+Route::get('meeting_minute/attendance_registration_form/{token}', [MeetingMinuteController::class, 'attendanceRegistrationForm'])
+    ->name('meeting_minute.attendance_registration_form');
+Route::post('meeting_minute/store_signature/{token}', [MeetingMinuteController::class, 'storeSignature'])
+    ->name('meeting_minute.store_signature');
+
+Route::get('meeting_minute/download_attendance_sheet/{meeting_minute}', [MeetingMinuteController::class, 'downloadAttendanceSheet'])
+    ->middleware(['auth', 'permission:meeting_minute.show'])
+    ->name('meeting_minute.download_attendance_sheet');
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -733,6 +742,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/swot/admin/{id}/finalize', [SwotController::class, 'finalize'])->name('swot.finalize');
     Route::post('/swot/admin/{id}/finalize', [SwotController::class, 'finalizeSave'])->name('swot.finalize.save');
     Route::get('/swot/admin/{id}/export-excel', [SwotController::class, 'exportExcel'])->name('swot.export.excel');
+
+    //API to update board type
+    Route::patch('/swot/admin/board/{board}/move', [SwotController::class, 'moveBoardItem'])->name('swot.board.move');
+    Route::patch('/swot/admin/board/{board}/update-content', [SwotController::class, 'updateBoardContent'])->name('swot.board.update');
 });
 
 // Public routes (no authentication required)

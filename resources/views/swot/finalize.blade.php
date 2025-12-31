@@ -173,10 +173,218 @@
                 </div>
             </div>
 
+            <!-- SWOT Reference Panel -->
+            <div class="mb-8" x-data="{ showReference: true }">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <!-- Header -->
+                    <div class="px-6 py-4 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h2 class="text-xl font-bold text-gray-900">مرجع تحليل SWOT</h2>
+                                    <p class="text-sm text-gray-600">راجع العناصر المدخلة قبل كتابة الاستراتيجيات</p>
+                                </div>
+                            </div>
+                            <button @click="showReference = !showReference"
+                                class="px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-2">
+                                <span x-text="showReference ? 'إخفاء' : 'عرض'"></span>
+                                <svg class="w-4 h-4 transition-transform" :class="showReference ? 'rotate-180' : ''"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div x-show="showReference" x-transition:enter="transition ease-out duration-300"
+                        x-transition:enter-start="opacity-0 transform -translate-y-2"
+                        x-transition:enter-end="opacity-100 transform translate-y-0" class="p-6">
+                        <div class="grid md:grid-cols-2 gap-6">
+
+                            <!-- Strengths -->
+                            <div
+                                class="bg-gradient-to-br from-green-50 to-green-25 border-2 border-green-200 rounded-xl p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-bold text-green-900">نقاط القوة</h3>
+                                    </div>
+                                    <span
+                                        class="px-2.5 py-1 bg-green-100 text-green-800 text-xs font-bold rounded-full">
+                                        {{ $swotData['strengths']->count() }}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    @forelse($swotData['strengths'] as $item)
+                                        <div
+                                            class="bg-white/70 backdrop-blur-sm rounded-lg p-3 text-sm text-gray-800 hover:bg-white transition-colors border border-green-100">
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-green-500 mt-0.5">•</span>
+                                                <span class="flex-1">{{ $item->content }}</span>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-4 text-green-600 text-sm">
+                                            لا توجد نقاط قوة مسجلة
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- Weaknesses -->
+                            <div
+                                class="bg-gradient-to-br from-red-50 to-red-25 border-2 border-red-200 rounded-xl p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-bold text-red-900">نقاط الضعف</h3>
+                                    </div>
+                                    <span class="px-2.5 py-1 bg-red-100 text-red-800 text-xs font-bold rounded-full">
+                                        {{ $swotData['weaknesses']->count() }}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    @forelse($swotData['weaknesses'] as $item)
+                                        <div
+                                            class="bg-white/70 backdrop-blur-sm rounded-lg p-3 text-sm text-gray-800 hover:bg-white transition-colors border border-red-100">
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-red-500 mt-0.5">•</span>
+                                                <span class="flex-1">{{ $item->content }}</span>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-4 text-red-600 text-sm">
+                                            لا توجد نقاط ضعف مسجلة
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- Opportunities -->
+                            <div
+                                class="bg-gradient-to-br from-blue-50 to-blue-25 border-2 border-blue-200 rounded-xl p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-bold text-blue-900">الفرص</h3>
+                                    </div>
+                                    <span class="px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full">
+                                        {{ $swotData['opportunities']->count() }}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    @forelse($swotData['opportunities'] as $item)
+                                        <div
+                                            class="bg-white/70 backdrop-blur-sm rounded-lg p-3 text-sm text-gray-800 hover:bg-white transition-colors border border-blue-100">
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-blue-500 mt-0.5">•</span>
+                                                <span class="flex-1">{{ $item->content }}</span>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-4 text-blue-600 text-sm">
+                                            لا توجد فرص مسجلة
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+
+                            <!-- Threats -->
+                            <div
+                                class="bg-gradient-to-br from-yellow-50 to-yellow-25 border-2 border-yellow-200 rounded-xl p-5">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="font-bold text-yellow-900">التهديدات</h3>
+                                    </div>
+                                    <span
+                                        class="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">
+                                        {{ $swotData['threats']->count() }}
+                                    </span>
+                                </div>
+                                <div class="space-y-2 max-h-64 overflow-y-auto">
+                                    @forelse($swotData['threats'] as $item)
+                                        <div
+                                            class="bg-white/70 backdrop-blur-sm rounded-lg p-3 text-sm text-gray-800 hover:bg-white transition-colors border border-yellow-100">
+                                            <div class="flex items-start gap-2">
+                                                <span class="text-yellow-500 mt-0.5">•</span>
+                                                <span class="flex-1">{{ $item->content }}</span>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-center py-4 text-yellow-600 text-sm">
+                                            لا توجد تهديدات مسجلة
+                                        </div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats -->
+                        <div class="mt-6 flex items-center justify-center gap-8 text-sm">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span class="text-gray-600">{{ $swotData['strengths']->count() }} نقاط قوة</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                <span class="text-gray-600">{{ $swotData['weaknesses']->count() }} نقاط ضعف</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span class="text-gray-600">{{ $swotData['opportunities']->count() }} فرص</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                <span class="text-gray-600">{{ $swotData['threats']->count() }} تهديدات</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <!-- Strategies Section -->
             <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">الاستراتيجيات المقترحة</h2>
-                <div class="grid md:grid-cols-3 gap-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">الاستراتيجيات المقترحة</h2>
+                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                        4 استراتيجيات
+                    </span>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
                     <!-- Strength Strategy -->
                     <div
                         class="bg-gradient-to-br from-green-50 to-green-25 border border-green-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
@@ -189,15 +397,19 @@
                                             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
-                                <h3 class="font-bold text-green-900">استراتيجية نقاط القوة</h3>
+                                <div>
+                                    <h3 class="font-bold text-green-900">استراتيجية نقاط القوة</h3>
+                                    <p class="text-xs text-green-700">SO Strategy</p>
+                                </div>
                             </div>
                             <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                                استغلال الفرص
+                                {{ $stats['strength_count'] ?? 0 }} عنصر
                             </span>
                         </div>
                         <textarea x-model="strength_strategy"
                             class="w-full px-4 py-3 bg-white/50 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن استغلال نقاط القوة للاستفادة من الفرص؟"></textarea>
+                            rows="5" placeholder="كيف يمكن استغلال نقاط القوة للاستفادة من الفرص المتاحة؟"></textarea>
+                        <p class="text-xs text-green-700 mt-2">💡 استخدم نقاط القوة لتعظيم الفرص</p>
                     </div>
 
                     <!-- Weakness Strategy -->
@@ -212,15 +424,46 @@
                                             d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
                                     </svg>
                                 </div>
-                                <h3 class="font-bold text-red-900">استراتيجية نقاط الضعف</h3>
+                                <div>
+                                    <h3 class="font-bold text-red-900">استراتيجية نقاط الضعف</h3>
+                                    <p class="text-xs text-red-700">WO Strategy</p>
+                                </div>
                             </div>
                             <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
-                                تحسين الأداء
+                                {{ $stats['weakness_count'] ?? 0 }} عنصر
                             </span>
                         </div>
                         <textarea x-model="weakness_strategy"
                             class="w-full px-4 py-3 bg-white/50 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن تحسين نقاط الضعف أو التغلب عليها؟"></textarea>
+                            rows="5" placeholder="كيف يمكن تحسين نقاط الضعف أو التغلب عليها للاستفادة من الفرص؟"></textarea>
+                        <p class="text-xs text-red-700 mt-2">💡 حسّن نقاط الضعف لاستغلال الفرص</p>
+                    </div>
+
+                    <!-- Opportunity Strategy -->
+                    <div
+                        class="bg-gradient-to-br from-blue-50 to-blue-25 border border-blue-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-blue-900">استراتيجية الفرص</h3>
+                                    <p class="text-xs text-blue-700">Opportunity Strategy</p>
+                                </div>
+                            </div>
+                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                                {{ $stats['opportunity_count'] ?? 0 }} عنصر
+                            </span>
+                        </div>
+                        <textarea x-model="opportunity_strategy"
+                            class="w-full px-4 py-3 bg-white/50 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                            rows="5" placeholder="كيف يمكن استغلال الفرص المتاحة لتحقيق النمو والتطور؟"></textarea>
+                        <p class="text-xs text-blue-700 mt-2">💡 اغتنم الفرص لتحقيق التميز</p>
                     </div>
 
                     <!-- Threat Strategy -->
@@ -235,17 +478,22 @@
                                             d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                     </svg>
                                 </div>
-                                <h3 class="font-bold text-yellow-900">استراتيجية التهديدات</h3>
+                                <div>
+                                    <h3 class="font-bold text-yellow-900">استراتيجية التهديدات</h3>
+                                    <p class="text-xs text-yellow-700">WT Strategy</p>
+                                </div>
                             </div>
                             <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
-                                إدارة المخاطر
+                                {{ $stats['threat_count'] ?? 0 }} عنصر
                             </span>
                         </div>
                         <textarea x-model="threat_strategy"
                             class="w-full px-4 py-3 bg-white/50 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن التعامل مع التهديدات أو تقليل آثارها؟"></textarea>
+                            rows="5" placeholder="كيف يمكن التعامل مع التهديدات أو تقليل آثارها السلبية؟"></textarea>
+                        <p class="text-xs text-yellow-700 mt-2">💡 تجنب أو قلل من تأثير التهديدات</p>
                     </div>
                 </div>
+
             </div>
 
             <!-- Action Plan Section -->
@@ -399,6 +647,7 @@
                 summary: @json($finalize->summary ?? ''),
                 strength_strategy: @json($finalize->strength_strategy ?? ''),
                 weakness_strategy: @json($finalize->weakness_strategy ?? ''),
+                opportunity_strategy: @json($finalize->opportunity_strategy ?? ''),
                 threat_strategy: @json($finalize->threat_strategy ?? ''),
                 actionItems: @json($finalize->action_items ?? []),
                 summaryWordCount: 0,
@@ -475,6 +724,7 @@
                                 summary: this.summary,
                                 strength_strategy: this.strength_strategy,
                                 weakness_strategy: this.weakness_strategy,
+                                opportunity_strategy: this.opportunity_strategy,
                                 threat_strategy: this.threat_strategy,
                                 action_items: this.actionItems
                             })
@@ -558,6 +808,40 @@
             padding-right: 2.5rem;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+        }
+
+        .max-h-64::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .max-h-64::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+
+        .max-h-64::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 2px;
+        }
+
+        .max-h-64::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .bg-green-25 {
+            background-color: rgba(240, 253, 244, 0.3);
+        }
+
+        .bg-red-25 {
+            background-color: rgba(254, 242, 242, 0.3);
+        }
+
+        .bg-blue-25 {
+            background-color: rgba(239, 246, 255, 0.3);
+        }
+
+        .bg-yellow-25 {
+            background-color: rgba(254, 252, 232, 0.3);
         }
     </style>
 </x-app-layout>

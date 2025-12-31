@@ -43,6 +43,7 @@ return new class extends Migration
             $table->text('summary')->nullable();
             $table->text('strength_strategy')->nullable();
             $table->text('weakness_strategy')->nullable();
+            $table->text('opportunity_strategy')->nullable();
             $table->text('threat_strategy')->nullable();
             $table->json('action_items')->nullable(); // [{title, owner, priority, deadline}]
             $table->foreignId('created_by')->constrained('users');

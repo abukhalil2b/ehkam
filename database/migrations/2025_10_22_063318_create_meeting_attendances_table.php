@@ -17,6 +17,9 @@ return new class extends Migration
                 ->constrained('meeting_minutes')
                 ->onDelete('cascade'); // cascade delete if parent deleted
             $table->string('name'); // only attendee name
+            $table->text('signature')->nullable(); // Store signature as base64 or file path
+            $table->timestamp('signed_at')->nullable();
+            $table->string('ip_address', 45)->nullable();
             $table->timestamps();
         });
     }

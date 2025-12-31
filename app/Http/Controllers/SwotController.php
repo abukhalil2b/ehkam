@@ -37,6 +37,47 @@ class SwotController extends Controller
             ->with('success', 'SWOT Project created successfully!');
     }
 
+    public function moveBoardItem(Request $request, SwotBoard $board)
+    {
+        $request->validate([
+            'type' => 'required|in:strength,weakness,opportunity,threat',
+        ]);
+
+        // Ownership check (via project)
+        if ($board->project->created_by !== Auth::id()) {
+            abort(403);
+        }
+
+        $board->update([
+            'type' => $request->type,
+        ]);
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
+    public function updateBoardContent(Request $request, SwotBoard $board)
+    {
+        $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        // Ownership check (via project)
+        if ($board->project->created_by !== Auth::id()) {
+            abort(403);
+        }
+
+        $board->update([
+            'content' => $request->content,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'content' => $board->content,
+        ]);
+    }
+
     // Admin: View project with QR code
     // في الكنترولر، تحديث method admin للتعامل مع أنواع التصدير المختلفة:
     public function admin($id, Request $request)
@@ -50,18 +91,18 @@ class SwotController extends Controller
         return view('swot.admin', compact('project'));
     }
 
-  public function exportExcel($id)
-{
-    $project = SwotProject::with('finalize')->findOrFail($id);
+    public function exportExcel($id)
+    {
+        $project = SwotProject::with('finalize')->findOrFail($id);
 
-    if ($project->created_by !== auth()->id()) {
-        abort(403);
+        if ($project->created_by !== auth()->id()) {
+            abort(403);
+        }
+
+        $fileName = 'swot_project_' . $project->id . '_' . now()->format('Y_m_d') . '.xlsx';
+
+        return Excel::download(new SwotProjectFullExport($project), $fileName);
     }
-
-    $fileName = 'swot_project_' . $project->id . '_' . now()->format('Y_m_d') . '.xlsx';
-
-    return Excel::download(new SwotProjectFullExport($project), $fileName);
-}
 
 
     public function display($id)
@@ -239,18 +280,24 @@ class SwotController extends Controller
 
     public function finalize($id)
     {
-
         $project = SwotProject::with('boards', 'finalize')->findOrFail($id);
 
+        // Check if project has any boards
         if ($project->boards()->count() === 0) {
             return redirect()->back()->with('error', 'لا يمكن إنهاء المشروع قبل إضافة عناصر SWOT.');
         }
 
-
+        // Authorization check
         if ($project->created_by !== Auth::id()) {
             abort(403);
         }
 
+        // Check if already finalized (optional warning)
+        if ($project->is_finalized) {
+            session()->flash('warning', 'هذا المشروع تم إنهاؤه مسبقاً. يمكنك تعديل الاستراتيجيات.');
+        }
+
+        // Deactivate project
         $project->update(['is_active' => 0]);
 
         // Get or create finalize entry
@@ -258,7 +305,25 @@ class SwotController extends Controller
             'created_by' => Auth::id()
         ]);
 
-        return view('swot.finalize', compact('project', 'finalize'));
+        // Aggregate SWOT data for better strategy writing
+        $swotData = [
+            'strengths' => $project->boards()->where('type', 'strength')->get(),
+            'weaknesses' => $project->boards()->where('type', 'weakness')->get(),
+            'opportunities' => $project->boards()->where('type', 'opportunity')->get(),
+            'threats' => $project->boards()->where('type', 'threat')->get(),
+        ];
+
+        // Calculate statistics
+        $stats = [
+            'total_items' => $project->boards->count(),
+            'participants' => $project->boards->groupBy('session_id')->count(),
+            'strength_count' => $swotData['strengths']->count(),
+            'weakness_count' => $swotData['weaknesses']->count(),
+            'opportunity_count' => $swotData['opportunities']->count(),
+            'threat_count' => $swotData['threats']->count(),
+        ];
+
+        return view('swot.finalize', compact('project', 'finalize', 'swotData', 'stats'));
     }
 
     public function finalizeSave(Request $request, $id)
@@ -272,16 +337,18 @@ class SwotController extends Controller
             ], 403);
         }
 
+        // FIXED: Added opportunity_strategy validation
         $data = $request->validate([
-            'summary' => 'nullable|string',
-            'strength_strategy' => 'nullable|string',
-            'weakness_strategy' => 'nullable|string',
-            'threat_strategy' => 'nullable|string',
+            'summary' => 'nullable|string|max:5000',
+            'strength_strategy' => 'nullable|string|max:2000',
+            'weakness_strategy' => 'nullable|string|max:2000',
+            'opportunity_strategy' => 'nullable|string|max:2000', // ← ADDED THIS
+            'threat_strategy' => 'nullable|string|max:2000',
             'action_items' => 'nullable|array',
-            'action_items.*.title' => 'required|string',
-            'action_items.*.owner' => 'nullable|string',
-            'action_items.*.priority' => 'nullable|string',
-            'action_items.*.deadline' => 'nullable|date',
+            'action_items.*.title' => 'required_with:action_items|string|max:255',
+            'action_items.*.owner' => 'nullable|string|max:100',
+            'action_items.*.priority' => 'nullable|in:High,Medium,Low',
+            'action_items.*.deadline' => 'nullable|date|after_or_equal:today',
         ]);
 
         $finalize = $project->finalize;
@@ -297,4 +364,5 @@ class SwotController extends Controller
             'message' => 'تم حفظ التلخيص بنجاح'
         ]);
     }
+    
 }

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class MeetingMinute extends Model
 {
@@ -11,7 +12,17 @@ class MeetingMinute extends Model
     protected $casts = [
         'created_at' => 'datetime:Y-m-d H:i',
         'updated_at' => 'datetime:Y-m-d H:i',
+        'date' => 'date',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($meetingMinute) {
+            $meetingMinute->public_token = Str::random(32);
+        });
+    }
 
 
     public function writtenBy()
