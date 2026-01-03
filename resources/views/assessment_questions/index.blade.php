@@ -9,7 +9,7 @@
     <div class="container py-8 mx-auto px-4" x-data="sortableQuestions('{{ route('assessment_questions.update_ordered') }}')">
         <div class="flex justify-between items-center mb-8 border-b pb-4">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <a href="{{ route('activity.index') }}"
+                <a href="{{ route('activity.index',$currentYear ) }}"
                     class="px-4 py-2 text-sm font-semibold  rounded-lg shadow-sm transition duration-150 ease-in-out focus:outline-none bg-blue-500 hover:bg-blue-700 text-white">
                     <i class="fas fa-list-alt ml-2"></i> الأنشطة
                 </a>

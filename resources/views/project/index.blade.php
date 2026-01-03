@@ -28,7 +28,7 @@
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                 إضافة مشروع جديد
             </a>
-            <a href="{{ route('activity.index') }}"
+            <a href="{{ route('activity.index',$currentYear) }}"
                 class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
                 الأنشطة
             </a>

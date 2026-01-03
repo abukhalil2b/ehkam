@@ -2,6 +2,13 @@
 $userPermissions = auth()->user()->getPermissions();
 
 $sidebarSections = [
+    'settings' => [
+        'title' => 'الإعدادات',
+        'links' => [
+            ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات','params'=>['2025']],
+            ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع','params'=>['2025']],
+        ]
+    ],
     'indicator' => [
         'title' => 'المؤشرات',
         'links' => [
@@ -13,8 +20,7 @@ $sidebarSections = [
     'activity' => [
         'title' => 'الأنشطة',
         'links' => [
-            ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة'],
-            ['route' => 'activity.create', 'permission' => 'activity.create', 'label' => 'جديد'],
+            ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة','params'=>['2025']],
         ]
     ],
     'swot' => [
@@ -60,7 +66,7 @@ $sidebarSections = [
             ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
         ]
     ]
-    ,'questionnaire' => [
+    ,'finance' => [
         'title' => 'استمارات المالية',
         'links' => [
             ['route' => 'admin.finance_form.index', 'permission' => 'admin.finance_form.index', 'label' => 'قائمة الاستمارات المالية'],

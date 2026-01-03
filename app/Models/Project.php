@@ -18,12 +18,13 @@ class Project extends Model
         return $this->hasMany(Step::class);
     }
 
-    public function indicator(){
+    public function indicator()
+    {
         return $this->belongsTo(Indicator::class);
     }
 
-    public function owners()
+    public function executor()
     {
-        return $this->hasMany(ProjectOwner::class);
+        return $this->belongsTo(OrganizationalUnit::class,'executor_id');
     }
 }

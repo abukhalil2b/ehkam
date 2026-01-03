@@ -6,19 +6,29 @@ use App\Models\Project;
 use App\Models\Activity;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResult;
+use App\Models\Indicator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ActivityController extends Controller
 {
 
-    public function index()
+    public function index($year)
     {
-        $currentYear = now()->year;
+        $availableYears = Indicator::query()
+            ->select('current_year')
+            ->distinct()
+            ->pluck('current_year')
+            ->toArray();
+
+        // Fallback to most recent year if invalid year is requested
+        if (!in_array($year, $availableYears)) {
+            $year = $availableYears[0] ?? now()->year;
+        }
 
         // Eager load the AssessmentResults and their associated User models to show who submitted each assessment, 
         // preventing the N+1 query problem.
-        $activities = Activity::where('current_year', $currentYear)
+        $activities = Activity::where('current_year', $year)
             ->with('assessmentResults.user')
             ->latest()
             ->get();
@@ -40,17 +50,14 @@ class ActivityController extends Controller
         return view('activity.index', [
             'activities' => $activities,
             'submittedActivityIds' => $submittedActivityIds,
-            'currentYear' => $currentYear, // Pass the year for display in the view
+            'availableYears' => $availableYears,
+            'selectedYear'   => $year,// Pass the year for display in the view
         ]);
     }
 
-    // The create method isn't strictly necessary for the route definition provided,
-    // but it's good practice to have if you plan on using a dedicated create form.
-    public function create()
+    public function create(Project $project)
     {
-        // You would typically load data needed for the form here, e.g., Projects.
-        $projects = Project::all();
-        return view('activity.create', compact('projects'));
+        return view('activity.create', compact('project'));
     }
 
     /**
@@ -72,7 +79,7 @@ class ActivityController extends Controller
         ]);
 
         // 3. Redirect with a success message
-        return redirect()->route('activity.index')->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
+        return redirect()->route('project.show',$request->project_id)->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
     }
 
     public function show(Activity $activity)

@@ -75,9 +75,10 @@
                                 <div class="flex items-center mt-2">
                                     <span
                                         class="indicator-type inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $indicator->period ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
-                                        {{ $indicator->is_main ? 'رئيسي' :  'فرعي'  }}
+                                        {{ $indicator->is_main ? 'رئيسي' : 'فرعي' }}
                                     </span>
-                                    <span class="text-xs text-gray-500 mr-2">{{ $indicator->code ?? 'بدون رمز' }}</span>
+                                    <span
+                                        class="text-xs text-gray-500 mr-2">{{ $indicator->code ?? 'بدون رمز' }}</span>
                                 </div>
                             </div>
                             <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
@@ -128,7 +129,8 @@
                             </div>
                         </div>
 
-                        <div class="text-xs">المستهدف:{{ $indicator->target_for_indicator }} لسنة:{{ $indicator->current_year }}</div>
+                        <div class="text-xs">المستهدف:{{ $indicator->target_for_indicator }}
+                            لسنة:{{ $indicator->current_year }}</div>
                     </div>
 
                     <!-- Card Footer - Action Buttons (3-column layout) -->
@@ -172,7 +174,7 @@
                                 المحقق
                             </a>
 
-                            <a href="{{ route('project.index',$indicator->id) }}"
+                            <a href="{{ route('project.index', $indicator->id) }}"
                                 class="flex items-center justify-center px-3 py-2 bg-white border border-orange-500 text-orange-600 hover:bg-orange-50 text-sm font-medium rounded-lg transition duration-150 col-span-2">
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -187,18 +189,11 @@
             @endforeach
         </div>
 
-        <!-- Empty State -->
         @if (count($indicators) === 0)
             <div class="text-center py-12">
-                <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                    </path>
-                </svg>
-                <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد مؤشرات</h3>
-                <p class="mt-2 text-gray-500">ابدأ بإضافة أول مؤشر لك.</p>
-                <div class="mt-6">
+                <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد مؤشرات لعام {{ $current_year }}</h3>
+
+                <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
                     <a href="{{ route('indicator.create') }}"
                         class="inline-flex items-center px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition duration-150">
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,6 +202,16 @@
                         </svg>
                         إضافة مؤشر جديد
                     </a>
+
+                    @if ($has_previous_data)
+                        <form action="{{ route('admin_setting.copy_year', ['year' => $current_year]) }}"method="POST"
+                            onsubmit="return confirm('سيتم نسخ جميع بيانات عام {{ $current_year - 1 }}. هل أنت متأكد؟')">
+                            @csrf
+                            <button class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                نسخ بيانات عام {{ $current_year - 1 }}
+                            </button>
+                        </form>
+                    @endif
                 </div>
             </div>
         @endif

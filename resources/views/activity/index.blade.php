@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">
-                قائمة الأنشطة {{ $currentYear }}
+                قائمة الأنشطة {{ $selectedYear }}
             </h2>
             <div class="w-40 px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 shadow-sm">
                 <div> إجمالي: {{ count($activities) }}</div>
@@ -13,14 +13,21 @@
 
     <div class="container py-8 mx-auto px-4">
 
+                <div>
+                    @foreach ($availableYears as $year)
+                    <a href="{{ route('activity.index', ['year' => $year]) }}"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block
+                            {{ $year == $selectedYear ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
+                        {{ $year }}
+                    </a>
+                @endforeach
+                </div>
+
         <a href="{{ route('assessment_questions.index') }}"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             أسئلة الأنشطة
         </a>
-        <a href="{{ route('activity.create') }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
-            إضافة نشاط جديد
-        </a>
+       
         <a href="{{ route('project_assessment_report') }}"
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
             تقرير

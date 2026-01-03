@@ -31,12 +31,17 @@ class IndicatorController extends Controller
     public function index()
     {
         $current_year = date('Y');
+        $last_year = $current_year - 1;
 
         $indicators = Indicator::where('current_year', $current_year)->get();
 
-        return view('indicator.index', compact('indicators', 'current_year'));
+        // Check if there is data to copy from last year
+        $has_previous_data = Indicator::where('current_year', $last_year)->exists();
+
+        return view('indicator.index', compact('indicators', 'current_year', 'has_previous_data', 'last_year'));
     }
 
+   
     public function show(Indicator $indicator)
     {
         // 1. Get the names of the associated sectors
@@ -53,7 +58,7 @@ class IndicatorController extends Controller
 
     public function create()
     {
-        $sectors = Sector::all(); // Need sectors for multi-select field
+        $sectors = Sector::all();
 
         return view('indicator.create', compact('sectors'));
     }

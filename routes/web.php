@@ -27,6 +27,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\Admin\CompetitionController as AdminCompetitionController;
+use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
 use App\Http\Controllers\SwotController;
 use Illuminate\Support\Facades\Route;
@@ -45,9 +46,24 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('dashboard');
 });
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('admin_setting/indicator/index/{year}', [AdminSettingController::class, 'indicatorIndex'])
+        ->middleware('permission:indicator.index')
+        ->name('admin_setting.indicator.index');
+
+    Route::get('admin_setting/project/index/{year}', [AdminSettingController::class, 'projectIndex'])
+        ->middleware('permission:project.index')
+        ->name('admin_setting.project.index');
+
+    Route::post('admin_setting/copy-year/{year}', [AdminSettingController::class, 'copyYear'])
+        ->middleware('permission:indicator.create')
+        ->name('admin_setting.copy_year');
+});
+
+
 // INDICATOR ROUTES
 Route::group(['middleware' => ['auth']], function () {
-    // Read Permissions (index/show)
+
     Route::get('indicator/target/{indicator}', [IndicatorController::class, 'target'])
         ->middleware('permission:indicator.index')
         ->name('indicator.target');
@@ -64,6 +80,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:indicator.index')
         ->name('indicator.index');
 
+
     // Create/Write Permissions
     Route::get('indicator/create', [IndicatorController::class, 'create'])
         ->middleware('permission:indicator.create')
@@ -72,6 +89,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('indicator/store', [IndicatorController::class, 'store'])
         ->middleware('permission:indicator.create')
         ->name('indicator.store');
+
     Route::get('indicator/edit/{indicator}', [IndicatorController::class, 'edit'])
         ->middleware('permission:indicator.edit')
         ->name('indicator.edit');
@@ -274,11 +292,11 @@ Route::group(['middleware' => ['auth']], function () {
 // ACTIVITY & ASSESSMENT ROUTES
 Route::group(['middleware' => ['auth']], function () {
     // Activity
-    Route::get('activity/index', [ActivityController::class, 'index'])
+    Route::get('activity/index/{year}', [ActivityController::class, 'index'])
         ->middleware('permission:activity.index')
         ->name('activity.index');
 
-    Route::get('activity/create', [ActivityController::class, 'create'])
+    Route::get('activity/create/{project}', [ActivityController::class, 'create'])
         ->middleware('permission:activity.create')
         ->name('activity.create');
 

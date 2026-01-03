@@ -13,16 +13,13 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('cate',20)->nullable();
             $table->text('description')->nullable();
+            $table->bigInteger('executor_id')->nullable();
             $table->foreignId('indicator_id')->constrained('indicators')->onDelete('cascade');
-            $table->string('current_year',4)->default('2025');
             $table->timestamps();
         });
-        Schema::create('project_owners', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('project_id')->constrained('projects')->onDelete('cascade');
-            $table->bigInteger('organizational_unit_id')->nullable();
-        });
+ 
         
     }
 

@@ -19,7 +19,26 @@
             <x-input-error class="mt-2" :messages="$errors->get('code')" />
         </div>
     </div>
-
+    <div>
+        <label for="is_main" class="block text-gray-700 font-medium mb-2">هل رئيسي
+            <span class="text-red-500">*</span>
+        </label>
+        <select name="is_main" id="is_main"
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200">
+            <option value="1">نعم</option>
+            <option value="0">لا</option>
+        </select>
+        @error('is_main')
+            <p class="text-red-600 text-sm mt-2 flex items-center">
+                <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd"></path>
+                </svg>
+                {{ $message }}
+            </p>
+        @enderror
+    </div>
     {{-- Row 2: Title, Owner, Period --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
