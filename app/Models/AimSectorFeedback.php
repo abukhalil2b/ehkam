@@ -3,9 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class IndicatorFeedbackValue extends Model
+class AimSectorFeedback extends Model
 {
     protected $guarded = [];
 
@@ -15,13 +14,13 @@ class IndicatorFeedbackValue extends Model
     }
     public function indicator()
     {
-        return $this->belongsTo(Indicator::class);
+        return $this->belongsTo(Aim::class);
     }
 
     /**
      * Get the user who created this value.
      */
-    public function createdBy(): BelongsTo
+    public function createdBy()
     {
         // Assuming you have a User model
         return $this->belongsTo(User::class, 'createdby_user_id');

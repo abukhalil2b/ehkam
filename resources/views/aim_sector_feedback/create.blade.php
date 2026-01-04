@@ -8,12 +8,12 @@
             <h1 class="text-2xl font-extrabold text-green-700 mb-4">إضافة </h1>
         @endif
         
-        <h2 class="text-xl font-bold mb-2">{{ $indicator->title }}</h2>
+        <h2 class="text-xl font-bold mb-2">{{ $aim->title }}</h2>
         <h3 class="text-lg text-gray-600 mb-4">{{ $sector->short_name }}</h3>
 
 
         <form method="POST" enctype="multipart/form-data"
-            action="{{ route('indicator_feedback_value.store', $indicator) }}">
+            action="{{ route('aim_sector_feedback.store', $aim) }}">
             @csrf
 
             <div class="flex justify-between items-end mb-4">

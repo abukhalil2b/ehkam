@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\Admin\AdminAimController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AssessmentQuestionController;
 use App\Http\Controllers\AssessmentResultController;
@@ -8,10 +9,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\FinanceFormController;
 use App\Http\Controllers\Admin\FinanceNeedController;
-use App\Http\Controllers\Admin\AdminIndicatorFeedbackController;
+use App\Http\Controllers\Admin\AdminAimSectorFeedbackController;
 use App\Http\Controllers\AnnualCalendarController;
 use App\Http\Controllers\IndicatorController;
-use App\Http\Controllers\IndicatorFeedbackController;
+use App\Http\Controllers\AimSectorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
 use App\Http\Controllers\MissionTaskController;
 use App\Http\Controllers\OrganizationalUnitController;
@@ -667,30 +668,49 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth']], function () {
 
-    Route::get('admin/indicator_feedback_value/index/{current_year}', [AdminIndicatorFeedbackController::class, 'index'])
-        ->name('admin.indicator_feedback_value.index');
+    Route::get('admin/aim/index', [AdminAimController::class, 'index'])
+        ->name('admin.aim.index');
 
-    Route::get('admin/indicator_feedback_value/show/{indicator}/{sector}', [AdminIndicatorFeedbackController::class, 'show'])
-        ->name('admin.indicator_feedback_value.show');
+    Route::post('admin/aim/store', [AdminAimController::class, 'store'])
+        ->name('admin.aim.store');
+
+    Route::get('admin/aim/{aim}/edit', [AdminAimController::class, 'edit'])
+        ->name('admin.aim.edit');
+
+    Route::put('admin/aim/{aim}', [AdminAimController::class, 'update'])
+        ->name('admin.aim.update');
+
+    Route::delete('admin/aim/{aim}', [AdminAimController::class, 'destroy'])
+        ->name('admin.aim.destroy');
 });
 
 
 Route::group(['middleware' => ['auth']], function () {
 
-    Route::get('indicator_feedback_value/index/{indicator}', [IndicatorFeedbackController::class, 'index'])
-        ->name('indicator_feedback_value.index');
+    Route::get('admin/aim_sector_feedback/index/{current_year}', [AdminAimSectorFeedbackController::class, 'index'])
+        ->name('admin.aim_sector_feedback.index');
+
+    Route::get('admin/aim_sector_feedback/show/{aim}/{sector}', [AdminAimSectorFeedbackController::class, 'show'])
+        ->name('admin.aim_sector_feedback.show');
+});
+
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('aim_sector_feedback/index/{aim}', [AimSectorFeedbackController::class, 'index'])
+        ->name('aim_sector_feedback.index');
 
     // SHOW – details of a single feedback
-    Route::get('indicator_feedback_value/show/{feedback}', [IndicatorFeedbackController::class, 'show'])
-        ->name('indicator_feedback_value.show');
+    Route::get('aim_sector_feedback/show/{feedback}', [AimSectorFeedbackController::class, 'show'])
+        ->name('aim_sector_feedback.show');
 
     // CREATE
-    Route::get('indicator_feedback_value/create/{indicator}/{current_year}', [IndicatorFeedbackController::class, 'create'])
-        ->name('indicator_feedback_value.create');
+    Route::get('aim_sector_feedback/create/{aim}/{current_year}', [AimSectorFeedbackController::class, 'create'])
+        ->name('aim_sector_feedback.create');
 
     // STORE
-    Route::post('indicator_feedback_value/store/{indicator}', [IndicatorFeedbackController::class, 'store'])
-        ->name('indicator_feedback_value.store');
+    Route::post('aim_sector_feedback/store/{aim}', [AimSectorFeedbackController::class, 'store'])
+        ->name('aim_sector_feedback.store');
 });
 
 

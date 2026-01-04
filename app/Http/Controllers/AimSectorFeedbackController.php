@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Indicator;
-use App\Models\IndicatorFeedbackValue;
-use Illuminate\Http\Request;
+use App\Models\Aim;
+use App\Models\AimSectorFeedback;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Http\Request;
 
-class IndicatorFeedbackController extends Controller
+class AimSectorFeedbackController extends Controller
 {
 
     private function getYears()
@@ -18,7 +18,7 @@ class IndicatorFeedbackController extends Controller
     // ------------------------------------------------------------------
     // INDEX
     // ------------------------------------------------------------------
-    public function index(Indicator $indicator)
+    public function index(Aim $aim)
     {
 
         $years = $this->getYears();
@@ -30,30 +30,30 @@ class IndicatorFeedbackController extends Controller
         if (!$userSector) {
             abort(404);
         }
-        $feedbacks = IndicatorFeedbackValue::where('indicator_id', $indicator->id)
+        $feedbacks = AimSectorFeedback::where('aim_id', $aim->id)
             ->where('sector_id', $userSector->id)
             ->get();
 
-        return view('indicator_feedback_value.index', compact('indicator', 'feedbacks', 'userSector', 'years'));
+        return view('aim_sector_feedback.index', compact('aim', 'feedbacks', 'userSector', 'years'));
     }
 
     // ------------------------------------------------------------------
     // SHOW
     // ------------------------------------------------------------------
-    public function show(IndicatorFeedbackValue $feedback)
+    public function show(AimSectorFeedback $feedback)
     {
         $user = auth()->user();
 
         // Security: User can only view their own sector feedback
         abort_if($feedback->createdby_user_id !== $user->id, 403);
 
-        return view('indicator_feedback_value.show', compact('feedback'));
+        return view('aim_sector_feedback.show', compact('feedback'));
     }
 
     // ------------------------------------------------------------------
     // CREATE
     // ------------------------------------------------------------------
-    public function create(Indicator $indicator, $current_year)
+    public function create(Aim $aim, $current_year)
     {
         $years = $this->getYears();
 
@@ -70,16 +70,16 @@ class IndicatorFeedbackController extends Controller
         }
 
         // 3. RETRIEVE EXISTING DATA (The key enhancement)
-        // Check if a record already exists for this Indicator, Year, and Sector.
+        // Check if a record already exists for this Aim, Year, and Sector.
         // This allows the single view to act as both 'create' and 'edit'.
-        $feedbackValue = IndicatorFeedbackValue::where('indicator_id', $indicator->id)
+        $feedbackValue = AimSectorFeedback::where('aim_id', $aim->id)
             ->where('current_year', $current_year)
             ->where('sector_id', $sector->id) // Assuming sector_id is part of the unique key
             ->first();
 
         // 4. Pass all necessary variables to the view
-        return view('indicator_feedback_value.create', compact(
-            'indicator',
+        return view('aim_sector_feedback.create', compact(
+            'aim',
             'current_year',
             'sector',
             'feedbackValue' // <-- The existing record (or null)
@@ -89,7 +89,7 @@ class IndicatorFeedbackController extends Controller
     // ------------------------------------------------------------------
     // STORE
     // ------------------------------------------------------------------
-    public function store(Request $request, Indicator $indicator)
+    public function store(Request $request, Aim $aim)
     {
         $allowedYears = $this->getYears(); // Get the array of allowed years (e.g., [2023, 2024, 2025])
 
@@ -113,12 +113,12 @@ class IndicatorFeedbackController extends Controller
 
         // Attributes to search by (The WHERE clause)
         $searchAttributes = [
-            'indicator_id' => $indicator->id,
+            'aim_id' => $aim->id,
             'current_year' => $request->current_year,
         ];
 
         //Attempt to find the existing record
-        $existingFeedback = IndicatorFeedbackValue::where($searchAttributes)->first();
+        $existingFeedback = AimSectorFeedback::where($searchAttributes)->first();
 
         $fileUrl = null;
 
@@ -126,7 +126,7 @@ class IndicatorFeedbackController extends Controller
         if ($request->hasFile('evidence_file')) {
             // A new file was uploaded: Store it and set the URL
             $file = $request->file('evidence_file');
-            $fileName = 'indicator_' . $indicator->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $fileName = 'indicator_' . $aim->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $fileUrl = $file->storeAs('indicator_feedback/indicator_evidence', $fileName, 'public');
 
             // Optional: Delete the old file if one exists
@@ -152,13 +152,13 @@ class IndicatorFeedbackController extends Controller
         ];
 
         // 4. Execute updateOrCreate
-        $indicatorFeedback = IndicatorFeedbackValue::updateOrCreate(
+        $indicatorFeedback = AimSectorFeedback::updateOrCreate(
             $searchAttributes,
             $updateValues
         );
 
         // 4. Return
-        return redirect()->route('indicator_feedback_value.index', $indicator)
+        return redirect()->route('aim_sector_feedback.index', $aim)
             ->with('success', 'تم إضافة التغذية الراجعة بنجاح');
     }
 }

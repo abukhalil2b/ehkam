@@ -9,7 +9,7 @@
             {{-- Year Switcher --}}
             <div class="flex gap-2 bg-gray-100 rounded-xl p-1">
                 @foreach ($years as $year)
-                    <a href="{{ route('admin.indicator_feedback_value.index', $year) }}"
+                    <a href="{{ route('admin.aim_sector_feedback.index', $year) }}"
                         class="px-4 py-2 rounded-lg text-sm font-semibold
                             {{ $year == $current_year ? 'bg-[#00bab1] text-white shadow' : 'text-gray-600 hover:bg-white' }}">
                         {{ $year }}
@@ -35,10 +35,10 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @foreach ($indicators as $indicator)
+                    @foreach ($aims as $aim)
                         <tr class="hover:bg-gray-50 transition">
                             <td class="p-3 font-semibold text-gray-800 w-64">
-                                {{ $indicator->title }}
+                                {{ $aim->title }}
                             </td>
                             @php
                                 $total = 0;
@@ -46,14 +46,14 @@
                             @foreach ($sectors as $sector)
                                 @php
                                     $value =
-                                        $indicator->indicatorFeedbackValues->where('sector_id', $sector->id)->first()
+                                        $aim->aimSectorFeedbackValues->where('sector_id', $sector->id)->first()
                                             ->achieved ?? 0;
                                     $total = $total + $value;
                                 @endphp
 
                                 <td class="p-3">
-                                    <a href="{{ route('admin.indicator_feedback_value.show', [
-                                        'indicator' => $indicator,
+                                    <a href="{{ route('admin.aim_sector_feedback.show', [
+                                        'aim' => $aim,
                                         'sector' => $sector,
                                     ]) }}"
                                         class="text-lg font-bold text-[#00bab1] hover:text-[#008a84] transition">

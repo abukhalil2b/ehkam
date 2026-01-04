@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('indicator_feedback_sector_permissions', function (Blueprint $table) {
+        Schema::create('aims', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('indicator_feedback_id');
-            $table->bigInteger('user_id');
+            $table->string('title');
+            $table->timestamps();
         });
     }
 
@@ -23,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('indicator_feedback_sector_permissions');
+        Schema::dropIfExists('aims');
     }
 };

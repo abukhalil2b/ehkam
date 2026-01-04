@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Aim;
 use App\Models\Indicator;
+use App\Models\Sector;
+use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -16,15 +19,18 @@ class DashboardController extends Controller
     {
         $loggedUser = auth()->user();
 
-        $indicators = Indicator::all();
-
         $sector = $loggedUser->sectors()->first();
 
+        $tasks = Task::where('assigned_to' , $loggedUser->id)->get();
+
         if ($sector) {
-            return view('dashboard_sector', compact('indicators','sector'));
+
+            $aims = Aim::all();
+
+            return view('dashboard_sector', compact('tasks', 'sector', 'aims'));
         }
 
-        return view('dashboard', compact('indicators'));
+        return view('dashboard', compact('tasks'));
     }
 
     /**

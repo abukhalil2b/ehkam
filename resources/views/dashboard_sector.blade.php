@@ -11,16 +11,16 @@
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
-            @foreach ($indicators as $indicator)
+            @foreach ($aims as $aim)
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                     <div class="text-blue-600 mb-1">
                         <i class="fas fa-project-diagram"></i>
                     </div>
                     <div class="text-xl text-gray-600 font-medium">
-                        {{ $indicator->title }}
+                        {{ $aim->title }}
                     </div>
                     <a class="block mt-4 px-3 py-2 text-center text-sm rounded-lg border border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors"
-                        href="{{ route('indicator_feedback_value.index', $indicator->id) }}">
+                        href="{{ route('aim_sector_feedback.index', $aim->id) }}">
                         بيانات المؤشر
                     </a>
                 </div>

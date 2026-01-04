@@ -4,7 +4,7 @@
         {{-- Section Header: Indicator and Sector Info --}}
         <div class="bg-white shadow-lg rounded-lg p-6 mb-8 border-r-4 border-indigo-500">
             <h1 class="text-3xl font-extrabold text-gray-900 mb-2">
-                مؤشر: {{ $indicator->title }}
+                مؤشر: {{ $aim->title }}
             </h1>
             <h2 class="text-xl font-semibold text-indigo-600">
                 القطاع: {{ $userSector->short_name }}
@@ -16,7 +16,7 @@
         <div class="flex flex-wrap gap-3 mb-8 justify-start">
             <h3 class="text-lg font-semibold text-gray-700 w-full mb-2">إضافة قيمة محققة لسنة:</h3>
             @foreach($years as $year)
-                <a href="{{ route('indicator_feedback_value.create', ['indicator'=>$indicator->id,'current_year'=>$year]) }}"
+                <a href="{{ route('aim_sector_feedback.create', ['aim'=>$aim->id,'current_year'=>$year]) }}"
                     class="
                         px-6 py-2 rounded-lg 
                         bg-green-600 text-white font-medium 
@@ -82,7 +82,7 @@
 
                             {{-- عمليات --}}
                             <td class="p-3 whitespace-nowrap">
-                                <a href="{{ route('indicator_feedback_value.show', $fb) }}" 
+                                <a href="{{ route('aim_sector_feedback.show', $fb) }}" 
                                    class="text-green-600 hover:text-green-800 font-medium ml-3 transition">
                                     عرض
                                 </a>

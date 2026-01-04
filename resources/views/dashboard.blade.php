@@ -3,17 +3,16 @@
     <div class="container py-6 mx-auto px-4 sm:px-6">
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-
-            @foreach ($indicators as $indicator)
+            <p>مهامي</p>
+            @foreach ($tasks as $task)
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition">
                 <div class="text-purple-600 mb-1"><i class="fas fa-users"></i></div>
                 <div class="text-xl text-gray-500">
-                    {{ $indicator->title }}
+                    {{ $task->title }}
                 </div>
 
                 <div class="mt-5 flex gap-2 text-[10px]">
                   
-              
                 </div>
             </div>
             @endforeach

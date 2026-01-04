@@ -12,15 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-     
-        Schema::create('indicator_feedback_values', function (Blueprint $table) {
+        Schema::create('aim_sector_feedback', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('indicator_id');
+            $table->foreignId('aim_id');
             $table->foreignId('sector_id');
             $table->integer('achieved')->default(0);
             $table->string('evidence_title',50)->nullable();
             $table->string('evidence_url')->nullable();
-            $table->string('current_year')->default('2023');
+            $table->string('current_year')->default('2024');
             $table->text('note')->nullable();
             $table->foreignIdFor(User::class,'createdby_user_id')->nullable();
             $table->timestamps();
@@ -32,7 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-
-        Schema::dropIfExists('indicator_feedback_values');
+        Schema::dropIfExists('sector_feedback');
     }
 };

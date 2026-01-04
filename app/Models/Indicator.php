@@ -56,8 +56,4 @@ class Indicator extends Model
         return Sector::whereIn('id', Arr::wrap($this->sectors));
     }
 
-    public function indicatorFeedbackValues()
-    {
-         return $this->hasMany(IndicatorFeedbackValue::class);
-    }
 }

@@ -13,7 +13,14 @@ $sidebarSections = [
         'title' => 'المؤشرات',
         'links' => [
             ['route' => 'indicator.index', 'permission' => 'indicator.index', 'label' => 'قائمة المؤشرات'],
-             ['route' => 'admin.indicator_feedback_value.index', 'permission' => 'admin.indicator_feedback_value.index', 'label' => 'المحقق للمؤشرات','params'=>['2025']],
+
+        ]
+    ],
+    'aim' => [
+        'title' => 'الأهداف',
+        'links' => [
+            ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات'],
+             ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف','params'=>['2025']],
 
         ]
     ],
