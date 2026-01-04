@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('sectors', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->string('short_name', 20);
+            $table->string('short_name', 50);
         });
 
         Schema::create('sector_user', function (Blueprint $table) {

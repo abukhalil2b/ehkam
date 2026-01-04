@@ -134,7 +134,8 @@ class IndicatorController extends Controller
      */
     public function edit(Indicator $indicator)
     {
-        $sectors = Sector::all();
+        $c1Sectors = Sector::where('cate',1)->get();
+        $c2Sectors = Sector::where('cate',2)->get();
 
         // Decode the stored sector IDs for the multi-select field
         $selectedSectorIds = json_decode($indicator->sectors, true) ?? [];
@@ -148,7 +149,8 @@ class IndicatorController extends Controller
 
         return view('indicator.edit', compact(
             'indicator',
-            'sectors',
+            'c1Sectors',
+            'c2Sectors',
             'selectedSectorIds',
             'periodOptions'
         ));
