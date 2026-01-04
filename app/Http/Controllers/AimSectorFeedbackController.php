@@ -126,8 +126,8 @@ class AimSectorFeedbackController extends Controller
         if ($request->hasFile('evidence_file')) {
             // A new file was uploaded: Store it and set the URL
             $file = $request->file('evidence_file');
-            $fileName = 'indicator_' . $aim->id . '_' . time() . '.' . $file->getClientOriginalExtension();
-            $fileUrl = $file->storeAs('indicator_feedback/indicator_evidence', $fileName, 'public');
+            $fileName = 'aim' . $aim->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $fileUrl = $file->storeAs('aim_feedback/aim_evidence', $fileName, 'public');
 
             // Optional: Delete the old file if one exists
             if ($existingFeedback && $existingFeedback->evidence_url) {
@@ -152,7 +152,7 @@ class AimSectorFeedbackController extends Controller
         ];
 
         // 4. Execute updateOrCreate
-        $indicatorFeedback = AimSectorFeedback::updateOrCreate(
+       AimSectorFeedback::updateOrCreate(
             $searchAttributes,
             $updateValues
         );

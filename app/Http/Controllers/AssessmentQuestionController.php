@@ -23,7 +23,8 @@ class AssessmentQuestionController extends Controller
 
     public function create()
     {
-        return view('assessment_questions.create');
+        $currentYear = now()->year;
+        return view('assessment_questions.create', compact('currentYear'));
     }
 
     public function store(Request $request)
@@ -34,7 +35,6 @@ class AssessmentQuestionController extends Controller
             'content' => 'required|string|max:255',
             'description' => 'nullable|string',
             'max_point' => 'nullable|integer|min:1|max:20',
-            'assessment_year' => 'required|digits:4',
         ]);
 
         // Adjust max_point logic
@@ -45,7 +45,7 @@ class AssessmentQuestionController extends Controller
         }
 
         // Determine order
-        $maxOrder = AssessmentQuestion::where('assessment_year', $validatedData['assessment_year'])->max('ordered');
+        $maxOrder = AssessmentQuestion::where('assessment_year', now()->year)->max('ordered');
         $validatedData['ordered'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
 
         // Create
@@ -53,7 +53,7 @@ class AssessmentQuestionController extends Controller
 
         // Redirect
         return redirect()->route('assessment_questions.index')
-            ->with('success', 'تم إنشاء سؤال التقييم بنجاح للسنة ' . $validatedData['assessment_year'] . '!');
+            ->with('success', 'تم إنشاء سؤال التقييم بنجاح للسنة ' . now()->year . '!');
     }
 
     public function index()

@@ -8,22 +8,12 @@ use Illuminate\Http\Request;
 
 class FinanceFormController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+   
     public function index()
     {
         $needs = FinanceNeed::all();
 
         return view('admin.finance_form.index',compact('needs'));
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
     }
 
     public function store(Request $request)
@@ -58,36 +48,4 @@ class FinanceFormController extends Controller
         return response()->json(['message' => 'Saved']);
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(FinanceForm $financeForm)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(FinanceForm $financeForm)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, FinanceForm $financeForm)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(FinanceForm $financeForm)
-    {
-        //
-    }
 }

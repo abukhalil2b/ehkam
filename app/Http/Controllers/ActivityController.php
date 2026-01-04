@@ -51,7 +51,7 @@ class ActivityController extends Controller
             'activities' => $activities,
             'submittedActivityIds' => $submittedActivityIds,
             'availableYears' => $availableYears,
-            'selectedYear'   => $year,// Pass the year for display in the view
+            'selectedYear'   => $year, // Pass the year for display in the view
         ]);
     }
 
@@ -79,69 +79,80 @@ class ActivityController extends Controller
         ]);
 
         // 3. Redirect with a success message
-        return redirect()->route('project.show',$request->project_id)->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
+        return redirect()->route('project.show', $request->project_id)->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
     }
 
     public function show(Activity $activity)
     {
-        $currentYear = now()->year;
+        $activity->load('project');
 
-        // 1️⃣ Load only questions for the current assessment year
+        $currentYear = $activity->current_year;
+
+        // 1️⃣ Load assessment questions for the current year
         $allQuestions = AssessmentQuestion::where('assessment_year', $currentYear)
             ->orderBy('ordered')
-            ->get();
+            ->get(['id', 'content', 'type', 'max_point']);
 
-        // 2️⃣ Calculate total possible points for range-type questions
+        // 2️⃣ Prepare range questions & max score
         $rangeQuestions = $allQuestions->where('type', 'range');
         $totalMaxPoints = $rangeQuestions->sum('max_point');
 
-        // 3️⃣ Fetch current user's assessment results for this activity & year
+        // 3️⃣ Load user results for this activity & year
         $userResults = $activity->assessmentResults()
-            ->with('assessmentQuestion', 'user')
+            ->with('assessmentQuestion:id,type', 'user:id,name')
             ->whereHas('assessmentQuestion', function ($q) use ($currentYear) {
                 $q->where('assessment_year', $currentYear);
             })
             ->get();
 
-        $userSummary = null;
+        // 4️⃣ Always initialize summary (NO NULLS)
+        $userSummary = [
+            'user_name'   => '—',
+            'total_score' => 0,
+            'max_score'   => $totalMaxPoints,
+            'percentage'  => 0,
+            'results'     => collect(),
+        ];
+
         $hasRangeResults = false;
 
         if ($userResults->isNotEmpty()) {
-            $totalScore = 0;
             $keyedResults = $userResults->keyBy('assessment_question_id');
 
-            foreach ($rangeQuestions as $question) {
+            $totalScore = $rangeQuestions->sum(function ($question) use ($keyedResults, &$hasRangeResults) {
                 $result = $keyedResults->get($question->id);
-                if ($result && is_numeric($result->range_answer)) {
-                    $totalScore += $result->range_answer;
-                    $hasRangeResults = true;
-                }
-            }
 
-            $percentage = $totalMaxPoints > 0 ? ($totalScore / $totalMaxPoints) * 100 : 0;
+                if ($result && is_numeric($result->range_answer)) {
+                    $hasRangeResults = true;
+                    return $result->range_answer;
+                }
+
+                return 0;
+            });
+
+            $percentage = $totalMaxPoints > 0
+                ? round(($totalScore / $totalMaxPoints) * 100, 1)
+                : 0;
 
             $userSummary = [
                 'user_name'   => $userResults->first()->user->name ?? '—',
                 'total_score' => $totalScore,
                 'max_score'   => $totalMaxPoints,
-                'percentage'  => round($percentage, 1),
+                'percentage'  => $percentage,
                 'results'     => $keyedResults,
             ];
         }
 
-        // 4️⃣ Determine if user can submit new or update
-        $canSubmitNew = $userResults->isEmpty();
-        $canUpdate    = $userResults->isNotEmpty();
+        $hasSubmitted = $userResults->isNotEmpty();
 
-        return view('activity.show', compact(
-            'activity',
-            'allQuestions',
-            'userResults',
-            'userSummary',
-            'hasRangeResults',
-            'canSubmitNew',
-            'canUpdate',
-            'currentYear'
-        ));
+        return view('activity.show', [
+            'activity'       => $activity,
+            'allQuestions'   => $allQuestions,
+            'userSummary'    => $userSummary,
+            'hasRangeResults' => $hasRangeResults,
+            'canSubmitNew'   => ! $hasSubmitted,
+            'canUpdate'      => $hasSubmitted,
+            'currentYear'    => $currentYear,
+        ]);
     }
 }

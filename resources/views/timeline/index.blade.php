@@ -1,159 +1,135 @@
 <x-app-layout>
     <div class="p-6" dir="rtl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-emerald-900">
+                الخطة السنوية – {{ $year }}
+            </h1>
+            <a href="{{ route('calendar.index', ['year' => $year]) }}" class="text-emerald-600 font-bold hover:underline">
+                العودة للتقويم →
+            </a>
+        </div>
 
-        <!-- Page Title -->
-        <h1 class="text-2xl font-bold mb-6">
-            الخطة السنوية لمشروع نور القرآن – 2026
-        </h1>
+        <div x-data="annualPlan2026(@js($events))" class="bg-white border rounded-xl shadow-sm overflow-hidden">
 
-        <!-- Annual Timeline -->
-        <div x-data="annualPlan2026()" x-init="init()" class="bg-white border rounded-xl overflow-x-auto">
+            <div class="overflow-x-auto">
+                <div class="flex border-b min-w-[1200px] bg-gray-50">
+                    <div class="w-80 shrink-0 border-l font-bold text-center py-3">النشاط / البرنامج</div>
 
-            <!-- Timeline Header (Months) -->
-            <div class="flex border-b min-w-[1400px]">
-                <div class="w-72 shrink-0 bg-gray-50"></div>
+                    <template x-for="month in months" :key="month.index">
+                        <div class="flex-1 text-center py-3 text-sm font-semibold border-l last:border-l-0">
+                            <span x-text="month.label"></span>
+                        </div>
+                    </template>
+                </div>
 
-                <template x-for="month in months" :key="month.index">
-                    <div class="flex-1 text-center py-3 text-sm font-semibold border-r">
-                        <span x-text="month.label"></span>
-                    </div>
-                </template>
-            </div>
+                <div class="min-w-[1200px]">
+                    <template x-for="activity in activities" :key="activity.id">
+                        <div
+                            class="flex items-center border-b last:border-b-0 min-h-[64px] hover:bg-gray-50/50 transition">
 
-            <!-- Activities -->
-            <div class="min-w-[1400px]">
-                <template x-for="activity in activities" :key="activity.id">
-                    <div class="flex items-center border-b min-h-[52px]">
+                            <a :href="'/timeline/show/' + activity.id"
+                                class="w-80 px-4 py-2 shrink-0 border-l hover:bg-emerald-50 transition block">
+                                <div class="font-bold text-gray-800 text-sm mb-1 hover:text-emerald-700"
+                                    x-text="activity.title"></div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] text-gray-500"
+                                        x-text="'المدة: ' + durationInDays(activity) + ' يوم'"></span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
+                                        :class="statusClasses(status(activity))" x-text="status(activity)"></span>
+                                </div>
+                            </a>
 
-                        <!-- Activity Title -->
-                        <div class="w-72 px-4 text-sm text-gray-800">
-                            <div class="font-medium" x-text="activity.title"></div>
+                            <div class="relative flex-1 h-10 flex items-center px-0">
+                                <div class="absolute inset-0 flex">
+                                    <template x-for="i in 12">
+                                        <div class="flex-1 border-l border-gray-100 h-full"></div>
+                                    </template>
+                                </div>
 
-                            <div class="flex gap-2 mt-1 text-xs">
-                                <!-- Duration -->
-                                <span class="text-gray-500">
-                                    المدة:
-                                    <span x-text="durationInDays(activity) + ' يوم'"></span>
-                                </span>
-
-                                <!-- Status -->
-                                <span class="px-2 rounded" :class="statusColor(status(activity))"
-                                    x-text="status(activity)"></span>
+                                <a :href="'/timeline/show/' + activity.id"
+                                    class="absolute h-6 rounded-md shadow-sm border border-black/10 transition-transform hover:scale-[1.05] hover:shadow-lg z-10"
+                                    :style="barStyle(activity)" :title="'عرض تفاصيل: ' + activity.title">
+                                </a>
                             </div>
                         </div>
-
-
-                        <!-- Timeline Bar Area -->
-                        <div class="relative flex-1 h-6">
-                            <div class="absolute h-4 rounded cursor-pointer opacity-90 hover:opacity-100"
-                                :class="activity.color" :style="barStyle(activity)"
-                                :title="activity.start + ' → ' + activity.end"></div>
-                        </div>
-                    </div>
-                </template>
+                    </template>
+                </div>
             </div>
-
         </div>
     </div>
+
     <script>
-        function annualPlan2026() {
+        function annualPlan2026(eventsFromServer) {
             return {
-                year: 2026,
+                year: {{ $year }},
                 daysInYear: 365,
                 months: [],
-                activities: [],
+                activities: eventsFromServer,
 
                 init() {
-                    this.buildMonths()
-                    this.loadActivities()
+                    this.buildMonths();
+                    // Check for leap year
+                    this.daysInYear = (this.year % 4 === 0 && this.year % 100 !== 0) || (this.year % 400 === 0) ? 366 : 365;
                 },
 
                 buildMonths() {
-                    const labels = [
-                        'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-                        'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
-                    ]
-
+                    const labels = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر',
+                        'أكتوبر', 'نوفمبر', 'ديسمبر'
+                    ];
                     this.months = labels.map((label, index) => ({
                         label,
                         index
-                    }))
-                },
-
-                loadActivities() {
-                    this.activities = [{
-                            id: 1,
-                            title: 'عقد الاجتماع الأول لمشروع نور القرآن',
-                            start: '2026-01-26',
-                            end: '2026-02-27',
-                            color: 'bg-blue-500'
-                        },
-                        {
-                            id: 2,
-                            title: 'وضع خطة مفصلة لكل نشاط',
-                            start: '2026-02-02',
-                            end: '2026-02-27',
-                            color: 'bg-blue-500'
-                        },
-                        {
-                            id: 3,
-                            title: 'الإعلان والتسجيل في برنامج الإجازة القرآنية',
-                            start: '2026-02-09',
-                            end: '2026-04-13',
-                            color: 'bg-green-500'
-                        },
-                        {
-                            id: 4,
-                            title: 'الملتقى القرآني لمدارس القرآن الكريم',
-                            start: '2026-09-15',
-                            end: '2026-10-12',
-                            color: 'bg-purple-500'
-                        }
-                    ]
+                    }));
                 },
 
                 barStyle(activity) {
-                    const start = this.dayOfYear(activity.start)
-                    const end = this.dayOfYear(activity.end)
+                    const startDay = this.dayOfYear(activity.start_date);
+                    const endDay = this.dayOfYear(activity.end_date);
 
-                    const left = (start / this.daysInYear) * 100
-                    const width = ((end - start) / this.daysInYear) * 100
+                    const left = (startDay / this.daysInYear) * 100;
+                    const width = ((endDay - startDay + 1) / this.daysInYear) * 100;
 
-                    return `left:${left}%; width:${width}%;`
+                    // Support both Tailwind bg classes or Hex codes from DB
+                    const isHex = activity.bg_color.startsWith('#');
+                    return `
+                        left: ${left}%; 
+                        width: ${width}%; 
+                        background-color: ${isHex ? activity.bg_color : ''};
+                    `;
                 },
+
                 durationInDays(activity) {
-                    const start = new Date(activity.start)
-                    const end = new Date(activity.end)
-                    const diff = end - start
-                    return Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1
+                    const start = new Date(activity.start_date);
+                    const end = new Date(activity.end_date);
+                    return Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
                 },
 
                 status(activity) {
-                    const today = new Date()
-                    const start = new Date(activity.start)
-                    const end = new Date(activity.end)
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const start = new Date(activity.start_date);
+                    const end = new Date(activity.end_date);
 
-                    if (today < start) return 'قادم'
-                    if (today > end) return 'مكتمل'
-                    return 'جاري التنفيذ'
+                    if (today < start) return 'قادم';
+                    if (today > end) return 'مكتمل';
+                    return 'جاري التنفيذ';
                 },
 
-                statusColor(status) {
+                statusClasses(status) {
                     return {
-                        'قادم': 'bg-gray-200 text-gray-700',
-                        'جاري التنفيذ': 'bg-green-100 text-green-800',
-                        'مكتمل': 'bg-blue-100 text-blue-800'
-                    } [status]
+                        'قادم': 'bg-gray-100 text-gray-600',
+                        'جاري التنفيذ': 'bg-emerald-100 text-emerald-700',
+                        'مكتمل': 'bg-blue-100 text-blue-700'
+                    } [status];
                 },
 
                 dayOfYear(dateString) {
-                    const date = new Date(dateString)
-                    const start = new Date(this.year, 0, 1)
-                    const diff = date - start
-                    return Math.floor(diff / (1000 * 60 * 60 * 24))
+                    const date = new Date(dateString);
+                    const startOfYear = new Date(this.year, 0, 1);
+                    const diff = date - startOfYear;
+                    return Math.floor(diff / (1000 * 60 * 60 * 24));
                 }
             }
         }
     </script>
-
 </x-app-layout>

@@ -6,10 +6,10 @@
             {{-- Header Details Section --}}
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 pb-4 border-b border-dashed">
                 
-                {{-- Indicator --}}
+                {{-- aim --}}
                 <div class="bg-gray-50 p-3 rounded-lg">
-                    <strong class="text-sm font-semibold text-gray-600 block mb-1">المؤشر:</strong>
-                    <span class="text-lg font-bold text-indigo-700">{{ $feedback->indicator->title ?? '—' }}</span>
+                    <strong class="text-sm font-semibold text-gray-600 block mb-1">الهدف:</strong>
+                    <span class="text-lg font-bold text-indigo-700">{{ $feedback->aim->title ?? '—' }}</span>
                 </div>
 
                 {{-- Sector --}}
@@ -67,16 +67,6 @@
 
             </div>
 
-            {{-- Actions --}}
-            <div class="mt-6 pt-4 border-t flex justify-end">
-
-                
-                {{-- Example back button --}}
-                <a href="{{ route('indicator_feedback_value.index', $feedback->indicator) }}"
-                   class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition mr-3">
-                    العودة للقائمة
-                </a>
-            </div>
 
         </div>
     </div>

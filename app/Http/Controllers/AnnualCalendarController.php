@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\CalendarEvent;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-
 
 class AnnualCalendarController extends Controller
 {
@@ -16,17 +14,27 @@ class AnnualCalendarController extends Controller
         $events = CalendarEvent::where('year', $year)
             ->orderBy('start_date')
             ->get()
-            ->map(fn($event) => [
-                'id'        => $event->id,
-                'title'     => $event->title,
-                'startDate' => $event->start_date->toDateString(),
-                'endDate'   => $event->end_date->toDateString(),
-                'type'      => $event->type,
-                'program'   => $event->program,
-                'bg_color'  => $event->bg_color ?? '#2563eb',
-                'duration'  => $event->duration,
-                'status'    => $event->status,
-            ]);
+            ->map(function ($event) {
+                return [
+                    'id'        => $event->id,
+                    'title'     => $event->title,
+                    'startDate' => $event->start_date->format('Y-m-d'), // JS compatible
+                    'endDate'   => $event->end_date->format('Y-m-d'),   // JS compatible
+                    'type'      => $event->type,
+                    'program'   => $event->program,
+                    'bg_color'  => $event->bg_color,
+                    'notes'     => $event->notes,
+                    'duration'  => $event->duration, // Calculated in Model
+                    'status'    => $event->status,   // Calculated in Model
+                    // Map status to specific Tailwind/Hex colors for the legend
+                    'status_color' => match ($event->status) {
+                        'active' => '#059669',    // Emerald 600
+                        'upcoming' => '#4b5563',  // Gray 600
+                        'completed' => '#2563eb', // Blue 600
+                        default => '#2563eb'
+                    }
+                ];
+            });
 
         return view('calendar.index', compact('year', 'events'));
     }
@@ -34,68 +42,33 @@ class AnnualCalendarController extends Controller
     public function create(Request $request)
     {
         $year = $request->get('year', date('Y'));
-
         return view('calendar.create', compact('year'));
     }
 
-
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title'      => 'required|string|max:255',
-            'type'       => 'required|string|max:50',
-            'program'    => 'nullable|string|max:100',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date',
-            'bg_color'   => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
-            'notes'      => 'nullable|string',
-        ]);
+        $validated = $this->validateEvent($request);
 
-        $start = Carbon::parse($validated['start_date']);
-        $end   = Carbon::parse($validated['end_date']);
-        $today = Carbon::today();
+        CalendarEvent::create($validated);
 
-        // Duration (inclusive)
-        $duration = $start->diffInDays($end) + 1;
-
-        // Status
-        if ($today->between($start, $end)) {
-            $status = 'active';
-        } elseif ($today->lt($start)) {
-            $status = 'upcoming';
-        } else {
-            $status = 'completed';
-        }
-
-        CalendarEvent::create([
-            'title'      => $validated['title'],
-            'type'       => $validated['type'],
-            'program'    => $validated['program'],
-            'start_date' => $start,
-            'end_date'   => $end,
-            'year'       => $start->year,
-            'duration'   => $duration,
-            'status'     => $status,
-            'bg_color'   => $validated['bg_color'],
-            'notes'      => $validated['notes'],
-        ]);
-
-        return redirect()
-            ->route('calendar.index', ['year' => $start->year])
+        return redirect()->route('calendar.index', ['year' => date('Y', strtotime($validated['start_date']))])
             ->with('success', 'تم إضافة الحدث بنجاح');
-    }
-
-    public function edit(CalendarEvent $calendarEvent)
-    {
-        return view('calendar.edit', [
-            'event' => $calendarEvent
-        ]);
     }
 
 
     public function update(Request $request, CalendarEvent $calendarEvent)
     {
-        $validated = $request->validate([
+        $validated = $this->validateEvent($request);
+
+        $calendarEvent->update($validated);
+
+        return redirect()->route('calendar.index', ['year' => $calendarEvent->year])
+            ->with('success', 'تم تحديث الحدث بنجاح');
+    }
+
+    protected function validateEvent(Request $request)
+    {
+        return $request->validate([
             'title'      => 'required|string|max:255',
             'type'       => 'required|string|max:50',
             'program'    => 'nullable|string|max:100',
@@ -104,38 +77,5 @@ class AnnualCalendarController extends Controller
             'bg_color'   => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
             'notes'      => 'nullable|string',
         ]);
-
-        $start = Carbon::parse($validated['start_date']);
-        $end   = Carbon::parse($validated['end_date']);
-        $today = Carbon::today();
-
-        // Duration (inclusive)
-        $duration = $start->diffInDays($end) + 1;
-
-        // Status
-        if ($today->between($start, $end)) {
-            $status = 'active';
-        } elseif ($today->lt($start)) {
-            $status = 'upcoming';
-        } else {
-            $status = 'completed';
-        }
-
-        $calendarEvent->update([
-            'title'      => $validated['title'],
-            'type'       => $validated['type'],
-            'program'    => $validated['program'],
-            'start_date' => $start,
-            'end_date'   => $end,
-            'year'       => $start->year,
-            'duration'   => $duration,
-            'status'     => $status,
-            'bg_color'   => $validated['bg_color'],
-            'notes'      => $validated['notes'],
-        ]);
-
-        return redirect()
-            ->route('calendar.index', ['year' => $calendarEvent->year])
-            ->with('success', 'تم تحديث الحدث بنجاح');
     }
 }

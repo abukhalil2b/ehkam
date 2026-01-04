@@ -74,13 +74,8 @@
             {{-- Year --}}
             <div class="mb-6">
                 <label for="assessment_year" class="block text-sm font-medium text-gray-700 mb-2">سنة التقييم:</label>
-                <input type="text" name="assessment_year" id="assessment_year"
-                    value="{{ old('assessment_year', now()->year) }}"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 text-lg"
-                    required maxlength="4">
-                @error('assessment_year')
-                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                @enderror
+               <div class="text-3xl"> {{ $currentYear }}</div>
+                
             </div>
 
             {{-- Submit --}}

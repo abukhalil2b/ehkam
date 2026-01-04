@@ -265,7 +265,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('timeline/index', [TimelineController::class, 'index'])
         ->middleware('permission:timeline.index')
         ->name('timeline.index');
-    Route::get('timeline/show', [TimelineController::class, 'show'])
+    Route::get('timeline/show/{calendarEvent}', [TimelineController::class, 'show'])
         ->middleware('permission:timeline.show')
         ->name('timeline.show');
 });
@@ -279,9 +279,6 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('calendar/store', [AnnualCalendarController::class, 'store'])
         ->name('calendar.store');
-
-    Route::get('calendar/{calendarEvent}/edit', [AnnualCalendarController::class, 'edit'])
-        ->name('calendar.edit');
 
     Route::put('calendar/{calendarEvent}', [AnnualCalendarController::class, 'update'])
         ->name('calendar.update');

@@ -16,6 +16,15 @@ $sidebarSections = [
 
         ]
     ],
+    'activity' => [
+        'title' => 'الأنشطة',
+        'links' => [
+            ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة','params'=>['2025']],
+            ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة'],
+            ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال'],
+            ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء'],
+        ]
+    ],
     'aim' => [
         'title' => 'الأهداف',
         'links' => [
@@ -24,22 +33,10 @@ $sidebarSections = [
 
         ]
     ],
-    'activity' => [
-        'title' => 'الأنشطة',
-        'links' => [
-            ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة','params'=>['2025']],
-        ]
-    ],
     'swot' => [
         'title' => 'swot',
         'links' => [
             ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'swot'],
-        ]
-    ],
-    'timeline' => [
-        'title' => 'timeline',
-        'links' => [
-            ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline'],
         ]
     ],
     'calendar' => [
@@ -47,33 +44,41 @@ $sidebarSections = [
         'links' => [
             ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'index'],
             ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'create'],
+            ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline'],
         ]
     ],
-    'assessment_questions' => [
-        'title' => 'أسئلة التقييم',
+    'mission' => [
+        'title' => 'المهام',
         'links' => [
-            ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة'],
-            ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال'],
-        ]
-    ],'competitions' => [
-        'title' => 'competitions',
-        'links' => [
-            ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات'],
+            ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام'],
         ]
     ],
-    'project_assessment_report' => [
-        'title' => 'تقرير الأنشطة',
+    
+    'meeting_minute' => [
+        'title' => 'محضر الاجتماعات',
         'links' => [
-            ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء'],
+            ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
         ]
-    ],'questionnaire' => [
+    ],
+    'workshop' => [
+        'title' => 'الورش',
+        'links' => [
+            ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش'],
+        ]
+    ],
+    'questionnaire' => [
         'title' => 'إستبانات',
         'links' => [
             ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
             ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
         ]
     ]
-    ,'finance' => [
+    ,'competitions' => [
+        'title' => 'competitions',
+        'links' => [
+            ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات'],
+        ]
+    ],'finance' => [
         'title' => 'استمارات المالية',
         'links' => [
             ['route' => 'admin.finance_form.index', 'permission' => 'admin.finance_form.index', 'label' => 'قائمة الاستمارات المالية'],
@@ -88,27 +93,10 @@ $sidebarSections = [
             ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' =>'الزكاة','params'=>[1] ],
         ]
     ],
-    'meeting_minute' => [
-        'title' => 'محضر الاجتماعات',
-        'links' => [
-            ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
-        ]
-    ],
-    'workshop' => [
-        'title' => 'الورش',
-        'links' => [
-            ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش'],
-        ]
-    ],
     'qr' => [
         'title' => 'الكيوآر',
         'links' => [
             ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
-        ]
-    ],'mission' => [
-        'title' => 'المهام',
-        'links' => [
-            ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام'],
         ]
     ],
     'admin_structure' => [
