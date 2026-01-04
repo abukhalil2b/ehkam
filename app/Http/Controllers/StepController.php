@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Activity;
 use App\Models\Indicator;
 use App\Models\OrganizationalUnit;
 use App\Models\PeriodTemplate;
@@ -15,7 +16,7 @@ use Illuminate\Http\Request;
 class StepController extends Controller
 {
     // Show steps for the project
-    public function index(Project $project)
+    public function index(Project $project, $activity = null)
     {
 
         $phases = [
@@ -26,11 +27,15 @@ class StepController extends Controller
             'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
         ];
 
-        // load steps for the project, ordered by `ordered` (or id if you prefer)
-        $steps = Step::where('project_id', $project->id)
-            ->orderBy('ordered', 'asc')
-            ->get();
+        $stepsQuery = Step::where('project_id', $project->id);
 
+        if (!is_null($activity)) {
+            $stepsQuery->where('activity_id', $activity);
+        }
+
+        $steps = $stepsQuery->orderBy('ordered', 'asc')->get();
+
+        $activities = Activity::where('project_id', $project->id)->get();
 
         $organizational_units = OrganizationalUnit::where('type', 'Directorate')->get();
 
@@ -41,7 +46,7 @@ class StepController extends Controller
             : collect();
 
 
-        return view('step.index', compact('project', 'steps', 'phases', 'organizational_units', 'periodTemplates', 'indicator'));
+        return view('step.index', compact('project', 'steps', 'phases', 'organizational_units', 'periodTemplates', 'indicator', 'activities'));
     }
 
     // Store new step
@@ -56,6 +61,7 @@ class StepController extends Controller
             'status' => 'nullable|string|max:50',
             'supporting_document' => 'nullable|string',
             'ordered' => 'nullable|integer',
+            'activity_id' => 'required|integer',
             'is_need_evidence_file' => 'boolean',
             'is_need_to_put_target' => 'boolean',
             'organizational_unit_ids' => [
@@ -86,6 +92,7 @@ class StepController extends Controller
             'is_need_to_put_target' => $validated['is_need_to_put_target'] ?? 0,
             'supporting_document' => $validated['supporting_document'] ?? null,
             'ordered' => $validated['ordered'] ?? 0,
+            'activity_id' => $validated['activity_id'],
         ]);
 
         if ($request->boolean('is_need_to_put_target') && !empty($validated['organizational_unit_ids'])) {

@@ -16,6 +16,10 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
+            $table->foreignId('activity_id')
+                ->constrained()
+                ->cascadeOnDelete();
+
             // Basic info
             $table->string('name'); // اسم الخطوة
             $table->date('start_date')->nullable(); // من

@@ -11,7 +11,7 @@
 
                 <h2 class="text-xl font-bold text-gray-700">
                     بيانات المستهدف للمؤشر لعام
-                    <span class="text-blue-700">{{ $current_year }}</span>:
+                    <span class="text-blue-700">{{ $currentYear }}</span>:
                     <span class="text-red-800">{{ number_format($indicator->target_for_indicator) }}</span>
                 </h2>
 

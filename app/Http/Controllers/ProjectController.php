@@ -16,11 +16,11 @@ class ProjectController extends Controller
      */
     public function index(Indicator $indicator)
     {
-        $current_year = now()->year;
+        $currentYear = now()->year;
         $projects = Project::where('indicator_id', $indicator->id)
             ->get();
 
-        return view('project.index', compact('projects', 'indicator', 'current_year'));
+        return view('project.index', compact('projects', 'indicator', 'currentYear'));
     }
 
     /**

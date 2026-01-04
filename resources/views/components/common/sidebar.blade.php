@@ -2,13 +2,7 @@
 $userPermissions = auth()->user()->getPermissions();
 
 $sidebarSections = [
-    'settings' => [
-        'title' => 'الإعدادات',
-        'links' => [
-            ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات','params'=>['2025']],
-            ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع','params'=>['2025']],
-        ]
-    ],
+    
     'indicator' => [
         'title' => 'المؤشرات',
         'links' => [
@@ -97,6 +91,12 @@ $sidebarSections = [
         'title' => 'الكيوآر',
         'links' => [
             ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
+        ]
+    ],'settings' => [
+        'title' => 'الإعدادات',
+        'links' => [
+            ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات','params'=>['2025']],
+            ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع','params'=>['2025']],
         ]
     ],
     'admin_structure' => [

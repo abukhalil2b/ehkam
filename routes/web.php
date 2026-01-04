@@ -47,19 +47,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('dashboard');
 });
 
-Route::group(['middleware' => ['auth']], function () {
-    Route::get('admin_setting/indicator/index/{year}', [AdminSettingController::class, 'indicatorIndex'])
-        ->middleware('permission:indicator.index')
-        ->name('admin_setting.indicator.index');
 
-    Route::get('admin_setting/project/index/{year}', [AdminSettingController::class, 'projectIndex'])
-        ->middleware('permission:project.index')
-        ->name('admin_setting.project.index');
-
-    Route::post('admin_setting/copy-year/{year}', [AdminSettingController::class, 'copyYear'])
-        ->middleware('permission:indicator.create')
-        ->name('admin_setting.copy_year');
-});
 
 
 // INDICATOR ROUTES
@@ -143,7 +131,7 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth']], function () {
 
-    Route::get('step/index/{project}', [StepController::class, 'index'])
+    Route::get('step/index/{project}/{activity?}', [StepController::class, 'index'])
         ->name('step.index');
 
     Route::post('step/store/{project}', [StepController::class, 'store'])->name('step.store');
@@ -607,6 +595,21 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('admin_users/{user}/position/correct-record', [AdminController::class, 'updateCorrection'])
         ->middleware('permission:admin_users.assign')
         ->name('admin_users.update_correction');
+
+
+    Route::group(['middleware' => ['auth']], function () {
+        Route::get('admin_setting/indicator/index/{year}', [AdminSettingController::class, 'indicatorIndex'])
+            ->middleware('permission:indicator.index')
+            ->name('admin_setting.indicator.index');
+
+        Route::get('admin_setting/project/index/{year}', [AdminSettingController::class, 'projectIndex'])
+            ->middleware('permission:project.index')
+            ->name('admin_setting.project.index');
+
+        Route::post('admin_setting/copy-year/{year}', [AdminSettingController::class, 'copyYear'])
+            ->middleware('permission:indicator.create')
+            ->name('admin_setting.copy_year');
+    });
 
     /*
     |--------------------------------------------------------------------------
