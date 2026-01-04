@@ -75,9 +75,7 @@ class AdminSettingController extends Controller
             $year = $availableYears[0] ?? now()->year;
         }
 
-        $indicators = Indicator::query()
-            ->where('current_year', $year)
-            ->orderBy('title')
+        $indicators = Indicator::where('current_year', $year)
             ->get();
 
         return view('admin_setting.indicator.index', [

@@ -29,11 +29,8 @@
                                 <h3 class="text-lg font-semibold text-gray-900">
                                     {{ $project->title }}
                                 </h3>
-                                <p class="text-sm text-gray-500">
-                                    سنة المؤشر: {{ $project->current_year }}
-                                </p>
                                 <div class="text-xs">
-                                    {{ $project->indicator->title }}
+                                    {{ $project->indicator->title }}  - {{ $project->current_year }}
                                 </div>
                             </div>
 

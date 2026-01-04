@@ -165,7 +165,7 @@ class IndicatorController extends Controller
 
         $indicator->update($validatedData);
 
-        return redirect()->route('indicator.show', $indicator)->with('success', ' تم تحديث المؤشر بنجاح.');
+        return redirect()->route('admin_setting.indicator.index', $indicator->current_year)->with('success', ' تم تحديث المؤشر بنجاح.');
     }
 
     /**
