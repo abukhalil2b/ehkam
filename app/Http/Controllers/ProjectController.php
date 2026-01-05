@@ -74,7 +74,7 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $validatedData = $request->validate([
-            'title' => 'required|string|max:255|unique:projects,title,' . $project->id,
+            'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'indicator_id' => 'required|exists:indicators,id',
             'executor_id' => 'required',
