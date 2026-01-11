@@ -18,17 +18,17 @@
             'options' => [
                 'responsive' => true,
                 'maintainAspectRatio' => false,
-                'plugins' => {
-                    'legend' => {
+                'plugins' => [
+                    'legend' => [
                         'display' => false
-                    }
-                },
-                'scales' => {
-                    'y' => {
+                    ]
+                ],
+                'scales' => [
+                    'y' => [
                         'beginAtZero' => true
-                    }
-                }
-            }
+                    ]
+                ]
+            ]
         ])"></canvas>
     </div>
     <div class="space-y-3">

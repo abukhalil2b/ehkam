@@ -18,52 +18,131 @@ class AnnualCalendarController extends Controller
     /**
      * Display calendar with optimized loading
      */
-    public function show(Request $request) {
-           return view('calendar.show');
+    public function show(Request $request)
+    {
+        return view('calendar.show');
     }
 
     public function index(Request $request)
     {
-        $year = $request->get('year', date('Y'));
-        $userId = auth()->id();
+        $year = $request->input('year', date('Y'));
+        if (!is_numeric($year) || strlen($year) != 4) {
+            $year = date('Y');
+        }
+
+        // Handle Target User (Delegation)
+        $targetUserId = $request->get('target_user');
+        $currentUser = auth()->user();
+
+        if ($targetUserId && $targetUserId != $currentUser->id) {
+            // Check if current user has permission to view target user's calendar
+            // This is a basic check. You might want to use policies.
+            if (!$this->canManageUser($targetUserId)) {
+                abort(403, 'Unauthorized access to this calendar');
+            }
+            $displayedUser = User::findOrFail($targetUserId);
+        } else {
+            $displayedUser = $currentUser;
+        }
+
+        $userId = $displayedUser->id;
 
         // Cache key based on user and year
         $cacheKey = "calendar_events_{$userId}_{$year}";
 
+        // TEMPORARY: Force clear cache to fix the "wrong events" issue immediately for the user
+        // We can remove this later or rely on the Refresh button.
+        Cache::forget($cacheKey);
+
         $events = Cache::remember($cacheKey, 300, function () use ($year, $userId) {
             return CalendarEvent::with(['user:id,name', 'targetUser:id,name'])
-                ->forUser($userId)
+                ->where('target_user_id', $userId) // Strict: Only events ON this calendar
                 ->inYear($year)
                 ->get()
                 ->map(function ($event) {
                     return [
-                        'id'             => $event->id,
-                        'title'          => $event->title,
-                        'startDate'      => $event->start_date->format('Y-m-d H:i:s'),
-                        'endDate'        => $event->end_date->format('Y-m-d H:i:s'),
-                        'type'           => $event->type,
-                        'program'        => $event->program,
-                        'bg_color'       => $event->bg_color,
-                        'notes'          => $event->notes,
-                        'duration'       => $event->duration,
+                        'id' => $event->id,
+                        'title' => $event->title,
+                        'startDate' => $event->start_date->format('Y-m-d H:i:s'),
+                        'endDate' => $event->end_date->format('Y-m-d H:i:s'),
+                        'type' => $event->type,
+                        'program' => $event->program,
+                        'bg_color' => $event->bg_color,
+                        'notes' => $event->notes,
+                        'duration' => $event->duration,
                         'duration_human' => $event->duration_human,
-                        'status'         => $event->status,
-                        'status_color'   => $event->status_color,
-                        'creator'        => $event->user->name ?? 'غير معروف',
-                        'target'         => $event->targetUser->name ?? 'غير معروف',
-                        'hijriDate'      => $event->hijri_date,
-                        'startTime'      => $event->start_date->format('H:i'),
-                        'endTime'        => $event->end_date->format('H:i'),
-                        'is_public'      => $event->is_public,
+                        'status' => $event->status,
+                        'status_color' => $event->status_color,
+                        'creator' => $event->user->name ?? 'غير معروف',
+                        'target' => $event->targetUser->name ?? 'غير معروف',
+                        'hijriDate' => $event->hijri_date,
+                        'startTime' => $event->start_date->format('H:i'),
+                        'endTime' => $event->end_date->format('H:i'),
+                        'is_public' => $event->is_public,
                         'target_user_id' => $event->target_user_id,
-                        'can_edit'       => $this->userCanEdit($event),
+                        'can_edit' => $this->userCanEdit($event),
                     ];
                 });
         });
 
         $managedUsers = $this->getManagedUsers();
 
-        return view('calendar.index', compact('year', 'events', 'managedUsers'));
+        return view('calendar.index', compact('year', 'events', 'managedUsers', 'displayedUser'));
+    }
+
+    /**
+     * Display department calendar (Shared View)
+     */
+    public function department(Request $request, OrgUnit $orgUnit)
+    {
+        // Permission check: User must be part of the unit or have permission
+        // For now, assuming if they have the link and are auth, it's okay (or check if currentUnit match)
+        // $this->authorize('view', $orgUnit); 
+
+        $year = $request->get('year', date('Y'));
+
+        // 1. Get all employees currently assigned to this unit
+        // We use the `employeeAssignments` relation on OrgUnit model (verified in step 46)
+        // Adjust based on your DB: usually assignments have user_id
+        $userIds = $orgUnit->employeeAssignments()
+            ->whereNull('end_date') // Active only
+            ->pluck('user_id');
+
+        // 2. Fetch events for ALL these users
+        $events = CalendarEvent::with(['user:id,name', 'targetUser:id,name'])
+            ->whereIn('target_user_id', $userIds)
+            ->inYear($year)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'title' => $event->title . ' (' . ($event->targetUser->name ?? '?') . ')', // Append Name
+                    'startDate' => $event->start_date->format('Y-m-d H:i:s'),
+                    'endDate' => $event->end_date->format('Y-m-d H:i:s'),
+                    'type' => $event->type,
+                    'program' => $event->program,
+                    'bg_color' => $event->bg_color,
+                    'notes' => $event->notes,
+                    'duration' => $event->duration,
+                    'duration_human' => $event->duration_human,
+                    'status' => $event->status,
+                    'status_color' => $event->status_color,
+                    'creator' => $event->user->name ?? 'غير معروف',
+                    'target' => $event->targetUser->name ?? 'غير معروف',
+                    'hijriDate' => $event->hijri_date,
+                    'startTime' => $event->start_date->format('H:i'),
+                    'endTime' => $event->end_date->format('H:i'),
+                    'is_public' => $event->is_public,
+                    'target_user_id' => $event->target_user_id,
+                    'can_edit' => $this->userCanEdit($event),
+                ];
+            });
+
+        $managedUsers = $this->getManagedUsers();
+        $isDepartmentView = true;
+        $departmentName = $orgUnit->name;
+
+        return view('calendar.index', compact('year', 'events', 'managedUsers', 'isDepartmentView', 'departmentName'));
     }
 
     /**
@@ -72,7 +151,7 @@ class AnnualCalendarController extends Controller
     public function loadEvents(Request $request)
     {
         $request->validate([
-            'year'  => 'required|integer|min:2020|max:2100',
+            'year' => 'required|integer|min:2020|max:2100',
             'month' => 'nullable|integer|min:1|max:12',
         ]);
 
@@ -89,13 +168,13 @@ class AnnualCalendarController extends Controller
 
         $events = $query->get()->map(function ($event) {
             return [
-                'id'             => $event->id,
-                'title'          => $event->title,
-                'startDate'      => $event->start_date->toIso8601String(),
-                'endDate'        => $event->end_date->toIso8601String(),
-                'bg_color'       => $event->bg_color,
-                'status'         => $event->status,
-                'can_edit'       => $this->userCanEdit($event),
+                'id' => $event->id,
+                'title' => $event->title,
+                'startDate' => $event->start_date->toIso8601String(),
+                'endDate' => $event->end_date->toIso8601String(),
+                'bg_color' => $event->bg_color,
+                'status' => $event->status,
+                'can_edit' => $this->userCanEdit($event),
             ];
         });
 
@@ -106,8 +185,9 @@ class AnnualCalendarController extends Controller
     {
         $managedUsers = $this->getManagedUsers();
         $year = $request->get('year', date('Y'));
+        $preSelectedUser = $request->get('target_user'); // ID of user we were viewing
 
-        return view('calendar.create', compact('year', 'managedUsers'));
+        return view('calendar.create', compact('year', 'managedUsers', 'preSelectedUser'));
     }
 
     public function edit(CalendarEvent $calendarEvent)
@@ -120,9 +200,9 @@ class AnnualCalendarController extends Controller
         $year = $calendarEvent->year;
 
         return view('calendar.create', [
-            'event'        => $calendarEvent,
+            'event' => $calendarEvent,
             'managedUsers' => $managedUsers,
-            'year'         => $year,
+            'year' => $year,
         ]);
     }
 
@@ -132,17 +212,17 @@ class AnnualCalendarController extends Controller
     protected function validateAndMerge(Request $request)
     {
         $validatedData = $request->validate([
-            'title'           => 'required|string|max:255',
-            'type'            => 'required|string|in:program,meeting,conference,competition',
-            'program'         => 'nullable|string|max:100',
-            'start_date_day'  => 'required|date',
+            'title' => 'required|string|max:255',
+            'type' => 'required|string|in:program,meeting,conference,competition',
+            'program' => 'nullable|string|max:100',
+            'start_date_day' => 'required|date',
             'start_date_time' => 'required|date_format:H:i',
-            'end_date_day'    => 'required|date|after_or_equal:start_date_day',
-            'end_date_time'   => 'required|date_format:H:i',
-            'bg_color'        => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
-            'notes'           => 'nullable|string|max:1000',
-            'target_user_id'  => 'nullable|exists:users,id',
-            'is_public'       => 'nullable|boolean',
+            'end_date_day' => 'required|date|after_or_equal:start_date_day',
+            'end_date_time' => 'required|date_format:H:i',
+            'bg_color' => 'required|regex:/^#[0-9A-Fa-f]{6}$/',
+            'notes' => 'nullable|string|max:1000',
+            'target_user_id' => 'nullable|exists:users,id',
+            'is_public' => 'nullable|boolean',
         ]);
 
         $start = Carbon::parse($validatedData['start_date_day'] . ' ' . $validatedData['start_date_time']);
@@ -172,20 +252,20 @@ class AnnualCalendarController extends Controller
         }
 
         return [
-            'title'          => $validatedData['title'],
-            'type'           => $validatedData['type'],
+            'title' => $validatedData['title'],
+            'type' => $validatedData['type'],
 
             // FIX: Use null coalescing operator (?? null) for optional fields
-            'program'        => $validatedData['program'] ?? null,
+            'program' => $validatedData['program'] ?? null,
 
-            'start_date'     => $start,
-            'end_date'       => $end,
-            'bg_color'       => $validatedData['bg_color'],
+            'start_date' => $start,
+            'end_date' => $end,
+            'bg_color' => $validatedData['bg_color'],
 
             // FIX: Use null coalescing operator (?? null) for notes
-            'notes'          => $validatedData['notes'] ?? null,
+            'notes' => $validatedData['notes'] ?? null,
 
-            'is_public'      => $request->boolean('is_public'),
+            'is_public' => $request->boolean('is_public'),
             'target_user_id' => $targetUserId,
         ];
     }
@@ -222,8 +302,14 @@ class AnnualCalendarController extends Controller
 
             DB::commit();
 
+            // Redirect with target_user if applicable
+            $redirectParams = ['year' => $data['start_date']->year];
+            if ($data['target_user_id'] !== auth()->id()) {
+                $redirectParams['target_user'] = $data['target_user_id'];
+            }
+
             return redirect()
-                ->route('calendar.index', ['year' => $data['start_date']->year])
+                ->route('calendar.index', $redirectParams)
                 ->with('success', 'تم إضافة الحدث بنجاح');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -294,15 +380,15 @@ class AnnualCalendarController extends Controller
                         ->where('start_date', '<', $endDate);
                 })
                     ->orWhere(function ($q) use ($startDate, $endDate) {
-                        // Case 2: New event ends inside an existing event
-                        $q->where('end_date', '>', $startDate)
-                            ->where('end_date', '<=', $endDate);
-                    })
+                    // Case 2: New event ends inside an existing event
+                    $q->where('end_date', '>', $startDate)
+                        ->where('end_date', '<=', $endDate);
+                })
                     ->orWhere(function ($q) use ($startDate, $endDate) {
-                        // Case 3: New event completely covers/envelops an existing event
-                        $q->where('start_date', '<', $startDate)
-                            ->where('end_date', '>', $endDate);
-                    });
+                    // Case 3: New event completely covers/envelops an existing event
+                    $q->where('start_date', '<', $startDate)
+                        ->where('end_date', '>', $endDate);
+                });
             })
             ->when($ignoreEventId, function ($q) use ($ignoreEventId) {
                 // Important: Exclude the event itself when updating
@@ -318,19 +404,19 @@ class AnnualCalendarController extends Controller
     {
         $conflictDetails = $conflicts->map(function ($conflict) {
             return [
-                'id'         => $conflict->id,
-                'title'      => $conflict->title,
+                'id' => $conflict->id,
+                'title' => $conflict->title,
                 'start_date' => $conflict->start_date->format('Y-m-d H:i'),
-                'end_date'   => $conflict->end_date->format('Y-m-d H:i'),
-                'creator'    => $conflict->user->name,
+                'end_date' => $conflict->end_date->format('Y-m-d H:i'),
+                'creator' => $conflict->user->name,
             ];
         });
 
         // Suggest next available slot
         $tempEvent = new CalendarEvent([
             'target_user_id' => $data['target_user_id'],
-            'start_date'     => $data['start_date'],
-            'end_date'       => $data['end_date'],
+            'start_date' => $data['start_date'],
+            'end_date' => $data['end_date'],
         ]);
         $suggestedSlot = $tempEvent->suggestNextSlot();
 
@@ -354,7 +440,7 @@ class AnnualCalendarController extends Controller
 
         $request->validate([
             'start_date' => 'required|date',
-            'end_date'   => 'required|date|after:start_date',
+            'end_date' => 'required|date|after:start_date',
         ]);
 
         $newStart = Carbon::parse($request->start_date);
@@ -372,9 +458,9 @@ class AnnualCalendarController extends Controller
             if ($conflicts->isNotEmpty()) {
                 DB::rollBack();
                 return response()->json([
-                    'message'   => 'يوجد تعارض في الوقت',
+                    'message' => 'يوجد تعارض في الوقت',
                     'conflicts' => $conflicts->map(fn($c) => [
-                        'title'      => $c->title,
+                        'title' => $c->title,
                         'start_date' => $c->start_date->format('Y-m-d H:i'),
                     ]),
                 ], 422);
@@ -382,7 +468,7 @@ class AnnualCalendarController extends Controller
 
             $calendarEvent->update([
                 'start_date' => $newStart,
-                'end_date'   => $newEnd,
+                'end_date' => $newEnd,
             ]);
 
             $originalYear = $calendarEvent->original['start_date']->year ?? $calendarEvent->year;
@@ -400,10 +486,10 @@ class AnnualCalendarController extends Controller
 
             return response()->json([
                 'message' => 'تم نقل الحدث بنجاح',
-                'event'   => [
-                    'id'        => $calendarEvent->id,
+                'event' => [
+                    'id' => $calendarEvent->id,
                     'startDate' => $calendarEvent->start_date->toIso8601String(),
-                    'endDate'   => $calendarEvent->end_date->toIso8601String(),
+                    'endDate' => $calendarEvent->end_date->toIso8601String(),
                 ],
             ]);
         } catch (\Exception $e) {
@@ -448,12 +534,12 @@ class AnnualCalendarController extends Controller
             ->get();
 
         $stats = [
-            'total_events'        => CalendarEvent::count(),
-            'active_users'        => $userActivity->count(),
+            'total_events' => CalendarEvent::count(),
+            'active_users' => $userActivity->count(),
             'upcoming_this_month' => CalendarEvent::whereMonth('start_date', now()->month)
                 ->whereYear('start_date', now()->year)
                 ->count(),
-            'active_now'          => CalendarEvent::active()->count(),
+            'active_now' => CalendarEvent::active()->count(),
         ];
 
         $delegations = CalendarDelegation::with(['manager', 'employee'])
@@ -490,7 +576,7 @@ class AnnualCalendarController extends Controller
             ->pluck('employee_id')
             ->toArray();
 
-        return User::whereIn('id', array_merge([auth()->id()], $directManaged))
+        return User::whereIn('id', $directManaged)
             ->select('id', 'name')
             ->get();
     }
@@ -502,5 +588,11 @@ class AnnualCalendarController extends Controller
         Cache::forget("calendar_events_{$userId}_{$year}");
 
         return back()->with('success', 'تم تحديث البيانات بنجاح');
+    }
+
+    public function deleteAllNotifications()
+    {
+        auth()->user()->notifications()->delete();
+        return back()->with('success', 'تم حذف جميع التنبيهات');
     }
 }

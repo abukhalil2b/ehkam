@@ -110,4 +110,62 @@ class OrgUnitController extends Controller
         return redirect()->route('org_unit.index')
             ->with('success', "تمت إضافة الوحدة ({$unit->name}) بنجاح. الرمز: {$unit->unit_code}");
     }
+    public function edit(OrgUnit $orgUnit)
+    {
+        $orgUnit->load(['parent', 'positions.employees']);
+        $parentUnits = OrgUnit::where('id', '!=', $orgUnit->id)->get();
+        // Load all available positions for the dropdown
+        $allPositions = \App\Models\Position::orderBy('title')->get();
+
+        return view('org_units.edit', compact('orgUnit', 'parentUnits', 'allPositions'));
+    }
+
+    public function update(Request $request, OrgUnit $orgUnit)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|in:Minister,Undersecretary,Directorate,Department,Section,Expert',
+            'parent_id' => 'nullable|exists:org_units,id|not_in:' . $orgUnit->id,
+        ]);
+
+        $orgUnit->update([
+            'name' => $request->name,
+            'type' => $request->type,
+            'parent_id' => $request->parent_id,
+        ]);
+
+        return redirect()->route('org_unit.edit', $orgUnit->id)
+            ->with('success', 'تم تحديث بيانات الوحدة بنجاح');
+    }
+
+    public function addPosition(Request $request)
+    {
+        $request->validate([
+            'org_unit_id' => 'required|exists:org_units,id',
+            'position_id' => 'required|exists:positions,id',
+        ]);
+
+        $orgUnit = OrgUnit::findOrFail($request->org_unit_id);
+
+        // Check if already attached
+        if (!$orgUnit->positions()->where('positions.id', $request->position_id)->exists()) {
+            $orgUnit->positions()->attach($request->position_id);
+            return back()->with('success', 'تم ربط الوظيفة بالوحدة بنجاح');
+        }
+
+        return back()->with('info', 'هذه الوظيفة مرتبطة بالفعل بهذه الوحدة');
+    }
+
+    public function removePosition(Request $request)
+    {
+        $request->validate([
+            'org_unit_id' => 'required|exists:org_units,id',
+            'position_id' => 'required|exists:positions,id',
+        ]);
+
+        $orgUnit = OrgUnit::findOrFail($request->org_unit_id);
+        $orgUnit->positions()->detach($request->position_id);
+
+        return back()->with('success', 'تم فك ارتباط الوظيفة بنجاح');
+    }
 }

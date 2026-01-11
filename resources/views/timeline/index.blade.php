@@ -4,19 +4,24 @@
             <h1 class="text-2xl font-bold text-emerald-900">
                 الخطة السنوية – {{ $year }}
             </h1>
-            <a href="{{ route('calendar.index', ['year' => $year]) }}" class="text-emerald-600 font-bold hover:underline">
+            <a href="{{ route('calendar.index', ['year' => $year]) }}"
+                class="text-emerald-600 font-bold hover:underline">
                 العودة للتقويم →
             </a>
         </div>
 
-        <div x-data="annualPlan2026(@js($events))" class="bg-white border rounded-xl shadow-sm overflow-hidden">
+        <div x-data="annualPlan2026(@js($events))"
+            class="bg-white dark:bg-[#1b2e4b] border dark:border-[#191e3a] rounded-xl shadow-sm overflow-hidden">
 
             <div class="overflow-x-auto">
-                <div class="flex border-b min-w-[1200px] bg-gray-50">
-                    <div class="w-80 shrink-0 border-l font-bold text-center py-3">النشاط / البرنامج</div>
+                <div class="flex border-b dark:border-[#191e3a] min-w-[1200px] bg-gray-50 dark:bg-[#0e1726]">
+                    <div
+                        class="w-80 shrink-0 border-l dark:border-[#191e3a] font-bold text-center py-3 dark:text-white-light">
+                        النشاط / البرنامج</div>
 
                     <template x-for="month in months" :key="month.index">
-                        <div class="flex-1 text-center py-3 text-sm font-semibold border-l last:border-l-0">
+                        <div
+                            class="flex-1 text-center py-3 text-sm font-semibold border-l dark:border-[#191e3a] last:border-l-0 dark:text-white-dark">
                             <span x-text="month.label"></span>
                         </div>
                     </template>
@@ -25,14 +30,14 @@
                 <div class="min-w-[1200px]">
                     <template x-for="activity in activities" :key="activity.id">
                         <div
-                            class="flex items-center border-b last:border-b-0 min-h-[64px] hover:bg-gray-50/50 transition">
+                            class="flex items-center border-b dark:border-[#191e3a] last:border-b-0 min-h-[64px] hover:bg-gray-50/50 dark:hover:bg-[#0e1726]/50 transition">
 
                             <a :href="'/timeline/show/' + activity.id"
-                                class="w-80 px-4 py-2 shrink-0 border-l hover:bg-emerald-50 transition block">
-                                <div class="font-bold text-gray-800 text-sm mb-1 hover:text-emerald-700"
+                                class="w-80 px-4 py-2 shrink-0 border-l dark:border-[#191e3a] hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition block">
+                                <div class="font-bold text-gray-800 dark:text-white-light text-sm mb-1 hover:text-emerald-700 dark:hover:text-emerald-400"
                                     x-text="activity.title"></div>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-[10px] text-gray-500"
+                                    <span class="text-[10px] text-gray-500 dark:text-gray-400"
                                         x-text="'المدة: ' + durationInDays(activity) + ' يوم'"></span>
                                     <span class="text-[10px] px-2 py-0.5 rounded-full font-bold"
                                         :class="statusClasses(status(activity))" x-text="status(activity)"></span>
@@ -42,7 +47,7 @@
                             <div class="relative flex-1 h-10 flex items-center px-0">
                                 <div class="absolute inset-0 flex">
                                     <template x-for="i in 12">
-                                        <div class="flex-1 border-l border-gray-100 h-full"></div>
+                                        <div class="flex-1 border-l border-gray-100 dark:border-[#191e3a] h-full"></div>
                                     </template>
                                 </div>
 
@@ -120,7 +125,7 @@
                         'قادم': 'bg-gray-100 text-gray-600',
                         'جاري التنفيذ': 'bg-emerald-100 text-emerald-700',
                         'مكتمل': 'bg-blue-100 text-blue-700'
-                    } [status];
+                    }[status];
                 },
 
                 dayOfYear(dateString) {

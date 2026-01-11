@@ -12,6 +12,8 @@ use App\Models\Profile;
 
 class User extends Authenticatable
 {
+    use HasFactory, Notifiable;
+
     protected $guarded = [];
 
     /**
@@ -198,7 +200,7 @@ class User extends Authenticatable
         return $this->hasOne(EmployeeAssignment::class)->latest('start_date');
     }
 
-        // ========== Missions Relations ==========
+    // ========== Missions Relations ==========
 
     /**
      * المهام التي أنشأها المستخدم

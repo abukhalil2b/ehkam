@@ -26,7 +26,15 @@ class CalendarDelegationController extends Controller
             ->select('id', 'name', 'email')
             ->get();
 
-        return view('calendar.delegations', compact('myDelegations', 'delegatedToMe', 'availableUsers'));
+        // Fetch User's Active Departments
+        $myDepartments = auth()->user()->positionHistory()
+            ->whereNull('end_date')
+            ->with('orgUnit')
+            ->get()
+            ->pluck('orgUnit')
+            ->unique('id');
+
+        return view('calendar.delegations', compact('myDelegations', 'delegatedToMe', 'availableUsers', 'myDepartments'));
     }
 
     public function store(Request $request)
@@ -50,7 +58,7 @@ class CalendarDelegationController extends Controller
             } else {
                 // Reactivate
                 $existing->update([
-                    'is_active'  => true,
+                    'is_active' => true,
                     'granted_at' => now(),
                     'revoked_at' => null,
                 ]);
@@ -59,10 +67,10 @@ class CalendarDelegationController extends Controller
         }
 
         CalendarDelegation::create([
-            'manager_id'  => auth()->id(),
+            'manager_id' => auth()->id(),
             'employee_id' => $request->employee_id,
-            'is_active'   => true,
-            'granted_at'  => now(),
+            'is_active' => true,
+            'granted_at' => now(),
         ]);
 
         return back()->with('success', 'تم منح التفويض بنجاح');

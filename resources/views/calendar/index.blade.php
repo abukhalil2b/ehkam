@@ -8,13 +8,81 @@
             <div class="container mx-auto px-4">
                 <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div class="text-right">
-                        <h1 class="text-3xl font-bold mb-2">{{ __('annual calendar') }} <span
-                                class="text-emerald-300 text-lg">| {{ auth()->user()->name }}</span></h1>
+                        <h1 class="text-3xl font-bold mb-2">{{ __('annual calendar') }}
+                            <span class="text-emerald-300 text-lg">|
+                                {{ $departmentName ?? ($displayedUser->name ?? auth()->user()->name) }}</span>
+                        </h1>
                         <p class="text-xl opacity-90 flex items-center gap-2">
                             <span>{{ $year }} م</span>
+                            @if(isset($isDepartmentView) && $isDepartmentView)
+                                <span class="bg-emerald-800 text-xs px-2 py-1 rounded">عرض القسم</span>
+                            @endif
                         </p>
                     </div>
                     <div class="flex flex-wrap justify-center gap-3">
+                        {{-- Notification Dropdown --}}
+                        <div class="relative" x-data="{ open: false, toggle() { this.open = !this.open } }"
+                            @click.outside="open = false">
+                            <button @click="toggle()"
+                                class="bg-white/10 hover:bg-white/20 p-3 rounded-xl border border-white/30 transition text-white relative">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                                </svg>
+                                @if(auth()->user()->unreadNotifications->count() > 0)
+                                    <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span
+                                            class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-[10px] font-bold items-center justify-center">
+                                            {{ auth()->user()->unreadNotifications->count() }}
+                                        </span>
+                                    </span>
+                                @endif
+                            </button>
+
+                            <div x-cloak x-show="open" x-transition
+                                class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden text-gray-800">
+                                <div class="bg-gray-50 p-3 border-b border-gray-100 flex justify-between items-center">
+                                    <span class="font-bold">التنبيهات</span>
+                                    @if(auth()->user()->notifications->count() > 0)
+                                        <form action="{{ route('notifications.delete_all') }}" method="POST">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-xs text-red-500 hover:text-red-700">حذف
+                                                الكل</button>
+                                        </form>
+                                    @endif
+                                </div>
+                                <div class="max-h-64 overflow-y-auto custom-scrollbar">
+                                    @forelse(auth()->user()->notifications->take(10) as $notification)
+                                        <a href="{{ isset($notification->data['link']) ? $notification->data['link'] . '?read=' . $notification->id : '#' }}"
+                                            class="block p-3 border-b border-gray-50 hover:bg-gray-50 transition text-right">
+                                            <div class="flex items-start gap-3">
+                                                <div
+                                                    class="bg-{{ $notification->data['bg_color'] ?? 'emerald' }}-100 text-{{ $notification->data['bg_color'] ?? 'emerald' }}-700 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-gray-900">
+                                                        {{ $notification->data['title'] ?? 'تنبيه' }}</p>
+                                                    <p class="text-xs text-gray-500 mt-1">
+                                                        {{ Str::limit($notification->data['message'] ?? '', 40) }}</p>
+                                                    <p class="text-[10px] text-gray-400 mt-1">
+                                                        {{ $notification->created_at->diffForHumans() }}</p>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    @empty
+                                        <div class="p-6 text-center text-gray-400 text-sm">لا توجد تنبيهات جديدة</div>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
                         <a href="{{ route('delegations.index') }}"
                             class="bg-white/10 hover:bg-white/20 p-3 rounded-xl border border-white/30 transition text-white"
                             title="إدارة التفويضات">
@@ -32,7 +100,7 @@
                                 <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                         </a>
-                        <a href="{{ route('calendar.create', ['year' => $year]) }}"
+                        <a href="{{ route('calendar.create', ['year' => $year, 'target_user' => $displayedUser->id]) }}"
                             class="bg-yellow-400 text-emerald-900 px-6 py-3 rounded-xl font-bold hover:bg-yellow-300 transition shadow-lg flex items-center gap-2">
                             <span class="text-xl font-bold">+</span>
                             {{ __('add new event') }}
@@ -47,20 +115,21 @@
         <main class="container mx-auto px-4">
 
             {{-- Toolbar --}}
+            {{-- Toolbar --}}
             <div
-                class="bg-white rounded-xl shadow-lg p-4 mb-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
+                class="bg-white dark:bg-[#1b2e4b] rounded-xl shadow-lg p-4 mb-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
                 <div class="flex items-center gap-4">
                     <button @click="changeYear(1)"
-                        class="p-2 hover:bg-gray-100 rounded-full transition"><x-calendar.icons.chevron-left
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300"><x-calendar.icons.chevron-left
                             class="w-6 h-6" /></button>
-                    <span class="text-2xl font-bold text-emerald-900" x-text="year"></span>
+                    <span class="text-2xl font-bold text-emerald-900 dark:text-emerald-400" x-text="year"></span>
                     <button @click="changeYear(-1)"
-                        class="p-2 hover:bg-gray-100 rounded-full transition"><x-calendar.icons.chevron-right
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300"><x-calendar.icons.chevron-right
                             class="w-6 h-6" /></button>
 
                     <form action="{{ route('calendar.refresh') }}" method="POST" class="inline mr-2">
                         @csrf <input type="hidden" name="year" :value="year">
-                        <button type="submit" class="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                        <button type="submit" class="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition"
                             title="تحديث البيانات">
                             <x-calendar.icons.refresh class="w-6 h-6" />
                         </button>
@@ -69,14 +138,14 @@
 
                 <div class="flex-1 max-w-md">
                     <input type="text" x-model="filters.search" placeholder="{{ __('search_placeholder') }}..."
-                        class="w-full border-none bg-gray-100 rounded-xl px-4 py-2 focus:ring-2 focus:ring-emerald-500">
+                        class="w-full border-none bg-gray-100 dark:bg-[#0e1726] text-gray-800 dark:text-gray-200 rounded-xl px-4 py-2 focus:ring-2 focus:ring-emerald-500 placeholder-gray-400 dark:placeholder-gray-500">
                 </div>
 
                 {{-- Views: Only 3 options now (Day, Year, Month) --}}
-                <div class="flex bg-gray-100 p-1 rounded-lg">
+                <div class="flex bg-gray-100 dark:bg-[#0e1726] p-1 rounded-lg">
                     <template x-for="view in ['day', 'year', 'month']">
                         <button @click="viewType = view"
-                            :class="viewType === view ? 'bg-white shadow text-emerald-700' : 'text-gray-500'"
+                            :class="viewType === view ? 'bg-white dark:bg-[#1b2e4b] shadow text-emerald-700 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'"
                             class="px-4 py-2 rounded-md font-bold transition capitalize"
                             x-text="view === 'day' ? 'يومي' : (view === 'year' ? 'سنوي' : 'شهري')"></button>
                     </template>
@@ -107,7 +176,7 @@
         <script>
             function annualCalendar(eventsFromServer) {
                 return {
-                    year: {{ $year }},
+                    year: '{{ $year }}',
                     viewType: 'year',
                     showEditModal: false,
                     originalEvent: null,
@@ -213,8 +282,12 @@
                     },
 
                     getHijriDateForDay(date) {
-                        const e = this.getEventsForDay(date)[0]; // Check first event of the day
-                        return e && e.hijriDate ? e.hijriDate : '';
+                        // Use native Intl API for Hijri dates
+                        return new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric'
+                        }).format(new Date(date));
                     },
 
                     // 1. Calculate CSS Top Position (Time -> Pixels)
@@ -278,6 +351,8 @@
                             });
                             days.push({
                                 day: d,
+                                // Calculate Hijri Day Number
+                                hijriDay: new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { day: 'numeric' }).format(cur),
                                 hasEvent: evs.length > 0,
                                 events: evs
                             });

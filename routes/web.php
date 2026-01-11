@@ -279,12 +279,16 @@ Route::group(['middleware' => ['auth']], function () {
 
     // clear cache
     Route::post('calendar/refresh', [AnnualCalendarController::class, 'refreshCache'])->name('calendar.refresh');
+    Route::delete('notifications/delete-all', [AnnualCalendarController::class, 'deleteAllNotifications'])->name('notifications.delete_all');
 
     // AJAX Event Loading
     Route::get('calendar/events', [AnnualCalendarController::class, 'loadEvents']);
 
     // Drag & Drop Event Move
     Route::patch('calendar/{calendarEvent}/move', [AnnualCalendarController::class, 'moveEvent']);
+
+    // Department View
+    Route::get('calendar/department/{orgUnit}', [AnnualCalendarController::class, 'department'])->name('calendar.department');
 });
 
 Route::get('/notifications/read-all', function () {
@@ -641,14 +645,31 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('org_unit.index');
 
     Route::get('org_unit/create', [OrgUnitController::class, 'create'])
-        ->middleware('permission:org_unit.store')
+        ->middleware('permission:org_unit.create')
         ->name('org_unit.create');
 
 
     // Unit Creation
     Route::post('org_unit/store', [OrgUnitController::class, 'storeUnit'])
-        ->middleware('permission:org_unit.store')
+        ->middleware('permission:org_unit.create')
         ->name('org_unit.store');
+
+    Route::get('org_unit/edit/{orgUnit}', [OrgUnitController::class, 'edit'])
+        ->middleware('permission:org_unit.edit')
+        ->name('org_unit.edit');
+
+    Route::put('org_unit/update/{orgUnit}', [OrgUnitController::class, 'update'])
+        ->middleware('permission:org_unit.edit')
+        ->name('org_unit.update');
+
+    // Org Unit Position Management
+    Route::post('org_unit/positions/store', [OrgUnitController::class, 'addPosition'])
+        ->middleware('permission:org_unit.edit')
+        ->name('org_unit.positions.store');
+
+    Route::delete('org_unit/positions/destroy', [OrgUnitController::class, 'removePosition'])
+        ->middleware('permission:org_unit.edit')
+        ->name('org_unit.positions.destroy');
 
     // POSITIONS MANAGEMENT (Refactored)
     Route::resource('positions', PositionController::class)->middleware('permission:admin_position.index');
