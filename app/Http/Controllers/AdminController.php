@@ -5,13 +5,13 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
-use App\Models\OrganizationalUnit;
+use App\Models\OrgUnit;
 use App\Models\Position;
 use App\Models\User;
 use App\Models\Profile;
 use App\Models\Permission;
 use App\Models\Sector;
-use App\Models\UserPositionHistory;
+use App\Models\EmployeeAssignment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
@@ -22,7 +22,7 @@ class AdminController extends Controller
 
         $users = User::where('user_type', 'staff')->get();
         // Hierarchical data for units & positions
-        $topLevelUnits = OrganizationalUnit::whereNull('parent_id')
+        $topLevelUnits = OrgUnit::whereNull('parent_id')
             ->with('children.children')
             ->get();
 
@@ -31,11 +31,11 @@ class AdminController extends Controller
             ->get();
 
         // Flat data for dropdowns / forms
-        $organizationalUnits = OrganizationalUnit::all();
+        $OrgUnits = OrgUnit::all();
         $allPositions = Position::all();
 
         return view('admin_structure.positions.create', [
-            'organizationalUnits' => $organizationalUnits,
+            'OrgUnits' => $OrgUnits,
             'allPositions' => $allPositions,
             'topLevelUnits' => $topLevelUnits,
             'topLevelPositions' => $topLevelPositions,
@@ -49,7 +49,7 @@ class AdminController extends Controller
         // ------------------------------
         // 1️⃣ Organizational Units (already optimized)
         // ------------------------------
-        $allUnits = OrganizationalUnit::all();
+        $allUnits = OrgUnit::all();
         $groupedUnits = $allUnits->groupBy('parent_id');
 
         $buildUnitTree = function ($parentId) use (&$buildUnitTree, $groupedUnits) {
@@ -176,23 +176,23 @@ class AdminController extends Controller
 
     public function createUser()
     {
-        $organizationalUnits = OrganizationalUnit::all();
+        $OrgUnits = OrgUnit::all();
         $allPositions = Position::all();
 
         // FIX: Add $topLevelUnits and $topLevelPositions 
         // to satisfy components or inherited layout logic.
-        $topLevelUnits = OrganizationalUnit::whereNull('parent_id')->get();
+        $topLevelUnits = OrgUnit::whereNull('parent_id')->get();
         $topLevelPositions = Position::whereNull('reports_to_position_id')->get();
 
         $users = User::with([
             'positionHistory',
             'currentHistory.position',
-            'currentHistory.organizationalUnit'
+            'currentHistory.OrgUnit'
         ])->get();
 
         // Pass ALL required variables to the view
         return view('admin_users.create', compact(
-            'organizationalUnits',
+            'OrgUnits',
             'allPositions',
             'topLevelUnits',
             'topLevelPositions',
@@ -209,7 +209,7 @@ class AdminController extends Controller
 
             // New assignment fields
             'position_id' => 'required|exists:positions,id',
-            'organizational_unit_id' => 'required|exists:organizational_units,id',
+            'org_unit_id' => 'required|exists:org_units,id',
             'start_date' => 'required|date',
         ]);
 
@@ -221,11 +221,11 @@ class AdminController extends Controller
             'password' => Hash::make($validatedData['email']),
         ]);
 
-        // 3. Initial Position Assignment (UserPositionHistory creation)
-        UserPositionHistory::create([
+        // 3. Initial Position Assignment (EmployeeAssignment creation)
+        EmployeeAssignment::create([
             'user_id' => $user->id,
             'position_id' => $validatedData['position_id'],
-            'organizational_unit_id' => $validatedData['organizational_unit_id'],
+            'org_unit_id' => $validatedData['org_unit_id'],
             'start_date' => $validatedData['start_date'],
             'end_date' => null, // This is the current assignment
         ]);
@@ -255,7 +255,7 @@ class AdminController extends Controller
             'reports_to_position_id' => 'nullable|exists:positions,id',
 
             // 🚨 ADDED: Validation for the required unit ID
-            'organizational_unit_id' => 'required|exists:organizational_units,id',
+            'org_unit_id' => 'required|exists:org_units,id',
         ]);
 
         // 1. Create the new Position record
@@ -263,10 +263,10 @@ class AdminController extends Controller
 
         // 2. 🚨 ADDED: Attach the newly created position to the selected organizational unit
         // The relationship is many-to-many, even if the UI only sends one unit ID
-        $organizationalUnitId = $request->input('organizational_unit_id');
+        $OrgUnitId = $request->input('org_unit_id');
 
         // Use the attach method on the relationship
-        $position->organizationalUnits()->attach($organizationalUnitId);
+        $position->OrgUnits()->attach($OrgUnitId);
 
         // NOTE: If you decide a Position can exist in multiple units, you'd handle an array here.
         // Given the UI only shows one selection, we assume one unit is attached initially.
@@ -282,20 +282,20 @@ class AdminController extends Controller
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'new_position_id' => 'required|exists:positions,id',
-            'new_unit_id' => 'nullable|exists:organizational_units,id',
+            'new_unit_id' => 'nullable|exists:org_units,id',
             'start_date' => 'required|date',
         ]);
 
         // 1. إغلاق السجل الوظيفي القديم للموظف (إذا وُجد)
-        UserPositionHistory::where('user_id', $validated['user_id'])
+        EmployeeAssignment::where('user_id', $validated['user_id'])
             ->whereNull('end_date')
             ->update(['end_date' => Carbon::parse($validated['start_date'])->subDay()->format('Y-m-d')]);
 
         // 2. إنشاء سجل وظيفي جديد (التعيين الحالي)
-        UserPositionHistory::create([
+        EmployeeAssignment::create([
             'user_id' => $validated['user_id'],
             'position_id' => $validated['new_position_id'],
-            'organizational_unit_id' => $validated['new_unit_id'],
+            'org_unit_id' => $validated['new_unit_id'],
             'start_date' => $validated['start_date'],
             'end_date' => null,
         ]);
@@ -308,14 +308,14 @@ class AdminController extends Controller
         $unitId = $request->get('unit_id');
 
         // البحث عن الوحدة التنظيمية باستخدام المعرّف
-        $unit = OrganizationalUnit::find($unitId);
+        $unit = OrgUnit::find($unitId);
 
         // إذا لم يتم العثور على الوحدة، نرجع قائمة فارغة
         if (!$unit) {
             return response()->json([]);
         }
 
-        // استخدام علاقة positions() المحددة في نموذج OrganizationalUnit
+        // استخدام علاقة positions() المحددة في نموذج OrgUnit
         // لجلب المسميات الوظيفية المرتبطة بهذه الوحدة عبر جدول الربط.
         $positions = $unit->positions()
             ->get(['positions.id', 'positions.title']);
@@ -330,7 +330,7 @@ class AdminController extends Controller
             'profiles',
             'permissions',
             'positionHistory.position',
-            'positionHistory.organizationalUnit'
+            'positionHistory.OrgUnit'
         ]);
 
         // Optional: Get latest active history
@@ -344,7 +344,7 @@ class AdminController extends Controller
         $allPermissions = Permission::orderBy('title')->get();
 
         $positions = Position::orderBy('title')->get();
-        $units = OrganizationalUnit::orderBy('name')->get();
+        $units = OrgUnit::orderBy('name')->get();
 
         return view('admin.user.show', compact(
             'user',
@@ -375,7 +375,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'position_id' => ['required', 'exists:positions,id'],
-            'organizational_unit_id' => ['required', 'exists:organizational_units,id'], // Made unit required for new assignment
+            'org_unit_id' => ['required', 'exists:org_units,id'], // Made unit required for new assignment
             'start_date' => ['required', 'date', 'before_or_equal:today'],
         ]);
 
@@ -391,7 +391,7 @@ class AdminController extends Controller
         // 2. Create the new record (The NEW ASSIGNMENT)
         $user->positionHistory()->create([
             'position_id' => $validated['position_id'],
-            'organizational_unit_id' => $validated['organizational_unit_id'],
+            'org_unit_id' => $validated['org_unit_id'],
             'start_date' => $validated['start_date'],
             'end_date' => null, // This is the new active record
         ]);
@@ -409,7 +409,7 @@ class AdminController extends Controller
                 ->with('error', 'المستخدم ليس لديه سجل وظيفي نشط لتصحيحه.');
         }
 
-        $units = OrganizationalUnit::all();
+        $units = OrgUnit::all();
         $positions = Position::all(); // Fetch all positions for the dropdown
 
         return view('admin.user.position.edit', compact('user', 'activeRecord', 'units', 'positions'));
@@ -429,7 +429,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'position_id' => ['required', 'exists:positions,id'],
-            'organizational_unit_id' => ['required', 'exists:organizational_units,id'],
+            'org_unit_id' => ['required', 'exists:org_units,id'],
             'start_date' => ['required', 'date', 'before_or_equal:today'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'], // Allow manually setting end_date if needed
         ]);
@@ -444,7 +444,7 @@ class AdminController extends Controller
         // Perform the correction update on the existing record
         $activeRecord->update([
             'position_id' => $validated['position_id'],
-            'organizational_unit_id' => $validated['organizational_unit_id'],
+            'org_unit_id' => $validated['org_unit_id'],
             'start_date' => $validated['start_date'],
             'end_date' => $validated['end_date'] ?? null,
         ]);

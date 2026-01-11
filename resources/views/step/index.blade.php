@@ -34,7 +34,7 @@
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                $('#organizational_unit').select2({
+                $('#org_unit').select2({
                     placeholder: 'اختر المنفذ',
                     allowClear: true,
                     dir: 'rtl',
@@ -287,9 +287,9 @@
                                     <!-- Organizational Units -->
                                     <div>
                                         <label class="block text-sm font-medium text-gray-700 mb-1">المنفذون</label>
-                                        <select id="organizational_unit" name="organizational_unit_ids[]" multiple
+                                        <select id="org_unit" name="org_unit_ids[]" multiple
                                             class="w-full rounded border-gray-300">
-                                            @foreach ($organizational_units as $unit)
+                                            @foreach ($org_units as $unit)
                                                 <option value="{{ $unit->id }}">{{ $unit->name }}
                                                     ({{ $unit->type }})
                                                 </option>

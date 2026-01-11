@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\AdminAimController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\AssessmentQuestionController;
 use App\Http\Controllers\AssessmentResultController;
 use App\Http\Controllers\ProfileController;
@@ -15,7 +16,7 @@ use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\AimSectorFeedbackController;
 use App\Http\Controllers\MeetingMinuteController;
 use App\Http\Controllers\MissionTaskController;
-use App\Http\Controllers\OrganizationalUnitController;
+use App\Http\Controllers\OrgUnitController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\QrCodeController;
@@ -25,6 +26,7 @@ use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\CalendarDelegationController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\Admin\CompetitionController as AdminCompetitionController;
@@ -259,20 +261,36 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('calendar/index', [AnnualCalendarController::class, 'index'])
-        ->name('calendar.index');
 
-    Route::get('calendar/create', [AnnualCalendarController::class, 'create'])
-        ->name('calendar.create');
+    // Calendar Delegations
+    Route::get('calendar/delegations', [CalendarDelegationController::class, 'index'])->name('delegations.index');
+    Route::post('calendar/delegations', [CalendarDelegationController::class, 'store'])->name('delegations.store');
+    Route::delete('calendar/delegations/{delegation}', [CalendarDelegationController::class, 'destroy'])->name('delegations.destroy');
 
-    Route::post('calendar/store', [AnnualCalendarController::class, 'store'])
-        ->name('calendar.store');
+    // Calendar Routes
+    Route::get('calendar/index', [AnnualCalendarController::class, 'index'])->name('calendar.index');
+    Route::get('calendar/show', [AnnualCalendarController::class, 'show'])->name('calendar.show');
+    Route::get('calendar/create', [AnnualCalendarController::class, 'create'])->name('calendar.create');
+    Route::post('calendar/store', [AnnualCalendarController::class, 'store'])->name('calendar.store');
+    Route::get('calendar/edit/{calendarEvent}', [AnnualCalendarController::class, 'edit'])->name('calendar.edit');
+    Route::put('calendar/update/{calendarEvent}', [AnnualCalendarController::class, 'update'])->name('calendar.update');
+    Route::delete('calendar/destroy/{calendarEvent}', [AnnualCalendarController::class, 'destroy'])->name('calendar.destroy');
+    Route::get('calendar/settings', [AnnualCalendarController::class, 'settings'])->name('calendar.settings');
 
-    Route::put('calendar/{calendarEvent}', [AnnualCalendarController::class, 'update'])
-        ->name('calendar.update');
+    // clear cache
+    Route::post('calendar/refresh', [AnnualCalendarController::class, 'refreshCache'])->name('calendar.refresh');
+
+    // AJAX Event Loading
+    Route::get('calendar/events', [AnnualCalendarController::class, 'loadEvents']);
+
+    // Drag & Drop Event Move
+    Route::patch('calendar/{calendarEvent}/move', [AnnualCalendarController::class, 'moveEvent']);
 });
 
-
+Route::get('/notifications/read-all', function () {
+    auth()->user()->unreadNotifications->markAsRead();
+    return back();
+})->name('notifications.readAll');
 
 
 // ACTIVITY & ASSESSMENT ROUTES
@@ -518,14 +536,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('profile');
 });
 
-// ADMINISTRATION ROUTES
-
-// --- API Route (Protected by auth middleware) ---
-Route::group(['middleware' => ['auth', 'permission:admin_structure.index']], function () {
-    // API Route for Dynamic Position Loading (used by user assignment forms)
-    Route::get('admin/api/positions-by-unit', [AdminController::class, 'getPositionsByUnit'])
-        ->name('admin.api.positions_by_unit');
-});
 
 // --- Main Admin Routes (Protected by auth middleware) ---
 Route::group(['middleware' => ['auth']], function () {
@@ -611,25 +621,37 @@ Route::group(['middleware' => ['auth']], function () {
             ->name('admin_setting.copy_year');
     });
 
+    // ADMINISTRATION ROUTES
+
+    // --- API Route (Protected by auth middleware) ---
+    Route::group(['middleware' => ['auth', 'permission:admin_structure.index']], function () {
+        // API Route for Dynamic Position Loading (used by user assignment forms)
+        Route::get('admin/api/positions-by-unit', [AdminController::class, 'getPositionsByUnit'])
+            ->name('admin.api.positions_by_unit');
+    });
+
     /*
     |--------------------------------------------------------------------------
     | STRUCTURE MANAGEMENT
     |--------------------------------------------------------------------------
     */
 
-    Route::get('organizational_unit/index', [OrganizationalUnitController::class, 'index'])
-        ->middleware('permission:organizational_unit.index')
-        ->name('organizational_unit.index');
+    Route::get('org_unit/index', [OrgUnitController::class, 'index'])
+        ->middleware('permission:org_unit.index')
+        ->name('org_unit.index');
 
-    Route::get('organizational_unit/create', [OrganizationalUnitController::class, 'create'])
-        ->middleware('permission:organizational_unit.store')
-        ->name('organizational_unit.create');
+    Route::get('org_unit/create', [OrgUnitController::class, 'create'])
+        ->middleware('permission:org_unit.store')
+        ->name('org_unit.create');
 
 
     // Unit Creation
-    Route::post('organizational_unit/store', [OrganizationalUnitController::class, 'storeUnit'])
-        ->middleware('permission:organizational_unit.store')
-        ->name('organizational_unit.store');
+    Route::post('org_unit/store', [OrgUnitController::class, 'storeUnit'])
+        ->middleware('permission:org_unit.store')
+        ->name('org_unit.store');
+
+    // POSITIONS MANAGEMENT (Refactored)
+    Route::resource('positions', PositionController::class)->middleware('permission:admin_position.index');
 
     Route::get('admin_position/index', [AdminController::class, 'index'])
         ->middleware('permission:admin_position.index')
@@ -640,9 +662,9 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin_position.create');
 
     // Position Creation
-    Route::post('admin_position/store', [AdminController::class, 'storePosition'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin.position.store');
+    // Route::post('admin_position/store', [AdminController::class, 'storePosition'])
+    //     ->middleware('permission:admin_structure.index')
+    //     ->name('admin.position.store');
 
     // Generic User Assignment 
     Route::post('admin_assign_user/store', [AdminController::class, 'assignUser'])
@@ -651,13 +673,13 @@ Route::group(['middleware' => ['auth']], function () {
 
     // Position Editing Routes (For the Position Model structure)
 
-    Route::get('admin/structure/positions/{position}/edit', [AdminController::class, 'editPosition'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin_structure.positions.edit');
+    // Route::get('admin/structure/positions/{position}/edit', [AdminController::class, 'editPosition'])
+    //     ->middleware('permission:admin_structure.index')
+    //     ->name('admin_structure.positions.edit');
 
-    Route::put('admin/structure/positions/{position}', [AdminController::class, 'updatePositionData'])
-        ->middleware('permission:admin_structure.index')
-        ->name('admin_structure.positions.update');
+    // Route::put('admin/structure/positions/{position}', [AdminController::class, 'updatePositionData'])
+    //     ->middleware('permission:admin_structure.index')
+    //     ->name('admin_structure.positions.update');
 
     Route::get('missing_units_assignment_attach_unit', [StructureController::class, 'missingUnitsIndex'])
         ->name('missing_units_assignment');

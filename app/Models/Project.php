@@ -25,6 +25,6 @@ class Project extends Model
 
     public function executor()
     {
-        return $this->belongsTo(OrganizationalUnit::class,'executor_id');
+        return $this->belongsTo(OrgUnit::class,'executor_id');
     }
 }

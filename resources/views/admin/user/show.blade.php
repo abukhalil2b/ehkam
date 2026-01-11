@@ -17,7 +17,7 @@
                     @foreach ($user->positionHistory()->latest('start_date')->get() as $history)
                         <li class="py-2 flex justify-between">
                             <span>{{ $history->position?->title ?? '—' }} في
-                                {{ $history->organizationalUnit?->name ?? '—' }}</span>
+                                {{ $history->OrgUnit?->name ?? '—' }}</span>
                             <span>
                                 {{ $history->start_date }} -
                                 {{ $history->end_date ?? 'نشط حالياً' }}

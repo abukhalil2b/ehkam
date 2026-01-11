@@ -4,7 +4,7 @@
     // Use currentHistory to get the active (end_date is NULL) record.
     $activeHistory = $user->currentHistory;
     $position = $activeHistory?->position;
-    $unit = $activeHistory?->organizationalUnit;
+    $unit = $activeHistory?->OrgUnit;
 
     $isAssigned = (bool)$activeHistory;
 @endphp
@@ -59,9 +59,9 @@
 
                 {{-- Organizational Unit ID Field (Listener) --}}
                 <div class="mb-4">
-                    <label for="organizational_unit_id_new"
+                    <label for="org_unit_id_new"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">الوحدة التنظيمية الجديدة:</label>
-                    <select id="organizational_unit_id_new" name="organizational_unit_id" required
+                    <select id="org_unit_id_new" name="org_unit_id" required
                         class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
                         <option value="">-- اختر وحدة --</option>
                         @foreach ($units as $u)
@@ -70,7 +70,7 @@
                             </option>
                         @endforeach
                     </select>
-                    @error('organizational_unit_id')
+                    @error('org_unit_id')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
@@ -122,7 +122,7 @@
         {{-- JAVASCRIPT FOR DYNAMIC POSITION LOADING --}}
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                const unitSelect = document.getElementById('organizational_unit_id_new');
+                const unitSelect = document.getElementById('org_unit_id_new');
                 const positionSelect = document.getElementById('position_id_new');
                 const loadingMessage = document.getElementById('position_loading_message_new');
                 const apiRoute = '{{ route('admin.api.positions_by_unit') }}';

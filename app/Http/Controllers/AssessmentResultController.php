@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Activity;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResult;
-use App\Models\UserPositionHistory;
+use App\Models\EmployeeAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -75,7 +75,7 @@ class AssessmentResultController extends Controller
         ]);
 
         $userId = Auth::id();
-        $position = UserPositionHistory::where('user_id',$userId)->latest('created_at')->first();
+        $position = EmployeeAssignment::where('user_id',$userId)->latest('created_at')->first();
         $positionId = $position ? $position->position_id : null;
         $activityId = $activityId ?? $request->input('activity_id');
         $currentTime = now();

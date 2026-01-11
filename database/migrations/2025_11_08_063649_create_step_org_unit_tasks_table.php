@@ -11,17 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('step_organizational_unit_tasks', function (Blueprint $table) {
+        Schema::create('step_org_unit_tasks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('step_id')
                 ->constrained('steps')
                 ->onDelete('cascade');
 
-            $table->unsignedBigInteger('organizational_unit_id');
-            $table->foreign('organizational_unit_id', 'suot_unit_fk') // short name
-                ->references('id')
-                ->on('organizational_units')
-                ->onDelete('cascade');
+            $table->unsignedBigInteger('org_unit_id');
 
             $table->foreignId('period_template_id')
                 ->constrained('period_templates')
@@ -38,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('step_organizational_unit_tasks');
+        Schema::dropIfExists('step_org_unit_tasks');
     }
 };

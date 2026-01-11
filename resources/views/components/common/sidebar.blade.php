@@ -1,123 +1,126 @@
 @php
-$userPermissions = auth()->user()->getPermissions();
+    $userPermissions = auth()->user()->getPermissions();
 
-$sidebarSections = [
-    
-    'indicator' => [
-        'title' => 'المؤشرات',
-        'links' => [
-            ['route' => 'indicator.index', 'permission' => 'indicator.index', 'label' => 'قائمة المؤشرات'],
+    $sidebarSections = [
 
-        ]
-    ],
-    'activity' => [
-        'title' => 'الأنشطة',
-        'links' => [
-            ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة','params'=>['2025']],
-            ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة'],
-            ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال'],
-            ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء'],
-        ]
-    ],
-    'aim' => [
-        'title' => 'الأهداف',
-        'links' => [
-            ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات'],
-             ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف','params'=>['2025']],
+        'indicator' => [
+            'title' => 'المؤشرات',
+            'links' => [
+                ['route' => 'indicator.index', 'permission' => 'indicator.index', 'label' => 'قائمة المؤشرات'],
 
+            ]
+        ],
+        'activity' => [
+            'title' => 'الأنشطة',
+            'links' => [
+                ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة', 'params' => ['2025']],
+                ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة'],
+                ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال'],
+                ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء'],
+            ]
+        ],
+        'aim' => [
+            'title' => 'الأهداف',
+            'links' => [
+                ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات'],
+                ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => ['2025']],
+
+            ]
+        ],
+        'swot' => [
+            'title' => 'swot',
+            'links' => [
+                ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'swot'],
+            ]
+        ],
+        'calendar' => [
+            'title' => 'calendar',
+            'links' => [
+                ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'index'],
+                ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'create'],
+                ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline'],
+            ]
+        ],
+        'mission' => [
+            'title' => 'المهام',
+            'links' => [
+                ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام'],
+            ]
+        ],
+
+        'meeting_minute' => [
+            'title' => 'محضر الاجتماعات',
+            'links' => [
+                ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
+            ]
+        ],
+        'workshop' => [
+            'title' => 'الورش',
+            'links' => [
+                ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش'],
+            ]
+        ],
+        'questionnaire' => [
+            'title' => 'إستبانات',
+            'links' => [
+                ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
+                ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
+            ]
         ]
-    ],
-    'swot' => [
-        'title' => 'swot',
-        'links' => [
-            ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'swot'],
-        ]
-    ],
-    'calendar' => [
-        'title' => 'calendar',
-        'links' => [
-            ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'index'],
-            ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'create'],
-            ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline'],
-        ]
-    ],
-    'mission' => [
-        'title' => 'المهام',
-        'links' => [
-            ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام'],
-        ]
-    ],
-    
-    'meeting_minute' => [
-        'title' => 'محضر الاجتماعات',
-        'links' => [
-            ['route' => 'meeting_minute.index', 'permission' => 'meeting_minute.index', 'label' => 'قائمة المحاضر'],
-        ]
-    ],
-    'workshop' => [
-        'title' => 'الورش',
-        'links' => [
-            ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش'],
-        ]
-    ],
-    'questionnaire' => [
-        'title' => 'إستبانات',
-        'links' => [
-            ['route' => 'questionnaire.index', 'permission' => 'questionnaire.index', 'label' => 'قائمة الإستبانات'],
-            ['route' => 'questionnaire.create', 'permission' => 'questionnaire.create', 'label' => 'أكتب إستبانة'],
-        ]
-    ]
-    ,'competitions' => [
-        'title' => 'competitions',
-        'links' => [
-            ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات'],
-        ]
-    ],'finance' => [
-        'title' => 'استمارات المالية',
-        'links' => [
-            ['route' => 'admin.finance_form.index', 'permission' => 'admin.finance_form.index', 'label' => 'قائمة الاستمارات المالية'],
-            ['route' => 'admin.finance_need.index', 'permission' => 'admin.finance_need.index', 'label' => 'قائمة الاحتياجات'],
-        ]
-    ],
-    'statistics' => [
-        'title' => 'إحصائيات',
-        'links' => [
-            ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات'],
-            ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' =>'القرآن الكريم','params'=>[1] ],
-            ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' =>'الزكاة','params'=>[1] ],
-        ]
-    ],
-    'qr' => [
-        'title' => 'الكيوآر',
-        'links' => [
-            ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
-        ]
-    ],'settings' => [
-        'title' => 'الإعدادات',
-        'links' => [
-            ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات','params'=>['2025']],
-            ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع','params'=>['2025']],
-        ]
-    ],
-    'admin_structure' => [
-        'title' => 'الهيكل',
-        'links' => [
-            ['route' => 'organizational_unit.index', 'permission' => 'organizational_unit.index', 'label' => 'عرض هيكل الوحدة'],
-            ['route' => 'organizational_unit.create', 'permission' => 'organizational_unit.store', 'label' => 'اضافة هيكل الوحدة'],
-            ['route' => 'admin_position.index', 'permission' => 'admin_position.index', 'label' => 'عرض الهيكل الوظيفي'],
-            ['route' => 'admin_position.create', 'permission' => 'admin_position.store', 'label' => 'إضافة الهيكل الوظيفي'],
-            ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد'],
-            ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين'],
-            ['route' => 'admin_users.create_for_sector', 'permission' => 'admin_users.create', 'label' => 'إنشاء موظف لحصر الاسهامات'],
-        ]
-    ],
-    'permission' => [
-        'title' => 'صلاحيات',
-        'links' => [
-            ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات'],
-        ]
-    ],
-];
+        ,
+        'competitions' => [
+            'title' => 'competitions',
+            'links' => [
+                ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات'],
+            ]
+        ],
+        'finance' => [
+            'title' => 'استمارات المالية',
+            'links' => [
+                ['route' => 'admin.finance_form.index', 'permission' => 'admin.finance_form.index', 'label' => 'قائمة الاستمارات المالية'],
+                ['route' => 'admin.finance_need.index', 'permission' => 'admin.finance_need.index', 'label' => 'قائمة الاحتياجات'],
+            ]
+        ],
+        'statistics' => [
+            'title' => 'إحصائيات',
+            'links' => [
+                ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات'],
+                ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1]],
+                ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1]],
+            ]
+        ],
+        'qr' => [
+            'title' => 'الكيوآر',
+            'links' => [
+                ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر'],
+            ]
+        ],
+        'settings' => [
+            'title' => 'الإعدادات',
+            'links' => [
+                ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'params' => ['2025']],
+                ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع', 'params' => ['2025']],
+            ]
+        ],
+        'admin_structure' => [
+            'title' => 'الهيكل',
+            'links' => [
+                ['route' => 'org_unit.index', 'permission' => 'org_unit.index', 'label' => 'عرض هيكل الوحدة'],
+                ['route' => 'org_unit.create', 'permission' => 'org_unit.store', 'label' => 'اضافة هيكل الوحدة'],
+                ['route' => 'positions.index', 'permission' => 'admin_position.index', 'label' => 'إدارة الهيكل الوظيفي'],
+                /* ['route' => 'admin_position.create', 'permission' => 'admin_position.store', 'label' => 'إضافة الهيكل الوظيفي'], */
+                ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد'],
+                ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين'],
+                ['route' => 'admin_users.create_for_sector', 'permission' => 'admin_users.create', 'label' => 'إنشاء موظف لحصر الاسهامات'],
+            ]
+        ],
+        'permission' => [
+            'title' => 'صلاحيات',
+            'links' => [
+                ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات'],
+            ]
+        ],
+    ];
 @endphp
 
 <div :class="{ 'dark text-white-dark': $store.app.semidark }">
@@ -149,8 +152,8 @@ $sidebarSections = [
                     @php
                         // check if user has at least one permission for this section
                         $showSection = false;
-                        foreach($section['links'] as $link) {
-                            if(!$link['permission'] || in_array($link['permission'], $userPermissions) || auth()->id() == 1) {
+                        foreach ($section['links'] as $link) {
+                            if (!$link['permission'] || in_array($link['permission'], $userPermissions) || auth()->id() == 1) {
                                 $showSection = true;
                                 break;
                             }
@@ -164,15 +167,19 @@ $sidebarSections = [
                                 @foreach($section['links'] as $link)
                                     @if(!$link['permission'] || in_array($link['permission'], $userPermissions) || auth()->id() == 1)
                                         <li class="menu nav-item">
-                                            <a href="{{ isset($link['params']) ? route($link['route'], $link['params']) : route($link['route']) }}" class="nav-link group">
+                                            <a href="{{ isset($link['params']) ? route($link['route'], $link['params']) : route($link['route']) }}"
+                                                class="nav-link group">
                                                 <div class="flex items-center">
-                                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="shrink-0 group-hover:!text-primary" width="20" height="20" fill="none"
+                                                        stroke="currentColor" viewBox="0 0 24 24">
                                                         <circle opacity="0.5" cx="15" cy="6" r="3" fill="currentColor"></circle>
-                                                        <ellipse opacity="0.5" cx="16" cy="17" rx="5" ry="3" fill="currentColor"></ellipse>
+                                                        <ellipse opacity="0.5" cx="16" cy="17" rx="5" ry="3" fill="currentColor">
+                                                        </ellipse>
                                                         <circle cx="9.00098" cy="6" r="4" fill="currentColor"></circle>
                                                         <ellipse cx="9.00098" cy="17.001" rx="7" ry="4" fill="currentColor"></ellipse>
                                                     </svg>
-                                                    <span class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    <span
+                                                        class="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
                                                         {{ $link['label'] }}
                                                     </span>
                                                 </div>

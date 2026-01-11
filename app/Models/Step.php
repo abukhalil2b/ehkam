@@ -18,8 +18,8 @@ class Step extends Model
         return $this->belongsTo(Project::class);
     }
 
-    public function stepOrganizationalUnitTasks()
+    public function StepOrgUnitTasks()
     {
-        return $this->hasMany(StepOrganizationalUnitTask::class, 'step_id');
+        return $this->hasMany(StepOrgUnitTask::class, 'step_id');
     }
 }

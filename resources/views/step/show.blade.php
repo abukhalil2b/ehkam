@@ -85,7 +85,7 @@
                 <div x-show="activeTab==='units'" x-cloak
                     class="bg-white shadow rounded-2xl border border-gray-100 p-6 space-y-2">
 
-                    @if ($step->stepOrganizationalUnitTasks && $step->stepOrganizationalUnitTasks->count())
+                    @if ($step->StepOrgUnitTasks && $step->StepOrgUnitTasks->count())
 
                          <section>
             <h2 class="text-2xl font-bold text-gray-800 mb-4 text-right">
@@ -185,13 +185,13 @@
                 {{-- Targets Tab --}}
                 <div x-show="activeTab==='targets'" x-cloak
                     class="bg-white shadow rounded-2xl border border-gray-100 p-6 space-y-4">
-                    @if ($step->is_need_to_put_target && $step->stepOrganizationalUnitTasks->count())
-                        @foreach ($step->stepOrganizationalUnitTasks as $task)
+                    @if ($step->is_need_to_put_target && $step->StepOrgUnitTasks->count())
+                        @foreach ($step->StepOrgUnitTasks as $task)
                             <div class="mb-4">
                                 <p class="font-semibold text-[#1b5e20] mb-2">{{ $task->organizational_name }}:</p>
-                                @if ($task->stepOrganizationalUnitTaskTargets && $task->stepOrganizationalUnitTaskTargets->count())
+                                @if ($task->StepOrgUnitTaskTargets && $task->StepOrgUnitTaskTargets->count())
                                     <ul class="list-disc pr-4 space-y-1 text-gray-700">
-                                        @foreach ($task->stepOrganizationalUnitTaskTargets as $target)
+                                        @foreach ($task->StepOrgUnitTaskTargets as $target)
                                             <li>{{ $target->periodTemplate->name ?? 'فترة غير مسماة' }} :
                                                 {{ $target->target }}</li>
                                         @endforeach

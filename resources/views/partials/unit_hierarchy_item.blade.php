@@ -2,7 +2,7 @@
     // حساب عدد الموظفين في هذه الوحدة
     $staffCount = $users->filter(function ($user) use ($unit) {
         $currentHistory = $user->positionHistory->first(fn($h) => is_null($h->end_date));
-        return $currentHistory && $currentHistory->organizational_unit_id === $unit->id;
+        return $currentHistory && $currentHistory->org_unit_id === $unit->id;
     })->count();
 @endphp
 

@@ -85,7 +85,7 @@
                                     @foreach ($user->positionHistory->sortByDesc('start_date') as $history)
                                         @php
                                             $pos = $allPositions->firstWhere('id', $history->position_id)->title ?? 'N/A';
-                                            $unitName = $organizationalUnits->firstWhere('id', $history->organizational_unit_id)->name ?? 'N/A';
+                                            $unitName = $OrgUnits->firstWhere('id', $history->org_unit_id)->name ?? 'N/A';
                                         @endphp
                                         <li class="flex items-center space-x-3 rtl:space-x-reverse text-xs bg-white p-2 rounded-lg border border-gray-200">
                                             <span class="material-icons text-purple-400 text-sm">arrow_left</span>

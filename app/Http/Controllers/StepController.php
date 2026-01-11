@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Activity;
 use App\Models\Indicator;
-use App\Models\OrganizationalUnit;
+use App\Models\OrgUnit;
 use App\Models\PeriodTemplate;
 use App\Models\Project;
 use App\Models\Step;
 use App\Models\StepEvidenceFile;
-use App\Models\StepOrganizationalUnitPermission;
-use App\Models\StepOrganizationalUnitTask;
+use App\Models\StepOrgUnitTask;
 use Illuminate\Http\Request;
 
 class StepController extends Controller
@@ -37,7 +36,7 @@ class StepController extends Controller
 
         $activities = Activity::where('project_id', $project->id)->get();
 
-        $organizational_units = OrganizationalUnit::where('type', 'Directorate')->get();
+        $org_units = OrgUnit::where('type', 'Directorate')->get();
 
         $indicator = Indicator::find($project->indicator_id);
 
@@ -46,7 +45,7 @@ class StepController extends Controller
             : collect();
 
 
-        return view('step.index', compact('project', 'steps', 'phases', 'organizational_units', 'periodTemplates', 'indicator', 'activities'));
+        return view('step.index', compact('project', 'steps', 'phases', 'org_units', 'periodTemplates', 'indicator', 'activities'));
     }
 
     // Store new step
@@ -64,12 +63,12 @@ class StepController extends Controller
             'activity_id' => 'required|integer',
             'is_need_evidence_file' => 'boolean',
             'is_need_to_put_target' => 'boolean',
-            'organizational_unit_ids' => [
+            'org_unit_ids' => [
                 'nullable',
                 'array',
                 'required_if:is_need_to_put_target,1',
             ],
-            'organizational_unit_ids.*' => 'exists:organizational_units,id',
+            'org_unit_ids.*' => 'exists:org_units,id',
         ]);
 
         $indicator = Indicator::findOrFail($project->indicator_id);
@@ -77,7 +76,7 @@ class StepController extends Controller
         $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
 
         if (! $request->boolean('is_need_to_put_target')) {
-            $validated['organizational_unit_ids'] = [];
+            $validated['org_unit_ids'] = [];
         }
 
         $step = Step::create([
@@ -95,17 +94,17 @@ class StepController extends Controller
             'activity_id' => $validated['activity_id'],
         ]);
 
-        if ($request->boolean('is_need_to_put_target') && !empty($validated['organizational_unit_ids'])) {
+        if ($request->boolean('is_need_to_put_target') && !empty($validated['org_unit_ids'])) {
 
             $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
 
             $periodTargets = $request->input('period_targets', []);
 
-            foreach ($validated['organizational_unit_ids'] as $orgUnitId) {
+            foreach ($validated['org_unit_ids'] as $orgUnitId) {
                 foreach ($periodTemplates as $template) {
-                    StepOrganizationalUnitTask::create([
+                    StepOrgUnitTask::create([
                         'step_id' => $step->id,
-                        'organizational_unit_id' => $orgUnitId,
+                        'org_unit_id' => $orgUnitId,
                         'period_template_id' => $template->id,
                         'target' => $periodTargets[$template->id] ?? 0,
                         'achieved' => 0,
@@ -133,15 +132,15 @@ class StepController extends Controller
         // Load relations
         $step->load([
             'stepEvidenceFiles',
-            'stepOrganizationalUnitTasks.organizationalUnit',
-            'stepOrganizationalUnitTasks.periodTemplate'
+            'stepOrgUnitTasks.OrgUnit',
+            'stepOrgUnitTasks.periodTemplate'
         ]);
 
         // Group tasks by organizational unit
         $unitData = [];
-        foreach ($step->stepOrganizationalUnitTasks as $task) {
-            $unitId = $task->organizational_unit_id;
-            $unitName = optional($task->organizationalUnit)->name ?? '—';
+        foreach ($step->stepOrgUnitTasks as $task) {
+            $unitId = $task->org_unit_id;
+            $unitName = optional($task->OrgUnit)->name ?? '—';
 
             if (!isset($unitData[$unitId])) {
                 $unitData[$unitId] = [

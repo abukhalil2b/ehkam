@@ -122,7 +122,7 @@
                             <select id="parent_unit_id" name="parent_id"
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border">
                                 <option value="">(لا يوجد / وحدة عليا)</option>
-                                @foreach ($organizationalUnits as $unit)
+                                @foreach ($OrgUnits as $unit)
                                     <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->type }})
                                     </option>
                                 @endforeach
@@ -176,21 +176,21 @@
                         </div>
 
                         <div>
-                            <label for="organizational_units" class="block text-sm font-medium text-gray-700">الوحدات
+                            <label for="org_units" class="block text-sm font-medium text-gray-700">الوحدات
                                 التنظيمية التي يمكن أن تحتوي على هذه الوظيفة</label>
-                            <select id="organizational_units" name="organizational_unit_ids[]" multiple required
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border h-32 @error('organizational_unit_ids') border-red-500 @enderror">
+                            <select id="org_units" name="org_unit_ids[]" multiple required
+                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border h-32 @error('org_unit_ids') border-red-500 @enderror">
 
-                                @foreach ($organizationalUnits as $unit)
+                                @foreach ($OrgUnits as $unit)
                                     <option value="{{ $unit->id }}"
-                                        {{ in_array($unit->id, old('organizational_unit_ids', [])) ? 'selected' : '' }}>
+                                        {{ in_array($unit->id, old('org_unit_ids', [])) ? 'selected' : '' }}>
                                         {{ $unit->name }} ({{ $unit->type }})
                                     </option>
                                 @endforeach
                             </select>
                             <p class="mt-1 text-xs text-gray-500">اختر واحدة أو أكثر من الوحدات. (يمكنك استخدام Ctrl/Cmd
                                 للاختيار المتعدد)</p>
-                            @error('organizational_unit_ids')
+                            @error('org_unit_ids')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
@@ -287,9 +287,9 @@
                                                             $allPositions->firstWhere('id', $history->position_id)
                                                                 ->title ?? 'N/A';
                                                         $unitName =
-                                                            $organizationalUnits->firstWhere(
+                                                            $OrgUnits->firstWhere(
                                                                 'id',
-                                                                $history->organizational_unit_id,
+                                                                $history->org_unit_id,
                                                             )->name ?? 'N/A';
                                                     @endphp
                                                     <li>
@@ -339,7 +339,7 @@
                                 التنظيمية</label>
                             <select id="new_unit_id" name="new_unit_id" required
                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                                @foreach ($organizationalUnits as $unit)
+                                @foreach ($OrgUnits as $unit)
                                     <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->type }})
                                     </option>
                                 @endforeach

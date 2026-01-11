@@ -52,7 +52,7 @@
 </button>
                             </div>
 
-                            <input type="hidden" name="organizational_unit_id" :value="selectedId">
+                            <input type="hidden" name="org_unit_id" :value="selectedId">
 
                             {{-- Dropdown --}}
                             <ul x-show="isOpen" x-transition 
@@ -71,7 +71,7 @@
                                 </li>
                             </ul>
 
-                            @error('organizational_unit_id')
+                            @error('org_unit_id')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>

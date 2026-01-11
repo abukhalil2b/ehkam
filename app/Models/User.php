@@ -34,6 +34,28 @@ class User extends Authenticatable
 
     protected ?array $cachedPermissions = null;
 
+    // ========== Calendar ==========
+    public function calendarEvents()
+    {
+        return $this->hasMany(CalendarEvent::class, 'target_user_id');
+    }
+
+    public function createdEvents()
+    {
+        return $this->hasMany(CalendarEvent::class, 'user_id');
+    }
+
+    public function delegationsGranted()
+    {
+        return $this->hasMany(CalendarDelegation::class, 'manager_id');
+    }
+
+    public function delegationsReceived()
+    {
+        return $this->hasMany(CalendarDelegation::class, 'employee_id');
+    }
+
+    // ========== Profile ==========
     public function assignProfile($profile)
     {
         $profileId = $profile instanceof Profile ? $profile->id : $profile;
@@ -62,6 +84,7 @@ class User extends Authenticatable
         $this->profiles()->detach($profileId);
     }
 
+    // ========== Permission ==========
     public function permissions()
     {
         return $this->belongsToMany(Permission::class, 'user_permission', 'user_id', 'permission_id');
@@ -126,13 +149,13 @@ class User extends Authenticatable
     // 1. Relationship to all historical assignments
     public function positionHistory()
     {
-        return $this->hasMany(UserPositionHistory::class);
+        return $this->hasMany(EmployeeAssignment::class);
     }
 
     // 2. Relationship to the CURRENT (active) assignment history record
     public function currentHistory()
     {
-        return $this->hasOne(UserPositionHistory::class)
+        return $this->hasOne(EmployeeAssignment::class)
             ->whereNull('end_date') // A null end_date signifies the current, active assignment
             ->latest('start_date'); // Ensures we get the most recent active one if multiple somehow exist
     }
@@ -140,7 +163,7 @@ class User extends Authenticatable
     // Current active position
     public function currentPosition()
     {
-        return $this->hasOne(UserPositionHistory::class)
+        return $this->hasOne(EmployeeAssignment::class)
             ->whereNull('end_date')
             ->latest('start_date') // in case multiple active (defensive)
             ->with('position')     // eager load position relation
@@ -150,29 +173,29 @@ class User extends Authenticatable
     // Current active organizational unit
     public function currentUnit()
     {
-        return $this->hasOne(UserPositionHistory::class)
+        return $this->hasOne(EmployeeAssignment::class)
             ->whereNull('end_date')
             ->latest('start_date')
-            ->with('organizationalUnit')
-            ->first()?->organizationalUnit; // return OrganizationalUnit instance
+            ->with('OrgUnit')
+            ->first()?->OrgUnit; // return OrgUnit instance
     }
     public function currentPositionHistory()
     {
-        return $this->hasOne(UserPositionHistory::class)
+        return $this->hasOne(EmployeeAssignment::class)
             ->whereNull('end_date')
             ->latest('start_date');
     }
 
     public function currentUnitHistory()
     {
-        return $this->hasOne(UserPositionHistory::class)
+        return $this->hasOne(EmployeeAssignment::class)
             ->whereNull('end_date')
             ->latest('start_date');
     }
 
     public function latestHistory()
     {
-        return $this->hasOne(UserPositionHistory::class)->latest('start_date');
+        return $this->hasOne(EmployeeAssignment::class)->latest('start_date');
     }
 
         // ========== Missions Relations ==========

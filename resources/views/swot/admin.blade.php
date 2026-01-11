@@ -1036,129 +1036,133 @@
         }
 
         function openEditModal(id, content) {
-    currentEditId = id;
-    const modal = document.getElementById('editModal');
-    const textarea = document.getElementById('editContent');
-    const charCount = document.getElementById('charCount');
-    
-    textarea.value = content;
-    updateCharCount();
-    
-    modal.classList.remove('hidden');
-    setTimeout(() => {
-        modal.classList.add('modal-show');
-        textarea.focus();
-    }, 10);
-}
+            currentEditId = id;
+            const modal = document.getElementById('editModal');
+            const textarea = document.getElementById('editContent');
+            const charCount = document.getElementById('charCount');
 
-function closeEditModal() {
-    const modal = document.getElementById('editModal');
-    modal.classList.remove('modal-show');
-    setTimeout(() => {
-        modal.classList.add('hidden');
-        currentEditId = null;
-        document.getElementById('editContent').value = '';
-    }, 300);
-}
+            textarea.value = content;
+            updateCharCount();
 
-function updateCharCount() {
-    const textarea = document.getElementById('editContent');
-    const charCount = document.getElementById('charCount');
-    const count = textarea.value.length;
-    charCount.textContent = `${count} / 1000`;
-    
-    if (count > 950) {
-        charCount.classList.add('text-red-600', 'font-semibold');
-    } else {
-        charCount.classList.remove('text-red-600', 'font-semibold');
-    }
-}
-
-// Character counter
-document.addEventListener('DOMContentLoaded', function() {
-    const textarea = document.getElementById('editContent');
-    if (textarea) {
-        textarea.addEventListener('input', updateCharCount);
-    }
-    
-    // Close modal on Escape key
-    document.addEventListener('keydown', function(e) {
-        const modal = document.getElementById('editModal');
-        if (modal && e.key === 'Escape' && !modal.classList.contains('hidden')) {
-            closeEditModal();
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.add('modal-show');
+                textarea.focus();
+            }, 10);
         }
-    });
-    
-    // Close modal on backdrop click
-    const modal = document.getElementById('editModal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeEditModal();
+
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('modal-show');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                currentEditId = null;
+                document.getElementById('editContent').value = '';
+            }, 300);
+        }
+
+        function updateCharCount() {
+            const textarea = document.getElementById('editContent');
+            const charCount = document.getElementById('charCount');
+            const count = textarea.value.length;
+            charCount.textContent = `${count} / 1000`;
+
+            if (count > 950) {
+                charCount.classList.add('text-red-600', 'font-semibold');
+            } else {
+                charCount.classList.remove('text-red-600', 'font-semibold');
             }
-        });
-    }
-    
-    // Handle form submission
-    const editForm = document.getElementById('editForm');
-    if (editForm) {
-        editForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const content = document.getElementById('editContent').value.trim();
-            
-            if (!content) {
-                showToast('الرجاء إدخال المحتوى', 'error');
-                return;
+        }
+
+        // Character counter
+        document.addEventListener('DOMContentLoaded', function() {
+            const textarea = document.getElementById('editContent');
+            if (textarea) {
+                textarea.addEventListener('input', updateCharCount);
             }
-            
-            if (content.length > 1000) {
-                showToast('المحتوى يتجاوز الحد الأقصى المسموح', 'error');
-                return;
-            }
-            
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.classList.add('btn-loading');
-            
-            fetch(`/swot/admin/board/${currentEditId}/update-content`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({ content })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update the content in the UI
-                    const contentElement = document.getElementById(`content-${currentEditId}`);
-                    if (contentElement) {
-                        contentElement.textContent = data.content;
-                        
-                        // Add highlight effect
-                        contentElement.classList.add('bg-yellow-100');
-                        setTimeout(() => {
-                            contentElement.classList.remove('bg-yellow-100');
-                        }, 1000);
-                    }
-                    
-                    showToast('تم تحديث المحتوى بنجاح', 'success');
+
+            // Close modal on Escape key
+            document.addEventListener('keydown', function(e) {
+                const modal = document.getElementById('editModal');
+                if (modal && e.key === 'Escape' && !modal.classList.contains('hidden')) {
                     closeEditModal();
-                } else {
-                    throw new Error('Failed to update content');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('فشل تحديث المحتوى. حاول مرة أخرى', 'error');
-            })
-            .finally(() => {
-                submitBtn.classList.remove('btn-loading');
             });
+
+            // Close modal on backdrop click
+            const modal = document.getElementById('editModal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        closeEditModal();
+                    }
+                });
+            }
+
+            // Handle form submission
+            const editForm = document.getElementById('editForm');
+            if (editForm) {
+                editForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const content = document.getElementById('editContent').value.trim();
+
+                    if (!content) {
+                        showToast('الرجاء إدخال المحتوى', 'error');
+                        return;
+                    }
+
+                    if (content.length > 1000) {
+                        showToast('المحتوى يتجاوز الحد الأقصى المسموح', 'error');
+                        return;
+                    }
+
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    submitBtn.classList.add('btn-loading');
+
+                    fetch(`/swot/admin/board/${currentEditId}/update-content`, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            },
+                            body: JSON.stringify({
+                                content
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update the content in the UI
+                                const contentElement = document.getElementById(
+                                    `content-${currentEditId}`);
+                                if (contentElement) {
+                                    contentElement.textContent = data.content;
+
+                                    // Add highlight effect
+                                    contentElement.classList.add('bg-yellow-100');
+                                    setTimeout(() => {
+                                        contentElement.classList.remove('bg-yellow-100');
+                                    }, 1000);
+                                }
+
+                                showToast('تم تحديث المحتوى بنجاح', 'success');
+                                closeEditModal();
+                            } else {
+                                throw new Error('Failed to update content');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showToast('فشل تحديث المحتوى. حاول مرة أخرى', 'error');
+                        })
+                        .finally(() => {
+                            submitBtn.classList.remove('btn-loading');
+                        });
+                });
+            }
         });
-    }
-});
     </script>
 
     <!-- Edit Modal-->

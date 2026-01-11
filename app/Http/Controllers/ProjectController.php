@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Indicator;
-use App\Models\OrganizationalUnit;
+use App\Models\OrgUnit;
 use App\Models\Project;
 use App\Models\Sector;
 use Illuminate\Http\Request;
@@ -28,7 +28,7 @@ class ProjectController extends Controller
      */
     public function create(Indicator $indicator)
     {
-        $executors = OrganizationalUnit::where('id', 41)->get();
+        $executors = OrgUnit::where('id', 41)->get();
         return view('project.create', compact('executors', 'indicator'));
     }
 
@@ -37,7 +37,7 @@ class ProjectController extends Controller
     // دالة لجلب الوحدات التابعة بناءً على الأب
     public function getUnitChildren($parentId)
     {
-        $children = OrganizationalUnit::where('parent_id', $parentId)->get(['id', 'name']);
+        $children = OrgUnit::where('parent_id', $parentId)->get(['id', 'name']);
         return response()->json($children);
     }
 
@@ -47,7 +47,7 @@ class ProjectController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'indicator_id' => 'required|exists:indicators,id',
-            'organizational_unit_id' => 'required', // القيمة النهائية المختارة
+            'org_unit_id' => 'required', // القيمة النهائية المختارة
         ]);
 
         // 1. إنشاء المشروع
@@ -67,7 +67,7 @@ class ProjectController extends Controller
     {
         $indicators = Indicator::all();
         
-        $executors = OrganizationalUnit::where('id', 41)->get();
+        $executors = OrgUnit::where('id', 41)->get();
         return view('project.edit', compact('project', 'indicators', 'executors'));
     }
 

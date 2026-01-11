@@ -4,13 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class StepOrganizationalUnitTask extends Model
+class StepOrgUnitTask extends Model
 {
     protected $guarded = [];
 
-    public function organizationalUnit()
+    public function OrgUnit()
     {
-        return $this->belongsTo(OrganizationalUnit::class);
+        return $this->belongsTo(OrgUnit::class);
     }
 
     public function periodTemplate()

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\StepOrganizationalUnitTask;
+use App\Models\StepOrgUnitTask;
 use Illuminate\Http\Request;
 
-class StepOrganizationalUnitTaskController extends Controller
+class StepOrgUnitTaskController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class StepOrganizationalUnitTaskController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(StepOrganizationalUnitTask $stepOrganizationalUnitTask)
+    public function show(StepOrgUnitTask $StepOrgUnitTask)
     {
         //
     }
@@ -42,7 +42,7 @@ class StepOrganizationalUnitTaskController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(StepOrganizationalUnitTask $stepOrganizationalUnitTask)
+    public function edit(StepOrgUnitTask $StepOrgUnitTask)
     {
         //
     }
@@ -50,7 +50,7 @@ class StepOrganizationalUnitTaskController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, StepOrganizationalUnitTask $stepOrganizationalUnitTask)
+    public function update(Request $request, StepOrgUnitTask $StepOrgUnitTask)
     {
         //
     }
@@ -58,7 +58,7 @@ class StepOrganizationalUnitTaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(StepOrganizationalUnitTask $stepOrganizationalUnitTask)
+    public function destroy(StepOrgUnitTask $StepOrgUnitTask)
     {
         //
     }

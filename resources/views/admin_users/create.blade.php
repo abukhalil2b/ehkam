@@ -54,7 +54,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {{-- UserType --}}
                         <div>
-                            <label for="organizational_unit_id" class="block text-sm font-medium text-gray-700">
+                            <label for="org_unit_id" class="block text-sm font-medium text-gray-700">
                                نوع الحساب
                             </label>
                             <select  name="user_type" class="form-select w-full border-gray-300 rounded-md shadow-sm p-2">
@@ -63,16 +63,16 @@
                         </div>
 
                         <div>
-                            <label for="organizational_unit_id" class="block text-sm font-medium text-gray-700">
+                            <label for="org_unit_id" class="block text-sm font-medium text-gray-700">
                                 الوحدة التنظيمية
                             </label>
-                            <select name="organizational_unit_id" id="organizational_unit_id" required
+                            <select name="org_unit_id" id="org_unit_id" required
                                 class="form-select w-full border-gray-300 rounded-md shadow-sm p-2"
                                 x-model="selectedUnit">
                                 <option value="">-- اختر وحدة --</option>
-                                @foreach ($organizationalUnits as $unit)
+                                @foreach ($OrgUnits as $unit)
                                     <option value="{{ $unit->id }}"
-                                        {{ old('organizational_unit_id') == $unit->id ? 'selected' : '' }}>
+                                        {{ old('org_unit_id') == $unit->id ? 'selected' : '' }}>
                                         {{ $unit->name }} ({{ $unit->type }})
                                     </option>
                                 @endforeach
@@ -129,7 +129,7 @@
         document.addEventListener('alpine:init', () => {
             Alpine.data('positionSelector', () => ({
                 positions: [],
-                selectedUnit: '{{ old('organizational_unit_id') }}',
+                selectedUnit: '{{ old('org_unit_id') }}',
                 selectedPosition: '{{ old('position_id') }}',
 
                 async init() {

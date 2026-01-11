@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('user_type')->default('staff');//[admin: for system control - sector: for organizational_unit - staff: normal staff]
+            $table->string('user_type')->default('staff');//[admin: for system control - sector: for org_unit - staff: normal staff]
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

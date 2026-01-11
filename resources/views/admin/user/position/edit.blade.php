@@ -15,17 +15,17 @@
 
                 {{-- Organizational Unit ID --}}
                 <div class="mb-4">
-                    <label for="organizational_unit_id"
+                    <label for="org_unit_id"
                         class="block text-sm font-medium text-gray-700 dark:text-gray-300">الوحدة التنظيمية:</label>
-                    <select id="organizational_unit_id" name="organizational_unit_id" required>
+                    <select id="org_unit_id" name="org_unit_id" required>
                         @foreach ($units as $u)
                             <option value="{{ $u->id }}"
-                                {{ old('organizational_unit_id', $activeRecord->organizational_unit_id) == $u->id ? 'selected' : '' }}>
+                                {{ old('org_unit_id', $activeRecord->org_unit_id) == $u->id ? 'selected' : '' }}>
                                 {{ $u->name }}
                             </option>
                         @endforeach
                     </select>
-                    @error('organizational_unit_id')
+                    @error('org_unit_id')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
                 </div>

@@ -34,20 +34,20 @@
                 @enderror
             </div>
             <div>
-                <label for="organizational_unit_id" class="block text-sm font-medium text-gray-700">
+                <label for="org_unit_id" class="block text-sm font-medium text-gray-700">
                     الوحدة التنظيمية التي تنتمي إليها هذه الوظيفة
                 </label>
-                <select id="organizational_unit_id" name="organizational_unit_id" required
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border @error('organizational_unit_id') border-red-500 @enderror">
+                <select id="org_unit_id" name="org_unit_id" required
+                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border @error('org_unit_id') border-red-500 @enderror">
                     <option value="">-- اختر وحدة تنظيمية --</option>
-                    @foreach ($organizationalUnits as $unit)
+                    @foreach ($OrgUnits as $unit)
                         <option value="{{ $unit->id }}"
-                            {{ old('organizational_unit_id') == $unit->id ? 'selected' : '' }}>
+                            {{ old('org_unit_id') == $unit->id ? 'selected' : '' }}>
                             {{ $unit->name }} ({{ $unit->type }})
                         </option>
                     @endforeach
                 </select>
-                @error('organizational_unit_id')
+                @error('org_unit_id')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
