@@ -26,13 +26,12 @@ return new class extends Migration
             $table->date('end_date')->nullable();   // إلى
             $table->decimal('target_percentage', 5, 2)->default(0); // المستهدف %
 
-            // Phase / Stage (e.g. التحضير، التخطيط، التنفيذ، المراجعة، الإغلاق)
+            // Phase / Stage (e.g.  التخطيط والتطوير، التنفيذ، المراجعة، الاعتماد والإغلاق)
             $table->enum('phase', [
-                'preparation',
                 'planning',
                 'implementation',
                 'review',
-                'approval'
+                'close'
             ])->comment('مرحلة العمل');
 
             // Status of the step

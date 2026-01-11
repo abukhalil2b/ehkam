@@ -108,6 +108,10 @@
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         تعديل
                                     </a>
+                                    <a href="{{ route('admin.steps.import',$project->id) }}"
+                                        class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                        upload
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

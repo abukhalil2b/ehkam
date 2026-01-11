@@ -36,6 +36,7 @@ use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\WorkshopController;
 use App\Http\Controllers\Admin\CompetitionController as AdminCompetitionController;
 use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminStepImportController;
 use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
 use App\Http\Controllers\SwotController;
 use Illuminate\Support\Facades\Route;
@@ -142,6 +143,13 @@ Route::group(['middleware' => ['auth']], function () {
 
     // مسار جلب الوحدات التابعة (للـ Ajax)
     Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
+});
+
+
+
+Route::group(['middleware' => ['auth']], function () {
+Route::get('admin/projects/{project}/steps/import', [AdminStepImportController::class, 'create'])->name('admin.steps.import');
+Route::post('admin/projects/{project}/steps/import', [AdminStepImportController::class, 'store'])->name('admin.steps.import.store');
 });
 
 Route::group(['middleware' => ['auth']], function () {
