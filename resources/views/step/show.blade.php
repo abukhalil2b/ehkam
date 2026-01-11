@@ -207,6 +207,11 @@
                 </div>
 
             </div>
+            
+            {{-- Workflow Actions --}}
+            <div class="mt-6">
+                @include('step.partials.workflow-actions', ['step' => $step])
+            </div>
 
             {{-- Actions --}}
             <div class="bg-white mt-6 rounded-2xl shadow border border-gray-100 p-6">

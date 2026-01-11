@@ -44,7 +44,7 @@ class Indicator extends Model
         return $this->hasMany(Indicator::class, 'parent_id');
     }
 
-  
+
     /**
      * Get all sectors related to this indicator based on the 'sectors' JSON array.
      * NOTE: This is a complex relationship since 'sectors' is a JSON column, not a standard foreign key.
@@ -54,6 +54,12 @@ class Indicator extends Model
     public function relatedSectors()
     {
         return Sector::whereIn('id', Arr::wrap($this->sectors));
+    }
+
+    // Current active workflow state
+    public function currentWorkflow()
+    {
+        return $this->hasOne(IndicatorWorkflow::class)->latest();
     }
 
 }

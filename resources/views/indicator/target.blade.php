@@ -1,135 +1,96 @@
-    <x-app-layout>
+<x-app-layout>
+    <x-slot name="header">🎯 توزيع المستهدفات للمؤشر</x-slot>
 
-        <div class="container py-2 mx-auto px-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-
-            <!-- Year Target & Frequency Selector -->
-            <div class="p-6 bg-white rounded-xl shadow space-y-4 border mb-8">
-                <h1 class="text-xl md:text-2xl font-bold">
-                    {{ $indicator->title }}
-                </h1>
-
-
-                <h2 class="text-xl font-bold text-gray-700">
-                    بيانات المستهدف للمؤشر لعام
-                    <span class="text-blue-700">{{ $current_year }}</span>:
-                    <span class="text-red-800">{{ number_format($indicator->target_for_indicator) }}</span>
-                </h2>
-
-                <div class="flex items-center space-x-4 rtl:space-x-reverse">
-                    <label class="font-semibold text-gray-700">دورية قياس
-                        المستهدف:</label>
-                    <span class="text-blue-700">{{ __($indicator->period) }}</span>
+        <!-- Info Card -->
+        <div class="bg-white rounded-xl shadow p-6 border-l-4 border-blue-600">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ $indicator->title }}</h1>
+            <div class="flex items-center gap-6 text-sm text-gray-600">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-900">سنة القياس:</span>
+                    <span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded">{{ $current_year }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-900">دورية القياس:</span>
+                    <span>{{ __($indicator->period) }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-gray-900">إجمالي المستهدف:</span>
+                    <span
+                        class="text-green-700 font-bold text-base">{{ number_format($indicator->target_for_indicator) }}</span>
                 </div>
             </div>
-
-            <!-- Contributing Sectors Section -->
-            <div class="p-6 bg-white rounded-xl shadow space-y-4 border">
-                <div class="flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-700">
-                        توزيع المستهدف على الجهات المساندة
-                    </h2>
-
-                </div>
-
-                <div class="space-y-4">
-                    @foreach ($sectors as $sector)
-                        <div class="p-4 bg-gray-50 rounded-xl shadow space-y-3 border border-gray-200">
-                            <div class="flex justify-between items-center">
-                                <div class="font-semibold text-gray-800">
-                                    {{ $sector->name }}
-                                </div>
-
-                            </div>
-                            <div class="flex gap-2 text-sm text-gray-600">
-                                <div>المستهدف للمساهمة:</div>
-                                <span class="font-medium text-gray-800">4000</span>
-                                <div> المحقق:</div>
-                                <span class="font-medium text-gray-800">4000</span>
-                            </div>
-                            <div class="text-blue-600 font-bold">المحقق لهذا العام/من اجالي المستهدف لهذه السنة*100
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table role="table"
-                                    class="min-w-full border text-right border-gray-300 rounded-md overflow-hidden"
-                                    dir="rtl">
-                                    <thead class="bg-gray-200 text-xs text-gray-700">
-                                        <tr>
-                                            @foreach ($periods as $period)
-                                                <th class="p-2 border-l border-gray-300"> {{ $period->name }} </th>
-                                            @endforeach
-                                            <th class="p-2 bg-gray-300">إجمالي النسبة من الهدف السنوي</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-xs">
-                                        <tr>
-                                            @foreach ($periods as $period)
-                                                <td class="p-2 border-l border-gray-300 align-top">
-                                                    <div>المستهدف: <span class="font-semibold">1000</span></div>
-                                                    <div>المحقق: <span class="font-semibold">1000</span></div>
-                                                    <div>بنسبة: <span class="font-bold text-blue-600">
-                                                            المحقق لهذا الربع/المستهدف لهذا الربع * 100
-                                                        </span>
-                                                    </div>
-                                                </td>
-                                            @endforeach
-                                            <td class="p-2 bg-gray-100 align-top font-semibold">
-                                                <div>
-                                                    <span>إجمالي المحقق</span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-            </div>
-
-            <div class="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 space-y-4">
-                <h3 id="contribute-modal-title" class="text-lg font-bold text-gray-800">
-                    توزيع المستهدف على الجهات المساندة
-                </h3>
-
-                <div class="space-y-1">
-                    <label for="contribute-target" class="text-sm font-medium text-gray-700">
-                        المستهدف
-                        الإجمالي
-                        للمساهمة
-                        لهذا العام
-                    </label>
-                </div>
-
-                <div class="space-y-3 border p-3 rounded-md bg-gray-50">
-                    <h4 class="text-sm font-semibold text-gray-700">توزيع المستهدف على الفترات:</h4>
-                    @foreach ($periods as $period)
-                        <div class="space-y-1">
-                            <label class="text-sm font-medium text-gray-600">
-                                {{ $period->name }}
-                            </label>
-                            <input type="number"
-                                class="w-full border border-gray-300 rounded p-2 focus:ring-blue-500 focus:border-blue-500"
-                                min="0" />
-                        </div>
-                    @endforeach
-
-                </div>
-
-                <div class="flex justify-end space-x-2 rtl:space-x-reverse pt-4">
-                    <button type="button"
-                        class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        إلغاء
-                    </button>
-                    <button type="button"
-                        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                        إضافة
-                    </button>
-                </div>
-            </div>
-
-
         </div>
 
-    </x-app-layout>
+        <form action="{{ route('indicator.target.store', $indicator) }}" method="POST">
+            @csrf
+            <input type="hidden" name="year" value="{{ $current_year }}">
+
+            <div class="space-y-6">
+                @foreach ($sectors as $sector)
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-6 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="text-lg font-bold text-gray-800">{{ $sector->name }}</h3>
+                            <span class="text-xs font-medium text-gray-500 bg-gray-200 px-2 py-1 rounded">
+                                {{ $sector->code ?? 'N/A' }}
+                            </span>
+                        </div>
+
+                        <div class="p-6">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+                                </svg>
+                                توزيع المستهدف الفتري:
+                            </h4>
+
+                            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                @foreach ($periods as $period)
+                                    @php
+                                        $key = $sector->id . '-' . $period->id; // Assuming period->id corresponds to period_index or we use loop index if id is not 1-12
+                                        // But period_index in DB is integer. Let's assume period->id is the index (1..12 or 1..4)
+                                        // Wait, PeriodTemplate might use 'id' but we want logical index.
+                                        // Let's use loop iteration for index if periods are ordered.
+                                        // However, existing data relies on matching index.
+                                        // Let's use $period->id as index for now, assuming it matches standard periods.
+                                        $targetVal = $targets[$key]->target_value ?? '';
+                                    @endphp
+                                    <div class="relative">
+                                        <label
+                                            class="block text-xs font-medium text-gray-500 mb-1 mx-1">{{ $period->name }}</label>
+                                        <input type="hidden" name="targets[][sector_id]" value="{{ $sector->id }}">
+                                        <input type="hidden" name="targets[][period_index]" value="{{ $period->id }}">
+                                        <input type="number" step="0.01" name="targets[][value]" value="{{ $targetVal }}"
+                                            class="w-full text-center border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                            placeholder="0">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg z-50">
+                <div class="max-w-7xl mx-auto flex justify-end gap-3">
+                    <a href="{{ route('indicator.index') }}"
+                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
+                        إلغاء
+                    </a>
+                    <button type="submit"
+                        class="px-8 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-bold shadow-md">
+                        <i class="far fa-save ml-2"></i> حفظ المستهدفات
+                    </button>
+                </div>
+            </div>
+
+            <!-- Spacer for fixed footer -->
+            <div class="h-20"></div>
+        </form>
+
+    </div>
+</x-app-layout>

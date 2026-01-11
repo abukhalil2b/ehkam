@@ -10,6 +10,8 @@ use App\Models\Project;
 use App\Models\Step;
 use App\Models\StepEvidenceFile;
 use App\Models\StepOrgUnitTask;
+use App\Models\StepWorkflow;
+use App\Models\Profile;
 use Illuminate\Http\Request;
 
 class StepController extends Controller
@@ -75,7 +77,7 @@ class StepController extends Controller
 
         $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
 
-        if (! $request->boolean('is_need_to_put_target')) {
+        if (!$request->boolean('is_need_to_put_target')) {
             $validated['org_unit_ids'] = [];
         }
 
@@ -113,6 +115,26 @@ class StepController extends Controller
             }
         }
 
+        // Initialize Workflow
+        $qaProfile = Profile::where('title', 'Quality Assurance')->first();
+        StepWorkflow::create([
+            'step_id' => $step->id,
+            'stage' => 'verification',
+            'status' => 'pending',
+            'assigned_role' => $qaProfile ? $qaProfile->id : null,
+        ]);
+
+        // Send Notification to Users with 'Quality Assurance' Role
+        if ($qaProfile) {
+            $usersToNotify = \App\Models\User::whereHas('profiles', function ($query) use ($qaProfile) {
+                // Assuming 'user_profile' or similar pivot table logic is handled by 'profiles' relation
+                $query->where('profiles.id', $qaProfile->id);
+            })->get();
+
+            if ($usersToNotify->isNotEmpty()) {
+                \Illuminate\Support\Facades\Notification::send($usersToNotify, new \App\Notifications\StepWorkflowAssigned($step));
+            }
+        }
 
 
         return redirect()->route('step.index', $project->id)

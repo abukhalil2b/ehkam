@@ -79,6 +79,21 @@ class WorkshopController extends Controller
         return view('workshow_attendance_register', compact('attendances', 'workshop', 'qrImage'));
     }
 
+    // ---------------------- ATTENDANCE REPORT ----------------------
+    public function attendanceReport()
+    {
+        $attendances = WorkshopAttendance::with('workshop')
+            ->join('workshops', 'workshop_attendances.workshop_id', '=', 'workshops.id')
+            ->orderByDesc('workshops.starts_at')
+            ->select('workshop_attendances.*') // Avoid column collisions
+            ->get()
+            ->groupBy(function ($item) {
+                return $item->workshop->starts_at->format('Y-m-d');
+            });
+
+        return view('workshop.attendance_report', compact('attendances'));
+    }
+
     // ---------------------- INDEX ----------------------
     public function index()
     {

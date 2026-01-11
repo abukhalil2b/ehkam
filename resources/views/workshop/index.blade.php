@@ -28,6 +28,15 @@
                     <div class="text-xs font-medium text-blue-700">إجمالي الورش</div>
                 </div>
 
+                <a href="{{ route('workshop.attendance_report') }}"
+                    class="bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 px-4 py-3 rounded-lg font-semibold shadow-sm hover:shadow transition mr-2 flex items-center">
+                    <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
+                    </svg>
+                    تقرير الحضور
+                </a>
+
                 <a href="{{ route('workshop.create') }}"
                     class="flex items-center bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md hover:shadow-lg transition-all duration-200 group">
                     <svg class="w-5 h-5 ml-2 group-hover:scale-110 transition-transform duration-200" fill="none"
@@ -46,7 +55,7 @@
                 <table class="min-w-full w-full">
                     <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                            @foreach (['#','العنوان','التاريخ والوقت','بواسطة','عدد الحضور','الخيارات'] as $header)
+                            @foreach (['#', 'العنوان', 'التاريخ والوقت', 'بواسطة', 'عدد الحضور', 'الخيارات'] as $header)
                                 <th
                                     class="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     {{ $header }}
@@ -68,7 +77,7 @@
                                     @endif
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2
-                                            {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                                {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7" />
@@ -90,8 +99,7 @@
                                 </td>
 
                                 <td class="px-6 py-3 text-center">
-                                    <span
-                                        class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+                                    <span class="bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
                                         {{ $workshop->attendances->count() }}
                                     </span>
                                 </td>
@@ -99,8 +107,7 @@
                                 <td class="px-6 py-3 text-sm">
                                     <div class="flex items-center space-x-2 space-x-reverse">
                                         <a href="{{ route('workshop.show', $workshop) }}"
-                                            class="text-blue-600 hover:text-blue-900 font-medium transition"
-                                            title="عرض">
+                                            class="text-blue-600 hover:text-blue-900 font-medium transition" title="عرض">
                                             👁 عرض
                                         </a>
 
@@ -132,8 +139,7 @@
                                             @csrf @method('DELETE')
                                             <button type="button"
                                                 onclick="confirmDelete('{{ $workshop->title }}', this.form)"
-                                                class="text-red-600 hover:text-red-900 font-medium transition"
-                                                title="حذف">
+                                                class="text-red-600 hover:text-red-900 font-medium transition" title="حذف">
                                                 🗑 حذف
                                             </button>
                                         </form>

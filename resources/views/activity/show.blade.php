@@ -15,6 +15,107 @@
             <span class="font-semibold">سنة التقييم:</span> {{ $currentYear }}
         </p>
 
+        <!-- Workflow Section -->
+        @php
+            $workflow = $activity->currentWorkflow;
+            $stage = $workflow->stage ?? 'target_setting';
+            $status = $workflow->status ?? 'pending';
+            
+            $canSetTarget = auth()->user()->hasPermission('activity.set_target') && $stage == 'target_setting';
+            $canExecute = auth()->user()->hasPermission('activity.execute') && $stage == 'execution';
+            $canVerify = auth()->user()->hasPermission('activity.verify') && $stage == 'verification';
+            $canApprove = auth()->user()->hasPermission('activity.approve') && $stage == 'approval';
+        @endphp
+
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">حالة سير العمل</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <span class="text-gray-600 block text-sm">المرحلة الحالية:</span>
+                    <span class="font-bold text-blue-600 text-lg">
+                        @switch($stage)
+                            @case('target_setting') تحديد المستهدف @break
+                            @case('execution') التنفيذ @break
+                            @case('verification') التحقق @break
+                            @case('approval') الاعتماد @break
+                            @case('completed') مكتمل @break
+                            @default {{ $stage }}
+                        @endswitch
+                    </span>
+                 </div>
+                <div>
+                    <span class="text-gray-600 block text-sm">الحالة:</span>
+                    <span class="font-bold {{ $status == 'rejected' ? 'text-red-600' : ($status == 'approved' ? 'text-green-600' : 'text-yellow-600') }} text-lg">
+                        @switch($status)
+                            @case('pending') قيد الانتظار @break
+                            @case('approved') معتمد @break
+                            @case('rejected') مرفوض @break
+                            @default {{ $status }}
+                        @endswitch
+                    </span>
+                </div>
+            </div>
+
+            @if($workflow && $workflow->comments)
+                <div class="bg-yellow-50 text-yellow-800 p-3 rounded mb-4 text-sm">
+                    <strong>ملاحظات:</strong> {{ $workflow->comments }}
+                </div>
+            @endif
+
+            <!-- Workflow Actions -->
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <form action="{{ route('activity.workflow.transition', $activity) }}" method="POST" class="flex flex-wrap gap-2 items-end">
+                    @csrf
+                    
+                    @if($canSetTarget)
+                        <div class="w-full mb-2">
+                            <p class="text-sm text-gray-500 mb-2">بصفتك "الداعم الفني"، يرجى تحديد المستهدفات ثم إرسالها للتنفيذ.</p>
+                        </div>
+                        <button type="submit" name="action" value="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            إرسال للتنفيذ
+                        </button>
+                    
+                    @elseif($canExecute)
+                        <div class="w-full mb-2">
+                             <p class="text-sm text-gray-500 mb-2">بصفتك "المنفذ"، يرجى إتمام النشاط وإرفاق الشواهد ثم إرسالها للتحقق.</p>
+                        </div>
+                        <button type="submit" name="action" value="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                            إرسال للتحقق
+                        </button>
+
+                    @elseif($canVerify)
+                        <div class="w-full mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">تعليق (في حالة الرفض)</label>
+                            <textarea name="comments" rows="2" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                        </div>
+                        <button type="submit" name="action" value="approve" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                             تحقق وقبول
+                        </button>
+                        <button type="submit" name="action" value="reject" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                            رفض وإعادة
+                        </button>
+                    
+                    @elseif($canApprove)
+                         <div class="w-full mb-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">تعليق (في حالة الرفض)</label>
+                            <textarea name="comments" rows="2" class="w-full border-gray-300 rounded-md shadow-sm"></textarea>
+                        </div>
+                        <button type="submit" name="action" value="approve" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+                            اعتماد نهائي
+                        </button>
+                        <button type="submit" name="action" value="reject" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                             رفض وإعادة
+                        </button>
+                    @else
+                        @if($stage != 'completed')
+                            <p class="text-gray-400 italic text-sm">ليس لديك صلاحية لاتخاذ إجراء في هذه المرحلة.</p>
+                        @endif
+                    @endif
+                </form>
+            </div>
+        </div>
+
         <!-- Action Buttons -->
         <div class="mb-8 flex flex-wrap gap-3">
             <a href="{{ route('activity.index', ['year' => $currentYear]) }}"

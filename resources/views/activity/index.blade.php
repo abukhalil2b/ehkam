@@ -4,81 +4,117 @@
             <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">
                 قائمة الأنشطة {{ $selectedYear }}
             </h2>
-            <div class="w-40 px-3 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 shadow-sm">
-                <div> إجمالي: {{ count($activities) }}</div>
-                <div> تم تقييم: {{ count($submittedActivityIds) }}</div>
+
+            <div class="w-44 px-3 py-2 text-xs font-semibold rounded-xl
+                        bg-purple-100 text-purple-800 shadow-sm space-y-1">
+                <div>إجمالي: {{ count($activities) }}</div>
+                <div>تم تقييم: {{ count($submittedActivityIds) }}</div>
             </div>
         </div>
     </x-slot>
 
-    <div class="container py-8 mx-auto px-4">
+    <div class="container mx-auto px-4 py-8">
 
-                <div>
-                    @foreach ($availableYears as $year)
-                    <a href="{{ route('activity.index', ['year' => $year]) }}"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block
-                            {{ $year == $selectedYear ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                        {{ $year }}
-                    </a>
-                @endforeach
-                </div>
+        {{-- Years Tabs --}}
+        <div class="flex flex-wrap gap-2 mb-6">
+            @foreach ($availableYears as $year)
+                <a href="{{ route('activity.index', ['year' => $year]) }}"
+                   class="px-5 py-2 text-sm font-semibold rounded-full transition
+                   {{ $year == $selectedYear
+                        ? 'bg-indigo-600 text-white shadow ring-2 ring-indigo-300'
+                        : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100' }}">
+                    {{ $year }}
+                </a>
+            @endforeach
+        </div>
 
-        <a href="{{ route('assessment_questions.index') }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
-            أسئلة الأنشطة
-        </a>
-       
-        <a href="{{ route('project_assessment_report') }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
-            تقرير
-        </a>
+        {{-- Top Actions --}}
+        <div class="flex gap-3 mb-6">
+            <a href="{{ route('assessment_questions.index') }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-semibold
+                      text-white bg-indigo-600 rounded-lg shadow
+                      hover:bg-indigo-700 transition">
+                أسئلة الأنشطة
+            </a>
 
-        <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-            <table class="min-w-full divide-y divide-gray-200">
+            <a href="{{ route('project_assessment_report') }}"
+               class="inline-flex items-center px-4 py-2 text-sm font-semibold
+                      text-indigo-700 bg-indigo-100 rounded-lg
+                      hover:bg-indigo-200 transition">
+                تقرير
+            </a>
+        </div>
+
+        {{-- Activities Table --}}
+        <div class="shadow border border-gray-200 sm:rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            النشاط</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            المشروع</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الإجراءات</th>
-                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            التقييم بواسطة</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            التاريخ</th>
+                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
+                            النشاط
+                        </th>
+                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
+                            المشروع
+                        </th>
+                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
+                            الإجراءات
+                        </th>
+                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
+                            التقييم بواسطة
+                        </th>
+                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
+                            التاريخ
+                        </th>
                     </tr>
                 </thead>
+
                 <tbody class="bg-white divide-y divide-gray-200">
                     @foreach ($activities as $activity)
-                        <tr>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->title }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->project->title ?? 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('activity.show', $activity) }}"
-                                    class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 inline-block w-44">عرض
-                                    التقييم</a>
-                                @php
-                                    // Check if the current activity's ID exists in the array of submitted IDs
-                                    $userSubmitted = in_array($activity->id, $submittedActivityIds);
-                                @endphp
+                        @php
+                            $userSubmitted = in_array($activity->id, $submittedActivityIds);
+                        @endphp
 
-                                <div class="mt-4">
-                                    @if ($userSubmitted)
-                                        <a href="{{ route('assessment_result.edit', $activity->id) }}"
-                                            class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 inline-block w-44">
-                                            تعديل تقييمي الحالي
-                                        </a>
-                                    @else
-                                        <a href="{{ route('assessment_result.create', $activity->id) }}"
-                                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg shadow-md transition duration-150 inline-block w-44">
-                                            + تقييم جديد
-                                        </a>
-                                    @endif
-                                </div>
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $activity->title }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->assessmentResults->first()?->user->name ?? '—' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ $activity->created_at->format('d-m-Y') }}</td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $activity->project->title ?? '—' }}
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap space-y-3">
+                                <a href="{{ route('activity.show', $activity) }}"
+                                   class="inline-flex justify-center w-44 px-4 py-2
+                                          text-white bg-slate-700 rounded-lg
+                                          hover:bg-slate-800 transition shadow">
+                                    عرض التقييم
+                                </a>
+
+                                @if ($userSubmitted)
+                                    <a href="{{ route('assessment_result.edit', $activity->id) }}"
+                                       class="inline-flex justify-center w-44 px-4 py-2
+                                              text-white bg-amber-500 rounded-lg
+                                              hover:bg-amber-600 transition shadow">
+                                        تعديل تقييمي الحالي
+                                    </a>
+                                @else
+                                    <a href="{{ route('assessment_result.create', $activity->id) }}"
+                                       class="inline-flex justify-center w-44 px-4 py-2
+                                              text-white bg-emerald-600 rounded-lg
+                                              hover:bg-emerald-700 transition shadow">
+                                        + تقييم جديد
+                                    </a>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $activity->assessmentResults->first()?->user->name ?? '—' }}
+                            </td>
+
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $activity->created_at->format('d-m-Y') }}
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>

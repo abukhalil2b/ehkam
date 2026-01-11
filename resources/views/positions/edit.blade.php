@@ -36,38 +36,30 @@
 
                 {{-- Org Unit --}}
                 <div>
+                    @php
+                        $unitOptions = $allUnits->map(function ($unit) {
+                            return ['id' => $unit->id, 'name' => $unit->name, 'code' => $unit->type];
+                        })->values();
+                    @endphp
                     <label class="block text-sm font-semibold text-gray-700 mb-1">الوحدة التنظيمية</label>
-                    <div class="relative">
-                        <select name="org_unit_id" required
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3 appearance-none">
-                            @foreach ($allUnits as $unit)
-                                <option value="{{ $unit->id }}" {{ in_array($unit->id, old('org_unit_id', $currentUnitIds)) ? 'selected' : '' }}>
-                                    {{ $unit->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <div
-                            class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-gray-700 rtl:right-unset rtl:left-0">
-                            <span class="material-icons">expand_more</span>
-                        </div>
-                    </div>
+                    {{-- Note: currentUnitIds is an array, but we are designing for single selection here as per
+                    controller logic --}}
+                    <x-forms.searchable-select name="org_unit_id" :options="$unitOptions"
+                        :selected="!empty($currentUnitIds) ? $currentUnitIds[0] : null"
+                        placeholder="-- اختر الوحدة التنظيمية --" :required="true" />
                     @error('org_unit_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Reports To --}}
                 <div>
+                    @php
+                        $positionOptions = $allPositions->map(function ($pos) {
+                            return ['id' => $pos->id, 'name' => $pos->title, 'code' => $pos->job_code];
+                        })->values();
+                    @endphp
                     <label class="block text-sm font-semibold text-gray-700 mb-1">يتبع إدارياً لـ</label>
-                    <div class="relative">
-                        <select name="reports_to_position_id"
-                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 p-3">
-                            <option value="">(لا يوجد - وظيفة عليا)</option>
-                            @foreach ($allPositions as $pos)
-                                <option value="{{ $pos->id }}" {{ old('reports_to_position_id', $position->reports_to_position_id) == $pos->id ? 'selected' : '' }}>
-                                    {{ $pos->title }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <x-forms.searchable-select name="reports_to_position_id" :options="$positionOptions"
+                        :selected="$position->reports_to_position_id" placeholder="(لا يوجد - وظيفة عليا)" />
                 </div>
 
                 {{-- Actions --}}

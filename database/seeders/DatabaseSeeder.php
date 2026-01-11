@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(SectorSeeder::class);
         // $this->call(IndicatorSeeder::class);
         $this->call(CalendarEventsSeeder::class);
-
-        
+        $this->call(StepWorkflowSeeder::class);
+        $this->call(ComprehensivePermissionSeeder::class);
     }
 }

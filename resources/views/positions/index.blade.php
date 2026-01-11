@@ -35,7 +35,13 @@
 
         {{-- 2. Create/Edit Actions (Initially Create) --}}
         <div class="bg-white p-6 rounded-lg border shadow-lg h-fit">
-            <h3 class="text-xl font-bold mb-4 text-purple-700 border-b pb-2">إضافة مسمى وظيفي جديد</h3>
+            <div class="flex justify-between items-center border-b pb-2 mb-4">
+                <h3 class="text-xl font-bold text-purple-700">إضافة مسمى وظيفي جديد</h3>
+                <a href="{{ route('positions.create') }}" class="text-sm bg-purple-50 text-purple-700 px-3 py-1 rounded hover:bg-purple-100 transition flex items-center gap-1">
+                    <span class="material-icons text-sm">open_in_new</span>
+                    صفحة كاملة
+                </a>
+            </div>
             
             <form action="{{ route('positions.store') }}" method="POST" class="space-y-5">
                 @csrf
@@ -61,44 +67,34 @@
 
                 {{-- Org Unit --}}
                 <div>
+                    @php
+                        $unitOptions = $allUnits->map(function ($unit) {
+                            return ['id' => $unit->id, 'name' => $unit->name, 'code' => $unit->type];
+                        })->values();
+                    @endphp
                     <label class="block text-sm font-semibold text-gray-700 mb-1">الوحدة التنظيمية التابع لها</label>
-                    <div class="relative">
-                        <select name="org_unit_id" required
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 transition appearance-none">
-                            <option value="" disabled selected>-- اختر الوحدة التنظيمية --</option>
-                            @foreach ($allUnits as $unit)
-                                <option value="{{ $unit->id }}" {{ old('org_unit_id') == $unit->id ? 'selected' : '' }}>
-                                    {{ $unit->name }} ({{ $unit->type }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-2 text-gray-700 rtl:right-unset rtl:left-0">
-                             <span class="material-icons text-gray-500">expand_more</span>
-                        </div>
-                    </div>
+                    <x-forms.searchable-select 
+                        name="org_unit_id" 
+                        :options="$unitOptions" 
+                        placeholder="-- اختر الوحدة التنظيمية --" 
+                        :required="true" 
+                    />
                     @error('org_unit_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 {{-- Reports To --}}
                 <div>
+                    @php
+                        $positionOptions = $allPositions->map(function ($pos) {
+                            return ['id' => $pos->id, 'name' => $pos->title, 'code' => $pos->job_code];
+                        })->values();
+                    @endphp
                     <label class="block text-sm font-semibold text-gray-700 mb-1">يتبع إدارياً لـ (الرئيس المباشر)</label>
-                    <div class="relative">
-                        <select name="reports_to_position_id" 
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 transition">
-                            <option value="">(لا يوجد - وظيفة قيادية عليا)</option>
-                            @php
-                                function renderRecursiveOptions($nodes, $prefix = '') {
-                                    foreach ($nodes as $node) {
-                                        echo '<option value="'.$node->id.'">'.$prefix.' '.$node->title.'</option>';
-                                        if ($node->subordinates->count()) {
-                                            renderRecursiveOptions($node->subordinates, $prefix . '-- ');
-                                        }
-                                    }
-                                }
-                                renderRecursiveOptions($topLevelPositions); 
-                            @endphp
-                        </select>
-                    </div>
+                    <x-forms.searchable-select 
+                        name="reports_to_position_id" 
+                        :options="$positionOptions" 
+                        placeholder="(لا يوجد - وظيفة قيادية عليا)" 
+                    />
                     <p class="text-xs text-gray-500 mt-1">اتركه فارغاً إذا كانت هذه الوظيفة أعلى الهرم.</p>
                 </div>
 

@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\ActivityWorkflowController;
+use App\Http\Controllers\Admin\WorkflowController;
+use App\Http\Controllers\IndicatorWorkflowController;
+use App\Http\Controllers\Admin\AdminProfilePermissionController;
 use App\Http\Controllers\Admin\AdminAimController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PositionController;
@@ -24,6 +28,7 @@ use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\StepWorkflowController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarDelegationController;
@@ -70,6 +75,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('indicator/index', [IndicatorController::class, 'index'])
         ->middleware('permission:indicator.index')
         ->name('indicator.index');
+
+    Route::post('indicator/target/store/{indicator}', [IndicatorController::class, 'storeTarget'])
+        ->middleware('permission:indicator.index')
+        ->name('indicator.target.store');
+
+    Route::post('indicator/achieved/store/{indicator}', [IndicatorController::class, 'storeAchieved'])
+        ->middleware('permission:indicator.index')
+        ->name('indicator.achieved.store');
 
 
     // Create/Write Permissions
@@ -225,9 +238,21 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workshop.edit')
         ->name('workshop.update_status');
 
+    Route::get('workshop/attendance_report', [WorkshopController::class, 'attendanceReport'])
+        ->middleware('permission:workshop.show')
+        ->name('workshop.attendance_report');
+
     Route::delete('workshop/destroy/{workshop}', [WorkshopController::class, 'destroy'])
         ->middleware('permission:workshop.delete')
         ->name('workshop.destroy');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::post('activity/workflow/{activity}', [ActivityWorkflowController::class, 'transition'])
+        ->name('activity.workflow.transition');
+
+    Route::post('indicator/workflow/{indicator}', [IndicatorWorkflowController::class, 'transition'])
+        ->name('indicator.workflow.transition');
 });
 
 Route::group(['middleware' => ['auth']], function () {
@@ -279,7 +304,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // clear cache
     Route::post('calendar/refresh', [AnnualCalendarController::class, 'refreshCache'])->name('calendar.refresh');
-    Route::delete('notifications/delete-all', [AnnualCalendarController::class, 'deleteAllNotifications'])->name('notifications.delete_all');
+
 
     // AJAX Event Loading
     Route::get('calendar/events', [AnnualCalendarController::class, 'loadEvents']);
@@ -536,8 +561,20 @@ Route::middleware(['auth'])->group(function () {
 
 // PROFILE ROUTE (Usually only requires authentication)
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('profile', [ProfileController::class, 'profile'])
-        ->name('profile');
+    // Profile Switching
+    Route::get('/profile/switch/{id}', [App\Http\Controllers\ProfileSwitcherController::class, 'switch'])->name('profile.switch');
+    Route::get('/profile/reset', [App\Http\Controllers\ProfileSwitcherController::class, 'reset'])->name('profile.reset');
+
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+
+    // Notifications
+    // Notifications
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{id}/click', [App\Http\Controllers\NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
+    Route::get('/notifications/mark-read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markRead');
+    Route::get('/notifications/mark-all-read', [App\Http\Controllers\NotificationController::class, 'markAllRead'])->name('notifications.markAllRead');
+    Route::delete('/notifications/delete-all', [App\Http\Controllers\NotificationController::class, 'deleteAll'])->name('notifications.delete_all');
 });
 
 
@@ -570,6 +607,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('admin_users/create', [AdminController::class, 'createUser'])
         ->middleware('permission:admin_users.create')
         ->name('admin_users.create');
+
+    // Admin Notifications
+    Route::get('admin/notifications', [App\Http\Controllers\Admin\NotificationController::class, 'index'])
+        ->middleware('permission:admin.workflow.index') // Assuming admin workflow permission is sufficient or add specific one
+        ->name('admin.notifications.index');
 
     Route::post('admin_users/store', [AdminController::class, 'storeUser'])
         ->middleware('permission:admin_users.create')
@@ -671,6 +713,14 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:org_unit.edit')
         ->name('org_unit.positions.destroy');
 
+    // Step Workflows
+    Route::post('/steps/{step}/workflow', [StepWorkflowController::class, 'transition'])->name('step.workflow.transition');
+
+    // Admin Workflows Dashboard
+    Route::get('/admin/workflows', [WorkflowController::class, 'index'])
+        ->middleware('permission:admin.workflow.index')
+        ->name('admin.workflows.index');
+
     // POSITIONS MANAGEMENT (Refactored)
     Route::resource('positions', PositionController::class)->middleware('permission:admin_position.index');
 
@@ -710,6 +760,15 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 Route::group(['middleware' => ['auth']], function () {
+    Route::group(['middleware' => ['permission:permission.index']], function () {
+        // Admin Profile Management
+        Route::get('admin/profiles', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('admin.profiles.index');
+        Route::get('admin/profiles/create', [\App\Http\Controllers\Admin\ProfileController::class, 'create'])->name('admin.profiles.create');
+        Route::post('admin/profiles', [\App\Http\Controllers\Admin\ProfileController::class, 'store'])->name('admin.profiles.store');
+
+        Route::get('profile_permission/{profile}', [AdminProfilePermissionController::class, 'index'])->name('profile.permission');
+        Route::post('profile_permission/{profile}', [AdminProfilePermissionController::class, 'profilePermissionUpdate'])->name('profile.permission.update');
+    });
 
     Route::get('admin/aim/index', [AdminAimController::class, 'index'])
         ->name('admin.aim.index');

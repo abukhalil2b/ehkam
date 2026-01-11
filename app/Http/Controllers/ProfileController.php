@@ -13,7 +13,7 @@ class ProfileController extends Controller
 {
 
 
-    public function profile()
+    public function edit()
     {
         $user = Auth::user();
 

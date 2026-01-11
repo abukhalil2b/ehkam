@@ -15,17 +15,107 @@ class IndicatorController extends Controller
     public function target(Indicator $indicator)
     {
         $current_year = date('Y');
+        // Decode selected sectors from the JSON column if it's a string (fixes double encoding issue)
+        $sectorsData = $indicator->sectors;
+        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
+        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
+        $sectors = Sector::whereIn('id', $selectedSectorIds)->get();
 
-        $sectors = Sector::all();
+        $periods = PeriodTemplate::where('cate', $indicator->period)->get();
+        // Load existing targets
+        $targets = \App\Models\IndicatorTarget::where('indicator_id', $indicator->id)
+            ->where('year', $current_year)
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->sector_id . '-' . $item->period_index;
+            });
 
-        $periods =  PeriodTemplate::where('cate', $indicator->period)->get();
+        return view('indicator.target', compact('indicator', 'current_year', 'sectors', 'periods', 'targets'));
+    }
 
-        return view('indicator.target', compact('indicator', 'current_year', 'sectors', 'periods'));
+    public function storeTarget(Request $request, Indicator $indicator)
+    {
+        $validated = $request->validate([
+            'year' => 'required|integer',
+            'targets' => 'array',
+            'targets.*.sector_id' => 'required|exists:sectors,id',
+            'targets.*.period_index' => 'required|integer',
+            'targets.*.value' => 'nullable|numeric|min:0',
+        ]);
+
+        foreach ($validated['targets'] ?? [] as $data) {
+            \App\Models\IndicatorTarget::updateOrCreate(
+                [
+                    'indicator_id' => $indicator->id,
+                    'sector_id' => $data['sector_id'],
+                    'year' => $validated['year'],
+                    'period_index' => $data['period_index'],
+                ],
+                [
+                    'target_value' => $data['value'] ?? 0,
+                ]
+            );
+        }
+
+        return back()->with('success', 'تم حفظ المستهدفات بنجاح');
     }
 
     public function achieved(Indicator $indicator)
     {
-        return view('indicator.achieved');
+        $indicator->load(['currentWorkflow.assignee', 'currentWorkflow.assignedRole']);
+        $current_year = date('Y');
+        $sectorsData = $indicator->sectors;
+        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
+        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
+        $sectors = Sector::whereIn('id', $selectedSectorIds)->get();
+        $periods = PeriodTemplate::where('cate', $indicator->period)->get();
+
+        // Load targets for context
+        $targets = \App\Models\IndicatorTarget::where('indicator_id', $indicator->id)
+            ->where('year', $current_year)
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->sector_id . '-' . $item->period_index;
+            });
+
+        // Load achievements
+        $achievements = \App\Models\IndicatorAchievement::where('indicator_id', $indicator->id)
+            ->where('year', $current_year)
+            ->get()
+            ->keyBy(function ($item) {
+                return $item->sector_id . '-' . $item->period_index;
+            });
+
+        return view('indicator.achieved', compact('indicator', 'current_year', 'sectors', 'periods', 'targets', 'achievements'));
+    }
+
+    public function storeAchieved(Request $request, Indicator $indicator)
+    {
+        $validated = $request->validate([
+            'year' => 'required|integer',
+            'achievements' => 'array',
+            'achievements.*.sector_id' => 'required|exists:sectors,id',
+            'achievements.*.period_index' => 'required|integer',
+            'achievements.*.value' => 'nullable|numeric|min:0',
+            'achievements.*.notes' => 'nullable|string',
+        ]);
+
+        foreach ($validated['achievements'] ?? [] as $data) {
+            \App\Models\IndicatorAchievement::updateOrCreate(
+                [
+                    'indicator_id' => $indicator->id,
+                    'sector_id' => $data['sector_id'],
+                    'year' => $validated['year'],
+                    'period_index' => $data['period_index'],
+                ],
+                [
+                    'achieved_value' => $data['value'] ?? 0,
+                    'notes' => $data['notes'] ?? null,
+                ]
+            );
+        }
+
+        return back()->with('success', 'تم حفظ النتائج المحققة بنجاح');
     }
 
     public function index()
@@ -41,12 +131,15 @@ class IndicatorController extends Controller
         return view('indicator.index', compact('indicators', 'current_year', 'has_previous_data', 'last_year'));
     }
 
-   
+
     public function show(Indicator $indicator)
     {
         // 1. Get the names of the associated sectors
+        // 1. Get the names of the associated sectors
         // Assuming the 'sectors' column stores a JSON array of Sector IDs
-        $selectedSectorIds = json_decode($indicator->sectors, true) ?? [];
+        $sectorsData = $indicator->sectors;
+        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
+        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
         $selectedSectors = Sector::whereIn('id', $selectedSectorIds)->pluck('name')->toArray();
 
         // 3. Get any sub-indicators (children)
@@ -114,7 +207,9 @@ class IndicatorController extends Controller
         $validated['first_observation_date'] = $validated['first_observation_date'] ?? null;
 
         // --- Sector Array Handling ---
-        $validated['sectors'] = json_encode($validated['sectors'] ?? []);
+        // $validated['sectors'] = json_encode($validated['sectors'] ?? []);
+        // FIX: Do not json_encode manually if the model casts 'sectors' => 'array'
+        $validated['sectors'] = $validated['sectors'] ?? [];
 
         return $validated;
     }
@@ -134,17 +229,19 @@ class IndicatorController extends Controller
      */
     public function edit(Indicator $indicator)
     {
-        $c1Sectors = Sector::where('cate',1)->get();
-        $c2Sectors = Sector::where('cate',2)->get();
+        $c1Sectors = Sector::where('cate', 1)->get();
+        $c2Sectors = Sector::where('cate', 2)->get();
 
         // Decode the stored sector IDs for the multi-select field
-        $selectedSectorIds = json_decode($indicator->sectors, true) ?? [];
+        $sectorsData = $indicator->sectors;
+        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
+        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
 
         $periodOptions = [
-            'annually'    => 'سنوي',
+            'annually' => 'سنوي',
             'half_yearly' => 'نصف سنوي',
-            'quarterly'   => 'ربع سنوي',
-            'monthly'     => 'شهري',
+            'quarterly' => 'ربع سنوي',
+            'monthly' => 'شهري',
         ];
 
         return view('indicator.edit', compact(

@@ -60,7 +60,8 @@ class MissionTaskController extends Controller
             // الأعضاء
             if (!empty($data['member_ids'])) {
                 foreach ($data['member_ids'] as $userId) {
-                    if ($userId == $data['leader_id']) continue;
+                    if ($userId == $data['leader_id'])
+                        continue;
 
                     $perm = $data['permissions'][$userId] ?? [];
 
@@ -82,15 +83,15 @@ class MissionTaskController extends Controller
     {
         // التحقق من وجود ID المهمة أولاً
         $data = $request->validate([
-            'mission_id'   => 'required|exists:missions,id',
-            'title'        => 'required|string|max:255',
-            'description'  => 'nullable|string',
-            'leader_id'    => 'required|exists:users,id',
-            'member_ids'   => 'nullable|array',
+            'mission_id' => 'required|exists:missions,id',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'leader_id' => 'required|exists:users,id',
+            'member_ids' => 'nullable|array',
             'member_ids.*' => 'exists:users,id',
-            'permissions'  => 'nullable|array',
-            'start_date'   => 'nullable|date',
-            'end_date'     => 'nullable|date',
+            'permissions' => 'nullable|array',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date',
         ]);
 
         DB::transaction(function () use ($data) {
@@ -98,11 +99,11 @@ class MissionTaskController extends Controller
 
             // 1. تحديث بيانات المهمة الأساسية
             $mission->update([
-                'title'       => $data['title'],
+                'title' => $data['title'],
                 'description' => $data['description'],
-                'leader_id'   => $data['leader_id'],
-                'start_date'  => $data['start_date'],
-                'end_date'    => $data['end_date'],
+                'leader_id' => $data['leader_id'],
+                'start_date' => $data['start_date'],
+                'end_date' => $data['end_date'],
             ]);
 
             // 2. تحديث الأعضاء (الحذف ثم الإضافة لضمان نظافة البيانات)
@@ -110,10 +111,10 @@ class MissionTaskController extends Controller
 
             // إضافة القائد بصلاحيات كاملة
             MissionMember::create([
-                'mission_id'         => $mission->id,
-                'user_id'            => $data['leader_id'],
-                'role'               => 'leader',
-                'can_create_tasks'   => true,
+                'mission_id' => $mission->id,
+                'user_id' => $data['leader_id'],
+                'role' => 'leader',
+                'can_create_tasks' => true,
                 'can_view_all_tasks' => true,
             ]);
 
@@ -121,16 +122,17 @@ class MissionTaskController extends Controller
             if (!empty($data['member_ids'])) {
                 foreach ($data['member_ids'] as $userId) {
                     // تخطي المستخدم إذا كان هو نفسه القائد (لمنع التكرار)
-                    if ($userId == $data['leader_id']) continue;
+                    if ($userId == $data['leader_id'])
+                        continue;
 
                     $perm = $data['permissions'][$userId] ?? [];
 
                     MissionMember::create([
-                        'mission_id'         => $mission->id,
-                        'user_id'            => $userId,
-                        'role'               => 'member',
+                        'mission_id' => $mission->id,
+                        'user_id' => $userId,
+                        'role' => 'member',
                         // التأكد من تحويل القيم القادمة من Alpine إلى Boolean
-                        'can_create_tasks'   => filter_var($perm['can_create_tasks'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'can_create_tasks' => filter_var($perm['can_create_tasks'] ?? false, FILTER_VALIDATE_BOOLEAN),
                         'can_view_all_tasks' => filter_var($perm['can_view_all_tasks'] ?? false, FILTER_VALIDATE_BOOLEAN),
                     ]);
                 }
@@ -160,15 +162,15 @@ class MissionTaskController extends Controller
 
         $tasksForJs = $query->get()->map(function ($task) {
             return [
-                'id'          => $task->id,
-                'title'       => $task->title,
+                'id' => $task->id,
+                'title' => $task->title,
                 'description' => $task->description,
-                'priority'    => $task->priority,
-                'status'      => $task->status,
-                'is_private'  => (bool)$task->is_private,
+                'priority' => $task->priority,
+                'status' => $task->status,
+                'is_private' => (bool) $task->is_private,
                 'assigned_to' => $task->assigned_to,
-                'due_date'    => $task->due_date?->format('Y-m-d'),
-                'creator_id'  => $task->creator_id,
+                'due_date' => $task->due_date?->format('Y-m-d'),
+                'creator_id' => $task->creator_id,
             ];
         });
 
@@ -183,8 +185,8 @@ class MissionTaskController extends Controller
         return view('missions.task.show', [
             'members' => $members,
             'mission' => $mission,
-            'tasks'   => $tasksForJs,
-            'colors'  => $colors,
+            'tasks' => $tasksForJs,
+            'colors' => $colors,
         ]);
     }
 
@@ -242,6 +244,14 @@ class MissionTaskController extends Controller
             'action' => 'created',
             'new_values' => $task->toArray(),
         ]);
+
+        // Send Notification if assigned to someone else
+        if ($task->assigned_to && $task->assigned_to !== $user->id) {
+            $assignee = User::find($task->assigned_to);
+            if ($assignee) {
+                $assignee->notify(new \App\Notifications\MissionTaskAssigned($task));
+            }
+        }
 
         return response()->json([
             'message' => 'تم إنشاء المهمة بنجاح',

@@ -22,4 +22,9 @@ class Step extends Model
     {
         return $this->hasMany(StepOrgUnitTask::class, 'step_id');
     }
+
+    public function currentWorkflow()
+    {
+        return $this->hasOne(StepWorkflow::class)->latestOfMany();
+    }
 }

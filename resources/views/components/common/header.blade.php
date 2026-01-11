@@ -26,14 +26,29 @@
 
             <div x-data="header"
                 class="sm:flex-1 ltr:sm:ml-0 ltr:ml-auto sm:rtl:mr-0 rtl:mr-auto flex items-center space-x-1.5 lg:space-x-2 rtl:space-x-reverse dark:text-[#d0d2d6]">
-                <div class="sm:ltr:mr-auto sm:rtl:ml-auto" x-data="{ search: false }" @click.outside="search = false">
+                @inject('sidebarService', 'App\Services\SidebarService')
+
+                <div class="sm:ltr:mr-auto sm:rtl:ml-auto" x-data="{ 
+                    search: false,
+                    query: '',
+                    links: @js($sidebarService->getSearchableLinks()),
+                    get filteredLinks() {
+                        if (this.query === '') return [];
+                        const q = this.query.toLowerCase();
+                        return this.links.filter(link => 
+                            link.label.toLowerCase().includes(q) || 
+                            link.category.toLowerCase().includes(q) ||
+                            (link.keywords && link.keywords.toLowerCase().includes(q))
+                        );
+                    }
+                }" @click.outside="search = false">
                     <form
                         class="sm:relative absolute inset-x-0 sm:top-0 top-1/2 sm:translate-y-0 -translate-y-1/2 sm:mx-0 mx-4 z-10 sm:block hidden"
-                        :class="{ '!block': search }" @submit.prevent="search = false">
+                        :class="{ '!block': search }" @submit.prevent>
                         <div class="relative">
-                            <input type="text"
-                                class="form-input ltr:pl-9 rtl:pr-9 ltr:sm:pr-4 rtl:sm:pl-4 ltr:pr-9 rtl:pl-9 peer sm:bg-transparent bg-gray-100 placeholder:tracking-widest h-10"
-                                placeholder="بحث" />
+                            <input type="text" x-model="query"
+                                class="form-input font-Helvetica ltr:pl-9 rtl:pr-9 ltr:sm:pr-4 rtl:sm:pl-4 ltr:pr-9 rtl:pl-9 peer sm:bg-transparent bg-gray-100 placeholder:tracking-widest h-10"
+                                placeholder="بحث عن صفحة..." @focus="search = true" />
                             <button type="button"
                                 class="absolute w-9 h-9 inset-0 ltr:right-auto rtl:left-auto appearance-none peer-focus:text-primary">
                                 <svg class="mx-auto" width="16" height="16" viewBox="0 0 24 24" fill="none"
@@ -47,7 +62,6 @@
                             <button type="button"
                                 class="hover:opacity-80 sm:hidden block absolute top-1/2 -translate-y-1/2 ltr:right-2 rtl:left-2"
                                 @click="search = false">
-                                </svg>
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <circle opacity="0.5" cx="12" cy="12" r="10" stroke="currentColor"
@@ -56,6 +70,28 @@
                                         stroke-width="1.5" stroke-linecap="round" />
                                 </svg>
                             </button>
+
+                            <!-- Search Results Dropdown -->
+                            <div x-show="query.length > 0 && search" x-transition
+                                class="absolute top-11 left-0 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-100 dark:border-gray-700 z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                                <template x-for="link in filteredLinks" :key="link.url">
+                                    <a :href="link.url"
+                                        class="block px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm font-medium text-gray-800 dark:text-gray-200"
+                                                x-text="link.label"></span>
+                                            <span
+                                                class="text-xs text-gray-500 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full"
+                                                x-text="link.category"></span>
+                                        </div>
+                                    </a>
+                                </template>
+                                <div x-show="filteredLinks.length === 0"
+                                    class="px-4 py-3 text-sm text-gray-500 text-center">
+                                    لا توجد نتائج مطابقة
+                                </div>
+                            </div>
+
                         </div>
                     </form>
                     <button type="button"
@@ -114,7 +150,7 @@
                             @forelse(auth()->user()->notifications->take(10) as $notification)
                                 <li
                                     class="border-b border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-[#20304c] transition group">
-                                    <a href="{{ isset($notification->data['link']) ? $notification->data['link'] . (str_contains($notification->data['link'], '?') ? '&' : '?') . 'read=' . $notification->id : '#' }}"
+                                    <a href="{{ route('notifications.readAndRedirect', $notification->id) }}"
                                         class="block p-4" @click="open = false">
                                         <div class="flex items-start gap-4">
                                             <div
@@ -215,6 +251,23 @@
                     </a>
                 </div>
 
+                <div class="dropdown" x-data="dropdown" @click.outside="open = false">
+                    <a href="{{ route('notifications.index') }}" class="block p-2 rounded-full bg-white-light/40 dark:bg-dark/40 hover:text-primary hover:bg-white-light/90 dark:hover:bg-dark/60 relative">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12.0001 6.3998C12.0001 5.30932 12.0001 4.76408 11.9168 4.6062C11.6444 4.09015 11.097 3.75781 10.4901 3.75781C9.44445 3.75781 7.69612 3.75781 6.99008 3.75781C5.10522 3.75781 4.16279 3.75781 3.57731 4.3433C2.99182 4.92878 2.99182 5.87121 2.99182 7.75607V15.7533C2.99182 17.6381 2.99182 18.5806 3.57731 19.1661C4.16279 19.7515 5.10522 19.7515 6.99008 19.7515V19.7515C7.29008 19.7516 7.44009 19.7516 7.55621 19.8249C7.81882 19.9906 7.9406 20.29 7.89299 20.6125C7.87193 20.7551 7.76997 20.8911 7.56605 21.163L6.96025 21.9707C6.42582 22.6833 6.1586 23.0396 6.27315 23.3614C6.38769 23.6832 6.81231 23.7716 7.66155 23.9485L7.92558 24.0035C10.7029 24.5822 13.5939 23.3283 15.0298 20.9221C15.1582 20.7067 15.2225 20.5991 15.2225 20.4862C15.2225 20.2526 15.2225 19.9862 15.2225 19.7515C17.1074 19.7515 18.0498 19.7515 18.6353 19.1661C19.2208 18.5806 19.2208 17.6381 19.2208 15.7533V12.3986" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path opacity="0.5" d="M12.0001 6.3998C12.0001 5.30932 12.0001 4.76408 11.9168 4.6062C11.6444 4.09015 11.097 3.75781 10.4901 3.75781C9.44445 3.75781 7.69612 3.75781 6.99008 3.75781C5.10522 3.75781 4.16279 3.75781 3.57731 4.3433C2.99182 4.92878 2.99182 5.87121 2.99182 7.75607V15.7533C2.99182 17.6381 2.99182 18.5806 3.57731 19.1661C4.16279 19.7515 5.10522 19.7515 6.99008 19.7515V19.7515C7.29008 19.7516 7.44009 19.7516 7.55621 19.8249C7.81882 19.9906 7.9406 20.29 7.89299 20.6125C7.87193 20.7551 7.76997 20.8911 7.56605 21.163L6.96025 21.9707C6.42582 22.6833 6.1586 23.0396 6.27315 23.3614C6.38769 23.6832 6.81231 23.7716 7.66155 23.9485L7.92558 24.0035C10.7029 24.5822 13.5939 23.3283 15.0298 20.9221C15.1582 20.7067 15.2225 20.5991 15.2225 20.4862C15.2225 20.2526 15.2225 19.9862 15.2225 19.7515C17.1074 19.7515 18.0498 19.7515 18.6353 19.1661C19.2208 18.5806 19.2208 17.6381 19.2208 15.7533V12.3986" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M19 8C20.6569 8 22 6.65685 22 5C22 3.34315 20.6569 2 19 2C17.3431 2 16 3.34315 16 5C16 6.65685 17.3431 8 19 8Z" stroke="currentColor" stroke-width="1.5"/>
+                        </svg>
+                        
+                        @php
+                            $unread = auth()->check() ? auth()->user()->unreadNotifications->count() : 0;
+                        @endphp
+                        @if($unread > 0)
+                            <span class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
+                        @endif
+                    </a>
+                </div>
+
                 <div class="dropdown flex-shrink-0" x-data="dropdown" @click.outside="open = false">
                     <a href="javascript:;" class="relative group" @click="toggle()">
                         <span>
@@ -250,8 +303,35 @@
                                 </div>
                             </div>
                         </li>
+
+                        <!-- Profile Switcher -->
+                        <li class="border-b border-gray-100 dark:border-gray-600">
+                            <div class="px-4 py-2">
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">تغيير الصلاحية (Profile)</span>
+                                <div class="mt-2 space-y-1">
+                                    <a href="{{ route('profile.reset') }}" 
+                                       class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ !session('active_profile_id') ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                                        <span>جميع الصلاحيات</span>
+                                        @if(!session('active_profile_id'))
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                        @endif
+                                    </a>
+                                    
+                                    @foreach(Auth::user()->profiles as $profile)
+                                        <a href="{{ route('profile.switch', $profile->id) }}" 
+                                           class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ session('active_profile_id') == $profile->id ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                                            <span>{{ $profile->title }}</span>
+                                            @if(session('active_profile_id') == $profile->id)
+                                                <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            @endif
+                                        </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </li>
+
                         <li>
-                            <a href="{{ route('profile') }}" class="dark:hover:text-white" @click="toggle">
+                            <a href="{{ route('profile.edit') }}" class="dark:hover:text-white" @click="toggle">
                                 <svg class="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5" />

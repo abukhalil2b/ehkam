@@ -172,9 +172,15 @@
 
 
                 <!-- Auth Buttons -->
-                @if (Route::has('login'))
-                    <livewire:welcome.navigation />
-                @endif
+                <div class="flex items-center space-x-4 space-x-reverse">
+                    @auth
+                        <a href="{{ url('/dashboard') }}"
+                            class="text-gray-700 hover:text-primary transition font-medium">لوحة التحكم</a>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="text-gray-700 hover:text-primary transition font-medium">دخول</a>
+                    @endauth
+                </div>
 
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center">
@@ -201,7 +207,7 @@
                 <a href="login"
                     class="bg-white text-primary px-8 py-3 rounded-lg font-medium hover:bg-gray-100 transition duration-300">الدخول
                     للنظام</a>
-            
+
             </div>
         </div>
     </section>
@@ -241,17 +247,17 @@
 
                 <!-- KPI 3 -->
                 <a href="{{ route('statistic.quran') }}">
-                <div class="feature-card bg-white p-8 rounded-lg">
-                    <div class="text-primary mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                        </svg>
+                    <div class="feature-card bg-white p-8 rounded-lg">
+                        <div class="text-primary mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold mb-3">تعليم القرآن</h3>
+                        <p class="text-gray-600">عدد متعلمي القرآن الكريم وزيادة أعداد المستفيدين من برامج التعليم</p>
                     </div>
-                    <h3 class="text-xl font-bold mb-3">تعليم القرآن</h3>
-                    <p class="text-gray-600">عدد متعلمي القرآن الكريم وزيادة أعداد المستفيدين من برامج التعليم</p>
-                </div>
                 </a>
 
                 <!-- KPI 4 -->
@@ -395,16 +401,16 @@
                     <h3 class="text-lg font-semibold mb-4">اتصل بنا</h3>
                     <ul class="space-y-2 text-gray-400">
                         <li class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                             </svg>
                             <span>98626878889+</span>
                         </li>
                         <li class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>

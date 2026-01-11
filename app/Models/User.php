@@ -115,16 +115,30 @@ class User extends Authenticatable
     // Assuming this method is inside a User Model or similar class
     public function getPermissions()
     {
-        // 1. Get the IDs of all profiles assigned to the current user.
-        $profileIds = DB::table('user_profile')
-            ->where('user_id', $this->id)
-            ->pluck('profile_id')
-            ->toArray();
+        // Check for Active Profile in Session
+        $activeProfileId = session('active_profile_id');
+
+        // 1. Get the IDs of profiles to check (Active One or All)
+        if ($activeProfileId) {
+            // Validate that the user actually owns this profile
+            $hasProfile = DB::table('user_profile')
+                ->where('user_id', $this->id)
+                ->where('profile_id', $activeProfileId)
+                ->exists();
+
+            $profileIds = $hasProfile ? [$activeProfileId] : [];
+        } else {
+            // Default: All profiles
+            $profileIds = DB::table('user_profile')
+                ->where('user_id', $this->id)
+                ->pluck('profile_id')
+                ->toArray();
+        }
 
         // Initialize an array to store all unique permission slugs.
         $allPermissionsSlugs = [];
 
-        // 2. Get the slugs for all permissions associated with the user's profiles.
+        // 2. Get the slugs for all permissions associated with the selected profile(s).
         if (!empty($profileIds)) {
             $profilePermissionsSlugs = DB::table('profile_permission')
                 ->join('permissions', 'profile_permission.permission_id', '=', 'permissions.id')
@@ -136,6 +150,7 @@ class User extends Authenticatable
         }
 
         // 3. Get the slugs for all permissions directly (individually) assigned to the user.
+        // NOTE: We assume individual permissions are global and apply regardless of profile context.
         $individualPermissionsSlugs = DB::table('user_permission')
             ->join('permissions', 'user_permission.permission_id', '=', 'permissions.id')
             ->where('user_permission.user_id', $this->id)
@@ -146,6 +161,14 @@ class User extends Authenticatable
 
         // 4. Ensure all permissions are unique and re-index the array.
         return array_values(array_unique($allPermissionsSlugs));
+    }
+
+    public function getActiveProfile()
+    {
+        $id = session('active_profile_id');
+        if (!$id)
+            return null;
+        return $this->profiles()->where('profiles.id', $id)->first();
     }
 
     // 1. Relationship to all historical assignments

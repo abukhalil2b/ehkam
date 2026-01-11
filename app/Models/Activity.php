@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Activity extends Model
 {
-     protected $guarded = [];
+    protected $guarded = [];
     // Relationship to get all assessment results for this activity
     public function assessmentResults()
     {
@@ -17,5 +17,11 @@ class Activity extends Model
     public function project()
     {
         return $this->belongsTo(Project::class);
+    }
+
+    // Current active workflow state
+    public function currentWorkflow()
+    {
+        return $this->hasOne(ActivityWorkflow::class)->latest();
     }
 }

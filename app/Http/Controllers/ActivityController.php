@@ -51,7 +51,7 @@ class ActivityController extends Controller
             'activities' => $activities,
             'submittedActivityIds' => $submittedActivityIds,
             'availableYears' => $availableYears,
-            'selectedYear'   => $year, // Pass the year for display in the view
+            'selectedYear' => $year, // Pass the year for display in the view
         ]);
     }
 
@@ -84,7 +84,7 @@ class ActivityController extends Controller
 
     public function show(Activity $activity)
     {
-        $activity->load('project');
+        $activity->load(['project', 'currentWorkflow.assignee', 'currentWorkflow.assignedRole']);
 
         $currentYear = $activity->current_year;
 
@@ -107,11 +107,11 @@ class ActivityController extends Controller
 
         // 4️⃣ Always initialize summary (NO NULLS)
         $userSummary = [
-            'user_name'   => '—',
+            'user_name' => '—',
             'total_score' => 0,
-            'max_score'   => $totalMaxPoints,
-            'percentage'  => 0,
-            'results'     => collect(),
+            'max_score' => $totalMaxPoints,
+            'percentage' => 0,
+            'results' => collect(),
         ];
 
         $hasRangeResults = false;
@@ -135,24 +135,24 @@ class ActivityController extends Controller
                 : 0;
 
             $userSummary = [
-                'user_name'   => $userResults->first()->user->name ?? '—',
+                'user_name' => $userResults->first()->user->name ?? '—',
                 'total_score' => $totalScore,
-                'max_score'   => $totalMaxPoints,
-                'percentage'  => $percentage,
-                'results'     => $keyedResults,
+                'max_score' => $totalMaxPoints,
+                'percentage' => $percentage,
+                'results' => $keyedResults,
             ];
         }
 
         $hasSubmitted = $userResults->isNotEmpty();
 
         return view('activity.show', [
-            'activity'       => $activity,
-            'allQuestions'   => $allQuestions,
-            'userSummary'    => $userSummary,
+            'activity' => $activity,
+            'allQuestions' => $allQuestions,
+            'userSummary' => $userSummary,
             'hasRangeResults' => $hasRangeResults,
-            'canSubmitNew'   => ! $hasSubmitted,
-            'canUpdate'      => $hasSubmitted,
-            'currentYear'    => $currentYear,
+            'canSubmitNew' => !$hasSubmitted,
+            'canUpdate' => $hasSubmitted,
+            'currentYear' => $currentYear,
         ]);
     }
 }
