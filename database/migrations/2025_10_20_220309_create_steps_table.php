@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     public function up(): void
     {
         Schema::create('steps', function (Blueprint $table) {
@@ -19,6 +18,45 @@ return new class extends Migration
             $table->foreignId('activity_id')
                 ->constrained()
                 ->cascadeOnDelete();
+
+            // ========== WORKFLOW ENGINE COLUMNS ==========
+            // Which workflow design is this step following?
+            // Must be nullable because existing steps didn't have a workflow
+            $table->foreignId('workflow_id')
+                ->nullable()
+                ->constrained('workflows')
+                ->nullOnDelete();
+
+            // WHERE is it right now? (Points to workflow_stages table)
+            $table->foreignId('current_stage_id')
+                ->nullable()
+                ->constrained('workflow_stages')
+                ->nullOnDelete();
+
+            // Who created this step
+            $table->foreignId('creator_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            // Status flag for the item itself
+            // Movement is driven by current_stage_id, NOT status
+            // Only terminal statuses (completed, rejected) allow current_stage_id = NULL
+            $table->enum('status', ['draft', 'in_progress', 'completed', 'returned', 'rejected'])
+                ->default('draft');
+
+            // Optional assignment + metadata
+            $table->foreignId('assigned_user_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->tinyInteger('priority')->default(3);
+
+            $table->date('due_date')->nullable();
+
+            $table->json('meta')->nullable();
+            // ========== END WORKFLOW ENGINE COLUMNS ==========
 
             // Basic info
             $table->string('name'); // اسم الخطوة
@@ -34,14 +72,6 @@ return new class extends Migration
                 'close'
             ])->comment('مرحلة العمل');
 
-            // Status of the step
-            $table->enum('status', [
-                'not_started',  // لم يبدأ
-                'in_progress',  // في الإجراء
-                'delayed',      // متأخر
-                'completed',    // منجز
-                'approved'      // معتمد
-            ])->default('not_started');
 
             // Supporting documents / notes
             $table->text('supporting_document')->nullable();

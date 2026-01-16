@@ -1,6 +1,5 @@
 <x-app-layout>
 
-
     @push('styles')
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <style>
@@ -64,10 +63,12 @@
         </div>
     </x-slot>
 
-    <a href="{{ route('project.index', $indicator->id) }}"
-        class="flex items-center gap-2 text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
-        المشروع
-    </a>
+    <div class="px-4">
+        <a href="{{ route('project.index', $indicator->id) }}"
+            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
+            المشروع
+        </a>
+    </div>
 
     <div x-data="{ open: false, is_need_evidence_file: false, is_need_to_put_target: false }" class="container mx-auto py-8 px-4">
         <!-- Work Steps Section -->

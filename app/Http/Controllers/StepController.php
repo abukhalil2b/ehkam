@@ -11,7 +11,7 @@ use App\Models\Step;
 use App\Models\StepEvidenceFile;
 use App\Models\StepOrgUnitTask;
 use App\Models\StepWorkflow;
-use App\Models\Profile;
+use App\Models\Role;
 use Illuminate\Http\Request;
 
 class StepController extends Controller
@@ -116,19 +116,18 @@ class StepController extends Controller
         }
 
         // Initialize Workflow
-        $qaProfile = Profile::where('title', 'Quality Assurance')->first();
+        $qaRole = Role::where('title', 'Quality Assurance')->first();
         StepWorkflow::create([
             'step_id' => $step->id,
             'stage' => 'verification',
             'status' => 'pending',
-            'assigned_role' => $qaProfile ? $qaProfile->id : null,
+            'assigned_role' => $qaRole ? $qaRole->id : null,
         ]);
 
         // Send Notification to Users with 'Quality Assurance' Role
-        if ($qaProfile) {
-            $usersToNotify = \App\Models\User::whereHas('profiles', function ($query) use ($qaProfile) {
-                // Assuming 'user_profile' or similar pivot table logic is handled by 'profiles' relation
-                $query->where('profiles.id', $qaProfile->id);
+        if ($qaRole) {
+            $usersToNotify = \App\Models\User::whereHas('roles', function ($query) use ($qaRole) {
+                $query->where('roles.id', $qaRole->id);
             })->get();
 
             if ($usersToNotify->isNotEmpty()) {

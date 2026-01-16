@@ -317,7 +317,7 @@
                                         @endif
                                     </a>
                                     
-                                    @foreach(Auth::user()->profiles as $profile)
+                                    @foreach(Auth::user()->roles as $profile)
                                         <a href="{{ route('profile.switch', $profile->id) }}" 
                                            class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ session('active_profile_id') == $profile->id ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
                                             <span>{{ $profile->title }}</span>

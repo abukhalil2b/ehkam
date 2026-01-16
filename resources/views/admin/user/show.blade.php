@@ -27,7 +27,7 @@
                 </ul>
             </div>
             
-            {{-- 3. Profiles and Permissions --}}
+            {{-- 3. roles and Permissions --}}
             <x-user-permissions-card :user="$user" />
 
             {{-- Effective Permissions Hint --}}

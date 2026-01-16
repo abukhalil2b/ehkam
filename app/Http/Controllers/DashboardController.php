@@ -62,9 +62,9 @@ class DashboardController extends Controller
         $myWorkflows = \App\Models\StepWorkflow::where('status', '!=', 'completed') // Only pending/active
             ->where(function ($q) use ($loggedUser) {
                 $q->where('assigned_to', $loggedUser->id);
-                // If user has profiles, check roles too
-                if ($loggedUser->profiles->isNotEmpty()) {
-                    $q->orWhereIn('assigned_role', $loggedUser->profiles->pluck('id'));
+                // If user has roles, check roles too
+                if ($loggedUser->roles->isNotEmpty()) {
+                    $q->orWhereIn('assigned_role', $loggedUser->roles->pluck('id'));
                 }
             })
             ->with(['step.project']) // Eager load step and its project/mission context if needed

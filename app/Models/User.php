@@ -8,7 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use App\Models\Permission;
-use App\Models\Profile;
+use App\Models\Role;
 
 class User extends Authenticatable
 {
@@ -34,8 +34,15 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Cache for user permissions (performance optimization)
+     */
     protected ?array $cachedPermissions = null;
 
+    public function sectors(){
+        return $this->belongsToMany(Sector::class);
+    }
+    
     // ========== Calendar ==========
     public function calendarEvents()
     {
@@ -57,118 +64,106 @@ class User extends Authenticatable
         return $this->hasMany(CalendarDelegation::class, 'employee_id');
     }
 
-    // ========== Profile ==========
-    public function assignProfile($profile)
-    {
-        $profileId = $profile instanceof Profile ? $profile->id : $profile;
-        $this->profiles()->syncWithoutDetaching($profileId);
-    }
+    // ========== RBAC - Roles & Permissions ==========
 
-    public function sectors()
+    /**
+     * The roles that belong to this user.
+     * This is the ONLY source of permissions (RBAC compliant).
+     */
+    public function roles()
     {
-        return $this->belongsToMany(Sector::class);
-    }
-
-    public function profiles()
-    {
-        // Use the default naming conventions or specify the custom pivot table 'user_profile'
-        return $this->belongsToMany(Profile::class, 'user_profile', 'user_id', 'profile_id')
-            ->withTimestamps(); // Include timestamps from the pivot table
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withTimestamps();
     }
 
     /**
-     * Remove a profile from the user.
-     * @param Profile|int $profile
+     * Assign a role to the user.
      */
-    public function revokeProfile($profile)
+    public function assignRole(Role|int $role): void
     {
-        $profileId = $profile instanceof Profile ? $profile->id : $profile;
-        $this->profiles()->detach($profileId);
-    }
-
-    // ========== Permission ==========
-    public function permissions()
-    {
-        return $this->belongsToMany(Permission::class, 'user_permission', 'user_id', 'permission_id');
+        $roleId = $role instanceof Role ? $role->id : $role;
+        $this->roles()->syncWithoutDetaching($roleId);
+        $this->cachedPermissions = null; // Clear cache
     }
 
     /**
-     * Sync direct permissions for the user.
-     * @param array $permissions Array of Permission IDs
+     * Remove a role from the user.
      */
-    public function syncPermissions(array $permissions)
+    public function revokeRole(Role|int $role): void
     {
-        $this->permissions()->sync($permissions);
+        $roleId = $role instanceof Role ? $role->id : $role;
+        $this->roles()->detach($roleId);
+        $this->cachedPermissions = null; // Clear cache
     }
 
+    /**
+     * Check if user has a specific role.
+     */
+    public function hasRole(string $slug): bool
+    {
+        return $this->roles()->where('slug', $slug)->exists();
+    }
+
+    /**
+     * Check if user has a specific permission.
+     * 
+     * CANONICAL RBAC RULE:
+     * A user has a permission if and only if at least one 
+     * assigned role grants that permission.
+     */
     public function hasPermission(string $slug): bool
     {
-        // 1. Super Admin Bypass (Crucial for maintenance)
+        // Super Admin Bypass (user ID 1 always has all permissions)
         if ($this->id === 1) {
             return true;
         }
 
-        // 2. Check if the required slug is in the user's permission list
+        // Check if the required slug is in the user's permission list
         return in_array($slug, $this->getPermissions());
     }
 
-    // Assuming this method is inside a User Model or similar class
-    public function getPermissions()
+    /**
+     * Get all permissions for this user (aggregated from all roles).
+     * 
+     * @return array Array of permission slugs
+     */
+    public function getPermissions(): array
     {
-        // Check for Active Profile in Session
-        $activeProfileId = session('active_profile_id');
-
-        // 1. Get the IDs of profiles to check (Active One or All)
-        if ($activeProfileId) {
-            // Validate that the user actually owns this profile
-            $hasProfile = DB::table('user_profile')
-                ->where('user_id', $this->id)
-                ->where('profile_id', $activeProfileId)
-                ->exists();
-
-            $profileIds = $hasProfile ? [$activeProfileId] : [];
-        } else {
-            // Default: All profiles
-            $profileIds = DB::table('user_profile')
-                ->where('user_id', $this->id)
-                ->pluck('profile_id')
-                ->toArray();
+        // Return cached permissions if available
+        if ($this->cachedPermissions !== null) {
+            return $this->cachedPermissions;
         }
 
-        // Initialize an array to store all unique permission slugs.
-        $allPermissionsSlugs = [];
-
-        // 2. Get the slugs for all permissions associated with the selected profile(s).
-        if (!empty($profileIds)) {
-            $profilePermissionsSlugs = DB::table('profile_permission')
-                ->join('permissions', 'profile_permission.permission_id', '=', 'permissions.id')
-                ->whereIn('profile_permission.profile_id', $profileIds)
-                ->pluck('permissions.slug')
-                ->toArray();
-
-            $allPermissionsSlugs = array_merge($allPermissionsSlugs, $profilePermissionsSlugs);
-        }
-
-        // 3. Get the slugs for all permissions directly (individually) assigned to the user.
-        // NOTE: We assume individual permissions are global and apply regardless of profile context.
-        $individualPermissionsSlugs = DB::table('user_permission')
-            ->join('permissions', 'user_permission.permission_id', '=', 'permissions.id')
-            ->where('user_permission.user_id', $this->id)
+        // Get all permission slugs from all assigned roles
+        $permissions = DB::table('permission_role')
+            ->join('permissions', 'permission_role.permission_id', '=', 'permissions.id')
+            ->join('role_user', 'permission_role.role_id', '=', 'role_user.role_id')
+            ->where('role_user.user_id', $this->id)
+            ->distinct()
             ->pluck('permissions.slug')
             ->toArray();
 
-        $allPermissionsSlugs = array_merge($allPermissionsSlugs, $individualPermissionsSlugs);
+        // Cache the result
+        $this->cachedPermissions = array_values($permissions);
 
-        // 4. Ensure all permissions are unique and re-index the array.
-        return array_values(array_unique($allPermissionsSlugs));
+        return $this->cachedPermissions;
     }
 
-    public function getActiveProfile()
+    /**
+     * Clear the cached permissions (call after role changes).
+     */
+    public function clearPermissionCache(): void
     {
-        $id = session('active_profile_id');
-        if (!$id)
-            return null;
-        return $this->profiles()->where('profiles.id', $id)->first();
+        $this->cachedPermissions = null;
+    }
+
+    /**
+     * Get the active role (for UI display purposes).
+     * Returns the first role or null if no roles assigned.
+     */
+    public function getPrimaryRole(): ?Role
+    {
+        return $this->roles()->first();
     }
 
     // 1. Relationship to all historical assignments
@@ -417,5 +412,46 @@ class User extends Authenticatable
             ->where('due_date', '<', now())
             ->orderBy('due_date')
             ->get();
+    }
+
+    // ========== WORKFLOW ENGINE ==========
+
+    /**
+     * Workflow teams this user belongs to
+     */
+    public function workflowTeams()
+    {
+        return $this->belongsToMany(WorkflowTeam::class, 'user_workflow_team')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get steps pending action by this user (based on team membership)
+     */
+    public function pendingWorkflowSteps()
+    {
+        $teamIds = $this->workflowTeams()->pluck('workflow_teams.id');
+
+        return Step::whereHas('currentStage', function ($query) use ($teamIds) {
+            $query->whereIn('team_id', $teamIds);
+        })
+            ->whereNotIn('status', ['completed', 'draft', 'rejected'])
+            ->get();
+    }
+
+    /**
+     * Check if user can act on a specific step (is member of the step's current stage team)
+     */
+    public function canActOnStep(Step $step): bool
+    {
+        if (!$step->current_stage_id) {
+            return false;
+        }
+
+        $stageTeamId = $step->currentStage->team_id;
+
+        return $this->workflowTeams()
+            ->where('workflow_teams.id', $stageTeamId)
+            ->exists();
     }
 }

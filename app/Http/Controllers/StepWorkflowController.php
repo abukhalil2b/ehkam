@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Step;
 use App\Models\StepWorkflow;
-use App\Models\Profile;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -96,6 +96,6 @@ class StepWorkflowController extends Controller
 
     private function getRoleId($roleName)
     {
-        return Profile::where('title', $roleName)->value('id');
+        return Role::where('title', $roleName)->value('id');
     }
 }

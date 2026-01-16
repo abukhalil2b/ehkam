@@ -21,7 +21,7 @@ return new class extends Migration {
 
             // Assignments
             $table->foreignId('assigned_to')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('assigned_role')->nullable()->constrained('profiles')->nullOnDelete();
+            $table->foreignId('assigned_role')->nullable()->constrained('roles')->nullOnDelete();
 
             $table->text('comments')->nullable();
 

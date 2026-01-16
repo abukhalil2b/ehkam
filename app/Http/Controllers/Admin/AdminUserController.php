@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 
-use App\Models\Profile;
+use App\Models\Role;
 use App\Models\User;
 use App\Models\Permission;
 use Illuminate\Http\Request;
@@ -22,10 +22,10 @@ class AdminUserController extends Controller
             abort(403, 'لاتملك الصلاحية');
         }
 
-        $profiles = Profile::latest('id')->get();
+        $roles = Role::latest('id')->get();
 
 
-        return view('admin.user.create', compact('profiles', 'groups'));
+        return view('admin.user.create', compact('roles', 'groups'));
     }
 
     public function checkCivilId(Request $request)
@@ -61,7 +61,7 @@ class AdminUserController extends Controller
             abort(403, 'لاتملك الصلاحية');
         }
 
-        $profile = Profile::findOrFail($request->profile_id);
+        $profile = Role::findOrFail($request->profile_id);
 
         // Abort if the profile's title is not 'trainer' or 'trainee'
         if (!in_array($profile->title, ['trainer', 'trainee'])) {
@@ -90,16 +90,18 @@ class AdminUserController extends Controller
             $user = User::create([
                 'civil_id' => $request->civil_id,
                 'name' => $request->name,
-                'password' =>  Hash::make($request->civil_id),
+                'password' => Hash::make($request->civil_id),
                 'user_type' => $profile->title,
                 'phone' => $request->phone,
                 'plain_password' => $request->civil_id,
             ]);
 
-            // Link Profile
-            DB::table('user_profile')->insert([
+            // Link Role (using new role_user pivot)
+            DB::table('role_user')->insert([
                 'user_id' => $user->id,
-                'profile_id' => $profile->id
+                'role_id' => $profile->id,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             // ✅ Attach groups if selected
@@ -117,12 +119,12 @@ class AdminUserController extends Controller
 
     public function show(User $user)
     {
-        // Profiles already linked to the user
-        $hisProfiles = $user->profiles;
-        $hisProfileIds = $hisProfiles->pluck('id');
+        // Roles already linked to the user
+        $hisroles = $user->roles;
+        $hisProfileIds = $hisroles->pluck('id');
 
-        // Available profiles (not linked, excluding "admin")
-        $availableProfiles = Profile::query()
+        // Available roles (not linked, excluding "admin")
+        $availableroles = Role::query()
             ->whereNotIn('id', $hisProfileIds)
             ->whereNot('title', 'admin')
             ->get();
@@ -135,8 +137,8 @@ class AdminUserController extends Controller
 
         return view('admin.user.show', compact(
             'user',
-            'hisProfiles',
-            'availableProfiles',
+            'hisroles',
+            'availableroles',
             'hisGroups',
             'availableGroups',
         ));
@@ -148,7 +150,7 @@ class AdminUserController extends Controller
     {
         $loggedUser = auth()->user();
 
-        $profile = Profile::whereTitle($profileTitle)->first();
+        $profile = Role::whereTitle($profileTitle)->first();
 
         if (!$profile) {
             abort(403);
@@ -157,9 +159,9 @@ class AdminUserController extends Controller
         // Get the search query from the request
         $search = request('search');
 
-        // Start a query on users related to the profile
-        $usersQuery = User::whereHas('profiles', function ($query) use ($profile) {
-            $query->where('user_profile.profile_id', $profile->id);
+        // Start a query on users related to the role
+        $usersQuery = User::whereHas('roles', function ($query) use ($profile) {
+            $query->where('role_user.role_id', $profile->id);
         });
 
         // If a search term is provided, apply the search filter
@@ -186,7 +188,7 @@ class AdminUserController extends Controller
         $user->load('groups');
 
 
-        return view('admin.user.edit', compact('user','groups'));
+        return view('admin.user.edit', compact('user', 'groups'));
     }
 
     public function update(Request $request, User $user)

@@ -10,7 +10,9 @@ class SidebarService
             'workflow' => [
                 'title' => 'سير العمل',
                 'links' => [
-                    ['route' => 'admin.workflows.index', 'permission' => 'admin.workflow.index', 'label' => 'لوحة التحكم', 'keywords' => 'workflow dashboard admin'],
+                    ['route' => 'workflow.pending', 'permission' => 'workflow.pending', 'label' => 'الخطوات المعلقة لي', 'keywords' => 'workflow pending steps my tasks'],
+                    ['route' => 'admin.workflow.teams.index', 'permission' => 'workflow_team.index', 'label' => 'إدارة الفرق', 'keywords' => 'workflow teams management'],
+                    ['route' => 'admin.workflow.definitions.index', 'permission' => 'workflow_definition.index', 'label' => 'تعريفات سير العمل', 'keywords' => 'workflow definitions stages'],
                 ]
             ],
             'indicator' => [
@@ -22,7 +24,7 @@ class SidebarService
             'activity' => [
                 'title' => 'الأنشطة',
                 'links' => [
-                    ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة', 'params' => ['2025'], 'keywords' => 'activities list'],
+                    ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة', 'params' => [date('Y')], 'keywords' => 'activities list'],
                     ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة', 'keywords' => 'assessment questions list'],
                     ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال', 'keywords' => 'add assessment question create'],
                     ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء', 'keywords' => 'performance report project assessment'],
@@ -32,7 +34,7 @@ class SidebarService
                 'title' => 'الأهداف',
                 'links' => [
                     ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات', 'keywords' => 'sector aims goals'],
-                    ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => ['2025'], 'keywords' => 'aim achievement feedback sector'],
+                    ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => [date('Y')], 'keywords' => 'aim achievement feedback sector'],
                 ]
             ],
             'swot' => [
@@ -104,8 +106,8 @@ class SidebarService
             'settings' => [
                 'title' => 'الإعدادات',
                 'links' => [
-                    ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'params' => ['2025'], 'keywords' => 'settings indicators'],
-                    ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع', 'params' => ['2025'], 'keywords' => 'settings projects'],
+                    ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'params' => [date('Y')], 'keywords' => 'settings indicators'],
+                    ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع', 'params' => [date('Y')], 'keywords' => 'settings projects'],
                 ]
             ],
             'admin_structure' => [
@@ -121,9 +123,10 @@ class SidebarService
                 ]
             ],
             'permission' => [
-                'title' => 'صلاحيات',
+                'title' => 'الصلاحيات والأدوار',
                 'links' => [
-                    ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات', 'keywords' => 'permissions all roles'],
+                    ['route' => 'admin.roles.index', 'permission' => 'permission.index', 'label' => 'إدارة الأدوار', 'keywords' => 'roles management rbac'],
+                    ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات', 'keywords' => 'permissions all list'],
                 ]
             ],
         ];

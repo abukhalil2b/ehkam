@@ -69,7 +69,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">لديهم صلاحيات</p>
-                    <p class="text-3xl font-bold text-purple-600">{{ $users->filter(fn($u) => $u->profiles->count() > 0)->count() }}</p>
+                    <p class="text-3xl font-bold text-purple-600">{{ $users->filter(fn($u) => $u->roles->count() > 0)->count() }}</p>
                 </div>
                 <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                     <i class="fas fa-user-shield text-purple-600 text-xl"></i>
@@ -124,16 +124,16 @@
                             @endif
                         </td>
                         <td class="px-6 py-4">
-                            @if($user->profiles->count() > 0)
+                            @if($user->roles->count() > 0)
                                 <div class="flex flex-wrap gap-1">
-                                    @foreach($user->profiles->take(2) as $profile)
+                                    @foreach($user->roles->take(2) as $profile)
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                                             {{ $profile->title }}
                                         </span>
                                     @endforeach
-                                    @if($user->profiles->count() > 2)
+                                    @if($user->roles->count() > 2)
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
-                                            +{{ $user->profiles->count() - 2 }}
+                                            +{{ $user->roles->count() - 2 }}
                                         </span>
                                     @endif
                                 </div>

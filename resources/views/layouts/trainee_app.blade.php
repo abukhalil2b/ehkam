@@ -68,9 +68,9 @@
                 </div>
 
 
-                <!-- Profile section with dropdown -->
+                <!-- role section with dropdown -->
                 <div x-data="{ open: false }" class="relative flex items-center justify-center sm:justify-end">
-                    <a class="flex items-center hover:text-white" href="/profile">
+                    <a class="flex items-center hover:text-white" href="/role">
                         <img src="/images/student_m.png" alt="صورة الطالب"
                             class="w-16 h-16 rounded-full bg-[#00bab1] object-cover">
                         <div class="mr-4 text-right hidden sm:block">
@@ -85,14 +85,14 @@
                     <!-- Dropdown -->
                     <div x-cloak x-show="open" @click.outside="open = false" x-transition
                         class="absolute top-0 right-0 mt-20 w-64 shadow-lg bg-white rounded p-2 z-50">
-                        <a class="block px-4 py-3 text-base text-[#082623] hover:bg-gray-200" href="/profile">تعديل
+                        <a class="block px-4 py-3 text-base text-[#082623] hover:bg-gray-200" href="/role">تعديل
                             البيانات الشخصية</a>
                         @if (Auth::user()->user_type != 'super_admin')
-                            @foreach (Auth::user()->profiles as $profile)
-                                @if (Auth::user()->user_type != $profile->title)
-                                    <a href="{{ route('switch-account', $profile->id) }}"
+                            @foreach (Auth::user()->roles as $role)
+                                @if (Auth::user()->user_type != $role->title)
+                                    <a href="{{ route('switch-account', $role->id) }}"
                                         class="block px-4 py-3 text-base bg-[#fffbf6] text-[#bd6e1e]">
-                                        الدخول كـ{{ __($profile->title) }}
+                                        الدخول كـ{{ __($role->title) }}
                                     </a>
                                 @endif
                             @endforeach

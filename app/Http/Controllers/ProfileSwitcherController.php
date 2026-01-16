@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ProfileSwitcherController extends Controller
+class roleswitcherController extends Controller
 {
     public function switch(Request $request, $id)
     {
         $user = Auth::user();
 
         // Verify the user owns this profile
-        if (!$user->profiles()->where('profiles.id', $id)->exists()) {
+        if (!$user->roles()->where('roles.id', $id)->exists()) {
             abort(403, 'Unauthorized action.');
         }
 

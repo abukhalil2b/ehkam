@@ -20,6 +20,6 @@ class IndicatorWorkflow extends Model
 
     public function assignedRole()
     {
-        return $this->belongsTo(Profile::class, 'assigned_role');
+        return $this->belongsTo(Role::class, 'assigned_role');
     }
 }

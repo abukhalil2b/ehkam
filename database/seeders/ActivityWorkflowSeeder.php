@@ -25,7 +25,7 @@ class ActivityWorkflowSeeder extends Seeder
             );
         }
 
-        // 2. Create Profiles (Roles)
+        // 2. Create roles (Roles)
         $roles = [
             'Planner' => ['activity.set_target'],
             'Executor' => ['activity.execute'],

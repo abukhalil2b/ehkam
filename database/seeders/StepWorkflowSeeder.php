@@ -34,7 +34,7 @@ class StepWorkflowSeeder extends Seeder
             );
         }
 
-        // 2. Create Profiles (Roles) - reusing existing roles if possible or defining new scopes
+        // 2. Create roles (Roles) - reusing existing roles if possible or defining new scopes
         // For simplicity, we'll assign these to the same roles as Activities for now, or ensure the admin/manager has them.
 
         $roles = [

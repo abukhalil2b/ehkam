@@ -3,22 +3,30 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * Permission Model for RBAC Authorization
+ * 
+ * Permissions define what actions can be performed.
+ * They are assigned to Roles, NOT directly to Users.
+ */
 class Permission extends Model
 {
-   public $timestamps = false;
+    public $timestamps = false;
 
-    protected $guarded = [];
+    protected $fillable = [
+        'title',
+        'slug',
+        'category',
+        'description',
+    ];
 
-    public function profiles()
+    /**
+     * The roles that have this permission.
+     */
+    public function roles(): BelongsToMany
     {
-        return $this->belongsToMany(Profile::class, 'profile_permission', 'permission_id', 'profile_id');
-    }
-
-
-    // Permissions can be assigned directly to many Users
-    public function users()
-    {
-        return $this->belongsToMany(User::class, 'user_permission');
+        return $this->belongsToMany(Role::class, 'permission_role');
     }
 }

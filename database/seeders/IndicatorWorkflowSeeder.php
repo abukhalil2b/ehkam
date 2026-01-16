@@ -24,8 +24,8 @@ class IndicatorWorkflowSeeder extends Seeder
             );
         }
 
-        // 2. Assign to Profiles (Roles)
-        // Reuse existing profiles from Activity Workflow
+        // 2. Assign to roles (Roles)
+        // Reuse existing roles from Activity Workflow
         $roles = [
             'Planner' => ['indicator.report'], // Planner or Executor can report? Let's give it to Planner for now.
             'Executor' => ['indicator.report'], // Or Executor. Let's give both for flexibility.

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Profile;
+use App\Models\Role;
 use App\Models\Activity;
 use App\Models\ActivityWorkflow;
 use Illuminate\Http\Request;
@@ -94,6 +94,6 @@ class ActivityWorkflowController extends Controller
 
     private function getRoleId($roleName)
     {
-        return Profile::where('title', $roleName)->value('id');
+        return Role::where('title', $roleName)->value('id');
     }
 }

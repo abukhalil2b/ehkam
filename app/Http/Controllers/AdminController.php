@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\OrgUnit;
 use App\Models\Position;
 use App\Models\User;
-use App\Models\Profile;
+use App\Models\Role;
 use App\Models\Permission;
 use App\Models\Sector;
 use App\Models\EmployeeAssignment;
@@ -86,19 +86,17 @@ class AdminController extends Controller
     // 1. Show the assignment form
     public function editUserPermissions(User $user)
     {
-        $allProfiles = Profile::all();
+        $allroles = Role::all();
         $allPermissions = Permission::all();
 
         // Get currently assigned data
-        $assignedProfileIds = $user->profiles->pluck('id')->toArray();
-        $assignedPermissionIds = $user->permissions->pluck('id')->toArray();
+        $assignedProfileIds = $user->roles->pluck('id')->toArray();
 
         return view('admin.user_permissions_edit', compact(
             'user',
-            'allProfiles',
+            'allroles',
             'allPermissions',
-            'assignedProfileIds',
-            'assignedPermissionIds'
+            'assignedProfileIds'
         ));
     }
 
@@ -106,17 +104,14 @@ class AdminController extends Controller
     public function updateUserPermissions(Request $request, User $user)
     {
         $request->validate([
-            'profiles' => 'nullable|array',
-            'permissions' => 'nullable|array',
+            'roles' => 'nullable|array',
         ]);
 
-        // Sync Profiles (This replaces all current profiles with the new list)
-        // If the user can only have ONE profile, use $user->profiles()->sync((array)$request->profiles);
-        // If they can have multiple, this is fine:
-        $user->profiles()->sync((array)$request->input('profiles'));
+        // Sync Roles (replaces all current roles with the new list)
+        $user->roles()->sync((array) $request->input('roles'));
 
-        // Sync Direct Permissions (This replaces all current direct permissions with the new list)
-        $user->syncPermissions((array)$request->input('permissions'));
+        // Clear permission cache
+        $user->clearPermissionCache();
 
         return redirect()->back()->with('success', 'تم تحديث الصلاحيات');
     }
@@ -132,17 +127,17 @@ class AdminController extends Controller
     {
         // Validation
         $validatedData = $request->validate([
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|string|email|max:255|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
             'sector_id' => 'required|array',
         ]);
 
         // Create User
         $user = User::create([
             'user_type' => 'staff',
-            'name'      => $validatedData['name'],
-            'email'     => $validatedData['email'],
-            'password'  => Hash::make($validatedData['email']), // default
+            'name' => $validatedData['name'],
+            'email' => $validatedData['email'],
+            'password' => Hash::make($validatedData['email']), // default
         ]);
 
         // Assign sectors
@@ -237,7 +232,7 @@ class AdminController extends Controller
     public function indexUsers()
     {
         // This now correctly calls the newly defined latestHistory() method.
-        $users = User::with(['profiles', 'latestHistory.position'])
+        $users = User::with(['roles', 'latestHistory.position'])
             ->orderBy('name', 'asc')
             ->paginate(15);
 
@@ -327,8 +322,7 @@ class AdminController extends Controller
     {
         // Load relationships for the view
         $user->load([
-            'profiles',
-            'permissions',
+            'roles',
             'positionHistory.position',
             'positionHistory.OrgUnit'
         ]);
@@ -339,8 +333,8 @@ class AdminController extends Controller
             ->latest('start_date')
             ->first();
 
-        // Load all profiles and permissions for selection forms
-        $allProfiles = Profile::orderBy('title')->get();
+        // Load all roles and permissions for selection forms
+        $allroles = Role::orderBy('title')->get();
         $allPermissions = Permission::orderBy('title')->get();
 
         $positions = Position::orderBy('title')->get();
@@ -349,7 +343,7 @@ class AdminController extends Controller
         return view('admin.user.show', compact(
             'user',
             'latestHistory',
-            'allProfiles',
+            'allroles',
             'allPermissions',
             'positions',
             'units'

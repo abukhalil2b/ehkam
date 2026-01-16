@@ -13,11 +13,12 @@ class AdminAimSectorFeedbackController extends Controller
     public function index(string $current_year = '2025')
     {
         // Allowed years (can be moved to config later)
-        $years = ['2023', '2024', '2025'];
+        $years = range(2023, (int) date('Y'));
 
-        if (! in_array($current_year, $years, true)) {
+        if (! in_array((int) $current_year, $years, true)) {
             abort(403);
         }
+
 
         // Load sectors once
         $sectors = Sector::orderBy('id')
