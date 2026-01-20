@@ -24,8 +24,10 @@
                 <section class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                         <h2 class="text-xl font-bold text-gray-800">{{ $project->title }}</h2>
-                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">مبادرة
-                            تمكينية</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold">
+                            مبادرة
+                            تمكينية
+                        </span>
                     </div>
 
                     <div class="p-6 space-y-6">
@@ -83,6 +85,7 @@
                                     <th class="p-4 font-semibold">النشاط</th>
                                     <th class="p-4 font-semibold">تغذية المؤشر</th>
                                     <th class="p-4 font-semibold">الحالة</th>
+                                    <th class="p-4 font-semibold">{{ __('العمليات') }}</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-100">
@@ -92,15 +95,57 @@
                                         <td class="p-4">
                                             @if ($activity->is_feed_indicator)
                                                 <span class="text-green-600 text-xs flex items-center">
-                                                    <i class="fas fa-link ml-1"></i> مباشر
+                                                    <i class="fas fa-link ml-1"></i> يغذي المؤشر بشكل مباشر
                                                 </span>
                                             @else
                                                 <span class="text-gray-400 text-xs flex items-center">
-                                                    <i class="fas fa-info-circle ml-1"></i> دعم
+                                                    <i class="fas fa-info-circle ml-1"></i> لايغذي المؤشر بشكل مباشر
                                                 </span>
                                             @endif
                                         </td>
-                                        <td class="p-4 text-xs text-gray-500 italic">بانتظار التقارير</td>
+                                        <td class="p-4 text-xs text-gray-500 italic">
+                                            @if($activity->workflowInstance)
+                                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                    {{ $activity->workflowInstance->workflow->name }}
+                                                    {{ $activity->currentStage ? ' - ' . $activity->currentStage->name : '' }}
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="bg-gray-100 text-gray-800 px-2 py-1 rounded">{{ __('not_started') }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="p-4">
+                                            @if($activity->workflowInstance)
+                                                <div class="flex items-center gap-2">
+                                                    @if($activity->workflowInstance->status === 'draft')
+                                                        <form action="{{ route('workflow.submit', $activity->id) }}" method="POST"
+                                                            class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded flex items-center"
+                                                                onclick="return confirm('{{ __('هل أنت متأكد من إرسال النشاط؟') }}')">
+                                                                <i class="fas fa-paper-plane ml-1"></i>
+                                                                {{ __('إرسال') }}
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                    <a href="{{ route('workflow.history', $activity->id) }}"
+                                                        class="text-indigo-600 hover:text-indigo-800 text-xs underline">
+                                                        {{ __('عرض السجل') }}
+                                                    </a>
+                                                </div>
+                                            @else
+                                                <form action="{{ route('workflow.start', $activity->id) }}" method="POST"
+                                                    class="inline">
+                                                    @csrf
+                                                    <button type="submit"
+                                                        class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs px-3 py-1 rounded flex items-center">
+                                                        <i class="fas fa-play ml-1"></i>
+                                                        {{ __('بدء سير العمل') }}
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
@@ -124,13 +169,7 @@
                     </div>
                 </section>
 
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start">
-                    <i class="fas fa-certificate text-green-600 mt-1 ml-3"></i>
-                    <div>
-                        <p class="text-xs font-bold text-green-800">حالة الاعتماد</p>
-                        <p class="text-xs text-green-700">تم الأعتماد النهائي من فريق التخطيط</p>
-                    </div>
-                </div>
+
             </div>
         </div>
     </div>

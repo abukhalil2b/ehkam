@@ -31,11 +31,11 @@ class WorkflowStage extends Model
     }
 
     /**
-     * Steps currently at this stage
+     * Items currently at this stage
      */
-    public function steps()
+    public function instances()
     {
-        return $this->hasMany(Step::class, 'current_stage_id');
+        return $this->hasMany(WorkflowInstance::class, 'current_stage_id');
     }
 
     /**
@@ -77,10 +77,10 @@ class WorkflowStage extends Model
     }
 
     /**
-     * Check if stage can be deleted (no steps currently at this stage)
+     * Check if stage can be deleted (no items currently at this stage)
      */
     public function canBeDeleted(): bool
     {
-        return $this->steps()->count() === 0;
+        return $this->instances()->count() === 0;
     }
 }

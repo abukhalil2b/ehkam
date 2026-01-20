@@ -21,12 +21,10 @@ class Workflow extends Model
     }
 
     /**
-     * Steps following this workflow
+     * Activities following this workflow
+     * @deprecated Use instances() instead
      */
-    public function steps()
-    {
-        return $this->hasMany(Step::class);
-    }
+    // public function activities() { ... }
 
     /**
      * Get the first stage of this workflow
@@ -56,12 +54,28 @@ class Workflow extends Model
     }
 
     /**
-     * Check if workflow can be deleted (no active steps)
+     * Check if workflow is in use (has associated instances)
+     */
+    public function isUsed(): bool
+    {
+        return $this->instances()->exists();
+    }
+
+    /**
+     * Check if workflow can be deleted (no active instances)
      */
     public function canBeDeleted(): bool
     {
-        return !$this->steps()
+        return !$this->instances()
             ->whereNotIn('status', ['completed', 'rejected'])
             ->exists();
+    }
+
+    /**
+     * Get instances of this workflow
+     */
+    public function instances()
+    {
+        return $this->hasMany(WorkflowInstance::class);
     }
 }

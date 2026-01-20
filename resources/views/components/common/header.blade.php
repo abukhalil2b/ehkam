@@ -1,10 +1,31 @@
 <header class="z-40" :class="{ 'dark': $store.app.semidark && $store.app.menu === 'horizontal' }">
+    {{-- Impersonate Banner --}}
+    @if(session()->has('impersonate_user_id'))
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 text-white py-2 px-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <svg class="w-5 h-5 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                </svg>
+                <span class="font-medium">
+                    أنت تتصفح كـ <strong>{{ auth()->user()->name }}</strong>
+                </span>
+            </div>
+            <a href="{{ route('admin.impersonate.stop') }}" 
+               class="flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-1.5 rounded-lg font-medium transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+                إيقاف الانتحال
+            </a>
+        </div>
+    @endif
+
     <div class="shadow-sm">
 
         <div class="relative bg-white flex w-full items-center px-5 py-2 dark:bg-[#0e1726]">
             <div class="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                 <a href="/" class="main-logo flex items-center shrink-0">
-                    <img class="w-8 ltr:-ml-1 rtl:-mr-1 inline" src="/assets/images/logo.png" alt="image" />
                     <span
                         class="text-[8px] ltr:ml-1.5 rtl:mr-1.5  text-center hidden md:inline dark:text-white-light transition-all duration-300">
 
@@ -297,8 +318,9 @@
                                     <div class="text-xs">
                                         {{ Auth::user()->name }}
                                     </div>
+                                    @php $activeRole = Auth::user()->getActiveRole(); @endphp
                                     <div class="text-xs text-center bg-success-light rounded text-success p-1">
-                                        {{ __(Auth::user()->user_type) }}
+                                        {{ $activeRole?->title ?? __('موظف') }}
                                     </div>
                                 </div>
                             </div>
@@ -307,21 +329,21 @@
                         <!-- Profile Switcher -->
                         <li class="border-b border-gray-100 dark:border-gray-600">
                             <div class="px-4 py-2">
-                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">تغيير الصلاحية (Profile)</span>
+                                <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">تغيير الدور النشط</span>
                                 <div class="mt-2 space-y-1">
                                     <a href="{{ route('profile.reset') }}" 
-                                       class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ !session('active_profile_id') ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                                       class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ !Auth::user()->active_role_id ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
                                         <span>جميع الصلاحيات</span>
-                                        @if(!session('active_profile_id'))
+                                        @if(!Auth::user()->active_role_id)
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                         @endif
                                     </a>
                                     
-                                    @foreach(Auth::user()->roles as $profile)
-                                        <a href="{{ route('profile.switch', $profile->id) }}" 
-                                           class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ session('active_profile_id') == $profile->id ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
-                                            <span>{{ $profile->title }}</span>
-                                            @if(session('active_profile_id') == $profile->id)
+                                    @foreach(Auth::user()->roles as $role)
+                                        <a href="{{ route('profile.switch', $role->id) }}" 
+                                           class="flex items-center justify-between px-2 py-1.5 rounded text-sm {{ Auth::user()->active_role_id == $role->id ? 'bg-primary/10 text-primary' : 'hover:bg-gray-50 dark:hover:bg-gray-700' }}">
+                                            <span>{{ $role->title }}</span>
+                                            @if(Auth::user()->active_role_id == $role->id)
                                                 <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                             @endif
                                         </a>
@@ -331,7 +353,7 @@
                         </li>
 
                         <li>
-                            <a href="{{ route('profile.edit') }}" class="dark:hover:text-white" @click="toggle">
+                            <a href="{{ route('user_profile.edit') }}" class="dark:hover:text-white" @click="toggle">
                                 <svg class="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <circle cx="12" cy="6" r="4" stroke="currentColor" stroke-width="1.5" />

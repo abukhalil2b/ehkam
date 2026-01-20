@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Step extends Model
 {
@@ -12,122 +14,58 @@ class Step extends Model
 
     protected $casts = [
         'meta' => 'array',
-        'due_date' => 'date',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'is_need_evidence_file' => 'boolean',
+        'is_need_to_put_target' => 'boolean',
     ];
 
-    // ========== EXISTING RELATIONSHIPS ==========
+    // ========== RELATIONSHIPS ==========
 
-    public function stepEvidenceFiles()
+    /**
+     * The activity this step belongs to
+     */
+    public function activity(): BelongsTo
     {
-        return $this->hasMany(StepEvidenceFile::class);
+        return $this->belongsTo(Activity::class);
     }
 
-    public function project()
+    /**
+     * The project this step belongs to
+     */
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);
     }
 
-    public function StepOrgUnitTasks()
+    /**
+     * Workflow requirements (evidence files) attached to workflow transitions
+     */
+    public function workflowRequirements(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(
+            WorkflowRequirement::class,
+            WorkflowTransition::class,
+            'workflowable_id', // Foreign key on workflow_transitions
+            'workflow_transition_id', // Foreign key on workflow_requirements
+            'id', // Local key on steps
+            'id' // Local key on workflow_transitions
+        )->where('workflow_transitions.workflowable_type', Step::class);
+    }
+
+    /**
+     * Organizational unit tasks
+     */
+    public function StepOrgUnitTasks(): HasMany
     {
         return $this->hasMany(StepOrgUnitTask::class, 'step_id');
     }
 
     /**
-     * Legacy workflow relationship (kept for backward compatibility)
+     * Feedback notes associated with this step from workflow returns
      */
-    public function currentWorkflow()
+    public function feedbacks(): HasMany
     {
-        return $this->hasOne(StepWorkflow::class)->latestOfMany();
-    }
-
-    // ========== NEW WORKFLOW ENGINE RELATIONSHIPS ==========
-
-    /**
-     * The workflow definition this step follows
-     */
-    public function workflow()
-    {
-        return $this->belongsTo(Workflow::class);
-    }
-
-    /**
-     * The current stage in the workflow
-     */
-    public function currentStage()
-    {
-        return $this->belongsTo(WorkflowStage::class, 'current_stage_id');
-    }
-
-    /**
-     * The user who created this step
-     */
-    public function creator()
-    {
-        return $this->belongsTo(User::class, 'creator_id');
-    }
-
-    /**
-     * The user assigned to this step
-     */
-    public function assignedUser()
-    {
-        return $this->belongsTo(User::class, 'assigned_user_id');
-    }
-
-    /**
-     * All transitions (audit log) for this step
-     */
-    public function transitions()
-    {
-        return $this->hasMany(StepTransition::class)->orderBy('created_at', 'desc');
-    }
-
-    // ========== WORKFLOW HELPER METHODS ==========
-
-    /**
-     * Check if step is in a terminal state (completed or rejected)
-     */
-    public function isTerminal(): bool
-    {
-        return in_array($this->status, ['completed', 'rejected']);
-    }
-
-    /**
-     * Check if step is a draft (not yet submitted to workflow)
-     */
-    public function isDraft(): bool
-    {
-        return $this->status === 'draft';
-    }
-
-    /**
-     * Check if step is actively in a workflow
-     */
-    public function isInWorkflow(): bool
-    {
-        return $this->workflow_id !== null && $this->current_stage_id !== null;
-    }
-
-    /**
-     * Check if step can be acted upon (not terminal, has current stage)
-     */
-    public function canBeActedUpon(): bool
-    {
-        return !$this->isTerminal() && $this->current_stage_id !== null;
-    }
-
-    /**
-     * Get human-readable status label in Arabic
-     */
-    public function getStatusLabelAttribute(): string
-    {
-        return match ($this->status) {
-            'draft' => 'مسودة',
-            'in_progress' => 'قيد التنفيذ',
-            'completed' => 'مكتمل',
-            'returned' => 'معاد',
-            'rejected' => 'مرفوض',
-            default => $this->status,
-        };
+        return $this->hasMany(StepFeedback::class);
     }
 }

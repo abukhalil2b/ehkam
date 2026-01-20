@@ -119,29 +119,14 @@ class AdminUserController extends Controller
 
     public function show(User $user)
     {
-        // Roles already linked to the user
-        $hisroles = $user->roles;
-        $hisProfileIds = $hisroles->pluck('id');
+        // Load relationships (including permissions through roles for RBAC)
+        $user->load(['roles.permissions', 'positionHistory.position', 'positionHistory.OrgUnit']);
 
-        // Available roles (not linked, excluding "admin")
-        $availableroles = Role::query()
-            ->whereNotIn('id', $hisProfileIds)
-            ->whereNot('title', 'admin')
-            ->get();
+        // Get positions and units for the position update form
+        $positions = \App\Models\Position::orderBy('title')->get();
+        $units = \App\Models\OrgUnit::orderBy('name')->get();
 
-        // Groups already linked to the user
-        $hisGroups = $user->groups;
-
-        // Available groups (not yet assigned)
-        $availableGroups = Group::whereNotIn('id', $hisGroups->pluck('id'))->get();
-
-        return view('admin.user.show', compact(
-            'user',
-            'hisroles',
-            'availableroles',
-            'hisGroups',
-            'availableGroups',
-        ));
+        return view('admin.user.show', compact('user', 'positions', 'units'));
     }
 
 

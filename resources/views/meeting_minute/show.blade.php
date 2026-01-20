@@ -1,12 +1,13 @@
 <x-app-layout>
     <x-slot name="header">{{ $meeting_minute->title }}</x-slot>
 
-    <div class="mt-4">
-    
-        <button class="btn btn-info" onclick="copyPublicLink()">
-            <i class="fas fa-link"></i> نسخ رابط التسجيل العام
-        </button>
-    </div>
+    @if($meeting_minute->public_token)
+        <div class="mt-4">
+            <button class="btn btn-info" onclick="copyPublicLink()">
+                <i class="fas fa-link"></i> نسخ رابط التسجيل العام
+            </button>
+        </div>
+    @endif
 
     <div class="max-w-3xl mx-auto bg-white shadow p-6 rounded-lg">
         <p><strong>التاريخ:</strong> {{ $meeting_minute->date }}</p>
@@ -36,12 +37,14 @@
         </div>
     </div>
 
-    <script>
-        function copyPublicLink() {
-            const link = "{{ route('meeting_minute.attendance_registration_form', $meeting_minute->public_token) }}";
-            navigator.clipboard.writeText(link).then(() => {
-                alert('تم نسخ الرابط إلى الحافظة');
-            });
-        }
-    </script>
+    @if($meeting_minute->public_token)
+        <script>
+            function copyPublicLink() {
+                const link = "{{ route('meeting_minute.attendance_registration_form', $meeting_minute->public_token) }}";
+                navigator.clipboard.writeText(link).then(() => {
+                    alert('تم نسخ الرابط إلى الحافظة');
+                });
+            }
+        </script>
+    @endif
 </x-app-layout>

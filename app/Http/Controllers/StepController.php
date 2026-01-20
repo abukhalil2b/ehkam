@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StepStatus;
+use App\Enums\WorkflowStage;
 use App\Models\Activity;
 use App\Models\Indicator;
 use App\Models\OrgUnit;
 use App\Models\PeriodTemplate;
 use App\Models\Project;
 use App\Models\Step;
-use App\Models\StepEvidenceFile;
+use App\Models\WorkflowRequirement;
 use App\Models\StepOrgUnitTask;
-use App\Models\StepWorkflow;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule; // Added for cleaner validation
 
 class StepController extends Controller
 {
     // Show steps for the project
     public function index(Project $project, $activity = null)
     {
-
-        $phases = [
-            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
-            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
-            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
-            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
-            'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
-        ];
+        // 1. Use Enum for phases
+        $phases = WorkflowStage::all();
 
         $stepsQuery = Step::where('project_id', $project->id);
 
@@ -46,7 +42,6 @@ class StepController extends Controller
             ? PeriodTemplate::where('cate', $indicator->period)->get()
             : collect();
 
-
         return view('step.index', compact('project', 'steps', 'phases', 'org_units', 'periodTemplates', 'indicator', 'activities'));
     }
 
@@ -58,8 +53,8 @@ class StepController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'target_percentage' => 'nullable|numeric|min:0|max:100',
-            'phase' => 'nullable|string|max:50',
-            'status' => 'nullable|string|max:50',
+            // 2. Validate phase against Enum keys
+            'phase' => ['nullable', Rule::in(array_keys(WorkflowStage::all()))],
             'supporting_document' => 'nullable|string',
             'ordered' => 'nullable|integer',
             'activity_id' => 'required|integer',
@@ -73,10 +68,6 @@ class StepController extends Controller
             'org_unit_ids.*' => 'exists:org_units,id',
         ]);
 
-        $indicator = Indicator::findOrFail($project->indicator_id);
-
-        $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
-
         if (!$request->boolean('is_need_to_put_target')) {
             $validated['org_unit_ids'] = [];
         }
@@ -88,7 +79,6 @@ class StepController extends Controller
             'end_date' => $validated['end_date'] ?? null,
             'target_percentage' => $validated['target_percentage'] ?? 0,
             'phase' => $validated['phase'] ?? null,
-            'status' => $validated['status'] ?? 'not_started',
             'is_need_evidence_file' => $validated['is_need_evidence_file'] ?? 0,
             'is_need_to_put_target' => $validated['is_need_to_put_target'] ?? 0,
             'supporting_document' => $validated['supporting_document'] ?? null,
@@ -97,9 +87,8 @@ class StepController extends Controller
         ]);
 
         if ($request->boolean('is_need_to_put_target') && !empty($validated['org_unit_ids'])) {
-
+            $indicator = Indicator::findOrFail($project->indicator_id);
             $periodTemplates = PeriodTemplate::where('cate', $indicator->period)->get();
-
             $periodTargets = $request->input('period_targets', []);
 
             foreach ($validated['org_unit_ids'] as $orgUnitId) {
@@ -115,49 +104,22 @@ class StepController extends Controller
             }
         }
 
-        // Initialize Workflow
-        $qaRole = Role::where('title', 'Quality Assurance')->first();
-        StepWorkflow::create([
-            'step_id' => $step->id,
-            'stage' => 'verification',
-            'status' => 'pending',
-            'assigned_role' => $qaRole ? $qaRole->id : null,
-        ]);
-
-        // Send Notification to Users with 'Quality Assurance' Role
-        if ($qaRole) {
-            $usersToNotify = \App\Models\User::whereHas('roles', function ($query) use ($qaRole) {
-                $query->where('roles.id', $qaRole->id);
-            })->get();
-
-            if ($usersToNotify->isNotEmpty()) {
-                \Illuminate\Support\Facades\Notification::send($usersToNotify, new \App\Notifications\StepWorkflowAssigned($step));
-            }
-        }
-
-
         return redirect()->route('step.index', $project->id)
             ->with('success', 'تمت إضافة الخطوة بنجاح');
     }
 
     public function show(Step $step)
     {
-        $phases = [
-            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
-            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
-            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
-            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
-            'approval' => ['title' => 'الاعتماد والإغلاق', 'weight' => '15%'],
-        ];
+        // 4. Use Enum
+        $phases = WorkflowStage::all();
 
-        // Load relations
         $step->load([
-            'stepEvidenceFiles',
             'stepOrgUnitTasks.OrgUnit',
-            'stepOrgUnitTasks.periodTemplate'
+            'stepOrgUnitTasks.periodTemplate',
+            'activity',
+            'project',
         ]);
 
-        // Group tasks by organizational unit
         $unitData = [];
         foreach ($step->stepOrgUnitTasks as $task) {
             $unitId = $task->org_unit_id;
@@ -182,14 +144,10 @@ class StepController extends Controller
             $unitData[$unitId]['total_achieved'] += $task->achieved;
         }
 
-        // Calculate overall totals
         $overallTarget = array_sum(array_column($unitData, 'total_target'));
 
         return view('step.show', compact('step', 'phases', 'unitData', 'overallTarget'));
     }
-
-
-
 
     public function uploadEvidence(Request $request, Step $step)
     {
@@ -199,7 +157,7 @@ class StepController extends Controller
 
         $path = $request->file('file')->store('evidence_files', 'public');
 
-        StepEvidenceFile::create([
+        WorkflowRequirement::create([
             'step_id' => $step->id,
             'file_path' => $path,
             'file_name' => $request->file('file')->getClientOriginalName(),
@@ -227,12 +185,8 @@ class StepController extends Controller
 
     public function edit(Step $step)
     {
-        $phases = [
-            'preparation' => ['title' => 'التحضير', 'weight' => '15%'],
-            'planning' => ['title' => 'التخطيط والتطوير', 'weight' => '20%'],
-            'implementation' => ['title' => 'التنفيذ', 'weight' => '30%'],
-            'review' => ['title' => 'المراجعة', 'weight' => '20%'],
-        ];
+        // 5. Use Enum
+        $phases = WorkflowStage::all();
         return view('step.edit', compact('step', 'phases'));
     }
 
@@ -243,8 +197,7 @@ class StepController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'target_percentage' => 'nullable|numeric|min:0|max:100',
-            'phase' => 'nullable|string|max:255',
-            'status' => 'required|in:in_progress,completed,delayed',
+            'phase' => ['nullable', Rule::in(array_keys(WorkflowStage::all()))],
             'is_need_evidence_file' => 'boolean',
             'is_need_to_put_target' => 'boolean',
             'supporting_document' => 'nullable|string',

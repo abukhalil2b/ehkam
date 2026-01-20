@@ -152,13 +152,43 @@ class AimSectorFeedbackController extends Controller
         ];
 
         // 4. Execute updateOrCreate
-       AimSectorFeedback::updateOrCreate(
+        AimSectorFeedback::updateOrCreate(
             $searchAttributes,
             $updateValues
         );
 
         // 4. Return
         return redirect()->route('aim_sector_feedback.index', $aim)
-            ->with('success', 'تم إضافة التغذية الراجعة بنجاح');
+            ->with('success', 'تم حفظ البيانات كمسودة. يرجى مراجعتها وإرسالها للاعتماد.');
+    }
+
+    // ------------------------------------------------------------------
+    // SUBMIT (Send for Approval)
+    // ------------------------------------------------------------------
+    public function submit(AimSectorFeedback $feedback)
+    {
+        $user = auth()->user();
+
+        // Security: User can only submit their own sector feedback
+        abort_if($feedback->createdby_user_id !== $user->id, 403);
+
+        // Ensure it's currently in a state that can be submitted
+        if (!in_array($feedback->status, ['draft', 'returned'])) {
+            return back()->with('error', 'لا يمكن إرسال هذا الطلب لأنه في حالة غير صالحة للإرسال.');
+        }
+
+        $feedback->update([
+            'status' => 'in_progress' // Used to represent 'Waiting for Approval' in this context
+            // In a real workflow system, we'd also set workflow_id and current_stage_id here
+        ]);
+
+        // Send Notification
+        // Notify the user themselves (confirmation) and potentially supervisors (if we had logic for them)
+        // For now, notifying the submitter as a confirmation record.
+        $user->notify(new \App\Notifications\AimSectorFeedbackSubmitted($feedback, $user));
+
+        // Redirect to Index instead of Back
+        return redirect()->route('aim_sector_feedback.index', $feedback->aim_id)
+            ->with('success', 'تم إرسال الطلب للاعتماد بنجاح.');
     }
 }

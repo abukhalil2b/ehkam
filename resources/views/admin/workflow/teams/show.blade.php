@@ -64,49 +64,49 @@
             <div class="lg:col-span-2">
                 <div class="bg-white shadow rounded overflow-hidden">
                     <div class="bg-yellow-500 text-white px-4 py-3">
-                        <h3 class="font-semibold">{{ __('الخطوات المعلقة لهذا الفريق') }}</h3>
+                        <h3 class="font-semibold">{{ __('الأنشطة المعلقة لهذا الفريق') }}</h3>
                     </div>
                     <div class="p-4">
-                        @if($pendingSteps->isEmpty())
+                        @if($pendingActivities->isEmpty())
                             <div class="text-center py-8">
                                 <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-gray-500 mt-2">{{ __('لا توجد خطوات معلقة') }}</p>
+                                <p class="text-gray-500 mt-2">{{ __('لا توجد أنشطة معلقة') }}</p>
                             </div>
                         @else
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-right">
                                     <thead class="bg-gray-100">
                                         <tr>
-                                            <th class="px-4 py-2">{{ __('الخطوة') }}</th>
-                                            <th class="px-4 py-2">{{ __('سير العمل') }}</th>
+                                            <th class="px-4 py-2">{{ __('النشاط') }}</th>
+                                            <th class="px-4 py-2">{{ __('المشروع') }}</th>
                                             <th class="px-4 py-2">{{ __('المرحلة') }}</th>
                                             <th class="px-4 py-2">{{ __('الحالة') }}</th>
                                             <th class="px-4 py-2">{{ __('الإجراءات') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y">
-                                        @foreach($pendingSteps as $step)
+                                        @foreach($pendingActivities as $activity)
                                             <tr>
                                                 <td class="px-4 py-2">
-                                                    <a href="{{ route('step.show', $step) }}"
+                                                    <a href="{{ route('activity.show', $activity) }}"
                                                         class="text-indigo-600 hover:underline">
-                                                        {{ $step->name }}
+                                                        {{ $activity->title }}
                                                     </a>
                                                 </td>
-                                                <td class="px-4 py-2">{{ $step->workflow?->name ?? '-' }}</td>
-                                                <td class="px-4 py-2">{{ $step->currentStage?->name ?? '-' }}</td>
+                                                <td class="px-4 py-2">{{ $activity->project->name ?? '-' }}</td>
+                                                <td class="px-4 py-2">{{ $activity->currentStage?->name ?? '-' }}</td>
                                                 <td class="px-4 py-2">
                                                     <span
-                                                        class="px-2 py-1 rounded text-xs {{ $step->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                        {{ $step->status_label }}
+                                                        class="px-2 py-1 rounded text-xs {{ $activity->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                        {{ $activity->status_label }}
                                                     </span>
                                                 </td>
                                                 <td class="px-4 py-2">
-                                                    <a href="{{ route('step.show', $step) }}"
+                                                    <a href="{{ route('activity.show', $activity) }}"
                                                         class="bg-indigo-600 text-white px-2 py-1 rounded text-xs">
                                                         {{ __('عرض') }}
                                                     </a>

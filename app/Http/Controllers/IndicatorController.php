@@ -62,7 +62,6 @@ class IndicatorController extends Controller
 
     public function achieved(Indicator $indicator)
     {
-        $indicator->load(['currentWorkflow.assignee', 'currentWorkflow.assignedRole']);
         $current_year = date('Y');
         $sectorsData = $indicator->sectors;
         $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;

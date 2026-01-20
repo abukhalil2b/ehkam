@@ -17,6 +17,22 @@ class User extends Authenticatable
     protected $guarded = [];
 
     /**
+     * Get the user's avatar URL.
+     *
+     * @return string
+     */
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+
+        // Return a default "ui-avatars.com" image based on name
+        $name = urlencode($this->name);
+        return "https://ui-avatars.com/api/?name={$name}&color=7F9CF5&background=EBF4FF";
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
@@ -39,10 +55,11 @@ class User extends Authenticatable
      */
     protected ?array $cachedPermissions = null;
 
-    public function sectors(){
+    public function sectors()
+    {
         return $this->belongsToMany(Sector::class);
     }
-    
+
     // ========== Calendar ==========
     public function calendarEvents()
     {
@@ -75,6 +92,24 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_user')
             ->withTimestamps();
     }
+
+    /**
+     * The currently active role (for role switching).
+     */
+    public function activeRole()
+    {
+        return $this->belongsTo(Role::class, 'active_role_id');
+    }
+
+    /**
+     * Get the effective active role.
+     * Returns active_role if set, otherwise first assigned role.
+     */
+    public function getActiveRole(): ?Role
+    {
+        return $this->activeRole ?? $this->roles->first();
+    }
+
 
     /**
      * Assign a role to the user.
@@ -426,29 +461,31 @@ class User extends Authenticatable
     }
 
     /**
-     * Get steps pending action by this user (based on team membership)
+     * Get activities pending action by this user (based on team membership)
      */
-    public function pendingWorkflowSteps()
+    public function pendingWorkflowActivities()
     {
         $teamIds = $this->workflowTeams()->pluck('workflow_teams.id');
 
-        return Step::whereHas('currentStage', function ($query) use ($teamIds) {
-            $query->whereIn('team_id', $teamIds);
-        })
-            ->whereNotIn('status', ['completed', 'draft', 'rejected'])
-            ->get();
+        return Activity::whereHas('workflowInstance', function ($query) use ($teamIds) {
+            $query->whereHas('currentStage', function ($q) use ($teamIds) {
+                $q->whereIn('team_id', $teamIds);
+            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
+        })->get();
     }
 
     /**
-     * Check if user can act on a specific step (is member of the step's current stage team)
+     * Check if user can act on a specific activity (is member of the activity's current stage team)
      */
-    public function canActOnStep(Step $step): bool
+    public function canActOnActivity(Activity $activity): bool
     {
-        if (!$step->current_stage_id) {
+        $currentStage = $activity->currentStage;
+
+        if (!$currentStage) {
             return false;
         }
 
-        $stageTeamId = $step->currentStage->team_id;
+        $stageTeamId = $currentStage->team_id;
 
         return $this->workflowTeams()
             ->where('workflow_teams.id', $stageTeamId)

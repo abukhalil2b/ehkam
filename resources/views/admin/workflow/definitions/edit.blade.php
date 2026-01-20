@@ -29,6 +29,15 @@
                             </div>
 
                             <div class="mb-4">
+                                <label for="entity_type" class="block text-sm font-medium text-gray-700 mb-1">{{ __('نوع الكيان') }}</label>
+                                <select id="entity_type" name="entity_type" class="w-full border rounded px-3 py-2 bg-gray-50" readonly disabled>
+                                    <option value="{{ $definition->entity_type }}">{{ Str::afterLast($definition->entity_type, '\\') }}</option>
+                                </select>
+                                <input type="hidden" name="entity_type" value="{{ $definition->entity_type }}">
+                                <p class="text-gray-500 text-sm mt-1">{{ __('لا يمكن تغيير نوع الكيان بعد الإنشاء') }}</p>
+                            </div>
+
+                            <div class="mb-4">
                                 <label for="description" class="block text-sm font-medium text-gray-700 mb-1">{{ __('الوصف') }}</label>
                                 <textarea id="description" name="description" rows="3"
                                           class="w-full border rounded px-3 py-2 @error('description') border-red-500 @enderror">{{ old('description', $definition->description) }}</textarea>

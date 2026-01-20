@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\WorkflowTeam;
 use App\Models\User;
+use App\Models\Role;
+use App\Models\Permission;
 use Illuminate\Http\Request;
 
 class WorkflowTeamController extends Controller
@@ -48,6 +50,7 @@ class WorkflowTeamController extends Controller
 
         if ($request->filled('user_ids')) {
             $team->users()->attach($request->user_ids);
+            $this->ensureWorkflowAccess($request->user_ids);
         }
 
         return redirect()
@@ -61,9 +64,9 @@ class WorkflowTeamController extends Controller
     public function show(WorkflowTeam $team)
     {
         $team->load(['users', 'stages.workflow']);
-        $pendingSteps = $team->pendingSteps()->with(['workflow', 'currentStage'])->get();
+        $pendingActivities = $team->pendingActivities()->with(['project'])->get(); // Eager load activity relationships
 
-        return view('admin.workflow.teams.show', compact('team', 'pendingSteps'));
+        return view('admin.workflow.teams.show', compact('team', 'pendingActivities'));
     }
 
     /**
@@ -95,6 +98,10 @@ class WorkflowTeamController extends Controller
         ]);
 
         $team->users()->sync($request->user_ids ?? []);
+
+        if (!empty($request->user_ids)) {
+            $this->ensureWorkflowAccess($request->user_ids);
+        }
 
         return redirect()
             ->route('admin.workflow.teams.index')
@@ -128,6 +135,7 @@ class WorkflowTeamController extends Controller
         ]);
 
         $team->users()->syncWithoutDetaching([$request->user_id]);
+        $this->ensureWorkflowAccess([$request->user_id]);
 
         return response()->json(['success' => true]);
     }
@@ -144,5 +152,46 @@ class WorkflowTeamController extends Controller
         $team->users()->detach($request->user_id);
 
         return response()->json(['success' => true]);
+    }
+    /**
+     * Ensure users have access to workflow features.
+     */
+    private function ensureWorkflowAccess($userIds)
+    {
+        if (empty($userIds))
+            return;
+
+        // Find or create the role for workflow members
+        $role = Role::firstOrCreate(
+            ['slug' => 'workflow_member'],
+            ['title' => 'عضو في سير العمل', 'description' => 'Role for users participating in workflows']
+        );
+
+        // Ensure this role has the necessary permissions
+        $requiredPermissions = [
+            'workflow.pending',
+            'workflow.history',
+            'workflow.submit',
+            'workflow.approve', // Assuming basic approval needed
+            'workflow.return',
+        ];
+
+        foreach ($requiredPermissions as $slug) {
+            $permission = Permission::where('slug', $slug)->first();
+            if ($permission && !$role->hasPermission($slug)) {
+                $role->permissions()->attach($permission->id);
+            }
+        }
+
+        $users = User::whereIn('id', $userIds)->get();
+
+        foreach ($users as $user) {
+            // Check if user has permission workflow.pending
+            // We use the User model's hasPermission method which checks all roles
+            if (!$user->hasPermission('workflow.pending')) {
+                // Assign the role
+                $user->assignRole($role);
+            }
+        }
     }
 }

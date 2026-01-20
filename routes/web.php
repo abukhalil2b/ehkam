@@ -1,17 +1,16 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\ActivityWorkflowController;
 use App\Http\Controllers\Admin\WorkflowController;
-use App\Http\Controllers\IndicatorWorkflowController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\RolePermissionController;
+use App\Http\Controllers\Admin\UserRoleController;
 use App\Http\Controllers\Admin\AdminAimController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\AssessmentQuestionController;
 use App\Http\Controllers\AssessmentResultController;
-use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\FinanceFormController;
 use App\Http\Controllers\Admin\FinanceNeedController;
@@ -29,7 +28,6 @@ use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
-use App\Http\Controllers\StepWorkflowController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarDelegationController;
@@ -40,6 +38,7 @@ use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminStepImportController;
 use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
 use App\Http\Controllers\SwotController;
+use App\Http\Controllers\DocumentationController;
 use Illuminate\Support\Facades\Route;
 // ========== WORKFLOW ENGINE ROUTES ==========
 use App\Http\Controllers\Admin\WorkflowTeamController;
@@ -47,6 +46,12 @@ use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 
 Route::view('/', 'welcome2')->name('home');
+
+// ========== DOCUMENTATION ROUTES ==========
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('/docs', [DocumentationController::class, 'index'])->name('docs.index');
+    Route::get('/docs/{slug}', [DocumentationController::class, 'show'])->name('docs.show');
+});
 
 Route::match(['get', 'post'], 'workshow_attendance_register', [WorkshopController::class, 'attendance_register'])
     ->name('workshow_attendance_register');
@@ -260,13 +265,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('workshop.destroy');
 });
 
-Route::group(['middleware' => ['auth']], function () {
-    Route::post('activity/workflow/{activity}', [ActivityWorkflowController::class, 'transition'])
-        ->name('activity.workflow.transition');
 
-    Route::post('indicator/workflow/{indicator}', [IndicatorWorkflowController::class, 'transition'])
-        ->name('indicator.workflow.transition');
-});
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -351,7 +350,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('activity.store');
 
     Route::get('activity/show/{activity}', [ActivityController::class, 'show'])
-        ->middleware('permission:activity.index')
+        ->middleware('can:view,activity')
         ->name('activity.show');
 
     // Assessment Results (Usually part of activity management)
@@ -574,15 +573,18 @@ Route::middleware(['auth'])->group(function () {
 
 // PROFILE ROUTE (Usually only requires authentication)
 Route::group(['middleware' => ['auth']], function () {
-    // Profile Switching
-    Route::get('/profile/switch/{id}', [App\Http\Controllers\roleswitcherController::class, 'switch'])->name('profile.switch');
-    Route::get('/profile/reset', [App\Http\Controllers\roleswitcherController::class, 'reset'])->name('profile.reset');
+    // Profile/Role Switching
+    Route::get('/profile/switch/{id}', [App\Http\Controllers\RoleSwitcherController::class, 'switch'])->name('profile.switch');
+    Route::get('/profile/reset', [App\Http\Controllers\RoleSwitcherController::class, 'reset'])->name('profile.reset');
+
+    // Impersonate Feature (superadmin only - user ID 1)
+    Route::get('admin/impersonate/{user}', [App\Http\Controllers\Admin\ImpersonateController::class, 'start'])->name('admin.impersonate.start');
+    Route::get('admin/impersonate-stop', [App\Http\Controllers\Admin\ImpersonateController::class, 'stop'])->name('admin.impersonate.stop');
 
 
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-
-    // Notifications
-    // Notifications
+    // User Profile Routes
+    Route::get('/user/profile', [\App\Http\Controllers\UserProfileController::class, 'edit'])->name('user_profile.edit');
+    Route::put('/user/profile', [\App\Http\Controllers\UserProfileController::class, 'update'])->name('user_profile.update');
     Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/{id}/click', [App\Http\Controllers\NotificationController::class, 'readAndRedirect'])->name('notifications.readAndRedirect');
     Route::get('/notifications/mark-read/{id}', [App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.markRead');
@@ -726,9 +728,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:org_unit.edit')
         ->name('org_unit.positions.destroy');
 
-    // Step Workflows
-    Route::post('/steps/{step}/workflow', [StepWorkflowController::class, 'transition'])->name('step.workflow.transition');
-
     // Admin Workflows Dashboard
     Route::get('/admin/workflows', [WorkflowController::class, 'index'])
         ->middleware('permission:admin.workflow.index')
@@ -782,6 +781,14 @@ Route::group(['middleware' => ['auth']], function () {
         // Role-Permission Assignment
         Route::get('admin/roles/{role}/permissions', [RolePermissionController::class, 'index'])->name('admin.roles.permissions');
         Route::post('admin/roles/{role}/permissions', [RolePermissionController::class, 'update'])->name('admin.roles.permissions.update');
+
+        // Role-User Assignment (which users have this role)
+        Route::get('admin/roles/{role}/users', [UserRoleController::class, 'showRoleUsers'])->name('admin.roles.users');
+        Route::post('admin/roles/{role}/users', [UserRoleController::class, 'updateRoleUsers'])->name('admin.roles.users.update');
+
+        // User-Role Assignment (which roles does a user have)
+        Route::get('admin/users/{user}/roles', [UserRoleController::class, 'showUserRoles'])->name('admin.users.roles');
+        Route::post('admin/users/{user}/roles', [UserRoleController::class, 'updateUserRoles'])->name('admin.users.roles.update');
     });
 
     Route::get('admin/aim/index', [AdminAimController::class, 'index'])
@@ -828,6 +835,8 @@ Route::group(['middleware' => ['auth']], function () {
     // STORE
     Route::post('aim_sector_feedback/store/{aim}', [AimSectorFeedbackController::class, 'store'])
         ->name('aim_sector_feedback.store');
+    Route::post('aim_sector_feedback/submit/{feedback}', [AimSectorFeedbackController::class, 'submit'])
+        ->name('aim_sector_feedback.submit');
 });
 
 
@@ -915,27 +924,31 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workflow.pending')
         ->name('workflow.pending');
 
-    Route::post('workflow/steps/{step}/submit', [WorkflowActionController::class, 'submit'])
+    Route::post('workflow/steps/{activity}/submit', [WorkflowActionController::class, 'submit'])
         ->middleware('permission:workflow.pending')
         ->name('workflow.submit');
 
-    Route::post('workflow/steps/{step}/approve', [WorkflowActionController::class, 'approve'])
+    Route::post('workflow/steps/{activity}/approve', [WorkflowActionController::class, 'approve'])
         ->middleware('permission:workflow.approve')
         ->name('workflow.approve');
 
-    Route::post('workflow/steps/{step}/return', [WorkflowActionController::class, 'return'])
+    Route::post('workflow/steps/{activity}/return', [WorkflowActionController::class, 'return'])
         ->middleware('permission:workflow.return')
         ->name('workflow.return');
 
-    Route::post('workflow/steps/{step}/reject', [WorkflowActionController::class, 'reject'])
+    Route::post('workflow/steps/{activity}/reject', [WorkflowActionController::class, 'reject'])
         ->middleware('permission:workflow.reject')
         ->name('workflow.reject');
 
-    Route::post('workflow/steps/{step}/assign-workflow', [WorkflowActionController::class, 'assignWorkflow'])
+    Route::post('workflow/steps/{activity}/assign-workflow', [WorkflowActionController::class, 'assignWorkflow'])
         ->middleware('permission:workflow.pending')
         ->name('workflow.assign');
 
-    Route::get('workflow/steps/{step}/history', [WorkflowActionController::class, 'history'])
+    Route::post('workflow/steps/{activity}/start', [WorkflowActionController::class, 'start'])
+        ->middleware('permission:workflow.pending')
+        ->name('workflow.start');
+
+    Route::get('workflow/steps/{activity}/history', [WorkflowActionController::class, 'history'])
         ->middleware('permission:workflow.history')
         ->name('workflow.history');
 
@@ -1015,6 +1028,12 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.workflow.definitions.destroy');
 
     // Stage Management
+    Route::get('admin/workflow/definitions/{workflow}/assign', [WorkflowDefinitionController::class, 'assign'])
+        ->middleware('permission:workflow_definition.edit')
+        ->name('admin.workflow.definitions.assign');
+    Route::post('admin/workflow/definitions/{workflow}/assign', [WorkflowDefinitionController::class, 'storeAssignment'])
+        ->middleware('permission:workflow_definition.edit')
+        ->name('admin.workflow.definitions.store-assignment');
     Route::post('admin/workflow/definitions/{workflow}/stages', [WorkflowDefinitionController::class, 'storeStage'])
         ->middleware('permission:workflow_definition.edit')
         ->name('admin.workflow.stages.store');

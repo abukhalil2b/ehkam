@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Step;
+use App\Models\Activity;
 use App\Models\Workflow;
 use App\Services\WorkflowService;
 use Illuminate\Http\Request;
@@ -19,20 +19,21 @@ class WorkflowActionController extends Controller
 
     /**
      * Display steps pending action by the current user.
+     * Note: Steps don't have workflows - only Activities do.
      */
     public function pendingSteps()
     {
-        $user = Auth::user();
-        $steps = $user->pendingWorkflowSteps()
-            ->load(['workflow', 'currentStage.team', 'creator', 'project']);
+        // Steps don't have workflow relationships
+        // Return empty collection
+        $activities = $this->workflowService->getPendingStepsForUser(Auth::user());
 
-        return view('workflow.pending', compact('steps'));
+        return view('workflow.pending', compact('activities'));
     }
 
     /**
      * Submit a step to its workflow (moves from draft to first stage).
      */
-    public function submit(Request $request, Step $step)
+    public function submit(Request $request, Activity $activity)
     {
         $request->validate([
             'comments' => 'nullable|string|max:1000',
@@ -40,12 +41,12 @@ class WorkflowActionController extends Controller
 
         try {
             $this->workflowService->submitStep(
-                $step,
+                $activity,
                 Auth::user(),
                 $request->comments
             );
 
-            return back()->with('success', 'تم إرسال الخطوة بنجاح');
+            return back()->with('success', 'تم إرسال النشاط بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -54,7 +55,7 @@ class WorkflowActionController extends Controller
     /**
      * Approve a step (moves to next stage or completes the workflow).
      */
-    public function approve(Request $request, Step $step)
+    public function approve(Request $request, Activity $activity)
     {
         $request->validate([
             'comments' => 'nullable|string|max:1000',
@@ -62,12 +63,12 @@ class WorkflowActionController extends Controller
 
         try {
             $this->workflowService->approveStep(
-                $step,
+                $activity,
                 Auth::user(),
                 $request->comments
             );
 
-            return back()->with('success', 'تمت الموافقة على الخطوة بنجاح');
+            return back()->with('success', 'تمت الموافقة على النشاط بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -76,22 +77,25 @@ class WorkflowActionController extends Controller
     /**
      * Return a step to a previous stage.
      */
-    public function return(Request $request, Step $step)
+    public function return(Request $request, Activity $activity)
     {
         $request->validate([
             'target_stage_id' => 'nullable|exists:workflow_stages,id',
             'comments' => 'nullable|string|max:1000',
+            'step_feedbacks' => 'nullable|array',
+            'step_feedbacks.*' => 'nullable|string|max:1000',
         ]);
 
         try {
             $this->workflowService->returnStep(
-                $step,
+                $activity,
                 Auth::user(),
                 $request->target_stage_id,
-                $request->comments
+                $request->comments,
+                $request->input('step_feedbacks', [])
             );
 
-            return back()->with('success', 'تمت إعادة الخطوة بنجاح');
+            return back()->with('success', 'تمت إعادة النشاط بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -100,7 +104,7 @@ class WorkflowActionController extends Controller
     /**
      * Reject a step (terminates the workflow).
      */
-    public function reject(Request $request, Step $step)
+    public function reject(Request $request, Activity $activity)
     {
         $request->validate([
             'comments' => 'required|string|max:1000',
@@ -108,12 +112,12 @@ class WorkflowActionController extends Controller
 
         try {
             $this->workflowService->rejectStep(
-                $step,
+                $activity,
                 Auth::user(),
                 $request->comments
             );
 
-            return back()->with('success', 'تم رفض الخطوة');
+            return back()->with('success', 'تم رفض النشاط');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -122,22 +126,33 @@ class WorkflowActionController extends Controller
     /**
      * Assign a workflow to a step.
      */
-    public function assignWorkflow(Request $request, Step $step)
+    /**
+     * Start the default workflow for an activity.
+     */
+    public function start(Request $request, Activity $activity)
     {
-        $request->validate([
-            'workflow_id' => 'required|exists:workflows,id',
-            'auto_submit' => 'boolean',
-        ]);
-
         try {
+            // 1. Identify Entity Type
+            $entityType = $activity->getMorphClass();
+
+            // 2. Find matching Workflow Definition
+            $workflow = Workflow::where('entity_type', $entityType)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$workflow) {
+                throw new \Exception('No active workflow definition found for this item type.');
+            }
+
+            // 3. Assign Workflow
             $this->workflowService->assignWorkflow(
-                $step,
-                $request->workflow_id,
+                $activity,
+                $workflow->id,
                 Auth::user(),
-                $request->boolean('auto_submit', false)
+                false // Do not auto-submit, start as draft
             );
 
-            return back()->with('success', 'تم تعيين سير العمل بنجاح');
+            return back()->with('success', 'تم بدء سير العمل بنجاح');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -146,11 +161,11 @@ class WorkflowActionController extends Controller
     /**
      * Show the transition history for a step.
      */
-    public function history(Step $step)
+    public function history(Activity $activity)
     {
-        $step->load(['transitions.actor', 'transitions.fromStage', 'transitions.toStage', 'workflow']);
+        $activity->load(['transitions.actor', 'transitions.fromStage', 'transitions.toStage', 'workflowInstance.workflow']);
 
-        return view('workflow.history', compact('step'));
+        return view('workflow.history', compact('activity'));
     }
 
     /**

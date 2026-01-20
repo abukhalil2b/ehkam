@@ -52,11 +52,14 @@
                 <div>
                     <label class="block font-semibold mb-1 text-[#1b5e20]">الحالة</label>
                     <select name="status" class="w-full border-gray-300 rounded-lg shadow-sm">
-                        <option value="in_progress" @selected($step->status == 'in_progress')>قيد التنفيذ</option>
-                        <option value="completed" @selected($step->status == 'completed')>منجز</option>
-                        <option value="delayed" @selected($step->status == 'delayed')>متأخر</option>
+                        @foreach (\App\Enums\StepStatus::$editable as $status)
+                            <option value="{{ $status }}" @selected($step->status === $status)>
+                                {{ \App\Enums\StepStatus::label($status) }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
+
 
                 <div class="flex items-center gap-2">
                     <input type="checkbox" name="is_need_evidence_file" value="1" @checked($step->is_need_evidence_file)
@@ -65,7 +68,7 @@
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <input type="checkbox" name="is_need_to_put_traget" value="1" @checked($step->is_need_to_put_traget)
+                    <input type="checkbox" name="is_need_to_put_target" value="1" @checked($step->is_need_to_put_target)
                         class="rounded border-gray-300 text-[#1b5e20]">
                     <label class="font-semibold text-[#1b5e20]">هل تغذي المؤشر</label>
                 </div>

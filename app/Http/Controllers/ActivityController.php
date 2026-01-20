@@ -71,12 +71,29 @@ class ActivityController extends Controller
             'project_id' => 'required|exists:projects,id|integer',
         ]);
 
-        // 2. Create the new Activity record
+        // 2. Create the new Activity record with workflow defaults
         $activity = Activity::create([
             'title' => $request->title,
             'project_id' => $request->project_id,
-            'current_year' => now()->year
+            'current_year' => now()->year,
+            'creator_id' => Auth::id(),
+            'status' => 'draft',
         ]);
+
+        // 3. Auto-assign Workflow if available
+        $workflow = \App\Models\Workflow::where('entity_type', \App\Models\Activity::class)
+            ->where('is_active', true)
+            ->first();
+
+        if ($workflow) {
+            \App\Models\WorkflowInstance::create([
+                'workflow_id' => $workflow->id,
+                'workflowable_type' => \App\Models\Activity::class,
+                'workflowable_id' => $activity->id,
+                'status' => 'draft',
+                'creator_id' => \Illuminate\Support\Facades\Auth::id(),
+            ]);
+        }
 
         // 3. Redirect with a success message
         return redirect()->route('project.show', $request->project_id)->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
@@ -84,7 +101,16 @@ class ActivityController extends Controller
 
     public function show(Activity $activity)
     {
-        $activity->load(['project', 'currentWorkflow.assignee', 'currentWorkflow.assignedRole']);
+        $activity->load([
+            'project',
+            'workflowInstance.workflow.stages.team',
+            'workflowInstance.currentStage.team',
+            'transitions.actor',
+            'transitions.fromStage',
+            'transitions.toStage',
+            'creator',
+            'steps',
+        ]);
 
         $currentYear = $activity->current_year;
 

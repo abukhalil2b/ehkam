@@ -30,9 +30,10 @@
                         <tr>
                             <th class="px-6 py-3">#</th>
                             <th class="px-6 py-3">{{ __('اسم سير العمل') }}</th>
+                            <th class="px-6 py-3">{{ __('نوع الكيان') }}</th>
                             <th class="px-6 py-3">{{ __('الوصف') }}</th>
                             <th class="px-6 py-3 text-center">{{ __('عدد المراحل') }}</th>
-                            <th class="px-6 py-3 text-center">{{ __('عدد الخطوات') }}</th>
+                            <th class="px-6 py-3 text-center">{{ __('عدد الأنشطة') }}</th>
                             <th class="px-6 py-3 text-center">{{ __('الحالة') }}</th>
                             <th class="px-6 py-3 text-center">{{ __('الإجراءات') }}</th>
                         </tr>
@@ -46,12 +47,15 @@
                                         {{ $workflow->name }}
                                     </a>
                                 </td>
+                                <td class="px-6 py-3 text-sm text-gray-600">
+                                    {{ Str::afterLast($workflow->entity_type, '\\') }}
+                                </td>
                                 <td class="px-6 py-3 text-gray-500">{{ Str::limit($workflow->description, 50) ?: '-' }}</td>
                                 <td class="px-6 py-3 text-center">
                                     <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{{ $workflow->stages_count }}</span>
                                 </td>
                                 <td class="px-6 py-3 text-center">
-                                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ $workflow->steps_count }}</span>
+                                    <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ $workflow->instances_count }}</span>
                                 </td>
                                 <td class="px-6 py-3 text-center">
                                     @if($workflow->is_active)
@@ -67,7 +71,10 @@
                                     <a href="{{ route('admin.workflow.definitions.edit', $workflow) }}" class="bg-yellow-500 text-white px-3 py-1 rounded text-xs">
                                         {{ __('تعديل') }}
                                     </a>
-                                    @if($workflow->steps_count == 0)
+                                    <a href="{{ route('admin.workflow.definitions.assign', $workflow) }}" class="bg-purple-500 text-white px-3 py-1 rounded text-xs">
+                                        {{ __('ربط بالأنشطة') }}
+                                    </a>
+                                    @if($workflow->activities_count == 0)
                                         <form action="{{ route('admin.workflow.definitions.destroy', $workflow) }}" method="POST" onsubmit="return confirm('{{ __('هل أنت متأكد من الحذف؟') }}')">
                                             @csrf
                                             @method('DELETE')

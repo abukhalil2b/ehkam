@@ -5,8 +5,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -17,11 +16,17 @@ return new class extends Migration
             $table->foreignId('aim_id');
             $table->foreignId('sector_id');
             $table->integer('achieved')->default(0);
-            $table->string('evidence_title',50)->nullable();
+            $table->string('evidence_title', 50)->nullable();
             $table->string('evidence_url')->nullable();
             $table->string('current_year')->default('2024');
             $table->text('note')->nullable();
-            $table->foreignIdFor(User::class,'createdby_user_id')->nullable();
+
+            // Workflow columns
+            $table->foreignId('workflow_id')->nullable();
+            $table->foreignId('current_stage_id')->nullable();
+            $table->string('status')->default('draft');
+
+            $table->foreignIdFor(User::class, 'createdby_user_id')->nullable();
             $table->timestamps();
         });
     }

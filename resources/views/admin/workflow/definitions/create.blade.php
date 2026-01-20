@@ -33,6 +33,16 @@
                     @enderror
                 </div>
 
+                <div class="mb-4">
+                    <label for="entity_type"
+                        class="block text-sm font-medium text-gray-700 mb-1">{{ __('نوع الكيان') }}</label>
+                    <select id="entity_type" name="entity_type" class="w-full border rounded px-3 py-2">
+                        <option value="App\Models\Activity" {{ old('entity_type') == 'App\Models\Activity' ? 'selected' : '' }}>{{ __('نشاط') }}</option>
+                        <option value="App\Models\Project" {{ old('entity_type') == 'App\Models\Project' ? 'selected' : '' }}>{{ __('مشروع') }}</option>
+                    </select>
+                    <p class="text-gray-500 text-sm mt-1">{{ __('حدد نوع العنصر الذي سيتم تطبيق سير العمل عليه') }}</p>
+                </div>
+
                 <div class="mb-6">
                     <label class="flex items-center gap-2">
                         <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}

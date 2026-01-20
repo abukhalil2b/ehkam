@@ -22,6 +22,7 @@
     "active": "جاري الآن",
     "upcoming": "قادم",
     "completed": "مكتمل",
+    "not_started": "لم يبدأ",
     "archived": "مؤرشف",
     "Department": "الدوائر",
     "Directorate": "المديريات",
@@ -46,11 +47,11 @@
     "only_move_own_events": "يمكنك نقل الأنشطة الخاصة بك فقط",
     "conflict_detected": "لا يمكن النقل: يوجد تعارض في هذا الوقت",
     "save": "حفظ",
-    "edit":"تعديل",
-    "edit event":"تعديل الحدث",
+    "edit": "تعديل",
+    "edit event": "تعديل الحدث",
     "event color": "لون التمييز",
-    "annual calendar":"التقويم السنوي",
-    "add new event":"أضف حدث جديد",
-    "only move own events":"لا تقم إلا بنقل أحداثك الخاصة",
-    "confirm delete event":"تأكيد حذف الحدث"
+    "annual calendar": "التقويم السنوي",
+    "add new event": "أضف حدث جديد",
+    "only move own events": "لا تقم إلا بنقل أحداثك الخاصة",
+    "confirm delete event": "تأكيد حذف الحدث"
 }

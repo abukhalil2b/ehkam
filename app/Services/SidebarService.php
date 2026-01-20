@@ -38,17 +38,17 @@ class SidebarService
                 ]
             ],
             'swot' => [
-                'title' => 'swot',
+                'title' => 'التحليل الرباعي',
                 'links' => [
-                    ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'swot', 'keywords' => 'swot analysis'],
+                    ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'تحليل سوات', 'keywords' => 'swot analysis'],
                 ]
             ],
             'calendar' => [
-                'title' => 'calendar',
+                'title' => 'التقويم',
                 'links' => [
-                    ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'index', 'keywords' => 'calendar index schedule'],
-                    ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'create', 'keywords' => 'calendar create event add'],
-                    ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'timeline', 'keywords' => 'timeline view'],
+                    ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'عرض التقويم', 'keywords' => 'calendar index schedule'],
+                    ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'إضافة حدث', 'keywords' => 'calendar create event add'],
+                    ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'الجدول الزمني', 'keywords' => 'timeline view'],
                 ]
             ],
             'mission' => [
@@ -77,7 +77,7 @@ class SidebarService
                 ]
             ],
             'competitions' => [
-                'title' => 'competitions',
+                'title' => 'المسابقات',
                 'links' => [
                     ['route' => 'admin.competitions.index', 'permission' => 'admin.competitions.index', 'label' => 'المسابقات', 'keywords' => 'competitions list'],
                 ]
@@ -129,6 +129,12 @@ class SidebarService
                     ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات', 'keywords' => 'permissions all list'],
                 ]
             ],
+            'documentation' => [
+                'title' => 'الوثائق التقنية',
+                'links' => [
+                    ['route' => 'docs.index', 'permission' => null, 'label' => 'قراءة الوثائق', 'keywords' => 'documentation docs technical markdown'],
+                ]
+            ],
         ];
     }
 
@@ -146,7 +152,7 @@ class SidebarService
         $links[] = [
             'label' => 'الملف الشخصي',
             'category' => 'المستخدم',
-            'url' => route('profile.edit'),
+            'url' => route('user_profile.edit'),
             'keywords' => 'profile user account',
         ];
 

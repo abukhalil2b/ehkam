@@ -56,10 +56,6 @@ class Indicator extends Model
         return Sector::whereIn('id', Arr::wrap($this->sectors));
     }
 
-    // Current active workflow state
-    public function currentWorkflow()
-    {
-        return $this->hasOne(IndicatorWorkflow::class)->latest();
-    }
+
 
 }

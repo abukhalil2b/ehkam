@@ -19,44 +19,11 @@ return new class extends Migration {
                 ->constrained()
                 ->cascadeOnDelete();
 
-            // ========== WORKFLOW ENGINE COLUMNS ==========
-            // Which workflow design is this step following?
-            // Must be nullable because existing steps didn't have a workflow
-            $table->foreignId('workflow_id')
-                ->nullable()
-                ->constrained('workflows')
-                ->nullOnDelete();
-
-            // WHERE is it right now? (Points to workflow_stages table)
-            $table->foreignId('current_stage_id')
-                ->nullable()
-                ->constrained('workflow_stages')
-                ->nullOnDelete();
-
-            // Who created this step
-            $table->foreignId('creator_id')
-                ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
-
-            // Status flag for the item itself
-            // Movement is driven by current_stage_id, NOT status
-            // Only terminal statuses (completed, rejected) allow current_stage_id = NULL
-            $table->enum('status', ['draft', 'in_progress', 'completed', 'returned', 'rejected'])
-                ->default('draft');
-
-            // Optional assignment + metadata
             $table->foreignId('assigned_user_id')
                 ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
-
-            $table->tinyInteger('priority')->default(3);
-
-            $table->date('due_date')->nullable();
+                ->unsigned();
 
             $table->json('meta')->nullable();
-            // ========== END WORKFLOW ENGINE COLUMNS ==========
 
             // Basic info
             $table->string('name'); // اسم الخطوة
@@ -76,6 +43,7 @@ return new class extends Migration {
             // Supporting documents / notes
             $table->text('supporting_document')->nullable();
 
+            // Phase / Stage (approve and close) does it need an evidence
             $table->boolean('is_need_evidence_file')->default(false);
 
             $table->boolean('is_need_to_put_target')->default(false);
@@ -83,12 +51,21 @@ return new class extends Migration {
             // For ordering or grouping
             $table->unsignedInteger('ordered')->default(0);
 
+        });
+
+        Schema::create('step_feedbacks', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('workflow_transition_id');
+            $table->foreignId('step_id');
+            $table->text('notes');
+            $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('step_feedbacks');
         Schema::dropIfExists('steps');
     }
 };

@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -15,7 +14,8 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('user_type')->default('staff');//[admin: for system control - sector: for org_unit - staff: normal staff]
+            $table->string('avatar')->nullable();
+            $table->unsignedBigInteger('active_role_id')->nullable(); // Will add foreign key in 2025_10_14_131539_create_roles_table
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();

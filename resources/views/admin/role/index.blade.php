@@ -99,7 +99,16 @@
                                                         d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4">
                                                     </path>
                                                 </svg>
-                                                إدارة الصلاحيات
+                                                الصلاحيات
+                                            </a>
+                                            <a href="{{ route('admin.roles.users', $role) }}"
+                                                class="inline-flex items-center gap-1 text-green-600 hover:text-green-900 dark:text-green-400 dark:hover:text-green-300 transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.768-.231-1.48-.634-2.072M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.768.231-1.48.634-2.072m0 0A6.001 6.001 0 0112 14c2.21 0 4.104 1.207 5.152 3">
+                                                    </path>
+                                                </svg>
+                                                المستخدمون
                                             </a>
                                         @endcan
                                     </td>

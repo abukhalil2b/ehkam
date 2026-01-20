@@ -3,49 +3,41 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ActivityWorkflow;
-use App\Models\StepWorkflow;
+use App\Models\WorkflowTransition;
 use Illuminate\Http\Request;
 
 class WorkflowController extends Controller
 {
     public function index(Request $request)
     {
-        // Fetch Activity Workflows
-        $activityWorkflows = ActivityWorkflow::with(['activity', 'assignedUser'])
+        // Fetch all workflow transitions across all models
+        $allTransitions = WorkflowTransition::with(['workflowable', 'toStage', 'actor'])
             ->latest()
             ->get()
-            ->map(function ($workflow) {
+            ->map(function ($transition) {
+                $model = $transition->workflowable;
+                $modelType = class_basename($transition->workflowable_type);
+
                 return [
-                    'type' => 'Activity',
-                    'name' => $workflow->activity->title ?? 'N/A',
-                    'stage' => $workflow->stage,
-                    'status' => $workflow->status,
-                    'last_updated' => $workflow->updated_at,
-                    'assigned_to' => $workflow->assignedUser->name ?? '—',
-                    'link' => route('activity.show', $workflow->activity_id), // Assuming this route exists
+                    'type' => $modelType,
+                    'name' => $model->name ?? 'N/A',
+                    'stage' => $transition->toStage->name ?? '—',
+                    'action' => $transition->action_label,
+                    'last_updated' => $transition->created_at,
+                    'actor' => $transition->actor->name ?? '—',
+                    'link' => $this->getModelLink($model, $modelType),
                 ];
             });
 
-        // Fetch Step Workflows
-        $stepWorkflows = StepWorkflow::with(['step', 'assignedUser'])
-            ->latest()
-            ->get()
-            ->map(function ($workflow) {
-                return [
-                    'type' => 'Step',
-                    'name' => $workflow->step->name ?? 'N/A',
-                    'stage' => $workflow->stage,
-                    'status' => $workflow->status,
-                    'last_updated' => $workflow->updated_at,
-                    'assigned_to' => $workflow->assignedUser->name ?? '—',
-                    'link' => route('step.show', $workflow->step_id),
-                ];
-            });
+        return view('admin.workflow.index', compact('allTransitions'));
+    }
 
-        // Merge and Sort
-        $allWorkflows = $activityWorkflows->concat($stepWorkflows)->sortByDesc('last_updated');
-
-        return view('admin.workflow.index', compact('allWorkflows'));
+    private function getModelLink($model, $modelType)
+    {
+        return match ($modelType) {
+            'Step' => route('step.show', $model->id),
+            'AimSectorFeedback' => route('aim_sector_feedback.show', $model->id),
+            default => '#',
+        };
     }
 }

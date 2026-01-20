@@ -2,18 +2,18 @@
 
 namespace App\Notifications;
 
-use App\Models\Step;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
+use Illuminate\Database\Eloquent\Model;
 
 class WorkflowStepNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected Step $step;
+    protected Model $model;
     protected string $action;
     protected string $message;
     protected User $actor;
@@ -21,9 +21,9 @@ class WorkflowStepNotification extends Notification implements ShouldQueue
     /**
      * Create a new notification instance.
      */
-    public function __construct(Step $step, string $action, string $message, User $actor)
+    public function __construct(Model $model, string $action, string $message, User $actor)
     {
-        $this->step = $step;
+        $this->model = $model;
         $this->action = $action;
         $this->message = $message;
         $this->actor = $actor;
@@ -42,16 +42,26 @@ class WorkflowStepNotification extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
+        // Polymorphic safe access
+        $workflowName = $this->model->workflowInstance?->workflow?->name;
+        $stageName = $this->model->workflowInstance?->currentStage?->name;
+
+        // Fallback for ID/Name if model doesn't have standard fields (though generic Model has ID)
+        $id = $this->model->id;
+        $name = $this->model->title ?? $this->model->name ?? 'Element #' . $id;
+
         return [
             'type' => 'workflow_step',
             'action' => $this->action,
             'message' => $this->message,
-            'step_id' => $this->step->id,
-            'step_name' => $this->step->name,
+            'step_id' => $id,
+            'step_name' => $name,
             'actor_id' => $this->actor->id,
             'actor_name' => $this->actor->name,
-            'current_stage' => $this->step->currentStage?->name,
-            'workflow' => $this->step->workflow?->name,
+            'current_stage' => $stageName,
+            'workflow' => $workflowName,
+            'link' => method_exists($this->model, 'getShowRoute') ? $this->model->getShowRoute() : null, // Future proofing
+            'entity_type' => $this->model->getMorphClass(),
         ];
     }
 
@@ -60,11 +70,20 @@ class WorkflowStepNotification extends Notification implements ShouldQueue
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $name = $this->model->title ?? $this->model->name ?? 'Element';
+
+        // Construct URL - hardcoded to steps for now but should be dynamic
+        // If Activity, maybe project route? For now preserving existing behavior but safer
+        $url = url('/steps/' . $this->model->id);
+        if ($this->model instanceof \App\Models\Activity) {
+            $url = route('project.show', $this->model->project_id ?? 0);
+        }
+
         return (new MailMessage)
-            ->subject('تحديث سير العمل: ' . $this->step->name)
+            ->subject('تحديث سير العمل: ' . $name)
             ->line($this->message)
-            ->line('الخطوة: ' . $this->step->name)
+            ->line('العنصر: ' . $name)
             ->line('بواسطة: ' . $this->actor->name)
-            ->action('عرض الخطوة', url('/steps/' . $this->step->id));
+            ->action('عرض التفاصيل', $url);
     }
 }

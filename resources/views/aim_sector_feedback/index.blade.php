@@ -16,13 +16,12 @@
         <div class="flex flex-wrap gap-3 mb-8 justify-start">
             <h3 class="text-lg font-semibold text-gray-700 w-full mb-2">إضافة قيمة محققة لسنة:</h3>
             @foreach($years as $year)
-                <a href="{{ route('aim_sector_feedback.create', ['aim'=>$aim->id,'current_year'=>$year]) }}"
-                    class="
-                        px-6 py-2 rounded-lg 
-                        bg-green-600 text-white font-medium 
-                        hover:bg-green-700 transition duration-300 
-                        shadow-md hover:shadow-lg
-                    ">
+                <a href="{{ route('aim_sector_feedback.create', ['aim' => $aim->id, 'current_year' => $year]) }}" class="
+                            px-6 py-2 rounded-lg 
+                            bg-green-600 text-white font-medium 
+                            hover:bg-green-700 transition duration-300 
+                            shadow-md hover:shadow-lg
+                        ">
                     إضافة لعام {{ $year }}
                 </a>
             @endforeach
@@ -37,6 +36,7 @@
                         <th class="p-3 font-semibold text-sm tracking-wider w-2/12">القيمة المحققة</th>
                         <th class="p-3 font-semibold text-sm tracking-wider w-4/12">عنوان الدليل / ملاحظات</th>
                         <th class="p-3 font-semibold text-sm tracking-wider w-2/12">الدليل (الملف)</th>
+                        <th class="p-3 font-semibold text-sm tracking-wider w-1/12">الحالة</th>
                         <th class="p-3 font-semibold text-sm tracking-wider w-2/12">العمليات</th>
                     </tr>
                 </thead>
@@ -50,12 +50,12 @@
                                     {{ $fb->current_year }}
                                 </span>
                             </td>
-                            
+
                             {{-- القيمة المحققة --}}
                             <td class="p-3 text-lg font-bold text-green-700">
                                 {{ $fb->achieved }}
                             </td>
-                            
+
                             {{-- عنوان الدليل / ملاحظات (Added based on previous context) --}}
                             <td class="p-3 text-sm text-gray-600">
                                 @if($fb->evidence_title)
@@ -67,11 +67,12 @@
                             {{-- الملف --}}
                             <td class="p-3 text-sm">
                                 @if ($fb->evidence_url)
-                                    <a class="text-blue-600 hover:text-blue-800 underline flex items-center" 
-                                       href="{{ asset('storage/' . $fb->evidence_url) }}"
-                                       target="_blank">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    <a class="text-blue-600 hover:text-blue-800 underline flex items-center"
+                                        href="{{ asset('storage/' . $fb->evidence_url) }}" target="_blank">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                                         </svg>
                                         عرض الدليل
                                     </a>
@@ -80,10 +81,22 @@
                                 @endif
                             </td>
 
+                            {{-- الحالة --}}
+                            <td class="p-3 text-sm">
+                                <span class="px-2 py-1 rounded-full text-xs font-bold
+                                        {{ $fb->status == 'draft' ? 'bg-gray-100 text-gray-800' : '' }}
+                                        {{ $fb->status == 'in_progress' ? 'bg-blue-100 text-blue-800' : '' }}
+                                        {{ $fb->status == 'completed' ? 'bg-green-100 text-green-800' : '' }}
+                                        {{ $fb->status == 'rejected' ? 'bg-red-100 text-red-800' : '' }}
+                                    ">
+                                    {{ $fb->status_label }}
+                                </span>
+                            </td>
+
                             {{-- عمليات --}}
                             <td class="p-3 whitespace-nowrap">
-                                <a href="{{ route('aim_sector_feedback.show', $fb) }}" 
-                                   class="text-green-600 hover:text-green-800 font-medium ml-3 transition">
+                                <a href="{{ route('aim_sector_feedback.show', $fb) }}"
+                                    class="text-green-600 hover:text-green-800 font-medium ml-3 transition">
                                     عرض
                                 </a>
                             </td>

@@ -15,7 +15,7 @@ class WorkflowDefinitionController extends Controller
      */
     public function index()
     {
-        $workflows = Workflow::withCount(['stages', 'steps'])->get();
+        $workflows = Workflow::withCount(['stages', 'instances'])->get();
 
         return view('admin.workflow.definitions.index', compact('workflows'));
     }
@@ -45,6 +45,7 @@ class WorkflowDefinitionController extends Controller
             'name' => $request->name,
             'description' => $request->description,
             'is_active' => $request->boolean('is_active', true),
+            'entity_type' => $request->input('entity_type', 'App\Models\Activity'),
         ]);
 
         return redirect()
@@ -57,7 +58,7 @@ class WorkflowDefinitionController extends Controller
      */
     public function show(Workflow $definition)
     {
-        $definition->load(['stages.team', 'steps']);
+        $definition->load(['stages.team']);
 
         return view('admin.workflow.definitions.show', compact('definition'));
     }
@@ -111,6 +112,16 @@ class WorkflowDefinitionController extends Controller
             ->with('success', 'تم حذف سير العمل بنجاح');
     }
 
+    /**
+     * Check if workflow modification is allowed
+     */
+    private function checkModificationAllowed(Workflow $workflow)
+    {
+        if ($workflow->isUsed()) {
+            abort(403, 'لا يمكن تعديل هيكلية سير العمل لأنه مستخدم بالفعل في أنشطة.');
+        }
+    }
+
     // ========== STAGE MANAGEMENT ==========
 
     /**
@@ -118,6 +129,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function storeStage(Request $request, Workflow $workflow)
     {
+        $this->checkModificationAllowed($workflow);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
@@ -148,6 +161,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function updateStage(Request $request, WorkflowStage $stage)
     {
+        $this->checkModificationAllowed($stage->workflow);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
@@ -172,6 +187,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function destroyStage(WorkflowStage $stage)
     {
+        $this->checkModificationAllowed($stage->workflow);
+
         if (!$stage->canBeDeleted()) {
             return back()->with('error', 'لا يمكن حذف المرحلة لأن هناك خطوات حالياً في هذه المرحلة');
         }
@@ -187,6 +204,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function reorderStages(Request $request, Workflow $workflow)
     {
+        $this->checkModificationAllowed($workflow);
+
         $request->validate([
             'stage_ids' => 'required|array',
             'stage_ids.*' => 'exists:workflow_stages,id',
@@ -207,6 +226,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function reindexStages(Workflow $workflow)
     {
+        $this->checkModificationAllowed($workflow);
+
         $workflow->reindexStages();
 
         return back()->with('success', 'تم إعادة ترتيب المراحل بنجاح');
@@ -217,6 +238,8 @@ class WorkflowDefinitionController extends Controller
      */
     public function insertStage(Request $request, Workflow $workflow)
     {
+        $this->checkModificationAllowed($workflow);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
@@ -272,5 +295,93 @@ class WorkflowDefinitionController extends Controller
         ]);
 
         return back()->with('success', 'تم إضافة المرحلة بنجاح');
+    }
+    /**
+     * Show form to assign workflow to activities.
+     */
+    public function assign(Workflow $workflow)
+    {
+        $entityType = $workflow->entity_type ?? 'App\Models\Activity';
+
+        // Dynamically query the entity
+        // We need to fetch items that are either not assigned OR assigned to THIS workflow instance
+        // But with polymorphic, "not assigned" means no WorkflowInstance record exists for it.
+
+        $modelClass = $entityType;
+        if (!class_exists($modelClass)) {
+            return back()->with('error', 'Entity class not found: ' . $modelClass);
+        }
+
+        // Ideally we select * from activities where id NOT IN (select workflowable_id from workflow_instances where workflowable_type = ?)
+        // OR where workflow_id = current workflow
+
+        // Let's get all items
+        // This might be heavy if there are thousands, but for now we follow the pattern.
+        $query = $modelClass::query();
+
+        if (method_exists($modelClass, 'project')) {
+            $query->with('project');
+        }
+
+        $items = $query->get();
+
+        // Filter those available for assignment
+        // Available if:
+        // 1. No workflow instance exists
+        // 2. OR Workflow instance exists AND workflow_id == this workflow
+
+        $activities = $items->filter(function ($item) use ($workflow) {
+            $instance = $item->workflowInstance;
+            if (!$instance)
+                return true; // Not assigned
+            return $instance->workflow_id == $workflow->id; // Already assigned to this
+        });
+
+        return view('admin.workflow.definitions.assign', compact('workflow', 'activities'));
+    }
+
+    /**
+     * Store workflow assignments.
+     */
+    public function storeAssignment(Request $request, Workflow $workflow)
+    {
+        $request->validate([
+            'activity_ids' => 'array',
+            // 'activity_ids.*' => 'exists:activities,id', // Cannot validate table dynamically easily here without custom rule
+        ]);
+
+        $selectedIds = $request->input('activity_ids', []);
+        $entityType = $workflow->entity_type ?? 'App\Models\Activity';
+
+        if (!empty($selectedIds)) {
+            foreach ($selectedIds as $id) {
+                $instance = \App\Models\WorkflowInstance::where('workflowable_type', $entityType)
+                    ->where('workflowable_id', $id)
+                    ->first();
+
+                if (!$instance) {
+                    // Create new instance
+                    \App\Models\WorkflowInstance::create([
+                        'workflowable_type' => $entityType,
+                        'workflowable_id' => $id,
+                        'workflow_id' => $workflow->id,
+                        'status' => 'draft',
+                        'current_stage_id' => null,
+                        'creator_id' => auth()->id() // Track who assigned it? Or maybe the entity creator? For now admin assigned it.
+                    ]);
+                } elseif ($instance->workflow_id != $workflow->id) {
+                    // Reassign to this workflow - Reset status
+                    $instance->update([
+                        'workflow_id' => $workflow->id,
+                        'status' => 'draft',
+                        'current_stage_id' => null
+                    ]);
+                }
+                // If same workflow, do nothing (preserve current state)
+            }
+        }
+
+        return redirect()->route('admin.workflow.definitions.index')
+            ->with('success', 'تم ربط العناصر بسير العمل بنجاح');
     }
 }

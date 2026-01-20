@@ -7,7 +7,7 @@ use App\Models\User;
 use App\Models\Workflow;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTeam;
-use App\Models\StepTransition;
+use App\Models\WorkflowTransition;
 use App\Services\WorkflowService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -128,7 +128,9 @@ class WorkflowServiceTest extends TestCase
         $this->assertEquals('in_progress', $step->status);
 
         // Check transition was recorded
-        $transition = StepTransition::where('step_id', $step->id)->first();
+        $transition = WorkflowTransition::where('workflowable_type', Step::class)
+            ->where('workflowable_id', $step->id)
+            ->first();
         $this->assertNotNull($transition);
         $this->assertEquals('approve', $transition->action);
         $this->assertEquals($this->stage1->id, $transition->from_stage_id);
@@ -293,7 +295,10 @@ class WorkflowServiceTest extends TestCase
 
         $this->service->returnStep($step, $this->user, null, 'Needs revision');
 
-        $transitions = StepTransition::where('step_id', $step->id)->orderBy('id')->get();
+        $transitions = WorkflowTransition::where('workflowable_type', Step::class)
+            ->where('workflowable_id', $step->id)
+            ->orderBy('id')
+            ->get();
 
         $this->assertCount(2, $transitions);
 

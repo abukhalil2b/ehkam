@@ -40,6 +40,11 @@ return new class extends Migration {
             $table->foreignId('role_id')->constrained('roles')->onDelete('cascade');
             $table->primary(['permission_id', 'role_id']);
         });
+
+        // Now add the foreign key to users.active_role_id since roles table exists
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign('active_role_id')->references('id')->on('roles')->nullOnDelete();
+        });
     }
 
     /**
@@ -47,6 +52,11 @@ return new class extends Migration {
      */
     public function down(): void
     {
+        // Drop the foreign key from users table first
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['active_role_id']);
+        });
+
         Schema::dropIfExists('permission_role');
         Schema::dropIfExists('role_user');
         Schema::dropIfExists('roles');

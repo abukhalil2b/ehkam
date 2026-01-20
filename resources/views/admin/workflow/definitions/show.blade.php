@@ -40,9 +40,9 @@
                                 class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">{{ $definition->stages->count() }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span>{{ __('عدد الخطوات') }}</span>
+                            <span>{{ __('عدد العناصر') }}</span>
                             <span
-                                class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ $definition->steps->count() }}</span>
+                                class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">{{ $definition->instances->count() }}</span>
                         </div>
                     </div>
                 </div>
@@ -109,34 +109,39 @@
                     </div>
                 </div>
 
-                {{-- Steps using this workflow --}}
-                @if($definition->steps->isNotEmpty())
+                {{-- Items using this workflow --}}
+                @if($definition->instances->isNotEmpty())
                     <div class="bg-white shadow rounded overflow-hidden mt-4">
                         <div class="bg-yellow-500 text-white px-4 py-3">
-                            <h3 class="font-semibold">{{ __('الخطوات التي تستخدم هذا السير') }}</h3>
+                            <h3 class="font-semibold">{{ __('العناصر التي تستخدم هذا السير') }}</h3>
                         </div>
                         <div class="p-4">
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-right">
                                     <thead class="bg-gray-100">
                                         <tr>
-                                            <th class="px-4 py-2">{{ __('الخطوة') }}</th>
+                                            <th class="px-4 py-2">{{ __('العنصر') }}</th>
                                             <th class="px-4 py-2">{{ __('المرحلة الحالية') }}</th>
                                             <th class="px-4 py-2">{{ __('الحالة') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y">
-                                        @foreach($definition->steps->take(10) as $step)
+                                        @foreach($definition->instances->take(10) as $instance)
                                             <tr>
                                                 <td class="px-4 py-2">
-                                                    <a href="{{ route('step.show', $step) }}"
-                                                        class="text-indigo-600 hover:underline">{{ $step->name }}</a>
+                                                    @if($instance->workflowable && method_exists($instance->workflowable, 'getAttribute'))
+                                                        <a href="#" class="text-indigo-600 hover:underline">
+                                                            {{ $instance->workflowable->title ?? $instance->workflowable->name ?? 'Item #' . $instance->workflowable_id }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-gray-500">{{ __('عنصر محذوف') }}</span>
+                                                    @endif
                                                 </td>
-                                                <td class="px-4 py-2">{{ $step->currentStage?->name ?? '-' }}</td>
+                                                <td class="px-4 py-2">{{ $instance->currentStage?->name ?? '-' }}</td>
                                                 <td class="px-4 py-2">
                                                     <span
-                                                        class="px-2 py-1 rounded text-xs {{ $step->status === 'completed' ? 'bg-green-100 text-green-800' : ($step->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-indigo-100 text-indigo-800') }}">
-                                                        {{ $step->status_label ?? $step->status }}
+                                                        class="px-2 py-1 rounded text-xs {{ $instance->status === 'completed' ? 'bg-green-100 text-green-800' : ($instance->status === 'rejected' ? 'bg-red-100 text-red-800' : 'bg-indigo-100 text-indigo-800') }}">
+                                                        {{ __($instance->status) }}
                                                     </span>
                                                 </td>
                                             </tr>
@@ -144,9 +149,10 @@
                                     </tbody>
                                 </table>
                             </div>
-                            @if($definition->steps->count() > 10)
+                            @if($definition->instances->count() > 10)
                                 <p class="text-gray-500 text-center mt-4">
-                                    {{ __('و :count خطوات أخرى...', ['count' => $definition->steps->count() - 10]) }}</p>
+                                    {{ __('و :count عناصر أخرى...', ['count' => $definition->instances->count() - 10]) }}
+                                </p>
                             @endif
                         </div>
                     </div>

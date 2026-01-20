@@ -19,8 +19,6 @@ class DashboardController extends Controller
     {
         $loggedUser = auth()->user();
 
-        $sector = $loggedUser->sectors()->first();
-
         $tasks = Task::where('assigned_to', $loggedUser->id)->get();
 
         // 1. Step Status/Phase Stats
@@ -30,23 +28,23 @@ class DashboardController extends Controller
             ->toArray();
 
         // Ensure all phases have values
-        $phases = ['preparation', 'planning', 'implementation', 'review', 'approval'];
+        $phases = ['planning', 'implementation', 'review', 'close'];
         $chartData = [];
         foreach ($phases as $phase) {
             $chartData[] = $stepsByPhase[$phase] ?? 0;
         }
 
-        // 2. Active Alerts (Delayed Steps)
-        $activeAlerts = \App\Models\Step::where('status', 'delayed')
-            ->orWhere(function ($query) {
-                $query->whereDate('end_date', '<', now())
-                    ->where('status', '!=', 'completed');
-            })->count();
+        // 2. Active Alerts (Steps approaching end date)
+        $activeAlerts = \App\Models\Step::whereDate('end_date', '<', now())
+            ->whereDate('end_date', '>=', now()->subDays(7))
+            ->count();
 
-        // 3. Project Health (Completed Percentage)
-        $totalSteps = \App\Models\Step::count();
-        $completedSteps = \App\Models\Step::where('status', 'completed')->count();
-        $healthPercentage = $totalSteps > 0 ? round(($completedSteps / $totalSteps) * 100) : 0;
+        // 3. Project Health (Based on steps with end dates)
+        $totalSteps = \App\Models\Step::whereNotNull('end_date')->count();
+        $stepsOnTime = \App\Models\Step::whereNotNull('end_date')
+            ->whereDate('end_date', '>=', now())
+            ->count();
+        $healthPercentage = $totalSteps > 0 ? round(($stepsOnTime / $totalSteps) * 100) : 100;
 
         // 4. Recent Notifications
         $recentNotifications = $loggedUser->notifications()->latest()->take(3)->get();
@@ -58,23 +56,18 @@ class DashboardController extends Controller
             $tasks->where('priority', 'low')->count()
         ];
 
-        // 6. Pending Workflows (My Workflows)
-        $myWorkflows = \App\Models\StepWorkflow::where('status', '!=', 'completed') // Only pending/active
-            ->where(function ($q) use ($loggedUser) {
-                $q->where('assigned_to', $loggedUser->id);
-                // If user has roles, check roles too
-                if ($loggedUser->roles->isNotEmpty()) {
-                    $q->orWhereIn('assigned_role', $loggedUser->roles->pluck('id'));
-                }
-            })
-            ->with(['step.project']) // Eager load step and its project/mission context if needed
-            ->latest()
-            ->take(5)
-            ->get();
+        // 6. Pending Workflows (My Pending Items)
+        // Note: Steps don't have workflows, only activities do
+        // TODO: Implement pendingWorkflowActivities() in User model if needed
+        $myWorkflows = collect();
 
-        if ($sector) {
-            $aims = Aim::all();
-            return view('dashboard_sector', compact('tasks', 'sector', 'aims', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows'));
+        // Role-based dashboard selection
+        $activeRole = $loggedUser->getActiveRole();
+
+        if ($activeRole && $activeRole->slug === 'sector') {
+            $sector = $loggedUser->sectors()->first();
+            $aims = \App\Models\Aim::all();
+            return view('dashboard_sector', compact('tasks', 'sector', 'aims', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows', 'activeRole'));
         }
 
         return view('dashboard', compact('tasks', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows'));

@@ -4,18 +4,38 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Permission;
-use App\Models\Profile;
+use App\Models\Role;
 
 class ComprehensivePermissionSeeder extends Seeder
 {
     public function run()
     {
         $permissions = [
+            // RBAC / Roles
+            ['slug' => 'roles.index', 'title' => 'عرض الأدوار', 'category' => 'permission'],
+            ['slug' => 'roles.create', 'title' => 'إنشاء الأدوار', 'category' => 'permission'],
+            ['slug' => 'roles.edit', 'title' => 'تعديل الأدوار', 'category' => 'permission'],
+            ['slug' => 'roles.delete', 'title' => 'حذف الأدوار', 'category' => 'permission'],
+            ['slug' => 'roles.assign', 'title' => 'تعيين الأدوار للمستخدمين', 'category' => 'permission'],
+
             // Workflows
+            ['slug' => 'workflow.pending', 'title' => 'عرض الخطوات المعلقة', 'category' => 'workflow'],
+            ['slug' => 'workflow.approve', 'title' => 'الموافقة على الخطوات', 'category' => 'workflow'],
+            ['slug' => 'workflow.return', 'title' => 'إرجاع الخطوات', 'category' => 'workflow'],
+            ['slug' => 'workflow.reject', 'title' => 'رفض الخطوات', 'category' => 'workflow'],
+            ['slug' => 'workflow.history', 'title' => 'عرض سجل سير العمل', 'category' => 'workflow'],
+
+            ['slug' => 'workflow_team.index', 'title' => 'عرض فرق سير العمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_team.create', 'title' => 'إنشاء فريق سير عمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_team.edit', 'title' => 'تعديل فريق سير عمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_team.delete', 'title' => 'حذف فريق سير عمل', 'category' => 'workflow'],
+
+            ['slug' => 'workflow_definition.index', 'title' => 'عرض تعريفات سير العمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_definition.create', 'title' => 'إنشاء تعريف سير عمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_definition.edit', 'title' => 'تعديل تعريف سير عمل', 'category' => 'workflow'],
+            ['slug' => 'workflow_definition.delete', 'title' => 'حذف تعريف سير عمل', 'category' => 'workflow'],
+
             ['slug' => 'admin.workflow.index', 'title' => 'لوحة تحكم سير العمل', 'category' => 'workflow'],
-            ['slug' => 'step.workflow.transition', 'title' => 'تحويل حالة سير عمل الخطوات', 'category' => 'workflow'],
-            ['slug' => 'activity.workflow.transition', 'title' => 'تحويل حالة سير عمل الأنشطة', 'category' => 'workflow'],
-            ['slug' => 'indicator.workflow.transition', 'title' => 'تحويل حالة سير عمل المؤشرات', 'category' => 'workflow'],
 
             // Indicator Workflows
             ['slug' => 'indicator.report', 'title' => 'رفع تقرير إنجاز المؤشر', 'category' => 'indicator'],
@@ -135,9 +155,13 @@ class ComprehensivePermissionSeeder extends Seeder
             );
         }
 
-        // Assign all to Admin Profile (ID 1 usually, or by title 'Admin')
-        $adminProfile = Profile::firstOrCreate(['title' => 'Admin']);
+        // Assign all to Admin Role (slug: admin)
+        $adminRole = Role::firstOrCreate(
+            ['slug' => 'admin'],
+            ['title' => 'Admin', 'description' => 'Administrator with full access']
+        );
+
         $allPermissionIds = Permission::pluck('id');
-        $adminProfile->permissions()->syncWithoutDetaching($allPermissionIds);
+        $adminRole->permissions()->syncWithoutDetaching($allPermissionIds);
     }
 }

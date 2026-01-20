@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * This to create a form for project assessment
      */
@@ -15,8 +14,20 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->bigInteger('project_id');
-            $table->string('current_year',4)->default('2025');
+            $table->string('current_year', 4)->default('2025');
             $table->boolean('is_feed_indicator')->default(false);
+
+            // Who created this step
+            $table->foreignId('creator_id')
+                ->nullable()
+                ->unsigned();
+
+            // Status flag for the item itself
+            // Movement is driven by current_stage_id, NOT status
+            // Only terminal statuses (completed, rejected) allow current_stage_id = NULL
+            $table->enum('status', ['draft', 'in_progress', 'completed', 'returned', 'rejected', 'delayed'])
+                ->default('draft');
+
             $table->timestamps();
         });
 
