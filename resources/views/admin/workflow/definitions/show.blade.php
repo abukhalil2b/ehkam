@@ -77,7 +77,9 @@
                                                     {{ $stage->order }}
                                                 </span>
                                                 <strong class="mr-2">{{ $stage->name }}</strong>
+                                               
                                             </div>
+                                             <div> لاتتجاوز: {{ $stage->allowed_days??0 }} أيام/يوم</div>
                                             <a href="{{ route('admin.workflow.teams.show', $stage->team) }}"
                                                 class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-sm">
                                                 {{ $stage->team->name }}

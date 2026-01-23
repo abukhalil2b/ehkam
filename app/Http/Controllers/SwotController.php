@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\SwotProject;
 use App\Models\SwotBoard;
+use App\Models\SwotFinalizedStrategy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
@@ -79,21 +80,34 @@ class SwotController extends Controller
     }
 
     // Admin: View project with QR code
-    // في الكنترولر، تحديث method admin للتعامل مع أنواع التصدير المختلفة:
     public function admin($id, Request $request)
     {
-        $project = SwotProject::with('boards', 'finalize')->findOrFail($id);
+        $project = SwotProject::with('boards', 'finalize', 'finalizedStrategies')->findOrFail($id);
 
         if ($project->created_by !== Auth::id()) {
             abort(403);
         }
 
-        return view('swot.admin', compact('project'));
+        // Prepare BSC strategies for display
+        $bscStrategies = [];
+        $dimensionTypes = [
+            SwotFinalizedStrategy::TYPE_FINANCIAL,
+            SwotFinalizedStrategy::TYPE_BENEFICIARIES,
+            SwotFinalizedStrategy::TYPE_INTERNAL_PROCESSES,
+            SwotFinalizedStrategy::TYPE_LEARNING_GROWTH,
+        ];
+
+        foreach ($dimensionTypes as $type) {
+            $strategy = $project->finalizedStrategies->where('dimension_type', $type)->first();
+            $bscStrategies[$type] = $strategy;
+        }
+
+        return view('swot.admin', compact('project', 'bscStrategies'));
     }
 
     public function exportExcel($id)
     {
-        $project = SwotProject::with('finalize')->findOrFail($id);
+        $project = SwotProject::with('finalize', 'finalizedStrategies')->findOrFail($id);
 
         if ($project->created_by !== auth()->id()) {
             abort(403);
@@ -152,11 +166,13 @@ class SwotController extends Controller
                 ->firstOrFail();
 
             $sessionKey = "swot_participant_{$project->id}";
-            session([$sessionKey => [
-                'name' => $request->participant_name,
-                'ip' => $request->ip(),
-                'session_id' => session()->getId(),
-            ]]);
+            session([
+                $sessionKey => [
+                    'name' => $request->participant_name,
+                    'ip' => $request->ip(),
+                    'session_id' => session()->getId(),
+                ]
+            ]);
 
             return response()->json([
                 'success' => true,
@@ -280,7 +296,7 @@ class SwotController extends Controller
 
     public function finalize($id)
     {
-        $project = SwotProject::with('boards', 'finalize')->findOrFail($id);
+        $project = SwotProject::with('boards', 'finalize', 'finalizedStrategies')->findOrFail($id);
 
         // Check if project has any boards
         if ($project->boards()->count() === 0) {
@@ -323,7 +339,29 @@ class SwotController extends Controller
             'threat_count' => $swotData['threats']->count(),
         ];
 
-        return view('swot.finalize', compact('project', 'finalize', 'swotData', 'stats'));
+        // Prepare BSC dimension strategies
+        $dimensionTypes = [
+            SwotFinalizedStrategy::TYPE_FINANCIAL,
+            SwotFinalizedStrategy::TYPE_BENEFICIARIES,
+            SwotFinalizedStrategy::TYPE_INTERNAL_PROCESSES,
+            SwotFinalizedStrategy::TYPE_LEARNING_GROWTH,
+        ];
+
+        $bscStrategies = [];
+        foreach ($dimensionTypes as $type) {
+            $strategy = $project->finalizedStrategies->where('dimension_type', $type)->first();
+            $bscStrategies[$type] = $strategy ? [
+                'strategic_goal' => $strategy->strategic_goal ?? '',
+                'performance_indicator' => $strategy->performance_indicator ?? '',
+                'initiatives' => $strategy->initiatives ?? [],
+            ] : [
+                'strategic_goal' => '',
+                'performance_indicator' => '',
+                'initiatives' => [],
+            ];
+        }
+
+        return view('swot.finalize', compact('project', 'finalize', 'swotData', 'stats', 'bscStrategies'));
     }
 
     public function finalizeSave(Request $request, $id)
@@ -337,22 +375,47 @@ class SwotController extends Controller
             ], 403);
         }
 
-        // FIXED: Added opportunity_strategy validation
+        // Validate finalize data
         $data = $request->validate([
             'summary' => 'nullable|string|max:5000',
             'strength_strategy' => 'nullable|string|max:2000',
             'weakness_strategy' => 'nullable|string|max:2000',
-            'opportunity_strategy' => 'nullable|string|max:2000', // ← ADDED THIS
+            'opportunity_strategy' => 'nullable|string|max:2000',
             'threat_strategy' => 'nullable|string|max:2000',
             'action_items' => 'nullable|array',
             'action_items.*.title' => 'required_with:action_items|string|max:255',
             'action_items.*.owner' => 'nullable|string|max:100',
             'action_items.*.priority' => 'nullable|in:High,Medium,Low',
             'action_items.*.deadline' => 'nullable|date|after_or_equal:today',
+            // BSC Dimension strategies validation
+            'bsc_strategies' => 'nullable|array',
+            'bsc_strategies.*.strategic_goal' => 'nullable|string|max:2000',
+            'bsc_strategies.*.performance_indicator' => 'nullable|string|max:2000',
+            'bsc_strategies.*.initiatives' => 'nullable|array',
+            'bsc_strategies.*.initiatives.*' => 'nullable|string|max:500',
         ]);
 
         $finalize = $project->finalize;
-        $finalize->update($data);
+        // Exclude bsc_strategies from finalize update (stored in separate table)
+        $finalizeData = collect($data)->except('bsc_strategies')->toArray();
+        $finalize->update($finalizeData);
+
+        // Save BSC dimension strategies
+        if ($request->has('bsc_strategies')) {
+            foreach ($request->bsc_strategies as $dimensionType => $strategyData) {
+                SwotFinalizedStrategy::updateOrCreate(
+                    [
+                        'swot_project_id' => $project->id,
+                        'dimension_type' => $dimensionType,
+                    ],
+                    [
+                        'strategic_goal' => $strategyData['strategic_goal'] ?? null,
+                        'performance_indicator' => $strategyData['performance_indicator'] ?? null,
+                        'initiatives' => $strategyData['initiatives'] ?? [],
+                    ]
+                );
+            }
+        }
 
         $project->update([
             'is_finalized' => true,
@@ -364,5 +427,5 @@ class SwotController extends Controller
             'message' => 'تم حفظ التلخيص بنجاح'
         ]);
     }
-    
+
 }

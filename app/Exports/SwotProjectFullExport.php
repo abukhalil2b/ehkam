@@ -18,6 +18,7 @@ class SwotProjectFullExport implements WithMultipleSheets
         return [
             new SwotBoardSheet($this->project),
             new SwotFinalizeSheet($this->project),
+            new SwotBscStrategiesSheet($this->project),
             new SwotActionItemsSheet($this->project),
         ];
     }

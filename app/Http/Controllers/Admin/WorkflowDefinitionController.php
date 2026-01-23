@@ -134,6 +134,7 @@ class WorkflowDefinitionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
+            'allowed_days' => 'required|integer|min:1',
             'can_approve' => 'boolean',
             'can_return' => 'boolean',
             'assignment_type' => 'in:team,user,role',
@@ -148,6 +149,7 @@ class WorkflowDefinitionController extends Controller
             'team_id' => $request->team_id,
             'order' => $newOrder,
             'name' => $request->name,
+            'allowed_days' => $request->allowed_days,
             'can_approve' => $request->has('can_approve'),
             'can_return' => $request->has('can_return'),
             'assignment_type' => $request->input('assignment_type', 'team'),
@@ -166,6 +168,7 @@ class WorkflowDefinitionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
+            'allowed_days' => 'required|integer|min:1',
             'can_approve' => 'boolean',
             'can_return' => 'boolean',
             'assignment_type' => 'in:team,user,role',
@@ -174,6 +177,7 @@ class WorkflowDefinitionController extends Controller
         $stage->update([
             'name' => $request->name,
             'team_id' => $request->team_id,
+            'allowed_days' => $request->allowed_days,
             'can_approve' => $request->has('can_approve'),
             'can_return' => $request->has('can_return'),
             'assignment_type' => $request->input('assignment_type', 'team'),
@@ -243,6 +247,7 @@ class WorkflowDefinitionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
+            'allowed_days' => 'required|integer|min:1',
             'after_stage_id' => 'nullable|exists:workflow_stages,id',
             'before_stage_id' => 'nullable|exists:workflow_stages,id',
         ]);
@@ -289,6 +294,7 @@ class WorkflowDefinitionController extends Controller
             'team_id' => $request->team_id,
             'order' => max(1, $newOrder), // Ensure order is positive
             'name' => $request->name,
+            'allowed_days' => $request->allowed_days,
             'can_approve' => $request->has('can_approve'),
             'can_return' => $request->has('can_return'),
             'assignment_type' => 'team',

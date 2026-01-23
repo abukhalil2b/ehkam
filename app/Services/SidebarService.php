@@ -132,6 +132,7 @@ class SidebarService
             'documentation' => [
                 'title' => 'الوثائق التقنية',
                 'links' => [
+                    ['route' => 'docs.show', 'params' => ['roles-permissions'], 'permission' => 'permission.index', 'label' => 'شرح الصلاحيات', 'keywords' => 'roles permissions documentation guide'],
                     ['route' => 'docs.index', 'permission' => null, 'label' => 'قراءة الوثائق', 'keywords' => 'documentation docs technical markdown'],
                 ]
             ],

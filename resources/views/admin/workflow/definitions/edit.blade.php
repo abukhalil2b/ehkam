@@ -105,6 +105,7 @@
                                             <th class="px-4 py-2">{{ __('الترتيب') }}</th>
                                             <th class="px-4 py-2">{{ __('اسم المرحلة') }}</th>
                                             <th class="px-4 py-2">{{ __('الفريق المسؤول') }}</th>
+                                            <th class="px-4 py-2 text-center">{{ __('المدة (أيام)') }}</th>
                                             <th class="px-4 py-2 text-center">{{ __('موافقة') }}</th>
                                             <th class="px-4 py-2 text-center">{{ __('إرجاع') }}</th>
                                             <th class="px-4 py-2 text-center">{{ __('الإجراءات') }}</th>
@@ -121,6 +122,9 @@
                                                     <a href="{{ route('admin.workflow.teams.show', $stage->team) }}" class="text-indigo-600 hover:underline">
                                                         {{ $stage->team->name }}
                                                     </a>
+                                                </td>
+                                                <td class="px-4 py-2 text-center">
+                                                    <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">{{ $stage->allowed_days ?? '-' }}</span>
                                                 </td>
                                                 <td class="px-4 py-2 text-center">
                                                     @if($stage->can_approve)
@@ -200,6 +204,14 @@
                     </select>
                 </div>
 
+                <div class="mb-4">
+                    <label for="stage_allowed_days" class="block text-sm font-medium text-gray-700 mb-1">{{ __('المدة المسموحة (أيام)') }} <span class="text-red-500">*</span></label>
+                    <input type="number" id="stage_allowed_days" name="allowed_days" required min="1"
+                           placeholder="{{ __('مثال: 5') }}"
+                           class="w-full border rounded px-3 py-2">
+                    <p class="text-gray-500 text-sm mt-1">{{ __('سيتم تصعيد المستوى عند تجاوز المدة') }}</p>
+                </div>
+
                 <div class="flex gap-4 mb-4">
                     <label class="flex items-center gap-2">
                         <input type="checkbox" name="can_approve" value="1" checked class="rounded border-gray-300">
@@ -247,6 +259,13 @@
                     </select>
                 </div>
 
+                <div class="mb-4">
+                    <label for="edit_stage_allowed_days" class="block text-sm font-medium text-gray-700 mb-1">{{ __('المدة المسموحة (أيام)') }} <span class="text-red-500">*</span></label>
+                    <input type="number" id="edit_stage_allowed_days" name="allowed_days" required min="1"
+                           class="w-full border rounded px-3 py-2">
+                    <p class="text-gray-500 text-sm mt-1">{{ __('سيتم تصعيد المستوى عند تجاوز المدة') }}</p>
+                </div>
+
                 <div class="flex gap-4 mb-4">
                     <label class="flex items-center gap-2">
                         <input type="checkbox" id="edit_can_approve" name="can_approve" value="1" class="rounded border-gray-300">
@@ -277,6 +296,7 @@
             document.getElementById('editStageForm').action = '/admin/workflow/stages/' + stage.id;
             document.getElementById('edit_stage_name').value = stage.name;
             document.getElementById('edit_stage_team').value = stage.team_id;
+            document.getElementById('edit_stage_allowed_days').value = stage.allowed_days || '';
             document.getElementById('edit_can_approve').checked = stage.can_approve;
             document.getElementById('edit_can_return').checked = stage.can_return;
             document.getElementById('editStageModal').classList.remove('hidden');

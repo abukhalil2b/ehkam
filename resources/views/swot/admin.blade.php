@@ -3,7 +3,7 @@
         <div class="max-w-7xl mx-auto">
 
             <!-- Header with Status -->
-            <div class="mb-8">
+            <div class="mb-8 print:hidden">
                 <nav class="flex mb-4" aria-label="مسار التنقل">
                     <ol class="inline-flex items-center space-x-1 space-x-reverse rtl:space-x-reverse">
                         <li class="inline-flex items-center">
@@ -87,7 +87,7 @@
 
                 <!-- Display Screen -->
                 <a href="{{ route('swot.display', $project->id) }}" target="_blank"
-                    class="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
+                    class="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 print:hidden">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="font-semibold text-gray-900 group-hover:text-green-600 transition">
@@ -153,7 +153,7 @@
                 </div>
 
                 <!-- Open Data / Export -->
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm print:hidden">
                     <h3 class="font-semibold text-gray-900 mb-1">
                         البيانات المفتوحة
                     </h3>
@@ -323,7 +323,7 @@
             </div>
 
             <!-- Live Board Preview -->
-            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8 print:hidden">
                 <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-gray-900">اللوحة التفاعلية</h2>
@@ -467,56 +467,73 @@
             </div>
         </div>
 
-        <!-- Strategies -->
+        <!-- BSC Strategies -->
+        @if(isset($bscStrategies) && collect($bscStrategies)->filter()->isNotEmpty())
         <div class="mb-8">
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">الاستراتيجيات المقترحة</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-gradient-to-br from-green-50 to-green-25 border border-green-200 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-3">
-                        <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="font-semibold text-green-900">نقاط القوة</h4>
-                    </div>
-                    <p class="text-sm text-gray-700 whitespace-pre-line">
-                        {{ $project->finalize->strength_strategy ?? '-' }}</p>
-                </div>
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات المقترحة</h3>
+                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">بطاقة الأداء المتوازن</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @php
+                    $bscMeta = [
+                        'financial' => ['title' => 'البعد المالي', 'color' => 'emerald', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+                        'beneficiaries' => ['title' => 'بعد المستفيدين', 'color' => 'blue', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
+                        'internal_processes' => ['title' => 'العمليات الداخلية', 'color' => 'purple', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
+                        'learning_growth' => ['title' => 'التعلم والنمو', 'color' => 'amber', 'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
+                    ];
+                @endphp
 
-                <div class="bg-gradient-to-br from-red-50 to-red-25 border border-red-200 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-3">
-                        <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                            </svg>
+                @foreach($bscMeta as $type => $meta)
+                    @php $strategy = $bscStrategies[$type] ?? null; @endphp
+                    @if($strategy)
+                    <div class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-{{ $meta['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $meta['icon'] }}" />
+                                </svg>
+                            </div>
+                            <h4 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h4>
                         </div>
-                        <h4 class="font-semibold text-red-900">نقاط الضعف</h4>
-                    </div>
-                    <p class="text-sm text-gray-700 whitespace-pre-line">
-                        {{ $project->finalize->weakness_strategy ?? '-' }}</p>
-                </div>
-
-                <div class="bg-gradient-to-br from-yellow-50 to-yellow-25 border border-yellow-200 rounded-xl p-5">
-                    <div class="flex items-center gap-2 mb-3">
-                        <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
+                        
+                        <div class="space-y-3">
+                            @if($strategy->strategic_goal)
+                            <div>
+                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف الاستراتيجي</span>
+                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->strategic_goal }}</p>
+                            </div>
+                            @endif
+                            
+                            @if($strategy->performance_indicator)
+                            <div>
+                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر الأداء</span>
+                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->performance_indicator }}</p>
+                            </div>
+                            @endif
+                            
+                            @if($strategy->initiatives && count($strategy->initiatives) > 0)
+                            <div>
+                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
+                                <ul class="mt-1 space-y-1">
+                                    @foreach($strategy->initiatives as $initiative)
+                                        @if($initiative)
+                                        <li class="flex items-start gap-2 text-sm text-gray-800">
+                                            <span class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
+                                            <span>{{ $initiative }}</span>
+                                        </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                            @endif
                         </div>
-                        <h4 class="font-semibold text-yellow-900">التهديدات</h4>
                     </div>
-                    <p class="text-sm text-gray-700 whitespace-pre-line">
-                        {{ $project->finalize->threat_strategy ?? '-' }}</p>
-                </div>
+                    @endif
+                @endforeach
             </div>
         </div>
+        @endif
 
         <!-- Action Plan -->
         @if ($project->finalize->action_items && count($project->finalize->action_items))
@@ -593,7 +610,7 @@
     @endif
 
     <!-- Bottom Actions -->
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 print:hidden">
         <div class="flex gap-3">
             <a href="{{ route('swot.index') }}"
                 class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
@@ -662,6 +679,14 @@
 
         .bg-purple-25 {
             background-color: rgba(250, 245, 255, 0.5);
+        }
+
+        .bg-emerald-25 {
+            background-color: rgba(236, 253, 245, 0.5);
+        }
+
+        .bg-amber-25 {
+            background-color: rgba(255, 251, 235, 0.5);
         }
 
         /* Custom scrollbar */

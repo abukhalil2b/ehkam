@@ -47,12 +47,10 @@
 
             <!-- Success/Error Messages -->
             <template x-if="message.type">
-                <div class="mb-6 p-4 rounded-lg transition-all duration-300"
-                    :class="{
+                <div class="mb-6 p-4 rounded-lg transition-all duration-300" :class="{
                         'bg-green-50 text-green-800 border border-green-200': message.type === 'success',
                         'bg-red-50 text-red-800 border border-red-200': message.type === 'error'
-                    }"
-                    x-show="message.text" x-transition:enter="transition ease-out duration-300"
+                    }" x-show="message.text" x-transition:enter="transition ease-out duration-300"
                     x-transition:enter-start="opacity-0 transform -translate-y-2"
                     x-transition:enter-end="opacity-100 transform translate-y-0">
                     <div class="flex items-center justify-between">
@@ -142,8 +140,7 @@
                         <h3 class="font-semibold text-blue-900 mb-2">نصائح للنجاح</h3>
                         <ul class="space-y-2 text-sm text-blue-800">
                             <li class="flex items-start">
-                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
-                                    viewBox="0 0 20 20">
+                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                         clip-rule="evenodd" />
@@ -151,8 +148,7 @@
                                 <span>حدد استراتيجيات قابلة للتنفيذ</span>
                             </li>
                             <li class="flex items-start">
-                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
-                                    viewBox="0 0 20 20">
+                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                         clip-rule="evenodd" />
@@ -160,8 +156,7 @@
                                 <span>عيّن مسؤولين واضحين لكل مهمة</span>
                             </li>
                             <li class="flex items-start">
-                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor"
-                                    viewBox="0 0 20 20">
+                                <svg class="w-4 h-4 mt-0.5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd"
                                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
                                         clip-rule="evenodd" />
@@ -247,8 +242,7 @@
                             </div>
 
                             <!-- Weaknesses -->
-                            <div
-                                class="bg-gradient-to-br from-red-50 to-red-25 border-2 border-red-200 rounded-xl p-5">
+                            <div class="bg-gradient-to-br from-red-50 to-red-25 border-2 border-red-200 rounded-xl p-5">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center gap-2">
                                         <div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
@@ -375,126 +369,290 @@
                     </div>
                 </div>
             </div>
-            <!-- Strategies Section -->
+            <!-- BSC Dimension Strategies Section -->
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">الاستراتيجيات المقترحة</h2>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
-                        4 استراتيجيات
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">الاستراتيجيات المقترحة</h2>
+                        <p class="text-gray-500 text-sm mt-1">بطاقة الأداء المتوازن (BSC)</p>
+                    </div>
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm font-medium rounded-full">
+                        4 أبعاد استراتيجية
                     </span>
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-6">
-                    <!-- Strength Strategy -->
+                    <!-- Financial Dimension -->
                     <div
-                        class="bg-gradient-to-br from-green-50 to-green-25 border border-green-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
-                        <div class="flex items-center justify-between mb-4">
+                        class="bg-gradient-to-br from-emerald-50 to-emerald-25 border-2 border-emerald-200 rounded-xl p-6 transition-all duration-200 hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                                <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-green-900">استراتيجية نقاط القوة</h3>
-                                    <p class="text-xs text-green-700">SO Strategy</p>
+                                    <h3 class="font-bold text-emerald-900 text-lg">البعد المالي</h3>
+                                    <p class="text-xs text-emerald-700">Financial Perspective</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
-                                {{ $stats['strength_count'] ?? 0 }} عنصر
-                            </span>
                         </div>
-                        <textarea x-model="strength_strategy"
-                            class="w-full px-4 py-3 bg-white/50 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن استغلال نقاط القوة للاستفادة من الفرص المتاحة؟"></textarea>
-                        <p class="text-xs text-green-700 mt-2">💡 استخدم نقاط القوة لتعظيم الفرص</p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-emerald-800 mb-2">الهدف الاستراتيجي</label>
+                                <input type="text" x-model="bscStrategies.financial.strategic_goal"
+                                    class="w-full px-4 py-3 bg-white/70 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-200"
+                                    placeholder="مثال: زيادة العوائد المالية بنسبة 20%">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-emerald-800 mb-2">مؤشر الأداء</label>
+                                <input type="text" x-model="bscStrategies.financial.performance_indicator"
+                                    class="w-full px-4 py-3 bg-white/70 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-200"
+                                    placeholder="مثال: نسبة النمو في الإيرادات">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-emerald-800 mb-2">المبادرات</label>
+                                <div class="space-y-2">
+                                    <template x-for="(initiative, index) in bscStrategies.financial.initiatives"
+                                        :key="index">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" x-model="bscStrategies.financial.initiatives[index]"
+                                                class="flex-1 px-4 py-2 bg-white/70 border border-emerald-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition duration-200"
+                                                placeholder="أدخل المبادرة">
+                                            <button type="button"
+                                                @click="bscStrategies.financial.initiatives.splice(index, 1)"
+                                                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="bscStrategies.financial.initiatives.push('')"
+                                        class="w-full py-2 border-2 border-dashed border-emerald-300 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        إضافة مبادرة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Weakness Strategy -->
+                    <!-- Beneficiaries Dimension -->
                     <div
-                        class="bg-gradient-to-br from-red-50 to-red-25 border border-red-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
-                        <div class="flex items-center justify-between mb-4">
+                        class="bg-gradient-to-br from-blue-50 to-blue-25 border-2 border-blue-200 rounded-xl p-6 transition-all duration-200 hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
+                                <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-red-900">استراتيجية نقاط الضعف</h3>
-                                    <p class="text-xs text-red-700">WO Strategy</p>
+                                    <h3 class="font-bold text-blue-900 text-lg">بعد المستفيدين</h3>
+                                    <p class="text-xs text-blue-700">Beneficiaries Perspective</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">
-                                {{ $stats['weakness_count'] ?? 0 }} عنصر
-                            </span>
                         </div>
-                        <textarea x-model="weakness_strategy"
-                            class="w-full px-4 py-3 bg-white/50 border border-red-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن تحسين نقاط الضعف أو التغلب عليها للاستفادة من الفرص؟"></textarea>
-                        <p class="text-xs text-red-700 mt-2">💡 حسّن نقاط الضعف لاستغلال الفرص</p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-blue-800 mb-2">الهدف الاستراتيجي</label>
+                                <input type="text" x-model="bscStrategies.beneficiaries.strategic_goal"
+                                    class="w-full px-4 py-3 bg-white/70 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                    placeholder="مثال: تحسين رضا المستفيدين">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-blue-800 mb-2">مؤشر الأداء</label>
+                                <input type="text" x-model="bscStrategies.beneficiaries.performance_indicator"
+                                    class="w-full px-4 py-3 bg-white/70 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                    placeholder="مثال: نسبة الرضا العام">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-blue-800 mb-2">المبادرات</label>
+                                <div class="space-y-2">
+                                    <template x-for="(initiative, index) in bscStrategies.beneficiaries.initiatives"
+                                        :key="index">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text" x-model="bscStrategies.beneficiaries.initiatives[index]"
+                                                class="flex-1 px-4 py-2 bg-white/70 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
+                                                placeholder="أدخل المبادرة">
+                                            <button type="button"
+                                                @click="bscStrategies.beneficiaries.initiatives.splice(index, 1)"
+                                                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="bscStrategies.beneficiaries.initiatives.push('')"
+                                        class="w-full py-2 border-2 border-dashed border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        إضافة مبادرة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Opportunity Strategy -->
+                    <!-- Internal Processes Dimension -->
                     <div
-                        class="bg-gradient-to-br from-blue-50 to-blue-25 border border-blue-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
-                        <div class="flex items-center justify-between mb-4">
+                        class="bg-gradient-to-br from-purple-50 to-purple-25 border-2 border-purple-200 rounded-xl p-6 transition-all duration-200 hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor"
+                                <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-7 h-7 text-purple-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-blue-900">استراتيجية الفرص</h3>
-                                    <p class="text-xs text-blue-700">Opportunity Strategy</p>
+                                    <h3 class="font-bold text-purple-900 text-lg">العمليات الداخلية</h3>
+                                    <p class="text-xs text-purple-700">Internal Processes Perspective</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded">
-                                {{ $stats['opportunity_count'] ?? 0 }} عنصر
-                            </span>
                         </div>
-                        <textarea x-model="opportunity_strategy"
-                            class="w-full px-4 py-3 bg-white/50 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن استغلال الفرص المتاحة لتحقيق النمو والتطور؟"></textarea>
-                        <p class="text-xs text-blue-700 mt-2">💡 اغتنم الفرص لتحقيق التميز</p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-purple-800 mb-2">الهدف الاستراتيجي</label>
+                                <input type="text" x-model="bscStrategies.internal_processes.strategic_goal"
+                                    class="w-full px-4 py-3 bg-white/70 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
+                                    placeholder="مثال: تحسين كفاءة العمليات">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-purple-800 mb-2">مؤشر الأداء</label>
+                                <input type="text" x-model="bscStrategies.internal_processes.performance_indicator"
+                                    class="w-full px-4 py-3 bg-white/70 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
+                                    placeholder="مثال: معدل الإنجاز في الوقت المحدد">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-purple-800 mb-2">المبادرات</label>
+                                <div class="space-y-2">
+                                    <template
+                                        x-for="(initiative, index) in bscStrategies.internal_processes.initiatives"
+                                        :key="index">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text"
+                                                x-model="bscStrategies.internal_processes.initiatives[index]"
+                                                class="flex-1 px-4 py-2 bg-white/70 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"
+                                                placeholder="أدخل المبادرة">
+                                            <button type="button"
+                                                @click="bscStrategies.internal_processes.initiatives.splice(index, 1)"
+                                                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="bscStrategies.internal_processes.initiatives.push('')"
+                                        class="w-full py-2 border-2 border-dashed border-purple-300 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        إضافة مبادرة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Threat Strategy -->
+                    <!-- Learning & Growth Dimension -->
                     <div
-                        class="bg-gradient-to-br from-yellow-50 to-yellow-25 border border-yellow-200 rounded-xl p-6 transition-transform duration-200 hover:shadow-md">
-                        <div class="flex items-center justify-between mb-4">
+                        class="bg-gradient-to-br from-amber-50 to-amber-25 border-2 border-amber-200 rounded-xl p-6 transition-all duration-200 hover:shadow-lg">
+                        <div class="flex items-center justify-between mb-5">
                             <div class="flex items-center">
-                                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center mr-3">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor"
+                                <div class="w-12 h-12 bg-amber-100 rounded-xl flex items-center justify-center mr-3">
+                                    <svg class="w-7 h-7 text-amber-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                            d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-yellow-900">استراتيجية التهديدات</h3>
-                                    <p class="text-xs text-yellow-700">WT Strategy</p>
+                                    <h3 class="font-bold text-amber-900 text-lg">التعلم والنمو</h3>
+                                    <p class="text-xs text-amber-700">Learning & Growth Perspective</p>
                                 </div>
                             </div>
-                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded">
-                                {{ $stats['threat_count'] ?? 0 }} عنصر
-                            </span>
                         </div>
-                        <textarea x-model="threat_strategy"
-                            class="w-full px-4 py-3 bg-white/50 border border-yellow-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 transition duration-200"
-                            rows="5" placeholder="كيف يمكن التعامل مع التهديدات أو تقليل آثارها السلبية؟"></textarea>
-                        <p class="text-xs text-yellow-700 mt-2">💡 تجنب أو قلل من تأثير التهديدات</p>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-amber-800 mb-2">الهدف الاستراتيجي</label>
+                                <input type="text" x-model="bscStrategies.learning_growth.strategic_goal"
+                                    class="w-full px-4 py-3 bg-white/70 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
+                                    placeholder="مثال: تطوير القدرات البشرية">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-amber-800 mb-2">مؤشر الأداء</label>
+                                <input type="text" x-model="bscStrategies.learning_growth.performance_indicator"
+                                    class="w-full px-4 py-3 bg-white/70 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
+                                    placeholder="مثال: عدد ساعات التدريب لكل موظف">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-amber-800 mb-2">المبادرات</label>
+                                <div class="space-y-2">
+                                    <template x-for="(initiative, index) in bscStrategies.learning_growth.initiatives"
+                                        :key="index">
+                                        <div class="flex items-center gap-2">
+                                            <input type="text"
+                                                x-model="bscStrategies.learning_growth.initiatives[index]"
+                                                class="flex-1 px-4 py-2 bg-white/70 border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
+                                                placeholder="أدخل المبادرة">
+                                            <button type="button"
+                                                @click="bscStrategies.learning_growth.initiatives.splice(index, 1)"
+                                                class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                    <button type="button" @click="bscStrategies.learning_growth.initiatives.push('')"
+                                        class="w-full py-2 border-2 border-dashed border-amber-300 text-amber-600 rounded-lg hover:bg-amber-50 transition-colors flex items-center justify-center gap-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        إضافة مبادرة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
             </div>
+
 
             <!-- Action Plan Section -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
@@ -603,7 +761,7 @@
             </div>
 
             <!-- Action Buttons -->
-            <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+            <div class="flex justify-between items-center pt-6 border-t border-gray-200 print:hidden">
                 <div>
                     <a href="{{ route('swot.admin', $project->id) }}"
                         class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
@@ -619,10 +777,9 @@
                     <button type="button" @click="save()" :disabled="isSaving"
                         class="px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-all duration-200 inline-flex items-center disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transform hover:-translate-y-0.5">
                         <template x-if="isSaving">
-                            <svg class="animate-spin -mr-1 ml-3 h-5 w-5 text-white" fill="none"
-                                viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                    stroke="currentColor" stroke-width="4"></circle>
+                            <svg class="animate-spin -mr-1 ml-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor"
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
@@ -650,6 +807,29 @@
                 opportunity_strategy: @json($finalize->opportunity_strategy ?? ''),
                 threat_strategy: @json($finalize->threat_strategy ?? ''),
                 actionItems: @json($finalize->action_items ?? []),
+                // BSC Dimension Strategies
+                bscStrategies: {
+                    financial: {
+                        strategic_goal: @json($bscStrategies['financial']['strategic_goal'] ?? ''),
+                        performance_indicator: @json($bscStrategies['financial']['performance_indicator'] ?? ''),
+                        initiatives: @json($bscStrategies['financial']['initiatives'] ?? [])
+                    },
+                    beneficiaries: {
+                        strategic_goal: @json($bscStrategies['beneficiaries']['strategic_goal'] ?? ''),
+                        performance_indicator: @json($bscStrategies['beneficiaries']['performance_indicator'] ?? ''),
+                        initiatives: @json($bscStrategies['beneficiaries']['initiatives'] ?? [])
+                    },
+                    internal_processes: {
+                        strategic_goal: @json($bscStrategies['internal_processes']['strategic_goal'] ?? ''),
+                        performance_indicator: @json($bscStrategies['internal_processes']['performance_indicator'] ?? ''),
+                        initiatives: @json($bscStrategies['internal_processes']['initiatives'] ?? [])
+                    },
+                    learning_growth: {
+                        strategic_goal: @json($bscStrategies['learning_growth']['strategic_goal'] ?? ''),
+                        performance_indicator: @json($bscStrategies['learning_growth']['performance_indicator'] ?? ''),
+                        initiatives: @json($bscStrategies['learning_growth']['initiatives'] ?? [])
+                    }
+                },
                 summaryWordCount: 0,
                 isSaving: false,
                 message: {
@@ -673,6 +853,12 @@
                     if (!Array.isArray(this.actionItems)) {
                         this.actionItems = [];
                     }
+                    // Ensure BSC initiatives are arrays
+                    ['financial', 'beneficiaries', 'internal_processes', 'learning_growth'].forEach(dimension => {
+                        if (!Array.isArray(this.bscStrategies[dimension].initiatives)) {
+                            this.bscStrategies[dimension].initiatives = [];
+                        }
+                    });
                     this.updateWordCount('summary');
                     this.updateProgress();
                 },
@@ -713,6 +899,16 @@
                         const csrf = document.querySelector('meta[name="csrf-token"]').content;
                         const url = `{{ route('swot.finalize.save', $project->id) }}`;
 
+                        // Filter out empty initiatives
+                        const cleanedBscStrategies = {};
+                        ['financial', 'beneficiaries', 'internal_processes', 'learning_growth'].forEach(dimension => {
+                            cleanedBscStrategies[dimension] = {
+                                strategic_goal: this.bscStrategies[dimension].strategic_goal,
+                                performance_indicator: this.bscStrategies[dimension].performance_indicator,
+                                initiatives: this.bscStrategies[dimension].initiatives.filter(i => i && i.trim() !== '')
+                            };
+                        });
+
                         const response = await fetch(url, {
                             method: 'POST',
                             headers: {
@@ -726,7 +922,8 @@
                                 weakness_strategy: this.weakness_strategy,
                                 opportunity_strategy: this.opportunity_strategy,
                                 threat_strategy: this.threat_strategy,
-                                action_items: this.actionItems
+                                action_items: this.actionItems,
+                                bsc_strategies: cleanedBscStrategies
                             })
                         });
 

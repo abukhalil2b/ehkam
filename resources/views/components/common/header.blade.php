@@ -23,7 +23,7 @@
 
     <div class="shadow-sm">
 
-        <div class="relative bg-white flex w-full items-center px-5 py-2 dark:bg-[#0e1726]">
+        <div class="relative bg-white flex w-full items-center px-5 py-2 dark:bg-[#0e1726] print:hidden">
             <div class="horizontal-logo flex lg:hidden justify-between items-center ltr:mr-2 rtl:ml-2">
                 <a href="/" class="main-logo flex items-center shrink-0">
                     <span

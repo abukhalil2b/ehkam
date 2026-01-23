@@ -135,6 +135,7 @@ class WorkflowControllerTest extends TestCase
             ->post(route('admin.workflow.stages.store', $this->workflow), [
                 'name' => 'New Stage',
                 'team_id' => $this->team->id,
+                'allowed_days' => 5,
                 'can_approve' => true,
                 'can_return' => false,
             ])
@@ -143,6 +144,7 @@ class WorkflowControllerTest extends TestCase
         $this->assertDatabaseHas('workflow_stages', [
             'workflow_id' => $this->workflow->id,
             'name' => 'New Stage',
+            'allowed_days' => 5,
             'can_approve' => true,
             'can_return' => false,
         ]);
@@ -155,6 +157,7 @@ class WorkflowControllerTest extends TestCase
             ->patch(route('admin.workflow.stages.update', $this->stage), [
                 'name' => 'Updated Stage',
                 'team_id' => $this->team->id,
+                'allowed_days' => 7,
                 'can_approve' => false,
                 'can_return' => true,
             ])
@@ -162,6 +165,7 @@ class WorkflowControllerTest extends TestCase
 
         $this->stage->refresh();
         $this->assertEquals('Updated Stage', $this->stage->name);
+        $this->assertEquals(7, $this->stage->allowed_days);
         $this->assertFalse($this->stage->can_approve);
         $this->assertTrue($this->stage->can_return);
     }

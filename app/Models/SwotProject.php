@@ -66,4 +66,9 @@ class SwotProject extends Model
     {
         return $this->hasOne(SwotFinalize::class);
     }
+
+    public function finalizedStrategies()
+    {
+        return $this->hasMany(SwotFinalizedStrategy::class);
+    }
 }

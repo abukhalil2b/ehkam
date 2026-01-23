@@ -7,29 +7,29 @@
 <div :class="{ 'dark text-white-dark': $store.app.semidark }">
     <nav x-data="sidebar"
         class="sidebar fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300">
-        <div class="bg-white dark:bg-[#0e1726] h-full overflow-y-scroll">
-            <div class="flex justify-between items-center px-4 py-3">
+        <div class="bg-white dark:bg-[#0e1726] h-full overflow-y-scroll print:hidden">
+            <div class="flex justify-between items-center px-4 py-3 ">
                 <a href="{{ route('dashboard') }}" class="main-logo flex items-center shrink-0">
-                <span class="text-[10px]">
-                    متابعة المشاريع والمؤشرات
-                </span>
-                 </a>
+                    <span class="text-[10px]">
+                        متابعة المشاريع والمؤشرات
+                    </span>
+                </a>
                 <div class="flex items-center gap-2">
-                     <a href="javascript:;"
+                    <a href="javascript:;"
                         class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180"
-                        @click="$dispatch('toggle-sidebar-sections', true)"
-                        title="Expand All">
+                        @click="$dispatch('toggle-sidebar-sections', true)" title="Expand All">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                             <path d="M12 6V12M12 12V18M12 12H18M12 12H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 6V12M12 12V18M12 12H18M12 12H6" stroke="currentColor" stroke-width="1.5"
+                                stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                     </a>
                     <a href="javascript:;"
                         class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180"
-                        @click="$dispatch('toggle-sidebar-sections', false)"
-                        title="Collapse All">
-                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M6 12L18 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                         </svg>
+                        @click="$dispatch('toggle-sidebar-sections', false)" title="Collapse All">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 12L18 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
                     </a>
                     <a href="javascript:;"
                         class="collapse-icon w-8 h-8 rounded-full flex items-center hover:bg-gray-500/10 dark:hover:bg-dark-light/10 dark:text-white-light transition duration-300 rtl:rotate-180"
@@ -60,7 +60,8 @@
 
                     @if($showSection)
                         {{-- Collapsible Component --}}
-                        <li class="menu nav-item" x-data="{ open: false }" @toggle-sidebar-sections.window="open = $event.detail">
+                        <li class="menu nav-item" x-data="{ open: false }"
+                            @toggle-sidebar-sections.window="open = $event.detail">
 
                             {{-- Clickable Header --}}
                             <button type="button" class="nav-link group w-full" :class="{ 'active': open }"
