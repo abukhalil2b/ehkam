@@ -10,14 +10,18 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
-use App\Exports\QuestionnaireAnswersExport;
-use Illuminate\Support\Str;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Exports\QuestionnaireAnswersExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionnaireController extends Controller
 {
+    // ==========================
+    // 1. BASIC CRUD & INDEX
+    // ==========================
+
     public function index()
     {
         $questionnaires = Questionnaire::withCount('questions')
@@ -26,33 +30,6 @@ class QuestionnaireController extends Controller
         return view('questionnaire.index', compact('questionnaires'));
     }
 
-    public function shareLink(Questionnaire $questionnaire)
-    {
-        // --- 1. Determine the Public Access URL ---
-        $accessUrl = null;
-        $qrCode = null;
-
-        if ($questionnaire->target_response === 'open_for_all' && $questionnaire->public_hash) {
-            // Use the public hash route for 'open_for_all'
-            $routeUrl = route('questionnaire.public_take', $questionnaire->public_hash);
-            $accessUrl = url($routeUrl); // Get the absolute URL for the QR code
-
-        } elseif ($questionnaire->target_response === 'registerd_only') {
-            // Use the direct authenticated route for 'registerd_only'
-            $routeUrl = route('questionnaire.registered_take', $questionnaire);
-            $accessUrl = url($routeUrl); // Get the absolute URL for the QR code
-        }
-
-        // --- 2. Generate QR Code (if a valid URL exists and the survey is active) ---
-        if ($accessUrl && $questionnaire->is_active) {
-            // Generate the QR code as an SVG string
-            $qrCode = QrCode::size(300)
-                ->generate($accessUrl);
-        }
-
-        // 3. Pass data to a new view
-        return view('questionnaire.share_link', compact('questionnaire', 'accessUrl', 'qrCode'));
-    }
     public function create()
     {
         return view('questionnaire.create');
@@ -60,160 +37,108 @@ class QuestionnaireController extends Controller
 
     public function store(Request $request)
     {
-        // return $request->all();
-
-        // 1. Basic Shape Validation
+        // 1. Validation
         $validator = Validator::make($request->all(), [
             'title' => 'required|string|max:255',
             'is_active' => 'boolean',
-            'target_response' => 'required|in:open_for_all,registerd_only', // Ensure target_response is validated
+            'target_response' => 'required|in:open_for_all,registerd_only',
             'questions' => 'required|array|min:1',
             'questions.*.question_text' => 'required|string',
-            // Add 'dropdown' to the allowed types
             'questions.*.type' => ['required', Rule::in(['single', 'multiple', 'range', 'text', 'date', 'dropdown'])],
-            'questions.*.ordered' => 'nullable|integer',
 
-            // Fields for linked questions (temporary index from form)
-            'questions.*.parent_question_index' => 'nullable',
-
-            // Choices and their dependency fields (sent from Alpine.js)
-            'questions.*.choices' => 'sometimes|array',
+            // Allow empty choices in basic validation, caught by logic below
+            'questions.*.choices' => 'nullable|array',
             'questions.*.choices.*.choice_text' => 'nullable|string',
-            'questions.*.choices.*.ordered' => 'nullable|integer',
-            'questions.*.choices.*.parent_question_index' => 'nullable|integer',
             'questions.*.choices.*.parent_choice_index' => 'nullable|integer',
 
-            // Range questions: min/max values with comparison
-            'questions.*.min_value' => 'nullable|integer',
-            'questions.*.max_value' => 'nullable|integer|gte:questions.*.min_value', // Max >= Min
+            'questions.*.min_value' => 'exclude_unless:questions.*.type,range|required|integer',
+            'questions.*.max_value' => 'exclude_unless:questions.*.type,range|required|integer|gte:questions.*.min_value',
         ]);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // 2. Conditional/Existence Validation (e.g., ensuring choices exist)
-        $questions = $request->input('questions', []);
+        $questionsInput = $request->input('questions', []);
 
-        foreach ($questions as $i => $q) {
-            $type = $q['type'] ?? null;
-
-            // Single / multiple / DROPDOWN choice validation: must have choices if non-text type
-            if (in_array($type, ['single', 'multiple', 'dropdown'])) {
-                if (empty($q['choices']) || !is_array($q['choices'])) {
+        // 2. Logic Validation (Ensure non-empty choices)
+        foreach ($questionsInput as $i => $q) {
+            if (in_array($q['type'], ['single', 'multiple', 'dropdown'])) {
+                if (empty($q['choices'])) {
                     return redirect()->back()
-                        ->withErrors(["questions.$i.choices" => "خيارات مطلوبة للأسئلة من نوع اختيار فردي/متعدد/قائمة منسدلة."])
+                        ->withErrors(["questions.$i.choices" => "يجب إضافة خيارات للسؤال رقم " . ($i + 1)])
                         ->withInput();
                 }
-
-                // Ensure all choices have non-empty text
                 foreach ($q['choices'] as $j => $c) {
-                    $hasText = isset($c['choice_text']) && trim($c['choice_text']) !== '';
-                    if (!$hasText) {
+                    if (empty(trim($c['choice_text'] ?? ''))) {
                         return redirect()->back()
-                            ->withErrors(["questions.$i.choices.$j.choice_text" => "يجب أن يحتوي الخيار على نص."])
+                            ->withErrors(["questions.$i.choices.$j" => "نص الخيار مطلوب في السؤال رقم " . ($i + 1)])
                             ->withInput();
                     }
                 }
             }
         }
 
-
-        // 3. Persistence (Three-Pass Logic)
-        DB::transaction(function () use ($request, $questions) {
-
-            // A. Create Questionnaire
-            $data = [
-                'title' => $request->input('title'),
+        // 3. Save to DB (Three-Pass Logic)
+        DB::transaction(function () use ($request, $questionsInput) {
+            $questionnaire = Questionnaire::create([
+                'title' => $request->title,
                 'is_active' => $request->boolean('is_active'),
-                'target_response' => $request->input('target_response')
-            ];
+                'target_response' => $request->target_response,
+                'public_hash' => $request->target_response === 'open_for_all' ? Str::random(32) : null,
+            ]);
 
-            // ADDED: Generate hash if 'open_for_all' is selected upon creation
-            if ($request->input('target_response') === 'open_for_all') {
-                $data['public_hash'] = Str::random(32);
-            }
-            // No 'else' needed; it defaults to null if not set
+            $qIndexToIdMap = [];
+            $qChoiceData = [];
 
-            $questionnaire = Questionnaire::create($data);
-
-            $questionIndexToIdMap = []; // Map: Form Array Index (0, 1, 2...) -> New Question ID
-            $questionChoiceData = [];    // Store choice data for Passes 2 & 3
-
-            // PASS 1: Create all Questions
-            foreach ($questions as $index => $q) {
+            // Pass 1: Questions
+            foreach ($questionsInput as $index => $q) {
                 $question = Question::create([
                     'questionnaire_id' => $questionnaire->id,
                     'type' => $q['type'],
                     'question_text' => $q['question_text'],
                     'min_value' => $q['min_value'] ?? null,
                     'max_value' => $q['max_value'] ?? null,
-                    'ordered' => $q['ordered'] ?? $index,
-                    'parent_question_id' => null, // Will be updated in Pass 2
+                    'ordered' => $index,
                 ]);
-
-                // Map the form's temporary index to the newly created Question ID
-                $questionIndexToIdMap[$index] = $question->id;
-
-                // Store the original choice data for Pass 2 & 3
-                $questionChoiceData[$index] = [
-                    'question_id' => $question->id,
-                    'choices' => $q['choices'] ?? [],
-                ];
+                $qIndexToIdMap[$index] = $question->id;
+                $qChoiceData[$index] = $q['choices'] ?? [];
             }
 
+            // Pass 2: Links & Choices
+            foreach ($questionsInput as $qIndex => $q) {
+                $questionId = $qIndexToIdMap[$qIndex];
 
-            // PASS 2: Update Question Linkage and Create all Choices
-            foreach ($questions as $qIndex => $q) {
-                $questionId = $questionIndexToIdMap[$qIndex];
-                $type = $q['type'];
-
-                // 2.1. Update Question Linkage (if dependent dropdown)
-                $parentIndex = $q['parent_question_index'] ?? null;
-                if ($parentIndex !== null && isset($questionIndexToIdMap[$parentIndex])) {
-                    // Update the question with its parent's database ID
+                $parentQIdx = $q['parent_question_index'] ?? null;
+                if (!is_null($parentQIdx) && isset($qIndexToIdMap[$parentQIdx])) {
                     Question::where('id', $questionId)->update([
-                        'parent_question_id' => $questionIndexToIdMap[$parentIndex]
+                        'parent_question_id' => $qIndexToIdMap[$parentQIdx]
                     ]);
                 }
 
-                // 2.2. Create Choices
-                if (in_array($type, ['single', 'multiple', 'dropdown']) && !empty($q['choices'])) {
-                    foreach ($q['choices'] as $cIndex => $c) {
+                if (!empty($qChoiceData[$qIndex])) {
+                    $choices = array_values($qChoiceData[$qIndex]); // Ensure sequential keys
+                    foreach ($choices as $cIndex => $cData) {
                         $choice = Choice::create([
                             'question_id' => $questionId,
-                            'choice_text' => $c['choice_text'] ?? null,
-                            'ordered' => $c['ordered'] ?? $cIndex,
-                            'parent_choice_id' => null, // Will be updated in Pass 3
+                            'choice_text' => $cData['choice_text'],
+                            'ordered' => $cIndex,
                         ]);
-
-                        // Store the choice ID in the main choice data array for reference in Pass 3
-                        $questionChoiceData[$qIndex]['choices'][$cIndex]['choice_id'] = $choice->id;
+                        $qChoiceData[$qIndex][$cIndex]['db_id'] = $choice->id;
                     }
                 }
             }
 
-
-            // PASS 3: Update Choice Linkage (for dependent dropdown choices)
-            foreach ($questionChoiceData as $qIndex => $data) {
-                $choices = $data['choices'];
-                foreach ($choices as $cIndex => $c) {
-                    $parentChoiceIndex = $c['parent_choice_index'] ?? null;
-                    $parentQuestionIndex = $c['parent_question_index'] ?? null;
-
-                    // Check if this choice is dependent (it has parent indices from the form)
-                    if ($parentQuestionIndex !== null && $parentChoiceIndex !== null) {
-
-                        // Get the parent question's choice data array
-                        $parentChoiceDataArray = $questionChoiceData[$parentQuestionIndex]['choices'] ?? null;
-
-                        // Locate the parent choice's newly created ID using the temporary index
-                        if ($parentChoiceDataArray && isset($parentChoiceDataArray[$parentChoiceIndex]['choice_id'])) {
-                            $parentChoiceId = $parentChoiceDataArray[$parentChoiceIndex]['choice_id'];
-
-                            // Update the choice with its parent's database ID
-                            Choice::where('id', $c['choice_id'])->update([
-                                'parent_choice_id' => $parentChoiceId
+            // Pass 3: Dependent Choices
+            foreach ($questionsInput as $qIndex => $q) {
+                $parentQIdx = $q['parent_question_index'] ?? null;
+                if (!is_null($parentQIdx) && isset($qChoiceData[$parentQIdx])) {
+                    $choices = array_values($qChoiceData[$qIndex]);
+                    foreach ($choices as $cData) {
+                        $parentChoiceIdx = $cData['parent_choice_index'] ?? null;
+                        if (!is_null($parentChoiceIdx) && isset($qChoiceData[$parentQIdx][$parentChoiceIdx]['db_id'])) {
+                            Choice::where('id', $cData['db_id'])->update([
+                                'parent_choice_id' => $qChoiceData[$parentQIdx][$parentChoiceIdx]['db_id']
                             ]);
                         }
                     }
@@ -226,128 +151,431 @@ class QuestionnaireController extends Controller
 
     public function show(Questionnaire $questionnaire)
     {
-        $questionnaire->load([
-            'questions.choices',
-        ])->loadCount([
-            'questions',
-            'answers',
+        $questionnaire->load(['questions.choices'])->loadCount(['questions', 'answers']);
+        return view('questionnaire.show', compact('questionnaire'));
+    }
+
+    public function edit(Questionnaire $questionnaire)
+    {
+        return view('questionnaire.edit', compact('questionnaire'));
+    }
+
+    public function update(Request $request, Questionnaire $questionnaire)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'target_response' => 'required|in:open_for_all,registerd_only',
+            'is_active' => 'boolean',
         ]);
 
-        return view('questionnaire.show', compact('questionnaire'));
+        if ($data['target_response'] === 'open_for_all' && !$questionnaire->public_hash) {
+            $data['public_hash'] = Str::random(32);
+        } elseif ($data['target_response'] === 'registerd_only') {
+            $data['public_hash'] = null;
+        }
+
+        $questionnaire->update($data);
+        return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
+    }
+
+    public function delete(Questionnaire $questionnaire)
+    {
+        $questionnaire->delete();
+        return redirect()->route('questionnaire.index')->with('success', 'تم حذف الاستبيان بنجاح.');
     }
 
     public function duplicate(Questionnaire $questionnaire)
     {
-        // 1. Duplicate the questionnaire itself
         $copy = $questionnaire->replicate();
         $copy->title = $questionnaire->title . ' (نسخة)';
-        $copy->is_active = false; // optional: make new one inactive by default
-        $copy->push(); // saves the copy
+        $copy->is_active = false;
+        $copy->push();
 
-        // 2. Duplicate its related questions
         foreach ($questionnaire->questions as $question) {
             $newQuestion = $question->replicate();
             $newQuestion->questionnaire_id = $copy->id;
             $newQuestion->push();
+
+            // Note: Deep duplication of choices and dependent links requires more complex logic.
+            // This basic replication copies questions but might lose dependent structure if not handled carefully.
+            // For simple questionnaires, this is fine. For dependent ones, consider a more robust deep copy.
+            foreach ($question->choices as $choice) {
+                $newChoice = $choice->replicate();
+                $newChoice->question_id = $newQuestion->id;
+                $newChoice->save();
+            }
         }
 
-        // 3. Redirect with success message
-        return redirect()
-            ->route('questionnaire.index')
-            ->with('success', 'تم إنشاء نسخة من الاستبيان مع الأسئلة بنجاح.');
+        return redirect()->route('questionnaire.index')->with('success', 'تم إنشاء نسخة من الاستبيان بنجاح.');
+    }
+
+    // ==========================
+    // 2. STRUCTURE EDITING
+    // ==========================
+
+    public function question_edit(Questionnaire $questionnaire)
+    {
+        if ($questionnaire->answers()->exists()) {
+            return redirect()->route('questionnaire.index')->with('error', 'لا يمكن تعديل الأسئلة لأن هناك إجابات مسجلة عليها.');
+        }
+
+        $questionnaire->load(['questions.choices' => function ($q) {
+            $q->orderBy('ordered');
+        }]);
+        $questionsJson = $questionnaire->questions->toJson();
+
+        return view('questionnaire.question_edit', compact('questionnaire', 'questionsJson'));
+    }
+
+    public function question_update(Request $request, Questionnaire $questionnaire)
+    {
+        if ($questionnaire->answers()->exists()) {
+            return redirect()->back()->with('error', 'لا يمكن تعديل بنية الأسئلة لوجود إجابات مسجلة.');
+        }
+
+        // Reuse validation logic from store()
+        $validator = Validator::make($request->all(), [
+            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.type' => ['required', Rule::in(['single', 'multiple', 'range', 'text', 'date', 'dropdown'])],
+            'questions.*.choices' => 'nullable|array',
+            'questions.*.choices.*.choice_text' => 'nullable|string',
+            'questions.*.min_value' => 'exclude_unless:questions.*.type,range|required|integer',
+            'questions.*.max_value' => 'exclude_unless:questions.*.type,range|required|integer|gte:questions.*.min_value',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $questionsInput = $request->input('questions', []);
+
+        DB::transaction(function () use ($questionnaire, $questionsInput) {
+            foreach ($questionnaire->questions as $q) {
+                $q->choices()->delete();
+            }
+            $questionnaire->questions()->delete();
+
+            // Re-run the store() logic
+            $qIndexToIdMap = [];
+            $qChoiceData = [];
+
+            foreach ($questionsInput as $index => $q) {
+                $question = Question::create([
+                    'questionnaire_id' => $questionnaire->id,
+                    'type' => $q['type'],
+                    'question_text' => $q['question_text'],
+                    'min_value' => $q['min_value'] ?? null,
+                    'max_value' => $q['max_value'] ?? null,
+                    'ordered' => $index,
+                ]);
+                $qIndexToIdMap[$index] = $question->id;
+                $qChoiceData[$index] = $q['choices'] ?? [];
+            }
+
+            foreach ($questionsInput as $qIndex => $q) {
+                $questionId = $qIndexToIdMap[$qIndex];
+                $parentQIdx = $q['parent_question_index'] ?? null;
+                if (!is_null($parentQIdx) && isset($qIndexToIdMap[$parentQIdx])) {
+                    Question::where('id', $questionId)->update(['parent_question_id' => $qIndexToIdMap[$parentQIdx]]);
+                }
+                if (!empty($qChoiceData[$qIndex])) {
+                    $choices = array_values($qChoiceData[$qIndex]);
+                    foreach ($choices as $cIndex => $cData) {
+                        $choice = Choice::create([
+                            'question_id' => $questionId,
+                            'choice_text' => $cData['choice_text'],
+                            'ordered' => $cIndex,
+                        ]);
+                        $qChoiceData[$qIndex][$cIndex]['db_id'] = $choice->id;
+                    }
+                }
+            }
+
+            foreach ($questionsInput as $qIndex => $q) {
+                $parentQIdx = $q['parent_question_index'] ?? null;
+                if (!is_null($parentQIdx) && isset($qChoiceData[$parentQIdx])) {
+                    $choices = array_values($qChoiceData[$qIndex]);
+                    foreach ($choices as $cData) {
+                        $parentChoiceIdx = $cData['parent_choice_index'] ?? null;
+                        if (!is_null($parentChoiceIdx) && isset($qChoiceData[$parentQIdx][$parentChoiceIdx]['db_id'])) {
+                            Choice::where('id', $cData['db_id'])->update([
+                                'parent_choice_id' => $qChoiceData[$parentQIdx][$parentChoiceIdx]['db_id']
+                            ]);
+                        }
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
+    }
+
+    // ==========================
+    // 3. SHARING & TAKING
+    // ==========================
+
+    public function shareLink(Questionnaire $questionnaire)
+    {
+        $accessUrl = null;
+        $qrCode = null;
+
+        if ($questionnaire->target_response === 'open_for_all' && $questionnaire->public_hash) {
+            $accessUrl = route('questionnaire.public_take', $questionnaire->public_hash);
+        } elseif ($questionnaire->target_response === 'registerd_only') {
+            $accessUrl = route('questionnaire.registered_take', $questionnaire);
+        }
+
+        if ($accessUrl && $questionnaire->is_active) {
+            $qrCode = QrCode::size(300)->generate($accessUrl);
+        }
+
+        return view('questionnaire.share_link', compact('questionnaire', 'accessUrl', 'qrCode'));
     }
 
     public function publicTake(string $hash)
     {
-        // 1. Find the questionnaire by hash and check if it's set to 'open_for_all'
         $questionnaire = Questionnaire::where('public_hash', $hash)
             ->where('target_response', 'open_for_all')
             ->firstOrFail();
 
-         if (!$questionnaire->is_active) {
-            return abort(403, 'هذه الاستمارة معطلة.');
+        if (!$questionnaire->is_active) {
+            abort(403, 'هذه الاستمارة معطلة حالياً.');
         }
 
-     
         $questionnaire->load(['questions.choices' => function ($query) {
             $query->orderBy('ordered');
         }]);
 
-        $qrImage = QrCode::size(300)
-            ->generate(route('questionnaire.public_take', $hash));
-        // Pass the user state to the view
-        return view('questionnaire.take', compact('questionnaire','qrImage'));
+        $qrImage = QrCode::size(200)->generate(route('questionnaire.public_take', $hash));
+
+        return view('questionnaire.take', compact('questionnaire', 'qrImage'));
     }
 
     public function registeredTake(Questionnaire $questionnaire)
     {
         $user = auth()->user();
 
-        // Enforce permissions for the authenticated route
         if ($questionnaire->target_response !== 'registerd_only') {
-            // Redirect registered users to the public URL if it's open for all
-            if ($questionnaire->public_hash) { // Using public_hash as the check
+            if ($questionnaire->public_hash) {
                 return redirect()->route('questionnaire.public_take', $questionnaire->public_hash);
             }
-            // Or just abort if the settings are wrong
-            return abort(404);
+            abort(404);
         }
 
-       if (!$questionnaire->is_active) {
+        if (!$questionnaire->is_active) {
             return redirect()->back()->with('error', 'هذه الاستمارة معطلة.');
         }
 
-        // Check if the user is authenticated AND has already answered (only relevant for registered users)
         if ($user) {
-            $answered = Answer::where('questionnaire_id', $questionnaire->id)
-                ->where('user_id', $user->id)
-                ->exists();
-
-            if ($answered) {
+            if (Answer::where('questionnaire_id', $questionnaire->id)->where('user_id', $user->id)->exists()) {
                 return redirect()->back()->with('error', 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
             }
         }
-
-        // The main difference in the view will be whether you include user_id in the form submission.
-        // The form submission logic must be updated to handle this as well.
 
         $questionnaire->load(['questions.choices' => function ($query) {
             $query->orderBy('ordered');
         }]);
 
-        $qrImage = QrCode::size(300)
-            ->generate(route('questionnaire.registered_take', $questionnaire->id));
-        // Pass the user state to the view
-        return view('questionnaire.take', compact('questionnaire', 'user', 'qrImage'));
+        return view('questionnaire.take', compact('questionnaire', 'user'));
     }
+
+    public function publicSubmit(Request $request, string $hash)
+    {
+        $questionnaire = Questionnaire::where('public_hash', $hash)
+            ->where('target_response', 'open_for_all')
+            ->firstOrFail();
+
+        return $this->processSubmission($request, $questionnaire, null);
+    }
+
+    public function submit(Request $request, Questionnaire $questionnaire)
+    {
+        $user = auth()->user();
+        return $this->processSubmission($request, $questionnaire, $user);
+    }
+
+    private function processSubmission(Request $request, Questionnaire $questionnaire, ?User $user = null)
+    {
+        if ($questionnaire->target_response === 'registerd_only' && !$user) {
+            abort(403, 'يجب عليك تسجيل الدخول.');
+        }
+
+        if ($user && Answer::where('questionnaire_id', $questionnaire->id)->where('user_id', $user->id)->exists()) {
+            abort(403, 'تمت الإجابة مسبقاً.');
+        }
+
+        $rules = [];
+        $messages = [];
+
+        foreach ($questionnaire->questions as $question) {
+            $inputName = "question_{$question->id}";
+            $baseRules = ['required'];
+
+            switch ($question->type) {
+                case 'text':
+                    $rules[$inputName] = array_merge($baseRules, ['string', 'max:5000']);
+                    break;
+                case 'date':
+                    $rules[$inputName] = array_merge($baseRules, ['date']);
+                    break;
+                case 'range':
+                    $min = $question->min_value ?? 1;
+                    $max = $question->max_value ?? 10;
+                    $rules[$inputName] = array_merge($baseRules, ['integer', "min:$min", "max:$max"]);
+                    break;
+                case 'single':
+                case 'dropdown':
+                    $choiceIds = $question->choices->pluck('id')->toArray();
+                    $rules[$inputName] = array_merge($baseRules, ['integer', 'in:' . implode(',', $choiceIds)]);
+                    break;
+                case 'multiple':
+                    $choiceIds = $question->choices->pluck('id')->toArray();
+                    $rules[$inputName] = array_merge($baseRules, ['array', 'min:1']);
+                    $rules["{$inputName}.*"] = ['integer', 'in:' . implode(',', $choiceIds)];
+                    break;
+            }
+            $messages["{$inputName}.required"] = "السؤال '{$question->question_text}' مطلوب.";
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        DB::transaction(function () use ($request, $questionnaire, $user) {
+            foreach ($questionnaire->questions as $question) {
+                $inputName = "question_{$question->id}";
+                $noteName  = "note_{$question->id}";
+
+                if (!$request->has($inputName)) continue;
+
+                $answerData = [
+                    'user_id'          => optional($user)->id,
+                    'questionnaire_id' => $questionnaire->id,
+                    'question_id'      => $question->id,
+                    'note'             => $request->input($noteName),
+                    'text_answer'      => null,
+                    'range_value'      => null,
+                    'choice_ids'       => null,
+                ];
+
+                switch ($question->type) {
+                    case 'text':
+                    case 'date':
+                        $answerData['text_answer'] = $request->input($inputName);
+                        break;
+                    case 'range':
+                        $answerData['range_value'] = intval($request->input($inputName));
+                        break;
+                    case 'single':
+                    case 'dropdown':
+                        $val = $request->input($inputName);
+                        $answerData['choice_ids'] = [$val];
+                        break;
+                    case 'multiple':
+                        $answerData['choice_ids'] = $request->input($inputName);
+                        break;
+                }
+                Answer::create($answerData);
+            }
+        });
+
+        return view('questionnaire.thank_you_for_answer')->with('success', 'شكراً لك! تم استلام إجاباتك بنجاح.');
+    }
+
+    // ==========================
+    // 4. ADMIN: ANSWERS & STATS
+    // ==========================
+
+    public function answer_index(Questionnaire $questionnaire)
+    {
+        $questionnaire->load(['questions.choices', 'answers.user', 'answers.question'])->loadCount(['questions', 'answers']);
+        return view('questionnaire.answer_index', compact('questionnaire'));
+    }
+
+    public function answerShow(Answer $answer)
+    {
+        $user = auth()->user();
+        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) abort(403);
+
+        $answer->load(['question', 'questionnaire', 'user']);
+        return view('questionnaire.answer_show', compact('answer'));
+    }
+
+    public function updateAnswer(Request $request, Answer $answer)
+    {
+        $user = auth()->user();
+        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) abort(403);
+
+        $question = $answer->question;
+        $data = [
+            'note' => $request->input('note'),
+            'text_answer' => null,
+            'range_value' => null,
+            'choice_ids' => null,
+        ];
+
+        switch ($question->type) {
+            case 'text':
+            case 'date':
+                $data['text_answer'] = $request->input('text_answer');
+                break;
+            case 'range':
+                $data['range_value'] = intval($request->input('range_value'));
+                break;
+            case 'single':
+            case 'dropdown':
+                $input = $request->input('choice_ids');
+                $val = is_array($input) ? ($input[0] ?? null) : $input;
+                $data['choice_ids'] = $val ? [$val] : null;
+                break;
+            case 'multiple':
+                $data['choice_ids'] = $request->input('choice_ids', []);
+                break;
+        }
+
+        $answer->update($data);
+        return redirect()->route('questionnaire.answer_index', $answer->questionnaire_id)->with('success', 'تم تحديث الإجابة بنجاح');
+    }
+
+    public function destroyAnswer(Answer $answer)
+    {
+        $user = auth()->user();
+        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) abort(403);
+
+        $qId = $answer->questionnaire_id;
+        $answer->delete();
+        return redirect()->route('questionnaire.answer_index', $qId)->with('success', 'تم حذف الإجابة بنجاح');
+    }
+
+    public function export(Questionnaire $questionnaire)
+    {
+        $fileName = 'Responses-' . Str::slug(Str::substr($questionnaire->title, 0, 20)) . '-' . now()->format('Ymd') . '.xlsx';
+        return Excel::download(new QuestionnaireAnswersExport($questionnaire), $fileName);
+    }
+
+    // --- RESTORED METHODS: STATISTICS & PUBLIC RESULTS ---
 
     public function showPublicResults(Questionnaire $questionnaire)
     {
-        // Ensure it's a public questionnaire or handle access based on your specific logic
         if ($questionnaire->target_response !== 'open_for_all') {
-            // You might want to handle registered-only results differently or use a Gate
-            // For simplicity, we'll proceed assuming this is the correct route for results.
-            abort(403,'هذا رابط عام');
+            abort(403, 'هذا رابط عام');
         }
 
-        // Load questions and choices for closed-ended questions
         $questionnaire->load(['questions.choices']);
 
-        // Total number of submissions (unique sets of answers based on creation timestamp)
+        // Count unique submissions by grouping created_at timestamp
         $totalResponses = $questionnaire->answers()
             ->selectRaw('count(DISTINCT created_at) as count')
             ->first()
             ->count ?? 0;
 
-        // Process the data to calculate stats
         $results = $this->calculateQuestionStats($questionnaire);
 
         return view('questionnaire.public_result', compact('questionnaire', 'results', 'totalResponses'));
     }
 
-    /**
-     * Calculates statistics for each question type.
-     */
     private function calculateQuestionStats(Questionnaire $questionnaire)
     {
         $results = [];
@@ -363,24 +591,8 @@ class QuestionnaireController extends Controller
             switch ($question->type) {
                 case 'single':
                 case 'dropdown':
-                    // For single-choice, count how many times each choice ID appears
-                    $choiceCounts = $answers->pluck('choice_ids')
-                        ->flatten() // choice_ids is stored as JSON array, so we flatten it
-                        ->filter() // Remove nulls
-                        ->countBy(); // Count the occurrences of each ID
-
-                    foreach ($question->choices as $choice) {
-                        $count = $choiceCounts->get($choice->id, 0);
-                        $stats['breakdown'][] = [
-                            'text' => $choice->choice_text,
-                            'count' => $count,
-                            'percentage' => $stats['total_answers'] > 0 ? round(($count / $stats['total_answers']) * 100, 1) : 0,
-                        ];
-                    }
-                    break;
-
                 case 'multiple':
-                    // For multiple-choice, count how many times each choice ID appears
+                    // Flatten choice_ids (handling both array casting and JSON strings if needed)
                     $allChoiceIds = $answers->pluck('choice_ids')
                         ->flatten()
                         ->filter();
@@ -389,7 +601,6 @@ class QuestionnaireController extends Controller
 
                     foreach ($question->choices as $choice) {
                         $count = $choiceCounts->get($choice->id, 0);
-                        // Percentage is based on the total number of responses for that question
                         $stats['breakdown'][] = [
                             'text' => $choice->choice_text,
                             'count' => $count,
@@ -399,20 +610,18 @@ class QuestionnaireController extends Controller
                     break;
 
                 case 'range':
-                    // Calculate average, min, max, and frequency distribution
                     $values = $answers->pluck('range_value')->filter();
                     if ($values->isNotEmpty()) {
                         $stats['breakdown']['average'] = round($values->avg(), 2);
                         $stats['breakdown']['min'] = $values->min();
                         $stats['breakdown']['max'] = $values->max();
-                        $stats['breakdown']['distribution'] = $values->countBy()->sortKeys(); // Show frequency of each value
+                        $stats['breakdown']['distribution'] = $values->countBy()->sortKeys();
                     }
                     break;
 
                 case 'text':
                 case 'date':
-                    // Collect all text/date answers for display
-                    $stats['breakdown'] = $answers->pluck('text_answer')->filter()->take(50); // Limit to 50 for performance
+                    $stats['breakdown'] = $answers->pluck('text_answer')->filter()->take(50);
                     break;
             }
 
@@ -421,465 +630,90 @@ class QuestionnaireController extends Controller
 
         return $results;
     }
- 
-
-    // New method to handle public submission via hash
-    public function publicSubmit(Request $request, string $hash)
-    {
-        // return $request->all();
-        $questionnaire = Questionnaire::where('public_hash', $hash)
-            ->where('target_response', 'open_for_all')
-            ->firstOrFail();
-
-        // Pass null for $user since it's a public submission
-        return $this->processSubmission($request, $questionnaire, null);
-    }
-
-    // Rename your existing submit method to handle the authenticated path
-    public function submit(Request $request, Questionnaire $questionnaire)
-    {
-        $user = auth()->user();
-
-        // Pass the authenticated user
-        return $this->processSubmission($request, $questionnaire, $user);
-    }
-
-    private function processSubmission(Request $request, Questionnaire $questionnaire, ?User $user = null)
-    {
-        // --- 1. Access and Restriction Checks (Unchanged) ---
-
-        $isRegisteredOnly = $questionnaire->target_response === 'registerd_only';
-
-        if ($isRegisteredOnly && !$user) {
-            return abort(403, 'يجب عليك تسجيل الدخول للإجابة على هذا الاستبيان.');
-        }
-
-        if ($user) {
-            $alreadyAnswered = Answer::where('questionnaire_id', $questionnaire->id)
-                ->where('user_id', $user->id)
-                ->exists();
-
-            if ($alreadyAnswered) {
-                return abort(403, 'لقد قمت بالإجابة على هذا الاستبيان مسبقاً.');
-            }
-        }
-
-        // --- 2. Dynamic Validation Rule Generation (New Logic) ---
-
-        $rules = [];
-        $messages = [];
-
-        foreach ($questionnaire->questions as $question) {
-            $inputName = "question_{$question->id}";
-
-            // **A. Define Base Rules (Assuming all questions are required by default)**
-            // You might need to adjust 'required' based on a field in your 'questions' table.
-            $baseRules = ['required'];
-
-            // **B. Define Type-Specific Rules**
-            switch ($question->type) {
-                case 'text':
-                    $rules[$inputName] = array_merge($baseRules, ['string', 'max:5000']);
-                    break;
-
-                case 'date':
-                    $rules[$inputName] = array_merge($baseRules, ['date']);
-                    break;
-
-                case 'range':
-                    // Assuming min/max are stored on the question, e.g., $question->min_value
-                    $min = $question->min_value ?? 1;
-                    $max = $question->max_value ?? 10;
-                    $rules[$inputName] = array_merge($baseRules, ['integer', 'min:' . $min, 'max:' . $max]);
-                    break;
-
-                case 'single':
-                    // Must be an integer and must exist in the question's allowed choices (IDs)
-                    $choiceIds = $question->choices->pluck('id')->toArray();
-                    $rules[$inputName] = array_merge($baseRules, ['integer', 'in:' . implode(',', $choiceIds)]);
-                    break;
-
-                case 'multiple':
-                    // Must be an array, and all items in the array must be valid choice IDs
-                    $choiceIds = $question->choices->pluck('id')->toArray();
-                    $rules[$inputName] = array_merge($baseRules, ['array', 'min:1']);
-                    $rules["{$inputName}.*"] = ['integer', 'in:' . implode(',', $choiceIds)];
-
-                    // Add an Arabic message for the main array field
-                    $messages["{$inputName}.required"] = "يجب اختيار خيار واحد على الأقل لسؤال '{$question->question_text}'";
-                    break;
-            }
-
-            // Custom message for general required fields
-            if (!isset($messages["{$inputName}.required"])) {
-                $messages["{$inputName}.required"] = "الرجاء الإجابة على سؤال '{$question->question_text}'.";
-            }
-        }
-
-        // --- 3. Execute Validation ---
-
-        // Check for validation failures
-        $validator = Validator::make($request->all(), $rules, $messages);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        // --- 4. Answer Processing Loop (Using Validated Data) ---
-
-        // Loop through each question again to process the now-validated data
-        foreach ($questionnaire->questions as $question) {
-
-            $inputName = "question_{$question->id}";
-            $noteName  = "note_{$question->id}";
-
-            // Since validation passed, we only skip if the field *wasn't* required and is empty
-            // For simplicity here, we rely on the validator to check 'required'.
-            if (!$request->has($inputName) && !in_array('required', $rules[$inputName] ?? [])) {
-                continue;
-            }
-
-            $answerData = [
-                'user_id'          => optional($user)->id,
-                'questionnaire_id' => $questionnaire->id,
-                'question_id'      => $question->id,
-                'note'             => $request->filled($noteName) ? $request->input($noteName) : null,
-                'text_answer'      => null,
-                'range_value'      => null,
-                'choice_ids'       => null,
-            ];
-
-            // 5. Handle each question type and assign data
-            switch ($question->type) {
-
-                case 'text':
-                case 'date':
-                    // Use the validated text/date input
-                    $answerData['text_answer'] = $request->input($inputName);
-                    break;
-
-                case 'range':
-                    // Use the validated integer range input
-                    $answerData['range_value'] = intval($request->input($inputName));
-                    break;
-
-                case 'single':
-                    // Single choice: Wrap validated ID in an array
-                    $choiceId = $request->input($inputName);
-                    $answerData['choice_ids'] = $choiceId ? [$choiceId] : null;
-                    break;
-
-                case 'multiple':
-                    // Multiple choice: Use validated array of IDs
-                    $choiceIds = $request->input($inputName, []);
-                    $answerData['choice_ids'] = !empty($choiceIds) ? $choiceIds : null;
-                    break;
-            }
-
-            // 6. Store the answer record
-            Answer::create($answerData);
-        }
-
-        // 7. Redirect back
-        return view('questionnaire.thank_you_for_answer')->with('success', 'تم إرسال الإجابات بنجاح');
-    }
-
-    public function edit(Questionnaire $questionnaire)
-    {
-        return view('questionnaire.edit', compact('questionnaire'));
-    }
-
-
-    public function update(Request $request, Questionnaire $questionnaire)
-    {
-        // 1. Validate all incoming data, including the new target_response
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            // 'target_response' is required to determine public/registered access
-            'target_response' => 'required|in:open_for_all,registerd_only',
-            // 'is_active' validation works for '1' or '0' string values
-            'is_active' => 'boolean',
-        ]);
-
-        // 2. Hash Management based on target_response
-
-        // Check if the type is set to 'open_for_all' AND a hash doesn't exist yet
-        if ($data['target_response'] === 'open_for_all' && !$questionnaire->public_hash) {
-            $data['public_hash'] = Str::random(32); // Generate unique public hash
-        }
-        // If it's set back to 'registerd_only', we must clear the hash
-        elseif ($data['target_response'] === 'registerd_only') {
-            $data['public_hash'] = null;
-        }
-
-        // 3. Update the database record
-        $questionnaire->update($data);
-
-        // 4. Redirect
-        return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
-    }
-
-    public function question_edit(Questionnaire $questionnaire)
-    {
-        // 1. Load questions and their choices, eager-loaded for efficiency
-        //    We also order them by the 'ordered' column to match the front-end structure
-        $questionnaire->load(['questions' => function ($query) {
-            $query->orderBy('ordered')->with(['choices' => function ($query) {
-                $query->orderBy('ordered');
-            }]);
-        }]);
-
-        // 2. Prepare the data for Alpine.js (Convert to JSON)
-        //    We use json_encode on the collection of questions
-        $questionsJson = $questionnaire->questions->toJson();
-
-        // 3. Pass both the Questionnaire model and the JSON string to the view
-        return view('questionnaire.question_edit', compact('questionnaire', 'questionsJson'));
-    }
-
-    public function answer_index(Questionnaire $questionnaire)
-    {
-        // ✅ FIX: Eager load the 'answers' collection and its nested relationships
-        // The view relies on answers, user, question, and choices being present.
-        $questionnaire->load([
-            'questions.choices', // Needed for question options (min/max for range)
-            'answers.user',      // Needed for $first->user->name
-            'answers.question',  // Needed for $answer->question->question_text
-            // REMOVED: 'answers.choices' because 'choices' is an accessor (getChoicesAttribute)
-            // and cannot be efficiently eager loaded using this syntax. 
-        ])->loadCount([
-            'questions',
-            'answers',
-        ]);
-
-        return view('questionnaire.answer_index', compact('questionnaire'));
-    }
-
-    public function question_update(Request $request, Questionnaire $questionnaire)
-    {
-        // return $request->all();
-        // Validate basic structure
-        $validator = Validator::make($request->all(), [
-            'questions' => 'required|array|min:1',
-            'questions.*.question_text' => 'required|string',
-            'questions.*.type' => 'required|in:single,multiple,range,text,date',
-            'questions.*.ordered' => 'nullable|integer',
-            // Only single/multiple need choices
-            'questions.*.choices' => 'sometimes|array',
-            'questions.*.choices.*.choice_text' => 'nullable|string',
-
-            // Range questions: min/max values
-            'questions.*.min_value' => 'nullable|integer',
-            'questions.*.max_value' => 'nullable|integer',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
-        $questions = $request->input('questions', []);
-
-        // Conditional validations
-        foreach ($questions as $i => $q) {
-            $type = $q['type'] ?? null;
-
-            // Single / multiple choice validation
-            if (in_array($type, ['single', 'multiple'])) {
-                if (empty($q['choices']) || !is_array($q['choices'])) {
-                    return redirect()->back()
-                        ->withErrors(["questions.$i.choices" => "خيارات مطلوبة للأسئلة من نوع اختيار فردي/متعدد."])
-                        ->withInput();
-                }
-
-                foreach ($q['choices'] as $j => $c) {
-                    $hasText = isset($c['choice_text']) && trim($c['choice_text']) !== '';
-                    if (!$hasText) {
-                        return redirect()->back()
-                            ->withErrors(["questions.$i.choices.$j" => "يجب أن يحتوي الخيار على نص."])
-                            ->withInput();
-                    }
-                }
-            }
-
-            // Range question validation
-            if ($type === 'range') {
-                $min = $q['min_value'] ?? null;
-                $max = $q['max_value'] ?? null;
-
-                if (!is_numeric($min) || !is_numeric($max)) {
-                    return redirect()->back()
-                        ->withErrors(["questions.$i" => "أسئلة المقياس تتطلب قيم min_value و max_value."])
-                        ->withInput();
-                }
-
-                if ((int)$min > (int)$max) {
-                    return redirect()->back()
-                        ->withErrors(["questions.$i" => "الحد الأدنى يجب أن يكون أصغر أو يساوي الحد الأعلى."])
-                        ->withInput();
-                }
-            }
-        }
-
-        // Persist updates inside transaction
-        DB::transaction(function () use ($questionnaire, $questions) {
-
-            // Delete old questions and choices
-            foreach ($questionnaire->questions as $oldQuestion) {
-                $oldQuestion->choices()->delete();
-            }
-            $questionnaire->questions()->delete();
-
-            // Insert new/updated questions
-            foreach ($questions as $index => $q) {
-                $question = Question::create([
-                    'questionnaire_id' => $questionnaire->id,
-                    'type' => $q['type'],
-                    'question_text' => $q['question_text'],
-                    'min_value' => $q['min_value'] ?? null,
-                    'max_value' => $q['max_value'] ?? null,
-                    'ordered' => $q['ordered'] ?? $index,
-                ]);
-
-                // Only create choices for single/multiple
-                if (in_array($q['type'], ['single', 'multiple']) && !empty($q['choices'])) {
-                    foreach ($q['choices'] as $cIndex => $c) {
-                        Choice::create([
-                            'question_id' => $question->id,
-                            'choice_text' => $c['choice_text'] ?? null,
-                            'ordered' => $cIndex,
-                        ]);
-                    }
-                }
-
-                // ✅ No choices for range questions
-            }
-        });
-
-        return redirect()->route('questionnaire.index')->with('success', 'تم تحديث الاستبيان بنجاح.');
-    }
-
-    public function delete(Questionnaire $questionnaire)
-    {
-        // Optionally, you can check permission here, e.g.,
-        // $this->authorize('delete', $questionnaire);
-
-        $questionnaire->delete(); // this will also delete questions and choices if you have cascading
-
-        return redirect()->route('questionnaire.index')
-            ->with('success', 'تم حذف الاستبيان بنجاح.');
-    }
-
-    public function answerShow(Answer $answer)
-    {
-        $user = auth()->user();
-
-        // Only questionnaire owner or admin can access
-        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) {
-            abort(403, 'غير مصرح لك بعرض هذه الإجابة.');
-        }
-
-        // Load related data for display
-        $answer->load(['question', 'questionnaire', 'user']);
-
-        return view('questionnaire.answer_show', compact('answer'));
-    }
-
-    public function updateAnswer(Request $request, Answer $answer)
-    {
-        $user = auth()->user();
-
-        // Only questionnaire owner can update answers
-        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) {
-            abort(403);
-        }
-
-        $question = $answer->question;
-
-        $data = [
-            'note' => $request->input('note'),
-            'text_answer' => null,
-            'range_value' => null,
-            'choice_ids' => null,
-        ];
-
-        switch ($question->type) {
-            case 'text':
-            case 'date':
-                $data['text_answer'] = $request->input('text_answer');
-                break;
-
-            case 'range':
-                $data['range_value'] = intval($request->input('range_value'));
-                break;
-
-            case 'single':
-                $choiceId = $request->input('choice_ids')[0] ?? null;
-                $data['choice_ids'] = $choiceId ? json_encode([$choiceId]) : null;
-                break;
-
-            case 'multiple':
-                $choiceIds = $request->input('choice_ids', []);
-                $data['choice_ids'] = json_encode($choiceIds);
-                break;
-        }
-
-        $answer->update($data);
-
-        return redirect()
-            ->route('questionnaire.show', $answer->questionnaire_id)
-            ->with('success', 'تم تحديث الإجابة بنجاح');
-    }
-
-    public function destroyAnswer(Answer $answer)
-    {
-        $user = auth()->user();
-
-        if ($user->id !== $answer->questionnaire->created_by && $user->id != 1) {
-            abort(403);
-        }
-
-        $answer->delete();
-
-        return redirect()
-            ->route('questionnaire.show', $answer->questionnaire_id)
-            ->with('success', 'تم حذف الإجابة بنجاح');
-    }
-
-    public function export(Questionnaire $questionnaire)
-    {
-        $substrname = Str::substr($questionnaire->title,1,10);
-        
-        // Generate a friendly file name
-        $fileName = 'Responses-' . Str::slug($substrname) . '-' . now()->format('Ymd') . '.xlsx';
-
-        // Use the Excel facade to download the export
-        return Excel::download(new QuestionnaireAnswersExport($questionnaire), $fileName);
-    }
-
     public function statistics(Questionnaire $questionnaire)
     {
-        $questionnaire->load(['questions.choices', 'questions.answers', 'answers.user']);
+        // 1. Eager load necessary relationships
+        $questionnaire->load(['questions.choices', 'questions.answers', 'answers']);
 
-        // Calculate overall statistics
+        // 2. General Stats
         $totalParticipants = $questionnaire->answers->groupBy('user_id')->count();
-        $totalAnswers = $questionnaire->answers_count;
-        $completionRate = $questionnaire->questions_count > 0 ?
-            ($totalAnswers / ($totalParticipants * $questionnaire->questions_count)) * 100 : 0;
+        $totalAnswers = $questionnaire->answers->count(); // Count total answer rows
 
-        // Get question statistics
+        // Calculate Completion Rate (approximate based on answer count vs expected)
+        $completionRate = 0;
+        if ($totalParticipants > 0 && $questionnaire->questions_count > 0) {
+            $completionRate = ($totalAnswers / ($totalParticipants * $questionnaire->questions_count)) * 100;
+            $completionRate = min(100, $completionRate); // Cap at 100%
+        }
+
+        // 3. Question-Specific Stats
         $questionStats = [];
         foreach ($questionnaire->questions as $question) {
+            $statData = [
+                'total_responses' => $question->answers->count(),
+                'type' => $question->type,
+                'chart_data' => null // Will hold data for Chart.js
+            ];
+
+            // Logic to build Chart.js compatible data
+            if (in_array($question->type, ['single', 'multiple', 'dropdown'])) {
+                // Flatten answers to get all choice IDs
+                $allChoiceIds = $question->answers->pluck('choice_ids')
+                    ->flatten()
+                    ->filter();
+
+                $counts = $allChoiceIds->countBy();
+
+                $labels = [];
+                $data = [];
+
+                foreach ($question->choices as $choice) {
+                    $labels[] = $choice->choice_text;
+                    $data[] = $counts->get($choice->id, 0);
+                }
+
+                $statData['chart_data'] = [
+                    'labels' => $labels,
+                    'data' => $data,
+                ];
+            } elseif ($question->type === 'range') {
+                // Group by value (1, 2, 3, 4, 5...)
+                $values = $question->answers->pluck('range_value')->filter();
+                $distribution = $values->countBy();
+
+                // Ensure all steps exist in chart even if count is 0
+                $min = $question->min_value ?? 1;
+                $max = $question->max_value ?? 5;
+                $labels = range($min, $max);
+                $data = [];
+
+                foreach ($labels as $val) {
+                    $data[] = $distribution->get($val, 0);
+                }
+
+                $statData['chart_data'] = [
+                    'labels' => $labels,
+                    'data' => $data,
+                    'average' => $values->isNotEmpty() ? round($values->avg(), 1) : 0
+                ];
+            } elseif (in_array($question->type, ['text', 'date'])) {
+                // Just take the latest 5 text answers
+                $statData['latest_answers'] = $question->answers()
+                    ->latest()
+                    ->take(5)
+                    ->pluck('text_answer')
+                    ->filter()
+                    ->toArray();
+            }
+
             $questionStats[] = [
                 'question' => $question,
-                'statistics' => $question->getAnswerStatistics()
+                'statistics' => $statData
             ];
         }
 
-        // Response over time data
+        // 4. Response Over Time (Line Chart)
         $responseOverTime = $this->getResponseOverTime($questionnaire);
-
-        // Participant demographics (if you have user data)
-        $participantStats = $this->getParticipantStats($questionnaire);
 
         return view('questionnaire.statistics', compact(
             'questionnaire',
@@ -887,11 +721,9 @@ class QuestionnaireController extends Controller
             'totalAnswers',
             'completionRate',
             'questionStats',
-            'responseOverTime',
-            'participantStats'
+            'responseOverTime'
         ));
     }
-
     private function getResponseOverTime($questionnaire)
     {
         $answers = $questionnaire->answers()
@@ -908,10 +740,8 @@ class QuestionnaireController extends Controller
 
     private function getParticipantStats($questionnaire)
     {
-        // This is a placeholder - implement based on your user model fields
         return [
             'total' => $questionnaire->answers->groupBy('user_id')->count(),
-            // Add more demographic data as needed
         ];
     }
 }

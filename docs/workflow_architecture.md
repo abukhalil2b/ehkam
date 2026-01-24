@@ -316,24 +316,6 @@ Access control is enforced in `WorkflowService::verifyUserCanAct()`.
 
 ---
 
-## Migration Guide from Legacy System
-
-The old `step_workflows` table has been completely removed. If you have custom code referencing it:
-
-### OLD (Legacy):
-```php
-$workflow = StepWorkflow::where('step_id', $step->id)->latest()->first();
-```
-
-### NEW (Polymorphic):
-```php
-$transitions = $step->transitions; // Get all transitions
-$lastTransition = $step->transitions()->first(); // Get latest
-$currentStage = $step->currentStage; // Get current stage
-```
-
----
-
 ## Summary
 
 The polymorphic workflow system provides:

@@ -246,7 +246,7 @@
                 </div>
 
                 <!-- KPI 3 -->
-                <a href="{{ route('statistic.quran') }}">
+                <a href="{{ route('statistic.quran',1) }}">
                     <div class="feature-card bg-white p-8 rounded-lg">
                         <div class="text-primary mb-4">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" fill="none" viewBox="0 0 24 24"

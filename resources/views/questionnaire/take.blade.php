@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
@@ -6,9 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $questionnaire->title }}</title>
-    <!-- Tailwind CSS CDN for quick setup -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fonts - Ensure Tajawal is loaded -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -29,12 +26,22 @@
         }
 
         @media (max-width: 640px) {
-
             .attendance-table th,
             .attendance-table td {
                 padding: 8px 10px;
                 font-size: 0.85rem;
             }
+        }
+
+        /* Smooth transitions for dependent dropdowns */
+        .dependent-dropdown {
+            transition: opacity 0.3s ease, max-height 0.3s ease;
+        }
+
+        .dependent-dropdown.hidden {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -72,7 +79,7 @@
         </div>
     </div>
 
-        <div class="max-w-2xl mx-auto py-6">
+    <div class="max-w-2xl mx-auto py-6">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ $questionnaire->title }}</h2>
 
         @php
@@ -81,12 +88,17 @@
                 : route('questionnaire.registerd_only_submit', $questionnaire->id);
         @endphp
         
-        <form method="POST" action="{{ $submitRoute }}" class="bg-white p-6 rounded-2xl shadow space-y-6">
+        <form method="POST" action="{{ $submitRoute }}" class="bg-white p-6 rounded-2xl shadow space-y-6" id="questionnaireForm">
             @csrf
 
             @foreach ($questionnaire->questions as $index => $question)
-                <div class="border-b pb-4">
+                <div class="border-b pb-4 question-container" 
+                     data-question-id="{{ $question->id }}"
+                     data-parent-id="{{ $question->parent_question_id ?? '' }}"
+                     data-question-type="{{ $question->type }}">
+                    
                     <h3 class="font-bold text-lg mb-2">{{ $index + 1 }}. {{ $question->question_text }}</h3>
+                    
                     @if ($question->description)
                         <p class="text-sm text-gray-600 mb-3">{{ $question->description }}</p>
                     @endif
@@ -94,49 +106,80 @@
                     {{-- Question Types --}}
                     @switch($question->type)
                         @case('text')
-                            <textarea name="question_{{ $question->id }}" class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200"></textarea>
+                            <textarea name="question_{{ $question->id }}" 
+                                      class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200"
+                                      required></textarea>
                         @break
 
                         @case('date')
-                            <input type="date" name="question_{{ $question->id }}"
-                                class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200" required>
+                            <input type="date" 
+                                   name="question_{{ $question->id }}"
+                                   class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200" 
+                                   required>
                         @break
 
                         @case('single')
                             @foreach ($question->choices as $choice)
                                 <label class="flex items-center gap-2 mb-1">
-                                    <input type="radio" name="question_{{ $question->id }}" value="{{ $choice->id }}"
-                                        class="text-green-600" required>
+                                    <input type="radio" 
+                                           name="question_{{ $question->id }}" 
+                                           value="{{ $choice->id }}"
+                                           class="text-green-600" 
+                                           required>
                                     <span>{{ $choice->choice_text }}</span>
                                 </label>
                             @endforeach
                         @break
                         
-                        {{-- ✅ ADDED: Dropdown Case --}}
                         @case('dropdown')
                             <div class="relative">
                                 <select name="question_{{ $question->id }}" 
-                                        class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200 appearance-none bg-white"
+                                        id="question_{{ $question->id }}"
+                                        class="w-full border rounded-lg p-2 focus:ring focus:ring-green-200 appearance-none bg-white dropdown-question"
+                                        data-question-id="{{ $question->id }}"
+                                        @if($question->parent_question_id) data-parent-question-id="{{ $question->parent_question_id }}" @endif
                                         required>
                                     <option value="" disabled selected>-- اختر من القائمة --</option>
-                                    @foreach ($question->choices as $choice)
-                                        <option value="{{ $choice->id }}">{{ $choice->choice_text }}</option>
-                                    @endforeach
+                                    
+                                    @if($question->parent_question_id)
+                                        {{-- Dependent dropdown: choices will be populated by JavaScript --}}
+                                        @foreach ($question->choices as $choice)
+                                            <option value="{{ $choice->id }}" 
+                                                    data-parent-choice-id="{{ $choice->parent_choice_id }}"
+                                                    style="display:none;">
+                                                {{ $choice->choice_text }}
+                                            </option>
+                                        @endforeach
+                                    @else
+                                        {{-- Independent dropdown: show all choices --}}
+                                        @foreach ($question->choices as $choice)
+                                            <option value="{{ $choice->id }}">{{ $choice->choice_text }}</option>
+                                        @endforeach
+                                    @endif
                                 </select>
-                                {{-- Simple dropdown arrow replacement (Tailwind friendly) --}}
+                                
+                                {{-- Dropdown arrow --}}
                                 <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-gray-700">
                                     <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                         <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                     </svg>
                                 </div>
                             </div>
+                            
+                            @if($question->parent_question_id)
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <i>يعتمد على السؤال السابق</i>
+                                </p>
+                            @endif
                         @break
 
                         @case('multiple')
                             @foreach ($question->choices as $choice)
                                 <label class="flex items-center gap-2 mb-1">
-                                    <input type="checkbox" name="question_{{ $question->id }}[]" value="{{ $choice->id }}"
-                                        class="text-green-600">
+                                    <input type="checkbox" 
+                                           name="question_{{ $question->id }}[]" 
+                                           value="{{ $choice->id }}"
+                                           class="text-green-600">
                                     <span>{{ $choice->choice_text }}</span>
                                 </label>
                             @endforeach
@@ -149,19 +192,30 @@
                                 $mid = intval(($min + $max) / 2);
                             @endphp
                             <div class="flex items-center gap-3">
-                                <input type="range" name="question_{{ $question->id }}" min="{{ $min }}"
-                                    max="{{ $max }}" value="{{ $mid }}" class="w-full accent-green-600"
-                                    oninput="this.nextElementSibling.value=this.value" required>
+                                <input type="range" 
+                                       name="question_{{ $question->id }}" 
+                                       min="{{ $min }}"
+                                       max="{{ $max }}" 
+                                       value="{{ $mid }}" 
+                                       class="w-full accent-green-600"
+                                       oninput="this.nextElementSibling.value=this.value" 
+                                       required>
                                 <output class="text-sm text-gray-700">{{ $mid }}</output>
                             </div>
                         @break
                     @endswitch
 
                     @if ($question->note_attachment)
-                        <input type="text" name="note_{{ $question->id }}" placeholder="ملحوظة (اختياري)"
-                            class="w-full mt-3 border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-green-200">
+                        <input type="text" 
+                               name="note_{{ $question->id }}" 
+                               placeholder="ملحوظة (اختياري)"
+                               class="w-full mt-3 border border-gray-300 rounded-lg p-2 text-sm focus:ring focus:ring-green-200">
                     @endif
 
+                    {{-- Validation error display --}}
+                    @error("question_{$question->id}")
+                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
             @endforeach
 
@@ -173,6 +227,94 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dependent dropdown system
+            const dropdowns = document.querySelectorAll('.dropdown-question');
+            
+            // Function to update dependent dropdowns
+            function updateDependentDropdowns(parentQuestionId, selectedChoiceId) {
+                // Find all dropdowns that depend on this parent
+                const dependentDropdowns = document.querySelectorAll(
+                    `.dropdown-question[data-parent-question-id="${parentQuestionId}"]`
+                );
+                
+                dependentDropdowns.forEach(dropdown => {
+                    // Reset the dropdown
+                    dropdown.value = '';
+                    
+                    // Get all options in this dependent dropdown
+                    const options = dropdown.querySelectorAll('option[data-parent-choice-id]');
+                    
+                    // Show/hide options based on parent selection
+                    options.forEach(option => {
+                        const parentChoiceId = option.getAttribute('data-parent-choice-id');
+                        
+                        if (parentChoiceId === selectedChoiceId) {
+                            option.style.display = '';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                    
+                    // Enable or disable the dropdown
+                    if (selectedChoiceId) {
+                        dropdown.disabled = false;
+                        dropdown.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    } else {
+                        dropdown.disabled = true;
+                        dropdown.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    }
+                    
+                    // Recursively update any dropdowns that depend on this one
+                    const thisQuestionId = dropdown.getAttribute('data-question-id');
+                    updateDependentDropdowns(thisQuestionId, null);
+                });
+            }
+            
+            // Add change event listeners to all dropdowns
+            dropdowns.forEach(dropdown => {
+                // Initially disable dependent dropdowns
+                if (dropdown.hasAttribute('data-parent-question-id')) {
+                    dropdown.disabled = true;
+                    dropdown.classList.add('bg-gray-100', 'cursor-not-allowed');
+                }
+                
+                dropdown.addEventListener('change', function() {
+                    const questionId = this.getAttribute('data-question-id');
+                    const selectedValue = this.value;
+                    
+                    // Update any dependent dropdowns
+                    updateDependentDropdowns(questionId, selectedValue);
+                });
+            });
+            
+            // Form validation enhancement
+            const form = document.getElementById('questionnaireForm');
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                const requiredDropdowns = form.querySelectorAll('.dropdown-question[required]');
+                
+                requiredDropdowns.forEach(dropdown => {
+                    if (!dropdown.disabled && !dropdown.value) {
+                        isValid = false;
+                        dropdown.classList.add('border-red-500');
+                        
+                        // Remove error styling after user interaction
+                        dropdown.addEventListener('change', function() {
+                            this.classList.remove('border-red-500');
+                        }, { once: true });
+                    }
+                });
+                
+                if (!isValid) {
+                    e.preventDefault();
+                    alert('الرجاء الإجابة على جميع الأسئلة المطلوبة');
+                }
+            });
+        });
+    </script>
 
 </body>
 
