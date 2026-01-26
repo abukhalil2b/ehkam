@@ -2,9 +2,82 @@
 
 namespace App\Services;
 
+/**
+ * SidebarService - Navigation Structure and Search Functionality
+ * 
+ * This service provides the navigation structure for the application sidebar
+ * and enables the global search functionality by returning searchable links.
+ * 
+ * Key responsibilities:
+ * - Defining the sidebar navigation structure with sections and links
+ * - Managing permission-based link visibility
+ * - Providing searchable links with keywords for quick navigation
+ * 
+ * Structure:
+ * The sidebar is organized into sections (e.g., 'workflow', 'calendar'), each containing:
+ * - title: Display name for the section (Arabic)
+ * - links: Array of navigation links with:
+ *   - route: Laravel route name
+ *   - permission: Required permission to view (null = public)
+ *   - label: Display text (Arabic)
+ *   - params: Optional route parameters
+ *   - keywords: Search keywords (English) for quick navigation
+ * 
+ * Usage in Blade templates:
+ * ```php
+ * @inject('sidebar', 'App\Services\SidebarService')
+ * @foreach($sidebar->getSidebarSections() as $key => $section)
+ *     <h3>{{ $section['title'] }}</h3>
+ *     @foreach($section['links'] as $link)
+ *         @can($link['permission'] ?? 'always')
+ *             <a href="{{ route($link['route'], $link['params'] ?? []) }}">
+ *                 {{ $link['label'] }}
+ *             </a>
+ *         @endcan
+ *     @endforeach
+ * @endforeach
+ * ```
+ * 
+ * For global search:
+ * ```php
+ * $searchableLinks = app(SidebarService::class)->getSearchableLinks();
+ * // Returns flat array of links with URLs, labels, categories, and keywords
+ * ```
+ * 
+ * @see resources/views/layouts/sidebar.blade.php
+ */
 class SidebarService
 {
-    public function getSidebarSections()
+    /**
+     * Get the complete sidebar navigation structure.
+     * 
+     * Returns an associative array of sections, each containing a title
+     * and array of links. Links include route names, required permissions,
+     * display labels, optional parameters, and search keywords.
+     * 
+     * Section keys are used as identifiers and for CSS/JS targeting:
+     * - workflow: Workflow management
+     * - indicator: KPI indicators
+     * - activity: Activities and assessments
+     * - aim: Sector aims and goals
+     * - swot: SWOT analysis
+     * - calendar: Calendar and appointments
+     * - mission: Tasks and missions
+     * - meeting_minute: Meeting minutes
+     * - workshop: Workshop management
+     * - questionnaire: Surveys and questionnaires
+     * - competitions: Competition management
+     * - finance: Financial forms and needs
+     * - statistics: Statistical reports
+     * - qr: QR code management
+     * - settings: System settings
+     * - admin_structure: Organizational structure
+     * - permission: Roles and permissions
+     * - documentation: Technical documentation
+     * 
+     * @return array<string, array{title: string, links: array}> Sidebar sections
+     */
+    public function getSidebarSections(): array
     {
         return [
             'workflow' => [
@@ -37,18 +110,14 @@ class SidebarService
                     ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => [date('Y')], 'keywords' => 'aim achievement feedback sector'],
                 ]
             ],
-            'swot' => [
-                'title' => 'التحليل الرباعي',
-                'links' => [
-                    ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'تحليل سوات', 'keywords' => 'swot analysis'],
-                ]
-            ],
             'calendar' => [
                 'title' => 'التقويم',
                 'links' => [
+                    ['route' => 'appointments.index', 'permission' => 'appointments.index', 'label' => 'عرض المواعيد', 'keywords' => 'appointments index schedule'],
                     ['route' => 'calendar.index', 'permission' => 'calendar.index', 'label' => 'عرض التقويم', 'keywords' => 'calendar index schedule'],
                     ['route' => 'calendar.create', 'permission' => 'calendar.create', 'label' => 'إضافة حدث', 'keywords' => 'calendar create event add'],
                     ['route' => 'timeline.index', 'permission' => 'timeline.index', 'label' => 'الجدول الزمني', 'keywords' => 'timeline view'],
+                    ['route' => 'calendar.permissions.index', 'permission' => 'calendar.permissions.index', 'label' => 'صلاحيات الوحدات الادارية', 'keywords' => 'calendar permissions view'],
                 ]
             ],
             'mission' => [
@@ -67,6 +136,12 @@ class SidebarService
                 'title' => 'الورش',
                 'links' => [
                     ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش', 'keywords' => 'workshops list'],
+                ]
+            ],
+            'swot' => [
+                'title' => 'التحليل الرباعي',
+                'links' => [
+                    ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'تحليل سوات', 'keywords' => 'swot analysis'],
                 ]
             ],
             'questionnaire' => [
@@ -132,17 +207,39 @@ class SidebarService
             'documentation' => [
                 'title' => 'الوثائق التقنية',
                 'links' => [
+                    ['route' => 'docs.show', 'params' => ['step-workflow'], 'permission' => null, 'label' => 'سير عمل الخطوات', 'keywords' => 'step workflow documentation guide steps'],
+                    ['route' => 'docs.show', 'params' => ['workflow-architecture'], 'permission' => null, 'label' => 'بنية سير العمل', 'keywords' => 'workflow architecture documentation guide'],
                     ['route' => 'docs.show', 'params' => ['roles-permissions'], 'permission' => 'permission.index', 'label' => 'شرح الصلاحيات', 'keywords' => 'roles permissions documentation guide'],
-                    ['route' => 'docs.index', 'permission' => null, 'label' => 'قراءة الوثائق', 'keywords' => 'documentation docs technical markdown'],
+                    ['route' => 'docs.index', 'permission' => null, 'label' => 'كل الوثائق', 'keywords' => 'documentation docs technical markdown all'],
                 ]
             ],
         ];
     }
 
     /**
-     * Returns a flat list of all searchable links available to the current user.
+     * Get a flat list of all searchable links available to the current user.
+     * 
+     * This method flattens the sidebar structure into a searchable array,
+     * filtering links based on the current user's permissions. Each link
+     * includes pre-generated URLs for immediate use in search results.
+     * 
+     * The returned array is optimized for search functionality:
+     * - label: Display text (Arabic) shown in search results
+     * - category: Section title for grouping results
+     * - url: Pre-generated full URL (using Laravel's route helper)
+     * - keywords: English keywords for matching search queries
+     * 
+     * Permission filtering:
+     * - Links with null permission are always included
+     * - User ID 1 (admin) sees all links regardless of permissions
+     * - Other users only see links they have permission for
+     * 
+     * Special additions:
+     * - User profile link is always added (not in sidebar but searchable)
+     * 
+     * @return array<int, array{label: string, category: string, url: string, keywords: string}>
      */
-    public function getSearchableLinks()
+    public function getSearchableLinks(): array
     {
         $sections = $this->getSidebarSections();
         $userPermissions = auth()->check() ? auth()->user()->getPermissions() : [];

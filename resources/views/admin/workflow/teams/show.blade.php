@@ -60,28 +60,29 @@
                 </div>
             </div>
 
-            {{-- Pending Steps --}}
+            {{-- Pending Items --}}
             <div class="lg:col-span-2">
                 <div class="bg-white shadow rounded overflow-hidden">
                     <div class="bg-yellow-500 text-white px-4 py-3">
-                        <h3 class="font-semibold">{{ __('الأنشطة المعلقة لهذا الفريق') }}</h3>
+                        <h3 class="font-semibold">{{ __('العناصر المعلقة لهذا الفريق') }}</h3>
                     </div>
                     <div class="p-4">
-                        @if($pendingActivities->isEmpty())
+                        @if($pendingItems->isEmpty())
                             <div class="text-center py-8">
                                 <svg class="mx-auto h-12 w-12 text-green-400" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
-                                <p class="text-gray-500 mt-2">{{ __('لا توجد أنشطة معلقة') }}</p>
+                                <p class="text-gray-500 mt-2">{{ __('لا توجد عناصر معلقة') }}</p>
                             </div>
                         @else
                             <div class="overflow-x-auto">
                                 <table class="w-full text-sm text-right">
                                     <thead class="bg-gray-100">
                                         <tr>
-                                            <th class="px-4 py-2">{{ __('النشاط') }}</th>
+                                            <th class="px-4 py-2">{{ __('النوع') }}</th>
+                                            <th class="px-4 py-2">{{ __('العنصر') }}</th>
                                             <th class="px-4 py-2">{{ __('المشروع') }}</th>
                                             <th class="px-4 py-2">{{ __('المرحلة') }}</th>
                                             <th class="px-4 py-2">{{ __('الحالة') }}</th>
@@ -89,24 +90,57 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y">
-                                        @foreach($pendingActivities as $activity)
+                                        @foreach($pendingItems as $pendingItem)
+                                            @php
+                                                $item = $pendingItem['item'];
+                                                $instance = $pendingItem['instance'];
+                                                $type = $pendingItem['type'];
+                                                $typeLabel = $pendingItem['type_label'];
+                                                
+                                                // Get route and title based on type
+                                                $route = match($type) {
+                                                    'Step' => route('step.show', $item),
+                                                    'Activity' => route('activity.show', $item),
+                                                    'AppointmentRequest' => route('appointments.show', $item),
+                                                    default => '#',
+                                                };
+                                                
+                                                $title = match($type) {
+                                                    'Step' => $item->name,
+                                                    'Activity' => $item->title,
+                                                    'AppointmentRequest' => 'طلب موعد #' . $item->id,
+                                                    default => 'عنصر #' . $item->id,
+                                                };
+                                                
+                                                $projectName = match($type) {
+                                                    'Step' => $item->project->name ?? '-',
+                                                    'Activity' => $item->project->name ?? '-',
+                                                    'AppointmentRequest' => '-',
+                                                    default => '-',
+                                                };
+                                            @endphp
                                             <tr>
                                                 <td class="px-4 py-2">
-                                                    <a href="{{ route('activity.show', $activity) }}"
-                                                        class="text-indigo-600 hover:underline">
-                                                        {{ $activity->title }}
-                                                    </a>
-                                                </td>
-                                                <td class="px-4 py-2">{{ $activity->project->name ?? '-' }}</td>
-                                                <td class="px-4 py-2">{{ $activity->currentStage?->name ?? '-' }}</td>
-                                                <td class="px-4 py-2">
-                                                    <span
-                                                        class="px-2 py-1 rounded text-xs {{ $activity->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                        {{ $activity->status_label }}
+                                                    <span class="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs">
+                                                        {{ $typeLabel }}
                                                     </span>
                                                 </td>
                                                 <td class="px-4 py-2">
-                                                    <a href="{{ route('activity.show', $activity) }}"
+                                                    <a href="{{ $route }}"
+                                                        class="text-indigo-600 hover:underline">
+                                                        {{ $title }}
+                                                    </a>
+                                                </td>
+                                                <td class="px-4 py-2">{{ $projectName }}</td>
+                                                <td class="px-4 py-2">{{ $instance->currentStage?->name ?? '-' }}</td>
+                                                <td class="px-4 py-2">
+                                                    <span
+                                                        class="px-2 py-1 rounded text-xs {{ $instance->status === 'in_progress' ? 'bg-blue-100 text-blue-800' : ($instance->status === 'returned' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800') }}">
+                                                        {{ $instance->status_label }}
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-2">
+                                                    <a href="{{ $route }}"
                                                         class="bg-indigo-600 text-white px-2 py-1 rounded text-xs">
                                                         {{ __('عرض') }}
                                                     </a>

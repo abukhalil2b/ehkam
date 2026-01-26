@@ -79,4 +79,16 @@ class WorkflowInstance extends Model
             default => $this->status,
         };
     }
+
+    public function transitions()
+    {
+        return $this->hasMany(WorkflowTransition::class, 'workflowable_id')
+            ->where('workflowable_type', $this->workflowable_type);
+    }
+
+    public function scopeOverdue($q)
+    {
+        return $q->whereNotNull('stage_due_at')
+            ->where('stage_due_at', '<', now());
+    }
 }

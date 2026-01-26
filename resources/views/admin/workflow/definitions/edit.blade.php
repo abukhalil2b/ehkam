@@ -206,7 +206,7 @@
 
                 <div class="mb-4">
                     <label for="stage_allowed_days" class="block text-sm font-medium text-gray-700 mb-1">{{ __('المدة المسموحة (أيام)') }} <span class="text-red-500">*</span></label>
-                    <input type="number" id="stage_allowed_days" name="allowed_days" required min="1"
+                    <input type="number" id="stage_allowed_days" name="allowed_days" required min="0" max="90"
                            placeholder="{{ __('مثال: 5') }}"
                            class="w-full border rounded px-3 py-2">
                     <p class="text-gray-500 text-sm mt-1">{{ __('سيتم تصعيد المستوى عند تجاوز المدة') }}</p>

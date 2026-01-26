@@ -21,8 +21,7 @@
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @forelse ($indicators as $indicator)
-                <div
-                    class="border-b last:border-b-0 py-4 flex justify-between items-center  {{ $indicator->is_main ? 'bg-white' : 'bg-gray-100' }} p-3">
+                <div class="border-b last:border-b-0 py-4 flex justify-between items-center  {{ $indicator->is_main ? 'bg-white' : 'bg-gray-100' }} p-3">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-900">
                             {{ $indicator->title }}

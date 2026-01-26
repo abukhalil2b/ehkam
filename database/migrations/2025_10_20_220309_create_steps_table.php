@@ -39,6 +39,8 @@ return new class extends Migration {
                 'close'
             ])->comment('مرحلة العمل');
 
+            $table->enum('status', ['draft', 'review', 'completed', 'returned', 'rejected', 'delayed','approved'])->comment('draft');
+
 
             // Supporting documents / notes
             $table->text('supporting_document')->nullable();

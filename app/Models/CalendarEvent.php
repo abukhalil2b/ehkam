@@ -28,6 +28,26 @@ class CalendarEvent extends Model
         'is_public' => 'boolean',
     ];
 
+    public function getContextAttribute()
+    {
+        if ($this->org_unit_id) {
+            return 'org';
+        }
+        return 'user';
+    }
+
+    public function isOrganizational(): bool
+    {
+        return !is_null($this->org_unit_id);
+    }
+
+    public function getOwnerNameAttribute()
+    {
+        return $this->isOrganizational()
+            ? $this->orgUnit->name
+            : $this->targetUser->name;
+    }
+
     // ========== RELATIONSHIPS ==========
 
     public function user()

@@ -7,6 +7,8 @@ use App\Models\Activity;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentResult;
 use App\Models\Indicator;
+use App\Models\Workflow;
+use App\Models\WorkflowInstance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,17 +83,17 @@ class ActivityController extends Controller
         ]);
 
         // 3. Auto-assign Workflow if available
-        $workflow = \App\Models\Workflow::where('entity_type', \App\Models\Activity::class)
+        $workflow = Workflow::where('entity_type', Activity::class)
             ->where('is_active', true)
             ->first();
 
         if ($workflow) {
-            \App\Models\WorkflowInstance::create([
+            WorkflowInstance::create([
                 'workflow_id' => $workflow->id,
-                'workflowable_type' => \App\Models\Activity::class,
+                'workflowable_type' => Activity::class,
                 'workflowable_id' => $activity->id,
                 'status' => 'draft',
-                'creator_id' => \Illuminate\Support\Facades\Auth::id(),
+                'creator_id' => Auth::id(),
             ]);
         }
 

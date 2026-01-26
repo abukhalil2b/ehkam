@@ -33,7 +33,7 @@ return new class extends Migration {
             $table->string('name');
             $table->text('description')->nullable();
             $table->boolean('is_active')->default(true);
-            $table->string('entity_type')->default('App\Models\Activity')->unique();
+            $table->string('entity_type')->unique();
             $table->timestamps();
         });
 
@@ -139,3 +139,4 @@ return new class extends Migration {
         Schema::dropIfExists('workflow_teams');
     }
 };
+

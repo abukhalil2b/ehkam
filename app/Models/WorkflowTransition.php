@@ -18,6 +18,11 @@ class WorkflowTransition extends Model
         return $this->morphTo();
     }
 
+    public function transitions()
+    {
+        return $this->morphMany(\App\Models\WorkflowTransition::class, 'workflowable');
+    }
+
     /**
      * Get the user who performed this transition
      */

@@ -48,12 +48,13 @@
         <h1 class="text-xl font-bold text-gray-800">{{ $project->title }}</h1>
         <div class="py-2">
             @foreach ($activities as $activityItem)
-                    <a href="{{ route('step.index', ['project' => $project->id, 'activity' => $activityItem->id]) }}" class="inline-block px-3 py-1 rounded
+                <a href="{{ route('step.index', ['project' => $project->id, 'activity' => $activityItem->id]) }}"
+                    class="inline-block px-3 py-1 rounded
                     {{ request()->route('activity') == $activityItem->id
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 hover:bg-gray-200' }}">
-                        {{ $activityItem->title }}
-                    </a>
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200' }}">
+                    {{ $activityItem->title }}
+                </a>
             @endforeach
             <a href="{{ route('step.index', ['project' => $project->id]) }}"
                 class="inline-block px-3 py-1 rounded bg-blue-100 hover:bg-blue-200 font-semibold">
@@ -69,8 +70,7 @@
         </a>
     </div>
 
-    <div x-data="{ open: false, is_need_evidence_file: false, is_need_to_put_target: false }"
-        class="container mx-auto py-8 px-4">
+    <div x-data="{ open: false, is_need_evidence_file: false, is_need_to_put_target: false }" class="container mx-auto py-8 px-4">
         <!-- Work Steps Section -->
         <section class="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
@@ -168,12 +168,18 @@
 
                 <!-- Tabs -->
                 <div class="px-6 py-4 border-b border-gray-200 flex gap-4">
-                    <button type="button" @click="activeTab = 'step'" :class="activeTab === 'step' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                                'text-gray-500'" class="pb-2">الخطوة</button>
-                    <button type="button" @click="activeTab = 'files'" :class="activeTab === 'files' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                                'text-gray-500'" class="pb-2">الملفات الداعمة</button>
-                    <button type="button" @click="activeTab = 'target'" :class="activeTab === 'target' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                                'text-gray-500'" class="pb-2">المستهدف</button>
+                    <button type="button" @click="activeTab = 'step'"
+                        :class="activeTab === 'step' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'"
+                        class="pb-2">الخطوة</button>
+                    <button type="button" @click="activeTab = 'files'"
+                        :class="activeTab === 'files' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'"
+                        class="pb-2">الملفات الداعمة</button>
+                    <button type="button" @click="activeTab = 'target'"
+                        :class="activeTab === 'target' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'"
+                        class="pb-2">المستهدف</button>
 
                 </div>
 
@@ -215,7 +221,8 @@
                                 class="w-full border border-gray-300 rounded-lg p-2.5 focus:ring-green-500 focus:border-green-500">
                                 <option value="" disabled selected>اختر المرحلة</option>
                                 @foreach ($phases as $key => $phase)
-                                    <option value="{{ $key }}">{{ $phase['title'] }} - {{ $phase['weight'] }}</option>
+                                    <option value="{{ $key }}">{{ $phase['title'] }} -
+                                        {{ $phase['weight'] }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -278,7 +285,8 @@
                                                     <div class="flex-1">
                                                         <span
                                                             class="font-medium text-gray-800">{{ $period->name ?? 'فترة غير مسماة' }}</span>
-                                                        <span class="text-gray-500 text-xs">({{ $period->cate }})</span>
+                                                        <span
+                                                            class="text-gray-500 text-xs">({{ $period->cate }})</span>
                                                     </div>
                                                     <div class="flex items-center gap-1">
                                                         <input type="number" step="0.01" min="0"

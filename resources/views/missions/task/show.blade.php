@@ -346,6 +346,24 @@
                                                 خاص
                                             </span>
                                         </template>
+                                        
+                                        {{-- Action Buttons --}}
+                                        <div class="flex items-center gap-1" @click.stop>
+                                            <button @click="openEditModal(task)" 
+                                                class="p-1 text-gray-400 hover:text-blue-600 transition-colors"
+                                                title="تعديل">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                </svg>
+                                            </button>
+                                            <button @click="confirmDelete(task)" 
+                                                class="p-1 text-gray-400 hover:text-red-600 transition-colors"
+                                                title="حذف">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -555,10 +573,123 @@
         </div>
     </div>
 
-    {{-- Task Details Modal (Placeholder) --}}
-    <div x-show="showTaskDetails" x-cloak @click.away="showTaskDetails = false"
-        class="fixed inset-0 z-50 overflow-y-auto modal-overlay">
-        {{-- Task details content would go here --}}
+    {{-- Edit Task Modal --}}
+    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto modal-overlay"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-black bg-opacity-50" @click="showEditModal = false"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto">
+                <div class="border-b px-6 py-4 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-900">تعديل المهمة</h3>
+                    <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <form @submit.prevent="updateTask" class="p-6 space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">عنوان المهمة *</label>
+                        <input type="text" x-model="editingTask.title" required
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
+                        <textarea x-model="editingTask.description" rows="3"
+                            class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الأولوية *</label>
+                            <div class="grid grid-cols-3 gap-2">
+                                <button type="button" @click="editingTask.priority = 'low'"
+                                    :class="editingTask.priority === 'low' ? 'bg-green-100 border-green-500 text-green-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    class="py-2 border rounded-lg text-center text-sm font-medium transition">منخفض</button>
+                                <button type="button" @click="editingTask.priority = 'medium'"
+                                    :class="editingTask.priority === 'medium' ? 'bg-yellow-100 border-yellow-500 text-yellow-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    class="py-2 border rounded-lg text-center text-sm font-medium transition">متوسط</button>
+                                <button type="button" @click="editingTask.priority = 'high'"
+                                    :class="editingTask.priority === 'high' ? 'bg-red-100 border-red-500 text-red-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    class="py-2 border rounded-lg text-center text-sm font-medium transition">عالي</button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">تاريخ التسليم</label>
+                            <input type="date" x-model="editingTask.due_date"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    @if ($mission->isLeader(auth()->user()))
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">المسؤول عن المهمة *</label>
+                            <select x-model="editingTask.assigned_to" required
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="">اختر المسؤول</option>
+                                @foreach ($members as $member)
+                                    <option value="{{ $member['id'] }}">{{ $member['name'] }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">الحالة</label>
+                            <select x-model="editingTask.status"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                <option value="pending">قيد الانتظار</option>
+                                <option value="in_progress">قيد التنفيذ</option>
+                                <option value="completed">مكتمل</option>
+                                <option value="cancelled">ملغى</option>
+                            </select>
+                        </div>
+                    @endif
+                    <div class="border-t pt-6 flex justify-end gap-3">
+                        <button type="button" @click="showEditModal = false"
+                            class="px-6 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition font-medium">إلغاء</button>
+                        <button type="submit" :disabled="isUpdating"
+                            class="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span x-show="!isUpdating">حفظ التغييرات</span>
+                            <span x-show="isUpdating">جاري الحفظ...</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- Delete Confirmation Modal --}}
+    <div x-show="showDeleteModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto modal-overlay">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="fixed inset-0 bg-black bg-opacity-50" @click="showDeleteModal = false"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto">
+                <div class="p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">تأكيد الحذف</h3>
+                            <p class="text-sm text-gray-600 mt-1">هل أنت متأكد من حذف هذه المهمة؟</p>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                        <p class="text-sm font-medium text-gray-900" x-text="deletingTask?.title"></p>
+                        <p class="text-xs text-gray-500 mt-1">لا يمكن التراجع عن هذا الإجراء</p>
+                    </div>
+                    <div class="flex justify-end gap-3">
+                        <button @click="showDeleteModal = false"
+                            class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium">إلغاء</button>
+                        <button @click="deleteTask" :disabled="isDeleting"
+                            class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50">
+                            <span x-show="!isDeleting">حذف</span>
+                            <span x-show="isDeleting">جاري الحذف...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Notification Toast --}}
@@ -596,9 +727,15 @@
 
                 // UI States
                 showCreateModal: false,
+                showEditModal: false,
+                showDeleteModal: false,
                 showTaskDetails: false,
                 isSubmitting: false,
+                isUpdating: false,
+                isDeleting: false,
                 draggedTaskId: null,
+                editingTask: {},
+                deletingTask: null,
                 statusMap: {
                     'pending': 'قيد الانتظار',
                     'in_progress': 'قيد التنفيذ',
@@ -774,6 +911,101 @@
                     setTimeout(() => {
                         this.notificationVisible = false;
                     }, 3000);
+                },
+
+                // Edit Task
+                openEditModal(task) {
+                    this.editingTask = {
+                        id: task.id,
+                        title: task.title,
+                        description: task.description || '',
+                        priority: task.priority,
+                        assigned_to: task.assigned_to,
+                        due_date: task.due_date || '',
+                        status: task.status,
+                        is_private: task.is_private
+                    };
+                    this.showEditModal = true;
+                },
+
+                async updateTask() {
+                    if (!this.editingTask.title.trim()) {
+                        this.showNotification('يرجى إدخال عنوان المهمة', 'error');
+                        return;
+                    }
+
+                    this.isUpdating = true;
+                    try {
+                        const url = "{{ route('missions.task.update', [$mission, 'TASK_ID']) }}"
+                            .replace('TASK_ID', this.editingTask.id);
+                        const response = await fetch(url, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify(this.editingTask)
+                        });
+
+                        const data = await response.json();
+                        if (response.ok) {
+                            const index = this.tasks.findIndex(t => t.id == this.editingTask.id);
+                            if (index !== -1) {
+                                this.tasks[index] = {
+                                    ...data.task,
+                                    is_private: Boolean(data.task.is_private)
+                                };
+                            }
+                            this.showEditModal = false;
+                            this.showNotification('تم تحديث المهمة بنجاح', 'success');
+                        } else {
+                            throw new Error(data.message || 'حدث خطأ أثناء تحديث المهمة');
+                        }
+                    } catch (error) {
+                        this.showNotification(error.message, 'error');
+                    } finally {
+                        this.isUpdating = false;
+                    }
+                },
+
+                // Delete Task
+                confirmDelete(task) {
+                    this.deletingTask = task;
+                    this.showDeleteModal = true;
+                },
+
+                async deleteTask() {
+                    if (!this.deletingTask) return;
+
+                    this.isDeleting = true;
+                    try {
+                        const url = "{{ route('missions.task.destroy', [$mission, 'TASK_ID']) }}"
+                            .replace('TASK_ID', this.deletingTask.id);
+                        const response = await fetch(url, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        const data = await response.json();
+                        if (response.ok) {
+                            this.tasks = this.tasks.filter(t => t.id != this.deletingTask.id);
+                            this.showDeleteModal = false;
+                            this.deletingTask = null;
+                            this.showNotification('تم حذف المهمة بنجاح', 'success');
+                        } else {
+                            throw new Error(data.message || 'حدث خطأ أثناء حذف المهمة');
+                        }
+                    } catch (error) {
+                        this.showNotification(error.message, 'error');
+                    } finally {
+                        this.isDeleting = false;
+                    }
                 }
             }));
         });

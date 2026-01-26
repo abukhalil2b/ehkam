@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use App\Models\Permission;
 use App\Models\Role;
+use App\Models\AppointmentRequest;
+use App\Models\Step;
 
 class User extends Authenticatable
 {
@@ -61,6 +63,10 @@ class User extends Authenticatable
     }
 
     // ========== Calendar ==========
+    public function calendarPermissions()
+    {
+        return $this->hasMany(CalendarPermission::class);
+    }
     public function calendarEvents()
     {
         return $this->hasMany(CalendarEvent::class, 'target_user_id');
@@ -81,6 +87,33 @@ class User extends Authenticatable
         return $this->hasMany(CalendarDelegation::class, 'employee_id');
     }
 
+    // ========== Calendar Delegations ==========
+
+    /**
+     * People who manage MY calendar (I granted them access)
+     */
+    public function delegates()
+    {
+        return $this->belongsToMany(User::class, 'calendar_delegations', 'manager_id', 'employee_id')
+            ->wherePivot('is_active', true)
+            ->withTimestamps();
+    }
+
+    /**
+     * People whose calendars I manage (They shared with me)
+     * This is what drives the "Shared with Me" list.
+     */
+    public function calendarsSharedWithMe()
+    {
+        return $this->belongsToMany(User::class, 'calendar_delegations', 'employee_id', 'manager_id')
+            ->wherePivot('is_active', true)
+            ->withTimestamps();
+    }
+
+    public function delegationsAsManager()
+    {
+        return $this->hasMany(CalendarDelegation::class, 'manager_id');
+    }
     // ========== RBAC - Roles & Permissions ==========
 
     /**
@@ -461,17 +494,47 @@ class User extends Authenticatable
     }
 
     /**
-     * Get activities pending action by this user (based on team membership)
+     * Get all workflow items pending action by this user (based on team membership)
+     * 
+     * This includes Activities, AppointmentRequests, Steps, and any other models
+     * that implement the HasWorkflow interface.
      */
     public function pendingWorkflowActivities()
     {
         $teamIds = $this->workflowTeams()->pluck('workflow_teams.id');
 
-        return Activity::whereHas('workflowInstance', function ($query) use ($teamIds) {
+        // Get Activities
+        $activities = Activity::whereHas('workflowInstance', function ($query) use ($teamIds) {
             $query->whereHas('currentStage', function ($q) use ($teamIds) {
                 $q->whereIn('team_id', $teamIds);
             })->whereNotIn('status', ['completed', 'draft', 'rejected']);
         })->get();
+
+        // Get AppointmentRequests
+        $appointments = AppointmentRequest::whereHas('workflowInstance', function ($query) use ($teamIds) {
+            $query->whereHas('currentStage', function ($q) use ($teamIds) {
+                $q->whereIn('team_id', $teamIds);
+            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
+        })->get();
+
+        // Get Steps
+        $steps = Step::whereHas('workflowInstance', function ($query) use ($teamIds) {
+            $query->whereHas('currentStage', function ($q) use ($teamIds) {
+                $q->whereIn('team_id', $teamIds);
+            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
+        })->get();
+
+        // Merge all workflow items and add type identifier
+        return $activities->map(function ($item) {
+            $item->workflow_item_type = 'activity';
+            return $item;
+        })->merge($appointments->map(function ($item) {
+            $item->workflow_item_type = 'appointment';
+            return $item;
+        }))->merge($steps->map(function ($item) {
+            $item->workflow_item_type = 'step';
+            return $item;
+        }));
     }
 
     /**

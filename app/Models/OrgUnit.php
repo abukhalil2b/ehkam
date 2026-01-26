@@ -114,4 +114,10 @@ class OrgUnit extends Model
 
         return $depth;
     }
+
+    public function calendarPermissions()
+{
+    return $this->hasMany(CalendarPermission::class);
+}
+
 }

@@ -44,6 +44,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\WorkflowTeamController;
 use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
+use App\Http\Controllers\AppointmentRequestController;
 
 Route::view('/', 'welcome2')->name('home');
 
@@ -179,6 +180,22 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::delete('step/{step}', [StepController::class, 'destroy'])
         ->name('step.destroy');
+
+    Route::post('step/submit', [StepController::class, 'stepSubmit'])
+        ->name('step.submit');
+
+    // Step Workflow Actions
+    Route::post('step/{step}/approve', [StepController::class, 'stepApprove'])
+        ->middleware('permission:workflow.approve')
+        ->name('step.approve');
+
+    Route::post('step/{step}/return', [StepController::class, 'stepReturn'])
+        ->middleware('permission:workflow.return')
+        ->name('step.return');
+
+    Route::post('step/{step}/reject', [StepController::class, 'stepReject'])
+        ->middleware('permission:workflow.reject')
+        ->name('step.reject');
 });
 
 Route::group(['middleware' => ['auth']], function () {
@@ -313,6 +330,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::put('calendar/update/{calendarEvent}', [AnnualCalendarController::class, 'update'])->name('calendar.update');
     Route::delete('calendar/destroy/{calendarEvent}', [AnnualCalendarController::class, 'destroy'])->name('calendar.destroy');
     Route::get('calendar/settings', [AnnualCalendarController::class, 'settings'])->name('calendar.settings');
+    Route::get('calendar/permissions/index', [AnnualCalendarController::class, 'calendarPermissionIndex'])->name('calendar.permissions.index');
 
     // clear cache
     Route::post('calendar/refresh', [AnnualCalendarController::class, 'refreshCache'])->name('calendar.refresh');
@@ -852,7 +870,8 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 
     // Competition Management
     Route::resource('competitions', AdminCompetitionController::class);
-
+    Route::post('/competitions/{competition}/generate-ai', [AdminCompetitionController::class, 'generateWithAI'])
+    ->name('competitions.generate');
     // Question Management
     Route::post('competitions/{competition}/questions', [AdminCompetitionController::class, 'storeQuestion'])
         ->name('competitions.questions.store');
@@ -1028,12 +1047,6 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.workflow.definitions.destroy');
 
     // Stage Management
-    Route::get('admin/workflow/definitions/{workflow}/assign', [WorkflowDefinitionController::class, 'assign'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.definitions.assign');
-    Route::post('admin/workflow/definitions/{workflow}/assign', [WorkflowDefinitionController::class, 'storeAssignment'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.definitions.store-assignment');
     Route::post('admin/workflow/definitions/{workflow}/stages', [WorkflowDefinitionController::class, 'storeStage'])
         ->middleware('permission:workflow_definition.edit')
         ->name('admin.workflow.stages.store');
@@ -1059,5 +1072,14 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('admin.workflow.stages.reindex');
 });
 
-require __DIR__ . '/auth.php';
+// ========== APPOINTMENT REQUESTS ROUTES ==========
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('appointments/index', [AppointmentRequestController::class, 'index'])->name('appointments.index');
+    Route::get('appointments/create', [AppointmentRequestController::class, 'create'])->name('appointments.create');
+    Route::post('appointments/store', [AppointmentRequestController::class, 'store'])->name('appointments.store');
+    Route::get('appointments/show/{appointmentRequest}', [AppointmentRequestController::class, 'show'])->name('appointments.show');
+    Route::post('appointments/{appointmentRequest}/approve', [AppointmentRequestController::class, 'approve'])->name('appointments.approve');
+    Route::post('appointments/{appointmentRequest}/select-slot', [AppointmentRequestController::class, 'selectSlot'])->name('appointments.select-slot');
+});
 
+require __DIR__ . '/auth.php';

@@ -63,3 +63,58 @@
 
 > [!WARNING]
 > كن حذراً عند منح صلاحيات الحذف (`delete`) أو صلاحيات إدارة النظام (`admin`)، حيث يمكن أن تؤثر على استقرار البيانات.
+
+---
+
+## للمطورين (Developer Notes)
+
+### إضافة صلاحية جديدة
+
+1. أضف الصلاحية في `database/seeders/PermissionSeeder.php`:
+```php
+Permission::create(['name' => 'new_feature.action']);
+```
+
+2. شغّل البذور:
+```bash
+php artisan db:seed --class=PermissionSeeder
+```
+
+3. استخدم الصلاحية في الكود:
+```php
+// في Controller
+$this->middleware('can:new_feature.action');
+
+// في Blade
+@can('new_feature.action')
+    {{-- Show protected content --}}
+@endcan
+
+// في Service
+if (!$user->can('new_feature.action')) {
+    abort(403);
+}
+```
+
+### تسمية الصلاحيات
+
+اتبع النمط: `resource.action`
+
+| النمط | المثال |
+|-------|--------|
+| `resource.index` | عرض القائمة |
+| `resource.show` | عرض التفاصيل |
+| `resource.create` | إنشاء جديد |
+| `resource.edit` | تعديل |
+| `resource.delete` | حذف |
+
+---
+
+## الوثائق ذات الصلة
+
+- [دليل المطورين](developer-guide.md)
+- [فهرس الوثائق](README.md)
+
+---
+
+**آخر تحديث**: يناير 2026

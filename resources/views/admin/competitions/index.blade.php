@@ -52,8 +52,11 @@
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <a href="{{ route('admin.competitions.show', $competition) }}" 
                                class="text-blue-600 hover:text-blue-900 mr-3">عرض</a>
-                               |
+                            |
+                            <a href="{{ route('admin.competitions.edit', $competition) }}" 
+                               class="text-yellow-600 hover:text-yellow-900 mr-3">تعديل العنوان</a>
                             @if($competition->status === 'finished')
+                                |
                                 <a href="{{ route('admin.competitions.results', $competition) }}" 
                                    class="text-green-600 hover:text-green-900">النتائج</a>
                             @endif

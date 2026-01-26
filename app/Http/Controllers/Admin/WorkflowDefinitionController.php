@@ -7,6 +7,7 @@ use App\Models\Workflow;
 use App\Models\WorkflowStage;
 use App\Models\WorkflowTeam;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class WorkflowDefinitionController extends Controller
 {
@@ -35,17 +36,29 @@ class WorkflowDefinitionController extends Controller
      */
     public function store(Request $request)
     {
+        // return $request->all();
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'entity_type' => [
+                'required',
+                'string',
+                Rule::in([
+                    'App\Models\Activity',
+                    'App\Models\Step',
+                    'App\Models\Project',
+                    'App\Models\AppointmentRequest',
+                ]),
+                'unique:workflows,entity_type'
+            ],
+            'is_active' => 'nullable|boolean',
         ]);
 
         $workflow = Workflow::create([
             'name' => $request->name,
             'description' => $request->description,
             'is_active' => $request->boolean('is_active', true),
-            'entity_type' => $request->input('entity_type', 'App\Models\Activity'),
+            'entity_type' => $request->entity_type,
         ]);
 
         return redirect()
@@ -80,21 +93,24 @@ class WorkflowDefinitionController extends Controller
     public function update(Request $request, Workflow $definition)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name'        => 'required|string|max:255',
             'description' => 'nullable|string',
-            'is_active' => 'boolean',
+            'is_active'   => 'nullable|boolean',
         ]);
 
         $definition->update([
-            'name' => $request->name,
+            'name'        => $request->name,
             'description' => $request->description,
-            'is_active' => $request->boolean('is_active', true),
+            'is_active'   => $request->has('is_active')
+                ? $request->boolean('is_active')
+                : false,
         ]);
 
         return redirect()
             ->route('admin.workflow.definitions.index')
             ->with('success', 'تم تحديث سير العمل بنجاح');
     }
+
 
     /**
      * Remove the specified workflow.
@@ -134,7 +150,7 @@ class WorkflowDefinitionController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'team_id' => 'required|exists:workflow_teams,id',
-            'allowed_days' => 'required|integer|min:1',
+            'allowed_days' => 'required|integer|min:0|max:90',
             'can_approve' => 'boolean',
             'can_return' => 'boolean',
             'assignment_type' => 'in:team,user,role',
@@ -301,93 +317,5 @@ class WorkflowDefinitionController extends Controller
         ]);
 
         return back()->with('success', 'تم إضافة المرحلة بنجاح');
-    }
-    /**
-     * Show form to assign workflow to activities.
-     */
-    public function assign(Workflow $workflow)
-    {
-        $entityType = $workflow->entity_type ?? 'App\Models\Activity';
-
-        // Dynamically query the entity
-        // We need to fetch items that are either not assigned OR assigned to THIS workflow instance
-        // But with polymorphic, "not assigned" means no WorkflowInstance record exists for it.
-
-        $modelClass = $entityType;
-        if (!class_exists($modelClass)) {
-            return back()->with('error', 'Entity class not found: ' . $modelClass);
-        }
-
-        // Ideally we select * from activities where id NOT IN (select workflowable_id from workflow_instances where workflowable_type = ?)
-        // OR where workflow_id = current workflow
-
-        // Let's get all items
-        // This might be heavy if there are thousands, but for now we follow the pattern.
-        $query = $modelClass::query();
-
-        if (method_exists($modelClass, 'project')) {
-            $query->with('project');
-        }
-
-        $items = $query->get();
-
-        // Filter those available for assignment
-        // Available if:
-        // 1. No workflow instance exists
-        // 2. OR Workflow instance exists AND workflow_id == this workflow
-
-        $activities = $items->filter(function ($item) use ($workflow) {
-            $instance = $item->workflowInstance;
-            if (!$instance)
-                return true; // Not assigned
-            return $instance->workflow_id == $workflow->id; // Already assigned to this
-        });
-
-        return view('admin.workflow.definitions.assign', compact('workflow', 'activities'));
-    }
-
-    /**
-     * Store workflow assignments.
-     */
-    public function storeAssignment(Request $request, Workflow $workflow)
-    {
-        $request->validate([
-            'activity_ids' => 'array',
-            // 'activity_ids.*' => 'exists:activities,id', // Cannot validate table dynamically easily here without custom rule
-        ]);
-
-        $selectedIds = $request->input('activity_ids', []);
-        $entityType = $workflow->entity_type ?? 'App\Models\Activity';
-
-        if (!empty($selectedIds)) {
-            foreach ($selectedIds as $id) {
-                $instance = \App\Models\WorkflowInstance::where('workflowable_type', $entityType)
-                    ->where('workflowable_id', $id)
-                    ->first();
-
-                if (!$instance) {
-                    // Create new instance
-                    \App\Models\WorkflowInstance::create([
-                        'workflowable_type' => $entityType,
-                        'workflowable_id' => $id,
-                        'workflow_id' => $workflow->id,
-                        'status' => 'draft',
-                        'current_stage_id' => null,
-                        'creator_id' => auth()->id() // Track who assigned it? Or maybe the entity creator? For now admin assigned it.
-                    ]);
-                } elseif ($instance->workflow_id != $workflow->id) {
-                    // Reassign to this workflow - Reset status
-                    $instance->update([
-                        'workflow_id' => $workflow->id,
-                        'status' => 'draft',
-                        'current_stage_id' => null
-                    ]);
-                }
-                // If same workflow, do nothing (preserve current state)
-            }
-        }
-
-        return redirect()->route('admin.workflow.definitions.index')
-            ->with('success', 'تم ربط العناصر بسير العمل بنجاح');
     }
 }

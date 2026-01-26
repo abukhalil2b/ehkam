@@ -24,6 +24,20 @@
                     </div>
                 </div>
                 
+                {{-- One-way delegation notice --}}
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3 mb-4">
+                    <div class="flex items-start gap-2">
+                        <span class="material-icons text-amber-600 dark:text-amber-400 text-sm mt-0.5">info</span>
+                        <div class="text-xs text-amber-800 dark:text-amber-300">
+                            <p class="font-bold mb-1">التفويض أحادي الاتجاه:</p>
+                            <ul class="list-disc list-inside space-y-0.5">
+                                <li>عندما تفوض (أ) لإدارة تقويمك، يستطيع (أ) إدارة تقويمك</li>
+                                <li>لا يمكنك إدارة تقويم (أ) إلا إذا فوضك هو أيضاً</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
                 <form action="{{ route('delegations.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <div>

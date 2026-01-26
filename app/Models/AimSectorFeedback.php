@@ -6,6 +6,7 @@ use App\Contracts\HasWorkflow;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class AimSectorFeedback extends Model implements HasWorkflow
 {
@@ -19,6 +20,11 @@ class AimSectorFeedback extends Model implements HasWorkflow
     public function indicator(): BelongsTo
     {
         return $this->belongsTo(Aim::class);
+    }
+
+    public function workflowInstance(): MorphOne
+    {
+        return $this->morphOne(WorkflowInstance::class, 'workflowable');
     }
 
     /**

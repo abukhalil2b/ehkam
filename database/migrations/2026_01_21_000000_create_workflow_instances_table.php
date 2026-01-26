@@ -25,14 +25,18 @@ return new class extends Migration {
             // Who started it
             $table->foreignId('creator_id')->nullable()->constrained('users')->nullOnDelete();
 
-            // State
+            // returned	Sent back to previous stage
+            // rejected	Permanently closed
             $table->enum('status', ['draft', 'in_progress', 'completed', 'returned', 'rejected', 'delayed'])
                 ->default('draft');
+
 
             $table->timestamp('stage_due_at')->nullable();
 
             // 0=Normal, 1=Warning, 2=Escalated
             $table->tinyInteger('escalation_level')->default(0);
+
+            $table->timestamp('completed_at')->nullable();
 
             $table->timestamps();
 

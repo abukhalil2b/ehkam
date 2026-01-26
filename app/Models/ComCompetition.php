@@ -22,7 +22,7 @@ class ComCompetition extends Model
     protected static function boot()
     {
         parent::boot();
-        
+
         static::creating(function ($competition) {
             if (empty($competition->join_code)) {
                 $competition->join_code = strtoupper(Str::random(6));
@@ -70,7 +70,7 @@ class ComCompetition extends Model
 
     public function canAcceptParticipants(): bool
     {
-        return $this->status === 'closed';
+        return $this->status === 'closed' || $this->status === 'started';
     }
 
     public function getTimeRemainingAttribute(): int
@@ -78,7 +78,7 @@ class ComCompetition extends Model
         if (!$this->question_started_at) {
             return 0;
         }
-        
+
         $elapsed = now()->diffInSeconds($this->question_started_at);
         return max(0, 30 - $elapsed);
     }

@@ -71,9 +71,6 @@
                                     <a href="{{ route('admin.workflow.definitions.edit', $workflow) }}" class="bg-yellow-500 text-white px-3 py-1 rounded text-xs">
                                         {{ __('تعديل') }}
                                     </a>
-                                    <a href="{{ route('admin.workflow.definitions.assign', $workflow) }}" class="bg-purple-500 text-white px-3 py-1 rounded text-xs">
-                                        {{ __('ربط بالأنشطة') }}
-                                    </a>
                                     @if($workflow->activities_count == 0)
                                         <form action="{{ route('admin.workflow.definitions.destroy', $workflow) }}" method="POST" onsubmit="return confirm('{{ __('هل أنت متأكد من الحذف؟') }}')">
                                             @csrf

@@ -64,9 +64,9 @@ class WorkflowTeamController extends Controller
     public function show(WorkflowTeam $team)
     {
         $team->load(['users', 'stages.workflow']);
-        $pendingActivities = $team->pendingActivities()->with(['project'])->get(); // Eager load activity relationships
+        $pendingItems = $team->pendingItems(); // Get all pending items (Steps, Activities, AppointmentRequests, etc.)
 
-        return view('admin.workflow.teams.show', compact('team', 'pendingActivities'));
+        return view('admin.workflow.teams.show', compact('team', 'pendingItems'));
     }
 
     /**

@@ -103,55 +103,92 @@ erDiagram
 Any model that needs workflow functionality must implement the `HasWorkflow` interface:
 
 ```php
-use App\\Contracts\\HasWorkflow;
-use Illuminate\\Database\\Eloquent\\Model;
-use Illuminate\\Database\\Eloquent\\Relations\\BelongsTo;
-use Illuminate\\Database\\Eloquent\\Relations\\MorphMany;
+<?php
+
+namespace App\Models;
+
+use App\Contracts\HasWorkflow;
+use App\Models\Workflow;
+use App\Models\WorkflowStage;
+use App\Models\WorkflowTransition;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class YourModel extends Model implements HasWorkflow
 {
-    // Add workflow columns to your table migration:
-    // - workflow_id (nullable FK to workflows)
-    // - current_stage_id (nullable FK to workflow_stages)
-    // - status (enum: draft, in_progress, completed, returned, rejected)
+    /**
+     * Required workflow columns in your migration:
+     * - workflow_id (nullable FK to workflows)
+     * - current_stage_id (nullable FK to workflow_stages)
+     * - status (enum: draft, in_progress, completed, returned, rejected)
+     */
 
+    /**
+     * Get the workflow this model belongs to.
+     */
     public function workflow(): BelongsTo
     {
         return $this->belongsTo(Workflow::class);
     }
 
+    /**
+     * Get the current workflow stage.
+     */
     public function currentStage(): BelongsTo
     {
         return $this->belongsTo(WorkflowStage::class, 'current_stage_id');
     }
 
+    /**
+     * Get all workflow transitions for this model.
+     * 
+     * Transitions are ordered newest first for easy access to recent history.
+     */
     public function transitions(): MorphMany
     {
         return $this->morphMany(WorkflowTransition::class, 'workflowable')
             ->orderBy('created_at', 'desc');
     }
 
+    /**
+     * Check if the model is currently in an active workflow.
+     */
     public function isInWorkflow(): bool
     {
         return $this->workflow_id !== null && $this->current_stage_id !== null;
     }
 
+    /**
+     * Check if the model can receive workflow actions.
+     */
     public function canBeActedUpon(): bool
     {
         return !$this->isTerminal() && $this->current_stage_id !== null;
     }
 
+    /**
+     * Check if the model is in a terminal state (completed or rejected).
+     * 
+     * Terminal models cannot receive further workflow actions.
+     */
     public function isTerminal(): bool
     {
         return in_array($this->status, ['completed', 'rejected']);
     }
 
+    /**
+     * Check if the model is still in draft status.
+     */
     public function isDraft(): bool
     {
         return $this->status === 'draft';
     }
 }
 ```
+
+> **Note**: The `HasWorkflow` interface is defined in `app/Contracts/HasWorkflow.php`. 
+> See [Developer Guide](developer-guide.md) for more details on working with workflows.
 
 ### Step 2: Add Database Columns
 
@@ -327,3 +364,16 @@ The polymorphic workflow system provides:
 - ✅ Type-safe through interface contracts
 
 Any model can participate by implementing `HasWorkflow` and adding three database columns.
+
+---
+
+## Related Documentation
+
+- **[Developer Guide](developer-guide.md)** - Service class documentation and usage examples
+- **[Appointments System](appointments.md)** - Example of a system built on the workflow engine
+- **[Documentation Index](README.md)** - Complete documentation overview
+
+---
+
+**Last Updated**: January 2026  
+**Version**: 1.0.0

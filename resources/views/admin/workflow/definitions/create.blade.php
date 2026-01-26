@@ -25,8 +25,7 @@
                 <div class="mb-4">
                     <label for="description"
                         class="block text-sm font-medium text-gray-700 mb-1">{{ __('الوصف') }}</label>
-                    <textarea id="description" name="description" rows="3"
-                        placeholder="{{ __('وصف مختصر لسير العمل والغرض منه') }}"
+                    <textarea id="description" name="description" rows="3" placeholder="{{ __('وصف مختصر لسير العمل والغرض منه') }}"
                         class="w-full border rounded px-3 py-2 @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
                     @error('description')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -34,19 +33,24 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="entity_type"
-                        class="block text-sm font-medium text-gray-700 mb-1">{{ __('نوع الكيان') }}</label>
+                    <label for="entity_type" class="block text-sm font-medium text-gray-700 mb-1">نوع الكيان</label>
                     <select id="entity_type" name="entity_type" class="w-full border rounded px-3 py-2">
-                        <option value="App\Models\Activity" {{ old('entity_type') == 'App\Models\Activity' ? 'selected' : '' }}>{{ __('نشاط') }}</option>
-                        <option value="App\Models\Project" {{ old('entity_type') == 'App\Models\Project' ? 'selected' : '' }}>{{ __('مشروع') }}</option>
+                        <option value="App\Models\Step"
+                            {{ old('entity_type') == 'App\Models\Step' ? 'selected' : '' }}>خطوة</option>
+                        <option value="App\Models\Activity"
+                            {{ old('entity_type') == 'App\Models\Activity' ? 'selected' : '' }}>نشاط</option>
+                        <option value="App\Models\Project"
+                            {{ old('entity_type') == 'App\Models\Project' ? 'selected' : '' }}>مشروع</option>
+                        <option value="App\Models\AppointmentRequest"
+                            {{ old('entity_type') == 'App\Models\AppointmentRequest' ? 'selected' : '' }}>طلب موعد</option>
                     </select>
                     <p class="text-gray-500 text-sm mt-1">{{ __('حدد نوع العنصر الذي سيتم تطبيق سير العمل عليه') }}</p>
                 </div>
 
                 <div class="mb-6">
                     <label class="flex items-center gap-2">
-                        <input type="checkbox" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}
-                            class="rounded border-gray-300">
+                        <input type="checkbox" name="is_active" value="1"
+                            {{ old('is_active', true) ? 'checked' : '' }} class="rounded border-gray-300">
                         <span class="text-sm text-gray-700">{{ __('نشط') }}</span>
                     </label>
                     <p class="text-gray-500 text-sm mt-1">{{ __('سير العمل النشط يمكن تعيينه للخطوات الجديدة') }}</p>

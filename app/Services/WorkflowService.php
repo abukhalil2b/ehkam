@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Contracts\HasWorkflow;
-use App\Models\WorkflowTransition;
 use App\Models\User;
 use App\Models\WorkflowStage;
 use App\Events\StepSubmitted;
@@ -12,66 +11,86 @@ use App\Events\StepReturned;
 use App\Events\StepRejected;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use InvalidArgumentException;
+use Exception;
 
 class WorkflowService
 {
     /**
-     * Submit a model to its workflow (moves from draft to first stage)
+     * Assign a model to a workflow and optionally submit it.
      *
      * @param HasWorkflow&Model $model
+     * @param int $workflowId
      * @param User $actor
-     * @param string|null $comments
-     * @return HasWorkflow&Model
-     * @throws \Exception
+     * @param bool $autoSubmit
+     * @return Model
+     */
+    public function assignWorkflow(Model $model, int $workflowId, User $actor, bool $autoSubmit = false): Model
+    {
+        $this->ensureImplementor($model);
+
+        DB::transaction(function () use ($model, $workflowId, $actor) {
+            $model->workflowInstance()->updateOrCreate(
+                ['workflowable_type' => $model->getMorphClass(), 'workflowable_id' => $model->id],
+                [
+                    'workflow_id' => $workflowId,
+                    'status' => 'draft',
+                    'current_stage_id' => null,
+                    'creator_id' => $actor->id,
+                ]
+            );
+        });
+
+        // Refresh model to load the relation
+        $model = $model->fresh();
+
+        if ($autoSubmit) {
+            return $this->submitStep($model, $actor);
+        }
+
+        return $model;
+    }
+
+    /**
+     * Submit a model to its workflow (moves from draft to first stage).
      */
     public function submitStep(Model $model, User $actor, ?string $comments = null): Model
     {
-        if (!$model instanceof HasWorkflow) {
-            throw new \InvalidArgumentException('Model must implement HasWorkflow interface.');
-        }
+        $this->ensureImplementor($model);
 
         return DB::transaction(function () use ($model, $actor, $comments) {
-            // Lock the model row to prevent concurrent transitions (and instance)
-            $model = $model->newQuery()->where('id', $model->id)->lockForUpdate()->first();
+            $model = $this->lockModel($model);
             $instance = $model->workflowInstance;
 
             if (!$instance || !$instance->workflow_id) {
-                throw new \Exception('Model must be assigned to a workflow before submission.');
+                throw new Exception('Model must be assigned to a workflow before submission.');
             }
 
-            if (!$instance->isDraft()) {
-                throw new \Exception('Only draft items can be submitted.');
+            // Allow submission from draft or returned status (for resubmission)
+            if (!in_array($instance->status, ['draft', 'returned'])) {
+                throw new Exception('Only draft or returned items can be submitted.');
             }
 
             $firstStage = $instance->workflow->firstStage();
-
             if (!$firstStage) {
-                throw new \Exception('Workflow has no stages defined.');
+                throw new Exception('Workflow has no stages defined.');
             }
 
-            // Record the transition (attached to the model, or instance? Keeping strictly to model for history)
-            $model->transitions()->create([
-                'actor_id' => $actor->id,
-                'from_stage_id' => null,
-                'to_stage_id' => $firstStage->id,
-                'action' => 'submit',
-                'comments' => $comments,
-            ]);
+            $this->recordTransition($model, $actor, null, $firstStage->id, 'submit', $comments);
 
-            // Calculate stage due date if applicable
-            $dueAt = null;
-            if ($firstStage->allowed_days) {
-                $dueAt = now()->addDays($firstStage->allowed_days);
-            }
+            $dueAt = $firstStage->allowed_days ? now()->addDays($firstStage->allowed_days) : null;
 
-            // Move to first stage
             $instance->update([
                 'current_stage_id' => $firstStage->id,
                 'status' => 'in_progress',
                 'stage_due_at' => $dueAt,
             ]);
 
-            // Dispatch event for notifications
+            // Update Step model status to 'review' when submitted to workflow
+            if ($model instanceof \App\Models\Step) {
+                $model->update(['status' => 'review']);
+            }
+
             event(new StepSubmitted($model, $actor, $firstStage));
 
             return $model->fresh();
@@ -79,68 +98,49 @@ class WorkflowService
     }
 
     /**
-     * Approve a model (moves to next stage or completes the workflow)
-     *
-     * @param HasWorkflow&Model $model
-     * @param User $actor
-     * @param string|null $comments
-     * @return HasWorkflow&Model
-     * @throws \Exception
+     * Approve a model (moves to next stage or completes the workflow).
      */
     public function approveStep(Model $model, User $actor, ?string $comments = null): Model
     {
-        if (!$model instanceof HasWorkflow) {
-            throw new \InvalidArgumentException('Model must implement HasWorkflow interface.');
-        }
+        $this->ensureImplementor($model);
 
         return DB::transaction(function () use ($model, $actor, $comments) {
-            // Lock the model row
-            $model = $model->newQuery()->where('id', $model->id)->lockForUpdate()->first();
+            $model = $this->lockModel($model);
             $instance = $model->workflowInstance;
 
-            // Verify using instance data
             $this->verifyUserCanAct($model, $actor);
 
             $currentStage = $instance->currentStage;
-
             if (!$currentStage->can_approve) {
-                throw new \Exception('Approval is not allowed at this stage.');
+                throw new Exception('Approval is not allowed at this stage.');
             }
 
-            // Find the next stage
             $nextStage = $currentStage->nextStage();
 
-            // Record the transition
-            $model->transitions()->create([
-                'actor_id' => $actor->id,
-                'from_stage_id' => $currentStage->id,
-                'to_stage_id' => $nextStage?->id,
-                'action' => 'approve',
-                'comments' => $comments,
-            ]);
+            $this->recordTransition($model, $actor, $currentStage->id, $nextStage?->id, 'approve', $comments);
 
             if ($nextStage) {
-                // Calculate stage due date if applicable
-                $dueAt = null;
-                if ($nextStage->allowed_days) {
-                    $dueAt = now()->addDays($nextStage->allowed_days);
-                }
-
-                // Move to next stage
+                $dueAt = $nextStage->allowed_days ? now()->addDays($nextStage->allowed_days) : null;
                 $instance->update([
                     'current_stage_id' => $nextStage->id,
                     'status' => 'in_progress',
                     'stage_due_at' => $dueAt,
                 ]);
+                // Keep Step status as 'review' when moving to next stage
+                if ($model instanceof \App\Models\Step) {
+                    $model->update(['status' => 'review']);
+                }
             } else {
-                // No next stage - workflow is complete
                 $instance->update([
                     'current_stage_id' => null,
                     'status' => 'completed',
                 ]);
+                // Update Step status to 'completed' when workflow is completed
+                if ($model instanceof \App\Models\Step) {
+                    $model->update(['status' => 'completed']);
+                }
             }
 
-            // Dispatch event for notifications
             event(new StepApproved($model, $actor, $nextStage));
 
             return $model->fresh();
@@ -148,14 +148,7 @@ class WorkflowService
     }
 
     /**
-     * Return a model to a previous stage (or a specific stage)
-     *
-     * @param HasWorkflow&Model $model
-     * @param User $actor
-     * @param int|null $targetStageId Specific stage to return to (null = previous stage)
-     * @param string|null $comments
-     * @return HasWorkflow&Model
-     * @throws \Exception
+     * Return a model to a previous stage.
      */
     public function returnStep(
         Model $model,
@@ -164,52 +157,36 @@ class WorkflowService
         ?string $comments = null,
         array $stepFeedbacks = []
     ): Model {
-        if (!$model instanceof HasWorkflow) {
-            throw new \InvalidArgumentException('Model must implement HasWorkflow interface.');
-        }
+        $this->ensureImplementor($model);
 
         return DB::transaction(function () use ($model, $actor, $targetStageId, $comments, $stepFeedbacks) {
-            // Lock the model row
-            $model = $model->newQuery()->where('id', $model->id)->lockForUpdate()->first();
+            $model = $this->lockModel($model);
             $instance = $model->workflowInstance;
 
             $this->verifyUserCanAct($model, $actor);
-            $currentStage = $instance->currentStage;
 
+            $currentStage = $instance->currentStage;
             if (!$currentStage->can_return) {
-                throw new \Exception('Return is not allowed at this stage.');
+                throw new Exception('Return is not allowed at this stage.');
             }
 
             // Determine target stage
             if ($targetStageId) {
-                $prevStage = WorkflowStage::find($targetStageId);
-
-                if (!$prevStage) {
-                    throw new \Exception('Target stage not found.');
-                }
-
+                $prevStage = WorkflowStage::findOrFail($targetStageId);
+                // Validate logic for specific stage return
                 if ($prevStage->workflow_id !== $instance->workflow_id) {
-                    throw new \Exception('Target stage must belong to the same workflow.');
+                    throw new Exception('Target stage must belong to the same workflow.');
                 }
-
                 if ($prevStage->order >= $currentStage->order) {
-                    throw new \Exception('Target stage must be before the current stage.');
+                    throw new Exception('Target stage must be before the current stage.');
                 }
             } else {
-                // Default to previous stage
                 $prevStage = $currentStage->previousStage();
             }
 
-            // Record the transition
-            $transition = $model->transitions()->create([
-                'actor_id' => $actor->id,
-                'from_stage_id' => $currentStage->id,
-                'to_stage_id' => $prevStage?->id,
-                'action' => 'return',
-                'comments' => $comments,
-            ]);
+            $transition = $this->recordTransition($model, $actor, $currentStage->id, $prevStage?->id, 'return', $comments);
 
-            // Save step feedbacks
+            // Save feedbacks
             if (!empty($stepFeedbacks)) {
                 foreach ($stepFeedbacks as $stepId => $note) {
                     $transition->feedbacks()->create([
@@ -220,20 +197,19 @@ class WorkflowService
                 }
             }
 
-            // Move to previous stage
-            // Recalculate deadline for the returned stage (optional: could be 0 or reuse days)
-            $dueAt = null;
-            if ($prevStage && $prevStage->allowed_days) {
-                $dueAt = now()->addDays($prevStage->allowed_days);
-            }
+            $dueAt = ($prevStage && $prevStage->allowed_days) ? now()->addDays($prevStage->allowed_days) : null;
 
             $instance->update([
                 'current_stage_id' => $prevStage?->id,
-                'status' => $prevStage ? 'returned' : 'in_progress',
+                'status' => $prevStage ? 'returned' : 'in_progress', // or 'returned' specific status
                 'stage_due_at' => $dueAt,
             ]);
 
-            // Dispatch event for notifications
+            // Update Step status to 'returned' when returned
+            if ($model instanceof \App\Models\Step) {
+                $model->update(['status' => 'returned']);
+            }
+
             event(new StepReturned($model, $actor, $prevStage));
 
             return $model->fresh();
@@ -241,43 +217,30 @@ class WorkflowService
     }
 
     /**
-     * Reject a model (terminates the workflow)
-     *
-     * @param HasWorkflow&Model $model
-     * @param User $actor
-     * @param string|null $comments
-     * @return HasWorkflow&Model
-     * @throws \Exception
+     * Reject a model (terminates the workflow).
      */
     public function rejectStep(Model $model, User $actor, ?string $comments = null): Model
     {
-        if (!$model instanceof HasWorkflow) {
-            throw new \InvalidArgumentException('Model must implement HasWorkflow interface.');
-        }
+        $this->ensureImplementor($model);
 
         return DB::transaction(function () use ($model, $actor, $comments) {
-            // Lock the model row
-            $model = $model->newQuery()->where('id', $model->id)->lockForUpdate()->first();
+            $model = $this->lockModel($model);
             $instance = $model->workflowInstance;
 
             $this->verifyUserCanAct($model, $actor);
 
-            // Record the transition
-            $model->transitions()->create([
-                'actor_id' => $actor->id,
-                'from_stage_id' => $instance->current_stage_id,
-                'to_stage_id' => null,
-                'action' => 'reject',
-                'comments' => $comments,
-            ]);
+            $this->recordTransition($model, $actor, $instance->current_stage_id, null, 'reject', $comments);
 
-            // Mark as rejected (terminal state)
             $instance->update([
                 'current_stage_id' => null,
                 'status' => 'rejected',
             ]);
 
-            // Dispatch event for notifications
+            // Update Step status to 'rejected' when rejected
+            if ($model instanceof \App\Models\Step) {
+                $model->update(['status' => 'rejected']);
+            }
+
             event(new StepRejected($model, $actor));
 
             return $model->fresh();
@@ -285,73 +248,58 @@ class WorkflowService
     }
 
     /**
-     * Verify the user has permission to act on the model
-     *
-     * @param HasWorkflow&Model $model
-     * @param User $actor
-     * @throws \Exception
+     * Internal helper to record transitions to keep main logic clean.
      */
+    protected function recordTransition(Model $model, User $actor, ?int $fromId, ?int $toId, string $action, ?string $comments)
+    {
+        return $model->transitions()->create([
+            'actor_id' => $actor->id,
+            'from_stage_id' => $fromId,
+            'to_stage_id' => $toId,
+            'action' => $action,
+            'comments' => $comments,
+        ]);
+    }
+
+    protected function ensureImplementor(Model $model): void
+    {
+        if (!$model instanceof HasWorkflow) {
+            throw new InvalidArgumentException('Model must implement HasWorkflow interface.');
+        }
+    }
+
+    protected function lockModel(Model $model): Model
+    {
+        return $model->newQuery()->where($model->getKeyName(), $model->getKey())->lockForUpdate()->first();
+    }
+
     protected function verifyUserCanAct(Model $model, User $actor): void
     {
         $instance = $model->workflowInstance;
 
         if (!$instance || $instance->isTerminal()) {
-            throw new \Exception('Cannot act on a completed or rejected item.');
+            throw new Exception('Cannot act on a completed or rejected item.');
         }
 
-        if (!$instance->current_stage_id) {
-            throw new \Exception('Item has no current stage.');
+        $currentStage = $instance->currentStage;
+        if (!$currentStage) {
+            throw new Exception('Item has no current stage.');
         }
 
-        $teamId = $instance->currentStage->team_id;
-        $userInTeam = $actor->workflowTeams()->where('workflow_teams.id', $teamId)->exists();
+        $allowed = match ($currentStage->assignment_type) {
+            'team' => $actor->workflowTeams()->where('workflow_teams.id', $currentStage->team_id)->exists(),
+            'user' => $actor->id === $currentStage->assigned_user_id,
+            'role' => $actor->roles()->where('roles.id', $currentStage->assigned_role_id)->exists(),
+            default => false,
+        };
 
-        if (!$userInTeam) {
+        if (!$allowed) {
             abort(403, 'You are not authorized to act on this item.');
         }
     }
 
-    /**
-     * Get all steps pending action by a specific user
-     *
-     * @param User $user
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
     public function getPendingStepsForUser(User $user)
     {
         return $user->pendingWorkflowActivities();
-    }
-
-    /**
-     * Assign a model to a workflow and optionally submit it
-     *
-     * @param HasWorkflow&Model $model
-     * @param int $workflowId
-     * @param User $actor
-     * @param bool $autoSubmit
-     * @return HasWorkflow&Model
-     */
-    public function assignWorkflow(Model $model, int $workflowId, User $actor, bool $autoSubmit = false): Model
-    {
-        if (!$model instanceof HasWorkflow) {
-            throw new \InvalidArgumentException('Model must implement HasWorkflow interface.');
-        }
-
-        // Create or update workflow instance
-        $instance = $model->workflowInstance()->updateOrCreate(
-            ['workflowable_type' => $model->getMorphClass(), 'workflowable_id' => $model->id], // Conditions
-            [
-                'workflow_id' => $workflowId,
-                'status' => 'draft',
-                'current_stage_id' => null,
-                'creator_id' => $actor->id
-            ]
-        );
-
-        if ($autoSubmit) {
-            return $this->submitStep($model->fresh(), $actor);
-        }
-
-        return $model->fresh();
     }
 }

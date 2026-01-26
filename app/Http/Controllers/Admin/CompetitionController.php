@@ -6,11 +6,174 @@ use App\Http\Controllers\Controller;
 use App\Models\ComCompetition;
 use App\Models\ComQuestion;
 use App\Models\ComOption;
+use App\Services\QuestionGenerator;
 use Illuminate\Http\Request;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Gemini\Laravel\Facades\Gemini;
 
 class CompetitionController extends Controller
 {
+
+    public function generateWithAI(Request $request, ComCompetition $competition, QuestionGenerator $generator)
+    {
+        $request->validate([
+            'topic' => 'required|string|max:500',
+            'count' => 'required|integer|min:1|max:15'
+        ]);
+
+        // Check if competition is closed (can only add questions when closed)
+        if (!$competition->isClosed()) {
+            return response()->json([
+                'success' => false,
+                'error' => 'يمكن إضافة الأسئلة فقط عندما تكون المسابقة مغلقة'
+            ], 400);
+        }
+    
+        try {
+            // Use your service to get the data from Gemini
+            $questionsData = $generator->generate($request->topic, $request->count);
+    
+            if (!$questionsData || !is_array($questionsData) || empty($questionsData)) {
+                Log::warning('Gemini returned empty or invalid questions', [
+                    'competition_id' => $competition->id,
+                    'topic' => $request->topic,
+                    'count' => $request->count,
+                    'questions_data_type' => gettype($questionsData),
+                    'questions_data' => $questionsData
+                ]);
+                
+                // Check Laravel logs for more details
+                $logMessage = 'فشل الذكاء الاصطناعي في توليد المحتوى. ';
+                $logMessage .= 'يرجى التحقق من:';
+                $logMessage .= '<br>1. أن مفتاح API صحيح في ملف .env';
+                $logMessage .= '<br>2. أن الاتصال بالإنترنت يعمل';
+                $logMessage .= '<br>3. أن الموضوع واضح ومحدد';
+                $logMessage .= '<br>4. مراجعة ملفات السجلات (storage/logs) لمزيد من التفاصيل';
+                
+                return response()->json([
+                    'success' => false,
+                    'error' => $logMessage
+                ], 500);
+            }
+    
+            $savedCount = 0;
+            $skippedCount = 0;
+            
+            DB::transaction(function () use ($questionsData, $competition, &$savedCount, &$skippedCount) {
+                $maxOrder = ComQuestion::where('competition_id', $competition->id)->max('order') ?? 0;
+                
+                foreach ($questionsData as $q) {
+                    // Validate question structure
+                    if (!isset($q['question']) || empty(trim($q['question']))) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    if (!isset($q['options']) || !is_array($q['options'])) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    // Ensure we have exactly 4 options
+                    if (count($q['options']) !== 4) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    // Validate all options are non-empty
+                    $allOptionsValid = true;
+                    foreach ($q['options'] as $option) {
+                        if (empty(trim($option))) {
+                            $allOptionsValid = false;
+                            break;
+                        }
+                    }
+                    
+                    if (!$allOptionsValid) {
+                        $skippedCount++;
+                        continue;
+                    }
+
+                    if (!isset($q['correct_answer']) || empty(trim($q['correct_answer']))) {
+                        $skippedCount++;
+                        continue;
+                    }
+    
+                    // Create the question based on your schema
+                    $maxOrder++;
+                    $newQuestion = ComQuestion::create([
+                        'competition_id' => $competition->id,
+                        'question_text' => trim($q['question']),
+                        'order' => $maxOrder,
+                        'is_active' => false,
+                    ]);
+    
+                    // Create the 4 options
+                    $correctAnswer = trim($q['correct_answer']);
+                    foreach ($q['options'] as $optionText) {
+                        $trimmedOption = trim($optionText);
+                        ComOption::create([
+                            'question_id' => $newQuestion->id,
+                            'option_text' => $trimmedOption,
+                            'is_correct' => ($trimmedOption === $correctAnswer),
+                        ]);
+                    }
+                    
+                    $savedCount++;
+                }
+            });
+    
+            if ($savedCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'لم يتم حفظ أي سؤال. قد تكون البيانات المُولدة غير صحيحة. يرجى المحاولة مرة أخرى.'
+                ], 500);
+            }
+    
+            $message = "تم حفظ {$savedCount} سؤال بنجاح!";
+            if ($skippedCount > 0) {
+                $message .= " (تم تخطي {$skippedCount} سؤال بسبب بيانات غير صحيحة)";
+            }
+    
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'saved_count' => $savedCount,
+                'skipped_count' => $skippedCount
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error generating questions with AI', [
+                'competition_id' => $competition->id,
+                'topic' => $request->topic,
+                'count' => $request->count,
+                'error' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            // Provide more specific error messages
+            $errorMessage = $e->getMessage();
+            
+            // Check for common errors
+            if (str_contains($errorMessage, 'API key')) {
+                $errorMessage = 'مفتاح API غير صحيح أو غير موجود. يرجى التحقق من ملف .env';
+            } elseif (str_contains($errorMessage, 'Connection') || str_contains($errorMessage, 'timeout')) {
+                $errorMessage = 'فشل الاتصال بـ Gemini API. يرجى التحقق من الاتصال بالإنترنت';
+            } elseif (str_contains($errorMessage, 'quota') || str_contains($errorMessage, 'limit')) {
+                $errorMessage = 'تم تجاوز الحد المسموح لاستخدام API. يرجى المحاولة لاحقاً';
+            }
+
+            return response()->json([
+                'success' => false,
+                'error' => $errorMessage . '<br><br>للتفاصيل الكاملة، راجع ملف: storage/logs/laravel.log'
+            ], 500);
+        }
+    }
+
     public function index()
     {
         $competitions = ComCompetition::withCount(['questions', 'participants'])
