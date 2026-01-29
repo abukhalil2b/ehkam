@@ -23,25 +23,6 @@
                     @enderror
                 </div>
 
-                {{-- Reports To Position --}}
-                <div class="mb-6">
-                    <label for="reports_to_position_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        يرفع تقاريره إلى (المسمى الوظيفي):
-                    </label>
-                    <select id="reports_to_position_id" name="reports_to_position_id"
-                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm">
-                        <option value="">-- لا يرفع تقارير لأحد (قيادي) --</option>
-                        @foreach ($allPositions as $pos)
-                            <option value="{{ $pos->id }}"
-                                {{ old('reports_to_position_id', $position->reports_to_position_id) == $pos->id ? 'selected' : '' }}>
-                                {{ $pos->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('reports_to_position_id')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
                 <div class="flex justify-end space-x-2 space-x-reverse">
                     <a href="{{ route('admin_structure.index') }}" 

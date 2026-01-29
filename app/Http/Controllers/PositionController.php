@@ -14,20 +14,12 @@ class PositionController extends Controller
      */
     public function index()
     {
-        // 1. Positions with Hierarchy
-        $allPositions = Position::all();
-        $groupedPositions = $allPositions->groupBy('reports_to_position_id');
-
-        $buildPositionTree = function ($parentId) use (&$buildPositionTree, $groupedPositions) {
-            return $groupedPositions->get($parentId, collect())->map(function ($pos) use ($buildPositionTree) {
-                $pos->subordinates = $buildPositionTree($pos->id);
-                return $pos;
-            });
-        };
-        $topLevelPositions = $buildPositionTree(null);
+        // Load positions with relationships for stats
+        $allPositions = Position::with(['orgUnits', 'currentEmployees'])->get();
+        $topLevelPositions = $allPositions;
 
         // For the 'Create Position' Modal that might be on the index page
-        $allUnits = OrgUnit::all();
+        $allUnits = OrgUnit::orderBy('name')->get();
 
         return view('positions.index', compact('topLevelPositions', 'allPositions', 'allUnits'));
     }
@@ -49,7 +41,6 @@ class PositionController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'reports_to_position_id' => 'nullable|exists:positions,id',
             'org_unit_id' => 'required|exists:org_units,id',
             'job_code' => 'nullable|string|unique:positions,job_code',
         ]);
@@ -59,7 +50,6 @@ class PositionController extends Controller
 
         $position = Position::create([
             'title' => $request->title,
-            'reports_to_position_id' => $request->reports_to_position_id,
             'job_code' => $jobCode,
         ]);
 
@@ -75,7 +65,7 @@ class PositionController extends Controller
      */
     public function show(Position $position)
     {
-        $position->load(['reportsTo', 'subordinates', 'orgUnits', 'currentEmployees.user']);
+        $position->load(['orgUnits', 'currentEmployees.user']);
         return view('positions.show', compact('position'));
     }
 
@@ -100,25 +90,12 @@ class PositionController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'reports_to_position_id' => 'nullable|exists:positions,id',
-            // Prevent cycling reporting to itself or children
-            'reports_to_position_id' => [
-                'nullable',
-                'exists:positions,id',
-                function ($attribute, $value, $fail) use ($position) {
-                    if ($value == $position->id) {
-                        $fail('لا يمكن للوظيفة أن تتبع نفسها.');
-                    }
-                    // TODO: Add more robust circular dependency check if needed
-                },
-            ],
             'org_unit_id' => 'required|exists:org_units,id',
             'job_code' => 'nullable|string|unique:positions,job_code,' . $position->id,
         ]);
 
         $position->update([
             'title' => $request->title,
-            'reports_to_position_id' => $request->reports_to_position_id,
             'job_code' => $request->job_code ?? $position->job_code,
         ]);
 
@@ -135,12 +112,7 @@ class PositionController extends Controller
      */
     public function destroy(Position $position)
     {
-        // 1. Check for Subordinates
-        if ($position->subordinates()->count() > 0) {
-            return back()->with('error', 'لا يمكن حذف المسمى الوظيفي لأنه يحتوي على وظائف تابعة له. يرجى نقل التبعية أولاً.');
-        }
-
-        // 2. Check for Active Employees
+        // Check for Active Employees
         if ($position->currentEmployees()->count() > 0) {
             return back()->with('error', 'لا يمكن حذف المسمى الوظيفي لأنه مشغول حالياً من قبل موظفين.');
         }

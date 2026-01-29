@@ -17,6 +17,7 @@ class OrgUnit extends Model
         'name',
         'type',
         'parent_id',
+        'hierarchy_order',
     ];
 
     /**

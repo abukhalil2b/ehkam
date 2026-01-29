@@ -53,18 +53,6 @@
                     @error('org_unit_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                {{-- Reports To --}}
-                <div>
-                    @php
-                        $positionOptions = $allPositions->map(function ($pos) {
-                            return ['id' => $pos->id, 'name' => $pos->title, 'code' => $pos->job_code];
-                        })->values();
-                    @endphp
-                    <label class="block text-sm font-bold text-gray-700 mb-2">يتبع إدارياً لـ (الرئيس المباشر)</label>
-                    <x-forms.searchable-select name="reports_to_position_id" :options="$positionOptions"
-                        placeholder="(لا يوجد - وظيفة قيادية عليا)" />
-                    <p class="text-xs text-gray-400 mt-1">اتركه فارغاً إذا كانت هذه الوظيفة أعلى الهرم.</p>
-                </div>
 
                 {{-- Actions --}}
                 <div class="flex items-center justify-end pt-6 border-t mt-8 gap-3">

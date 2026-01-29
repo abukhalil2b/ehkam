@@ -109,35 +109,6 @@
                 </div>
 
 
-                {{-- Reports To --}}
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">يتبع مباشرةً إلى (الرئيس المباشر)</label>
-                    <select name="reports_to_position_id"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                        <option value="">(لا يوجد / وظيفة عليا)</option>
-                        @php
-                            // The PHP function remains the same, used to build the nested <option> list
-                            function renderPositionOptions($positions, $prefix = '')
-                            {
-                                foreach ($positions as $pos) {
-                                    $selected = (string) $pos->id === old('reports_to_position_id') ? 'selected' : '';
-                                    echo '<option value="' .
-                                        $pos->id .
-                                        '" ' .
-                                        $selected .
-                                        '>' .
-                                        $prefix .
-                                        $pos->title .
-                                        '</option>';
-                                    if ($pos->subordinates->isNotEmpty()) {
-                                        renderPositionOptions($pos->subordinates, $prefix . '— ');
-                                    }
-                                }
-                            }
-                            renderPositionOptions($topLevelPositions);
-                        @endphp
-                    </select>
-                </div>
 
                 {{-- Submit --}}
                 <button type="submit"

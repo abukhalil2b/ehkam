@@ -54,6 +54,45 @@
             </div>
         @endif
 
+        {{-- القاعدة الذهبية للهيكل التنظيمي --}}
+        <div x-data="{ showInfo: false }" class="mx-4 mt-4 md:mx-6 md:mt-6">
+            <button @click="showInfo = !showInfo" 
+                class="flex items-center space-x-2 rtl:space-x-reverse text-sm text-amber-700 hover:text-amber-800 transition">
+                <span class="material-icons text-lg">lightbulb</span>
+                <span class="font-medium">القاعدة الذهبية للهيكل التنظيمي</span>
+                <span class="material-icons text-lg" x-text="showInfo ? 'expand_less' : 'expand_more'"></span>
+            </button>
+            <div x-show="showInfo" x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform -translate-y-2"
+                x-transition:enter-end="opacity-100 transform translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform -translate-y-2"
+                class="mt-3 p-4 rounded-lg bg-amber-50 border border-amber-200 text-amber-900">
+                <h4 class="font-bold mb-3 flex items-center space-x-2 rtl:space-x-reverse">
+                    <span class="material-icons">info</span>
+                    <span>كيف يُبنى الهيكل التنظيمي؟</span>
+                </h4>
+                <ul class="space-y-2 text-sm">
+                    <li class="flex items-start space-x-2 rtl:space-x-reverse">
+                        <span class="material-icons text-blue-600 text-base mt-0.5">account_tree</span>
+                        <span><strong>الهيكل التنظيمي:</strong> يُبنى بالـ <code class="bg-amber-100 px-1 rounded">parent_id</code> (علاقة هرمية ذاتية للوحدات)</span>
+                    </li>
+                    <li class="flex items-start space-x-2 rtl:space-x-reverse">
+                        <span class="material-icons text-purple-600 text-base mt-0.5">work</span>
+                        <span><strong>الوظائف:</strong> تُربط بالوحدات عبر جدول <code class="bg-amber-100 px-1 rounded">org_unit_positions</code></span>
+                    </li>
+                    <li class="flex items-start space-x-2 rtl:space-x-reverse">
+                        <span class="material-icons text-green-600 text-base mt-0.5">person</span>
+                        <span><strong>الموظفون:</strong> يُربطون بالوظائف عبر جدول <code class="bg-amber-100 px-1 rounded">employee_assignments</code></span>
+                    </li>
+                </ul>
+                <div class="mt-3 pt-3 border-t border-amber-200 text-xs text-amber-700">
+                    <code class="block text-center">OrgUnit (parent_id) → org_unit_positions → Position → employee_assignments → User</code>
+                </div>
+            </div>
+        </div>
+
         <nav
             class="p-4 md:p-6 border-b border-gray-100 flex overflow-x-auto whitespace-nowrap space-x-4 rtl:space-x-reverse">
             <button @click="activeTab = 'units'" :class="{ 'tab-active': activeTab === 'units' }"
@@ -195,20 +234,6 @@
                             @enderror
                         </div>
 
-                        <div>
-                            <label for="reports_to_position_id" class="block text-sm font-medium text-gray-700">
-                                يتبع مباشرةً إلى (الرئيس المباشر)</label>
-                            <select id="reports_to_position_id" name="reports_to_position_id"
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                                <option value="">(لا يوجد / وظيفة عليا)</option>
-                                @foreach ($allPositions as $position)
-                                    <option value="{{ $position->id }}"
-                                        {{ old('reports_to_position_id') == $position->id ? 'selected' : '' }}>
-                                        {{ $position->title }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
                         <button type="submit"
                             class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition">
                             <span class="material-icons text-lg -mt-1 rtl:ml-1">add</span>

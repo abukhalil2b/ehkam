@@ -46,29 +46,6 @@
                     @enderror
                 </div>
 
-                <!-- Reports To Position -->
-                <div>
-                    <label for="reports_to_position_id" class="block text-sm font-semibold text-gray-700 mb-2">
-                        تقرير إلى (اختياري)
-                    </label>
-                    <select id="reports_to_position_id" 
-                            name="reports_to_position_id"
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors">
-                        <option value="">-- لا تقرير لأحد (وظيفة عليا) --</option>
-                        @foreach($allPositions as $position)
-                            <option value="{{ $position->id }}" {{ old('reports_to_position_id') == $position->id ? 'selected' : '' }}>
-                                {{ $position->title }}
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="text-xs text-gray-500 mt-1">
-                        <i class="fas fa-info-circle"></i>
-                        حدد الوظيفة التي تقرير إليها هذه الوظيفة في التسلسل الإداري
-                    </p>
-                    @error('reports_to_position_id')
-                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
 
                 <!-- Ordered (Priority) -->
                 <div>
@@ -145,13 +122,6 @@
                             <p class="font-semibold text-gray-800" id="previewUnit">-</p>
                         </div>
                     </div>
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-arrow-up text-primary-700 mt-1"></i>
-                        <div class="flex-1">
-                            <p class="text-sm text-gray-600">تقرير إلى:</p>
-                            <p class="font-semibold text-gray-800" id="previewReportsTo">-</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -161,19 +131,16 @@
     <script>
         const titleInput = document.getElementById('title');
         const unitSelect = document.getElementById('org_unit_id');
-        const reportsToSelect = document.getElementById('reports_to_position_id');
         const previewSection = document.getElementById('previewSection');
 
         function updatePreview() {
             const title = titleInput.value;
             const unitText = unitSelect.options[unitSelect.selectedIndex].text;
-            const reportsToText = reportsToSelect.options[reportsToSelect.selectedIndex].text;
             
             if (title || unitSelect.value) {
                 previewSection.style.display = 'block';
                 document.getElementById('previewTitle').textContent = title || '-';
                 document.getElementById('previewUnit').textContent = unitSelect.value ? unitText : '-';
-                document.getElementById('previewReportsTo').textContent = reportsToSelect.value ? reportsToText : 'لا تقرير لأحد (وظيفة عليا)';
             } else {
                 previewSection.style.display = 'none';
             }
@@ -181,7 +148,6 @@
 
         titleInput.addEventListener('input', updatePreview);
         unitSelect.addEventListener('change', updatePreview);
-        reportsToSelect.addEventListener('change', updatePreview);
     </script>
     @endpush
 </x-org-layout>

@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\OrgUnit;
+use App\Models\Position;
+use App\Services\OrgStructureService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class OrgUnitController extends Controller
 {
+    protected OrgStructureService $structureService;
+
+    public function __construct(OrgStructureService $structureService)
+    {
+        $this->structureService = $structureService;
+    }
 
     public function index()
     {
@@ -15,13 +22,13 @@ class OrgUnitController extends Controller
         $rootUnit = OrgUnit::whereNull('parent_id')
             ->with([
                 'children' => function ($query) {
-                    $query->orderBy('type')->orderBy('name');
+                    $query->orderBy('hierarchy_order')->orderBy('name');
                 },
                 'children.children' => function ($query) {
-                    $query->orderBy('type')->orderBy('name');
+                    $query->orderBy('hierarchy_order')->orderBy('name');
                 },
                 'children.children.children' => function ($query) {
-                    $query->orderBy('type')->orderBy('name');
+                    $query->orderBy('hierarchy_order')->orderBy('name');
                 },
                 'positions.employees' => function ($query) {
                     $query->whereNull('end_date')
@@ -38,86 +45,73 @@ class OrgUnitController extends Controller
                     ->orWhere('end_date', '>=', now());
             }
         ])
-            ->orderBy('type')
+            ->orderBy('hierarchy_order')
             ->orderBy('name')
             ->get();
 
-        // Count statistics
-        $stats = [
-            'total_units' => OrgUnit::count(),
-            'ministers' => OrgUnit::where('type', 'Minister')->count(),
-            'directorates' => OrgUnit::where('type', 'Directorate')->count(),
-            'departments' => OrgUnit::where('type', 'Department')->count(),
-            'sections' => OrgUnit::where('type', 'Section')->count(),
-            'experts' => OrgUnit::where('type', 'Expert')->count(),
-        ];
+        // Count statistics using service
+        $stats = $this->structureService->getStats();
 
         return view('org_units.index', compact('rootUnit', 'allUnits', 'stats'));
     }
 
     public function create()
     {
+        $OrgUnits = OrgUnit::orderBy('hierarchy_order')->orderBy('name')->get();
+        $typeLabels = OrgStructureService::getTypeLabels();
+        $allowedParentRules = OrgStructureService::getAllowedParentRules();
 
-        $OrgUnits = OrgUnit::all();
-
-        return view('org_units.create', compact('OrgUnits'));
+        return view('org_units.create', compact('OrgUnits', 'typeLabels', 'allowedParentRules'));
     }
-
 
     public function storeUnit(Request $request)
     {
-        // 1. Validate (Updated to include all types)
         $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'required|string|in:Minister,Undersecretary,Directorate,Department,Section,Expert',
             'parent_id' => 'nullable|exists:org_units,id',
+            'hierarchy_order' => 'nullable|integer|min:0|max:255',
         ]);
 
-        // 2. Define Prefixes
-        $prefixes = [
-            'Minister' => 'MIN',
-            'Undersecretary' => 'UND',
-            'Directorate' => 'DIR',
-            'Department' => 'DEP',
-            'Section' => 'SEC',
-            'Expert' => 'EXP',
-        ];
+        try {
+            $unit = $this->structureService->createUnit($request->only([
+                'name', 'type', 'parent_id', 'hierarchy_order'
+            ]));
 
-        $type = $request->type;
-        $prefix = $prefixes[$type] ?? 'ORG';
-
-        // 3. Generate Unique Unit Code
-        // We count existing units of this type to determine the next number
-        // We use a loop to ensure uniqueness in case records were deleted
-        $counter = OrgUnit::where('type', $type)->count() + 1;
-
-        do {
-            $code = $prefix . str_pad($counter, 3, '0', STR_PAD_LEFT);
-            $exists = OrgUnit::where('unit_code', $code)->exists();
-            if ($exists) {
-                $counter++;
-            }
-        } while ($exists);
-
-        // 4. Create the Unit
-        $unit = OrgUnit::create([
-            'unit_code' => $code,
-            'name' => $request->name,
-            'type' => $type,
-            'parent_id' => $request->parent_id,
-        ]);
-
-        return redirect()->route('org_unit.index')
-            ->with('success', "تمت إضافة الوحدة ({$unit->name}) بنجاح. الرمز: {$unit->unit_code}");
+            return redirect()->route('org_unit.index')
+                ->with('success', "تمت إضافة الوحدة ({$unit->name}) بنجاح. الرمز: {$unit->unit_code}");
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
     }
+
     public function edit(OrgUnit $orgUnit)
     {
-        $orgUnit->load(['parent', 'positions.employees']);
-        $parentUnits = OrgUnit::where('id', '!=', $orgUnit->id)->get();
-        // Load all available positions for the dropdown
-        $allPositions = \App\Models\Position::orderBy('title')->get();
+        $orgUnit->load([
+            'parent',
+            'positions.currentEmployees.user'
+        ]);
+        
+        $parentUnits = OrgUnit::where('id', '!=', $orgUnit->id)
+            ->orderBy('hierarchy_order')
+            ->orderBy('name')
+            ->get();
 
-        return view('org_units.edit', compact('orgUnit', 'parentUnits', 'allPositions'));
+        $linkedPositionIds = $orgUnit->positions->pluck('id')->toArray();
+        $availablePositions = Position::whereNotIn('id', $linkedPositionIds)
+            ->orderBy('title')
+            ->get();
+
+        $typeLabels = OrgStructureService::getTypeLabels();
+        $allowedParentRules = OrgStructureService::getAllowedParentRules();
+
+        return view('org_units.edit', compact(
+            'orgUnit', 
+            'parentUnits', 
+            'availablePositions',
+            'typeLabels',
+            'allowedParentRules'
+        ));
     }
 
     public function update(Request $request, OrgUnit $orgUnit)
@@ -126,16 +120,112 @@ class OrgUnitController extends Controller
             'name' => 'required|string|max:255',
             'type' => 'required|string|in:Minister,Undersecretary,Directorate,Department,Section,Expert',
             'parent_id' => 'nullable|exists:org_units,id|not_in:' . $orgUnit->id,
+            'hierarchy_order' => 'nullable|integer|min:0|max:255',
         ]);
 
-        $orgUnit->update([
-            'name' => $request->name,
-            'type' => $request->type,
-            'parent_id' => $request->parent_id,
+        try {
+            $this->structureService->updateUnit($orgUnit, $request->only([
+                'name', 'type', 'parent_id', 'hierarchy_order'
+            ]));
+
+            return redirect()->route('org_unit.edit', $orgUnit->id)
+                ->with('success', 'تم تحديث بيانات الوحدة بنجاح');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
+    }
+
+    public function destroy(OrgUnit $orgUnit)
+    {
+        try {
+            $name = $orgUnit->name;
+            $this->structureService->deleteUnit($orgUnit);
+
+            return redirect()->route('org_unit.index')
+                ->with('success', "تم حذف الوحدة ({$name}) بنجاح");
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * إدارة المديريات
+     */
+    public function directorates()
+    {
+        $units = $this->structureService->getUnitsByType('Directorate');
+        $allowedParents = $this->structureService->getAllowedParentsForType('Directorate');
+        $stats = $this->structureService->getStats();
+        
+        return view('org_units.structure.directorates', [
+            'units' => $units,
+            'allowedParents' => $allowedParents,
+            'stats' => $stats,
+            'type' => 'Directorate',
+            'typeLabel' => 'مديرية عامة',
+            'typeLabelPlural' => 'المديريات العامة',
+        ]);
+    }
+
+    /**
+     * إدارة الدوائر
+     */
+    public function departments()
+    {
+        $units = $this->structureService->getUnitsByType('Department');
+        $allowedParents = $this->structureService->getAllowedParentsForType('Department');
+        $stats = $this->structureService->getStats();
+        
+        return view('org_units.structure.departments', [
+            'units' => $units,
+            'allowedParents' => $allowedParents,
+            'stats' => $stats,
+            'type' => 'Department',
+            'typeLabel' => 'دائرة',
+            'typeLabelPlural' => 'الدوائر',
+        ]);
+    }
+
+    /**
+     * إدارة الأقسام
+     */
+    public function sections()
+    {
+        $units = $this->structureService->getUnitsByType('Section');
+        $allowedParents = $this->structureService->getAllowedParentsForType('Section');
+        $stats = $this->structureService->getStats();
+        
+        return view('org_units.structure.sections', [
+            'units' => $units,
+            'allowedParents' => $allowedParents,
+            'stats' => $stats,
+            'type' => 'Section',
+            'typeLabel' => 'قسم',
+            'typeLabelPlural' => 'الأقسام',
+        ]);
+    }
+
+    /**
+     * إضافة سريعة لوحدة من صفحة متخصصة
+     */
+    public function storeQuick(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|in:Minister,Undersecretary,Directorate,Department,Section,Expert',
+            'parent_id' => 'required|exists:org_units,id',
+            'hierarchy_order' => 'nullable|integer|min:0|max:255',
         ]);
 
-        return redirect()->route('org_unit.edit', $orgUnit->id)
-            ->with('success', 'تم تحديث بيانات الوحدة بنجاح');
+        try {
+            $unit = $this->structureService->createUnit($request->only([
+                'name', 'type', 'parent_id', 'hierarchy_order'
+            ]));
+
+            return back()->with('success', "تمت إضافة {$unit->name} بنجاح. الرمز: {$unit->unit_code}");
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
     }
 
     public function addPosition(Request $request)
@@ -147,7 +237,6 @@ class OrgUnitController extends Controller
 
         $orgUnit = OrgUnit::findOrFail($request->org_unit_id);
 
-        // Check if already attached
         if (!$orgUnit->positions()->where('positions.id', $request->position_id)->exists()) {
             $orgUnit->positions()->attach($request->position_id);
             return back()->with('success', 'تم ربط الوظيفة بالوحدة بنجاح');

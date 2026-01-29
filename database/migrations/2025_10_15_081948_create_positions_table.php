@@ -16,7 +16,8 @@ return new class extends Migration
             $table->id();
             $table->string('unit_code')->unique();
             $table->string('name');
-            $table->string('type')->index(); // Minister, Directorate, Department, Section, Expert
+            $table->string('type')->index(); // Minister, Undersecretary, Directorate, Department, Section, Expert
+            $table->unsignedTinyInteger('hierarchy_order')->default(0); // للترتيب المخصص
             $table->foreignId('parent_id')->nullable()
                 ->constrained('org_units')->onDelete('cascade');
             $table->timestamps();
@@ -26,8 +27,6 @@ return new class extends Migration
             $table->id();
             $table->string('job_code')->unique();
             $table->string('title');
-            $table->foreignId('reports_to_position_id')->nullable()
-                ->constrained('positions')->nullOnDelete();
             $table->tinyInteger('ordered')->default(0);
             $table->timestamps();
         });
@@ -44,10 +43,26 @@ return new class extends Migration
             $table->foreignId('position_id')->constrained('positions');
             $table->foreignId('org_unit_id')->nullable()
                 ->constrained('org_units')->nullOnDelete();
+            $table->enum('assignment_type', ['PERMANENT', 'SECONDMENT', 'ACTING', 'TEMPORARY', 'DELEGATION'])
+                ->default('PERMANENT');
             $table->date('start_date');
             $table->date('end_date')->nullable();
+
+            // لتسريع جلب "الحالة الحالية"
+            $table->boolean('is_active')->default(true);
+
             $table->timestamps();
         });
+        // منع تداخل تعيينين دائمين
+        // لا يسمح بوجود أكثر من:
+        // PERMANENT
+        // بنفس الفترة الزمنية
+        // 3.2 السماح بتعدد:
+        // SECONDMENT
+        // ACTING
+        // 3.3 إنهاء التعيين
+        // عند انتهاء end_date:
+        // is_active = false (cron أو observer)
     }
 
     /**

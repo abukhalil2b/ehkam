@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -15,29 +14,12 @@ class Position extends Model
     protected $fillable = [
         'job_code',
         'title',
-        'reports_to_position_id',
         'ordered',
     ];
 
     protected $casts = [
         'ordered' => 'integer',
     ];
-
-    /**
-     * Get the position this position reports to.
-     */
-    public function reportsTo(): BelongsTo
-    {
-        return $this->belongsTo(Position::class, 'reports_to_position_id');
-    }
-
-    /**
-     * Get all positions that report to this position.
-     */
-    public function subordinates(): HasMany
-    {
-        return $this->hasMany(Position::class, 'reports_to_position_id');
-    }
 
     /**
      * Get all organizational units this position belongs to.
@@ -75,19 +57,4 @@ class Position extends Model
         return $this->currentEmployees()->count() === 0;
     }
 
-    /**
-     * Get the reporting chain for this position.
-     */
-    public function getReportingChainAttribute(): array
-    {
-        $chain = [];
-        $current = $this;
-
-        while ($current->reportsTo) {
-            $chain[] = $current->reportsTo;
-            $current = $current->reportsTo;
-        }
-
-        return $chain;
-    }
 }

@@ -26,9 +26,7 @@ class AdminController extends Controller
             ->with('children.children')
             ->get();
 
-        $topLevelPositions = Position::whereNull('reports_to_position_id')
-            ->with('subordinates.subordinates')
-            ->get();
+        $topLevelPositions = Position::all();
 
         // Flat data for dropdowns / forms
         $OrgUnits = OrgUnit::all();
@@ -61,18 +59,10 @@ class AdminController extends Controller
         $topLevelUnits = $buildUnitTree(null);
 
         // ------------------------------
-        // 2️⃣ Positions (single query, fully recursive)
+        // 2️⃣ Positions (flat list)
         // ------------------------------
         $allPositions = Position::all();
-        $groupedPositions = $allPositions->groupBy('reports_to_position_id');
-
-        $buildPositionTree = function ($parentId) use (&$buildPositionTree, $groupedPositions) {
-            return $groupedPositions->get($parentId, collect())->map(function ($pos) use ($buildPositionTree) {
-                $pos->subordinates = $buildPositionTree($pos->id);
-                return $pos;
-            });
-        };
-        $topLevelPositions = $buildPositionTree(null);
+        $topLevelPositions = $allPositions;
 
         return view('admin_structure.index', compact(
             'topLevelUnits',
@@ -177,7 +167,7 @@ class AdminController extends Controller
         // FIX: Add $topLevelUnits and $topLevelPositions 
         // to satisfy components or inherited layout logic.
         $topLevelUnits = OrgUnit::whereNull('parent_id')->get();
-        $topLevelPositions = Position::whereNull('reports_to_position_id')->get();
+        $topLevelPositions = Position::all();
 
         $users = User::with([
             'positionHistory',
@@ -247,14 +237,13 @@ class AdminController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'reports_to_position_id' => 'nullable|exists:positions,id',
 
             // 🚨 ADDED: Validation for the required unit ID
             'org_unit_id' => 'required|exists:org_units,id',
         ]);
 
         // 1. Create the new Position record
-        $position = Position::create($request->only(['title', 'reports_to_position_id']));
+        $position = Position::create($request->only(['title']));
 
         // 2. 🚨 ADDED: Attach the newly created position to the selected organizational unit
         // The relationship is many-to-many, even if the UI only sends one unit ID
@@ -353,11 +342,7 @@ class AdminController extends Controller
 
     public function editPosition(Position $position)
     {
-        // Fetch all positions to populate the 'reports_to' dropdown, 
-        // excluding the current position itself to prevent self-reporting loops.
-        $allPositions = Position::where('id', '!=', $position->id)->get();
-
-        return view('admin_structure.positions.edit', compact('position', 'allPositions'));
+        return view('admin_structure.positions.edit', compact('position'));
     }
 
     public function updatePosition(Request $request, User $user)

@@ -50,17 +50,6 @@
                     @error('org_unit_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                {{-- Reports To --}}
-                <div>
-                    @php
-                        $positionOptions = $allPositions->map(function ($pos) {
-                            return ['id' => $pos->id, 'name' => $pos->title, 'code' => $pos->job_code];
-                        })->values();
-                    @endphp
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">يتبع إدارياً لـ</label>
-                    <x-forms.searchable-select name="reports_to_position_id" :options="$positionOptions"
-                        :selected="$position->reports_to_position_id" placeholder="(لا يوجد - وظيفة عليا)" />
-                </div>
 
                 {{-- Actions --}}
                 <div class="flex items-center justify-between pt-6 border-t mt-8">

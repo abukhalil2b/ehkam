@@ -53,7 +53,7 @@ class AnnualCalendarController extends Controller
 
         // TEMPORARY: Force clear cache to fix the "wrong events" issue immediately for the user
         // We can remove this later or rely on the Refresh button.
-        Cache::forget($cacheKey);
+        // Cache::forget($cacheKey);
 
         $events = Cache::remember($cacheKey, 300, function () use ($year, $userId) {
             $calendarEvents = CalendarEvent::with(['user:id,name', 'targetUser:id,name'])
@@ -108,7 +108,7 @@ class AnnualCalendarController extends Controller
             ->pluck('orgUnit')
             ->filter()
             ->unique('id');
-
+// return $myDepartments;
         return view('calendar.index', compact('year', 'events', 'managedUsers', 'displayedUser', 'sharedWithMe', 'myDepartments'));
     }
 

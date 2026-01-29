@@ -14,84 +14,97 @@
                         </h1>
                         <p class="text-xl opacity-90 flex items-center gap-2">
                             <span>{{ $year }} م</span>
-                            @if(isset($isDepartmentView) && $isDepartmentView)
+                            @if (isset($isDepartmentView) && $isDepartmentView)
                                 <span class="bg-emerald-800 text-xs px-2 py-1 rounded">عرض القسم</span>
                             @endif
                         </p>
                     </div>
                     <div class="flex flex-wrap justify-center gap-3">
                         {{-- Calendar Switcher Dropdown --}}
-<div class="relative" x-data="{ open: false }" @click.outside="open = false">
-    <button @click="open = !open" 
-        class="bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl border border-white/30 transition text-white flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <span>تغيير التقويم</span>
-        <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
-    </button>
+                        <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+                            <button @click="open = !open"
+                                class="bg-white/10 hover:bg-white/20 px-4 py-3 rounded-xl border border-white/30 transition text-white flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>تغيير التقويم</span>
+                                <svg class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
 
-    <div x-cloak x-show="open" x-transition
-        class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl z-50 overflow-hidden text-gray-800 border border-gray-100">
-        <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">تقويمي</div>
-        <a href="{{ route('calendar.index', ['year' => $year]) }}" 
-           class="flex items-center gap-3 p-3 hover:bg-emerald-50 transition {{ !request('target_user') ? 'bg-emerald-50 text-emerald-700 font-bold' : '' }}">
-            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-            تقويمي الشخصي
-        </a>
+                            <div x-cloak x-show="open" x-transition
+                                class="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-2xl z-50 overflow-hidden text-gray-800 border border-gray-100">
+                                <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">
+                                    تقويمي</div>
+                                <a href="{{ route('calendar.index', ['year' => $year]) }}"
+                                    class="flex items-center gap-3 p-3 hover:bg-emerald-50 transition {{ !request('target_user') ? 'bg-emerald-50 text-emerald-700 font-bold' : '' }}">
+                                    <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                                    تقويمي الشخصي
+                                </a>
 
-        @if($sharedWithMe->count() > 0)
-            <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">تقويمات مشتركة معي</div>
-            @foreach($sharedWithMe as $user)
-                <a href="{{ route('calendar.index', ['year' => $year, 'target_user' => $user->id]) }}" 
-                   class="flex items-center gap-3 p-3 hover:bg-blue-50 transition {{ request('target_user') == $user->id ? 'bg-blue-50 text-blue-700 font-bold' : '' }}">
-                    <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
-                        {{ mb_substr($user->name, 0, 1) }}
-                    </div>
-                    {{ $user->name }}
-                </a>
-            @endforeach
-        @endif
+                                @if ($sharedWithMe->count() > 0)
+                                    <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">
+                                        تقويمات مشتركة معي</div>
+                                    @foreach ($sharedWithMe as $user)
+                                        <a href="{{ route('calendar.index', ['year' => $year, 'target_user' => $user->id]) }}"
+                                            class="flex items-center gap-3 p-3 hover:bg-blue-50 transition {{ request('target_user') == $user->id ? 'bg-blue-50 text-blue-700 font-bold' : '' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">
+                                                {{ mb_substr($user->name, 0, 1) }}
+                                            </div>
+                                            {{ $user->name }}
+                                        </a>
+                                    @endforeach
+                                @endif
 
-        @if($managedUsers->count() > 0)
-            <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">تقويمات مفوضة لي إدارتها</div>
-            @foreach($managedUsers as $user)
-                <a href="{{ route('calendar.index', ['year' => $year, 'target_user' => $user->id]) }}" 
-                   class="flex items-center gap-3 p-3 hover:bg-green-50 transition {{ request('target_user') == $user->id ? 'bg-green-50 text-green-700 font-bold' : '' }}">
-                    <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">
-                        {{ mb_substr($user->name, 0, 1) }}
-                    </div>
-                    {{ $user->name }}
-                </a>
-            @endforeach
-        @endif
+                                @if ($managedUsers->count() > 0)
+                                    <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">
+                                        تقويمات مفوضة لي إدارتها</div>
+                                    @foreach ($managedUsers as $user)
+                                        <a href="{{ route('calendar.index', ['year' => $year, 'target_user' => $user->id]) }}"
+                                            class="flex items-center gap-3 p-3 hover:bg-green-50 transition {{ request('target_user') == $user->id ? 'bg-green-50 text-green-700 font-bold' : '' }}">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">
+                                                {{ mb_substr($user->name, 0, 1) }}
+                                            </div>
+                                            {{ $user->name }}
+                                        </a>
+                                    @endforeach
+                                @endif
 
-        @if(isset($myDepartments) && $myDepartments->count() > 0)
-            <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">أقسامي</div>
-            @foreach($myDepartments as $dept)
-                <a href="{{ route('calendar.department', ['orgUnit' => $dept->id, 'year' => $year]) }}" 
-                   class="flex items-center gap-3 p-3 hover:bg-purple-50 transition">
-                    <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                        </svg>
-                    </div>
-                    {{ $dept->name }}
-                </a>
-            @endforeach
-        @endif
-    </div>
-</div>
+                                @if (isset($myDepartments) && $myDepartments->count() > 0)
+                                    <div class="p-2 border-b border-gray-50 bg-gray-50 text-xs font-bold text-gray-500">
+                                        أقسامي</div>
+                                    @foreach ($myDepartments as $dept)
+                                        <a href="{{ route('calendar.department', ['orgUnit' => $dept->id, 'year' => $year]) }}"
+                                            class="flex items-center gap-3 p-3 hover:bg-purple-50 transition">
+                                            <div
+                                                class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                </svg>
+                                            </div>
+                                            {{ $dept->name }}
+                                        </a>
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
                         {{-- Notification Dropdown --}}
-                        <div class="relative" x-data="{ open: false, toggle() { this.open = !this.open } }"
-                            @click.outside="open = false">
+                        <div class="relative" x-data="{ open: false, toggle() { this.open = !this.open } }" @click.outside="open = false">
                             <button @click="toggle()"
                                 class="bg-white/10 hover:bg-white/20 p-3 rounded-xl border border-white/30 transition text-white relative">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
-                                @if(auth()->user()->unreadNotifications->count() > 0)
+                                @if (auth()->user()->unreadNotifications->count() > 0)
                                     <span class="absolute -top-1 -right-1 flex h-4 w-4">
                                         <span
                                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
@@ -107,7 +120,7 @@
                                 class="absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-2xl z-50 overflow-hidden text-gray-800">
                                 <div class="bg-gray-50 p-3 border-b border-gray-100 flex justify-between items-center">
                                     <span class="font-bold">التنبيهات</span>
-                                    @if(auth()->user()->notifications->count() > 0)
+                                    @if (auth()->user()->notifications->count() > 0)
                                         <form action="{{ route('notifications.delete_all') }}" method="POST">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="text-xs text-red-500 hover:text-red-700">حذف
@@ -175,23 +188,29 @@
         </header>
 
         <main class="container mx-auto px-4">
-
             {{-- Toolbar --}}
-            {{-- Toolbar --}}
+            <div class="flex gap-4 mb-4">
+                <div>التقويم الشخصي</div>
+                <div>المفوض</div>
+                <div>المديرية</div>
+            </div>
             <div
                 class="bg-white dark:bg-[#1b2e4b] rounded-xl shadow-lg p-4 mb-6 flex flex-wrap items-center justify-between gap-4 print:hidden">
                 <div class="flex items-center gap-4">
                     <button @click="changeYear(1)"
-                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300"><x-calendar.icons.chevron-left
-                            class="w-6 h-6" /></button>
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300">
+                        <x-calendar.icons.chevron-right class="w-6 h-6" />
+                    </button>
                     <span class="text-2xl font-bold text-emerald-900 dark:text-emerald-400" x-text="year"></span>
                     <button @click="changeYear(-1)"
-                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300"><x-calendar.icons.chevron-right
-                            class="w-6 h-6" /></button>
+                        class="p-2 hover:bg-gray-100 dark:hover:bg-[#0e1726] rounded-full transition text-gray-700 dark:text-gray-300">
+                        <x-calendar.icons.chevron-left class="w-6 h-6" />
+                    </button>
 
                     <form action="{{ route('calendar.refresh') }}" method="POST" class="inline mr-2">
                         @csrf <input type="hidden" name="year" :value="year">
-                        <button type="submit" class="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition"
+                        <button type="submit"
+                            class="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 rounded-lg transition"
                             title="تحديث البيانات">
                             <x-calendar.icons.refresh class="w-6 h-6" />
                         </button>
@@ -207,7 +226,9 @@
                 <div class="flex bg-gray-100 dark:bg-[#0e1726] p-1 rounded-lg">
                     <template x-for="view in ['day','month', 'year']">
                         <button @click="viewType = view"
-                            :class="viewType === view ? 'bg-white dark:bg-[#1b2e4b] shadow text-emerald-700 dark:text-emerald-400' : 'text-gray-500 dark:text-gray-400'"
+                            :class="viewType === view ?
+                                'bg-white dark:bg-[#1b2e4b] shadow text-emerald-700 dark:text-emerald-400' :
+                                'text-gray-500 dark:text-gray-400'"
                             class="px-4 py-2 rounded-md font-bold transition capitalize"
                             x-text="view === 'day' ? 'يومي' : (view === 'year' ? 'سنوي' : 'شهري')"></button>
                     </template>
@@ -414,7 +435,9 @@
                             days.push({
                                 day: d,
                                 // Calculate Hijri Day Number
-                                hijriDay: new Intl.DateTimeFormat('ar-SA-u-ca-islamic', { day: 'numeric' }).format(cur),
+                                hijriDay: new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                                    day: 'numeric'
+                                }).format(cur),
                                 hasEvent: evs.length > 0,
                                 events: evs
                             });

@@ -11,6 +11,8 @@
 
     <div class="p-6 bg-slate-50 min-h-screen" x-data="{ activeTab: 'info' }">
         <div class="max-w-5xl mx-auto">
+            
+           
 
             {{-- Tabs Header --}}
             <div class="flex gap-4 mb-6 border-b border-gray-200">
@@ -119,76 +121,135 @@
                                 <input type="hidden" name="org_unit_id" value="{{ $orgUnit->id }}">
                                 
                                 @php
-                                    $positionOptions = $allPositions->map(function($pos) {
+                                    $positionOptions = $availablePositions->map(function($pos) {
                                         return ['id' => $pos->id, 'name' => $pos->title, 'code' => $pos->job_code];
                                     })->values();
                                 @endphp
 
-                                <label class="block text-sm font-bold text-gray-600 mb-2">الوظيفة (Job Title)</label>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">
+                                    <span class="material-icons text-sm align-middle">work</span>
+                                    الوظيفة (Job Title)
+                                </label>
                                 <div class="mb-4">
-                                    <x-forms.searchable-select 
-                                        name="position_id" 
-                                        :options="$positionOptions" 
-                                        placeholder="-- اختر الوظيفة --" 
-                                        :required="true"
-                                    />
+                                    @if($availablePositions->count() > 0)
+                                        <x-forms.searchable-select 
+                                            name="position_id" 
+                                            :options="$positionOptions" 
+                                            placeholder="-- ابحث واختر الوظيفة --" 
+                                            :required="true"
+                                        />
+                                        <p class="text-xs text-gray-500 mt-2 flex items-center gap-1">
+                                            <span class="material-icons text-xs">info</span>
+                                            متاح {{ $availablePositions->count() }} وظيفة للربط
+                                        </p>
+                                    @else
+                                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
+                                            <span class="material-icons text-gray-400 text-2xl mb-2">check_circle</span>
+                                            <p class="text-sm text-gray-600 font-semibold">جميع الوظائف مرتبطة بالفعل</p>
+                                            <p class="text-xs text-gray-500 mt-1">لا توجد وظائف متاحة للربط</p>
+                                        </div>
+                                    @endif
                                 </div>
 
-                                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white py-3 rounded-lg font-bold transition flex justify-center items-center gap-2">
-                                    <span class="material-icons text-sm">link</span>
-                                    ربط الوظيفة
-                                </button>
+                                @if($availablePositions->count() > 0)
+                                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-lg font-bold transition transform hover:scale-[1.02] flex justify-center items-center gap-2 shadow-md">
+                                        <span class="material-icons text-sm">link</span>
+                                        ربط الوظيفة
+                                    </button>
+                                @endif
                                 <p class="text-xs text-gray-400 mt-3 text-center">
-                                    لا تجد الوظيفة المطلوبة؟ <a href="{{ route('positions.index') }}" class="text-emerald-600 hover:underline">إدارة الوظائف</a>
+                                    لا تجد الوظيفة المطلوبة؟ <a href="{{ route('positions.index') }}" class="text-emerald-600 hover:underline font-semibold">إدارة الوظائف</a>
                                 </p>
                             </form>
                         </div>
                     </div>
 
                     {{-- Right Column: List of Attached Positions --}}
-                    <div class="lg:col-span-2 space-y-4">
-                        @if($orgUnit->positions->count() > 0)
-                            @foreach($orgUnit->positions as $position)
-                                <div
-                                    class="bg-white rounded-xl border border-gray-200 p-5 flex justify-between items-start group hover:shadow-md transition">
-                                    <div>
-                                        <h4 class="font-bold text-lg text-gray-800 mb-1 flex items-center gap-2">
-                                            {{ $position->title }}
-                                            <span
-                                                class="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded font-mono">{{ $position->job_code }}</span>
-                                        </h4>
-                                        <div class="text-sm text-gray-500 space-y-1">
-                                            <p class="flex items-center gap-1">
-                                                <span class="material-icons text-sm text-gray-400">person</span>
-                                                @if($position->currentEmployees->count() > 0)
-                                                    <span class="text-emerald-600 font-bold">مشغول بواسطة:</span>
-                                                    {{ $position->currentEmployees->first()->employee->name ?? 'موظف' }}
-                                                @else
-                                                    <span class="text-red-500 font-bold">شاغر (Vacant)</span>
-                                                @endif
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <form action="{{ route('org_unit.positions.destroy') }}" method="POST"
-                                        onsubmit="return confirm('هل أنت متأكد من فك ارتباط هذه الوظيفة من الوحدة؟');">
-                                        @csrf @method('DELETE')
-                                        <input type="hidden" name="org_unit_id" value="{{ $orgUnit->id }}">
-                                        <input type="hidden" name="position_id" value="{{ $position->id }}">
-                                        <button type="submit"
-                                            class="text-gray-300 hover:text-red-500 p-2 rounded-full hover:bg-red-50 transition"
-                                            title="فك الارتباط">
-                                            <span class="material-icons">link_off</span>
-                                        </button>
-                                    </form>
-                                </div>
-                            @endforeach
-                        @else
-                            <div class="bg-white rounded-xl border-2 border-dashed border-gray-300 p-10 text-center">
-                                <span class="material-icons text-6xl text-gray-200 mb-3">work_off</span>
-                                <h3 class="text-gray-500 font-bold mb-1">لا توجد وظائف مرتبطة</h3>
-                                <p class="text-gray-400 text-sm">استخدم النموذج لإضافة وظائف لهذه الوحدة التنظيمية.</p>
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-bold text-gray-800 text-lg flex items-center gap-2">
+                                    <span class="material-icons text-emerald-600">list</span>
+                                    الوظائف المرتبطة
+                                </h3>
+                                <span class="bg-emerald-100 text-emerald-700 text-sm px-3 py-1 rounded-full font-bold">
+                                    {{ $orgUnit->positions->count() }} وظيفة
+                                </span>
                             </div>
-                        @endif
+
+                            @if($orgUnit->positions->count() > 0)
+                                <div class="space-y-3">
+                                    @foreach($orgUnit->positions as $position)
+                                        <div
+                                            class="bg-gray-50 rounded-lg border border-gray-200 p-4 flex justify-between items-start group hover:bg-white hover:shadow-sm transition-all duration-200">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-3 mb-2">
+                                                    <h4 class="font-bold text-base text-gray-800">
+                                                        {{ $position->title }}
+                                                    </h4>
+                                                    @if($position->job_code)
+                                                        <span
+                                                            class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded font-mono">
+                                                            {{ $position->job_code }}
+                                                        </span>
+                                                    @endif
+                                                </div>
+                                                @php
+                                                    // فلترة الموظفين حسب الوحدة التنظيمية الحالية
+                                                    $employeeInThisUnit = $position->currentEmployees
+                                                        ->where('org_unit_id', $orgUnit->id)
+                                                        ->first();
+                                                @endphp
+                                                <div class="flex items-center gap-4 text-sm">
+                                                    <div class="flex items-center gap-1">
+                                                        <span class="material-icons text-sm text-gray-400">person</span>
+                                                        @if($employeeInThisUnit)
+                                                            <span class="text-emerald-600 font-semibold">مشغول:</span>
+                                                            <span class="text-gray-700">
+                                                                {{ $employeeInThisUnit->user->name ?? 'موظف' }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-red-500 font-semibold">شاغر</span>
+                                                        @endif
+                                                    </div>
+                                                    @if($employeeInThisUnit)
+                                                        <div class="flex items-center gap-1">
+                                                            <span class="material-icons text-sm text-emerald-500">check_circle</span>
+                                                            <span class="text-emerald-600 text-xs">نشط</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <form action="{{ route('org_unit.positions.destroy') }}" method="POST"
+                                                onsubmit="return confirm('هل أنت متأكد من فك ارتباط الوظيفة \"{{ $position->title }}\" من هذه الوحدة؟');"
+                                                class="ml-4">
+                                                @csrf @method('DELETE')
+                                                <input type="hidden" name="org_unit_id" value="{{ $orgUnit->id }}">
+                                                <input type="hidden" name="position_id" value="{{ $position->id }}">
+                                                <button type="submit"
+                                                    class="text-gray-400 hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition-all duration-200 group"
+                                                    title="فك الارتباط">
+                                                    <span class="material-icons text-lg group-hover:scale-110 transition-transform">link_off</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 p-12 text-center">
+                                    <span class="material-icons text-6xl text-gray-300 mb-4 block">work_off</span>
+                                    <h3 class="text-gray-600 font-bold text-lg mb-2">لا توجد وظائف مرتبطة</h3>
+                                    <p class="text-gray-500 text-sm mb-4">استخدم النموذج على اليسار لإضافة وظائف لهذه الوحدة التنظيمية.</p>
+                                    @if($availablePositions->count() > 0)
+                                        <a href="{{ route('positions.index') }}" 
+                                           class="inline-flex items-center gap-2 text-emerald-600 hover:text-emerald-700 font-semibold text-sm">
+                                            <span class="material-icons text-sm">add_circle</span>
+                                            إضافة وظيفة جديدة
+                                        </a>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
                     </div>
                 </div>
             </div>

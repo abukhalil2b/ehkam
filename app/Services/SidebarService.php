@@ -170,6 +170,7 @@ class SidebarService
                     ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات', 'keywords' => 'statistics all sectors'],
                     ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1], 'keywords' => 'statistics quran'],
                     ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1], 'keywords' => 'statistics zakah'],
+                    ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية', 'params' => [1], 'keywords' => 'statistics bsc'],
                 ]
             ],
             'qr' => [
@@ -188,13 +189,15 @@ class SidebarService
             'admin_structure' => [
                 'title' => 'الهيكل',
                 'links' => [
-                    ['route' => 'org_unit.index', 'permission' => 'org_unit.index', 'label' => 'عرض هيكل الوحدة', 'keywords' => 'org unit structure view'],
-                    ['route' => 'org_unit.create', 'permission' => 'org_unit.store', 'label' => 'اضافة هيكل الوحدة', 'keywords' => 'org unit structure create add'],
-                    ['route' => 'positions.index', 'permission' => 'admin_position.index', 'label' => 'إدارة الهيكل الوظيفي', 'keywords' => 'positions management structure'],
-                    ['route' => 'positions.create', 'permission' => 'admin_position.create', 'label' => 'إضافة منصب جديد', 'keywords' => 'create position add new'],
-                    ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد', 'keywords' => 'new user employee create'],
+                    ['route' => 'org_unit.index', 'permission' => 'org_unit.index', 'label' => 'عرض الهيكل الكامل', 'keywords' => 'org unit structure view all'],
+                    ['route' => 'org_unit.directorates', 'permission' => 'org_unit.index', 'label' => 'إدارة المديريات', 'keywords' => 'directorates structure management'],
+                    ['route' => 'org_unit.departments', 'permission' => 'org_unit.index', 'label' => 'إدارة الدوائر', 'keywords' => 'departments structure management'],
+                    ['route' => 'org_unit.sections', 'permission' => 'org_unit.index', 'label' => 'إدارة الأقسام', 'keywords' => 'sections structure management'],
+                    ['route' => 'org_unit.create', 'permission' => 'org_unit.store', 'label' => 'إضافة وحدة جديدة', 'keywords' => 'org unit structure create add'],
+                    ['route' => 'positions.index', 'permission' => 'admin_position.index', 'label' => 'إدارة الوظائف', 'keywords' => 'positions management structure'],
+                    ['route' => 'positions.create', 'permission' => 'admin_position.create', 'label' => 'إضافة وظيفة جديدة', 'keywords' => 'create position add new'],
                     ['route' => 'admin_users.index', 'permission' => 'admin_users.index', 'label' => 'الموظفين', 'keywords' => 'users employees list'],
-                    ['route' => 'admin_users.create_for_sector', 'permission' => 'admin_users.create', 'label' => 'إنشاء موظف لحصر الاسهامات', 'keywords' => 'create user sector contribution'],
+                    ['route' => 'admin_users.create', 'permission' => 'admin_users.create', 'label' => 'موظف جديد', 'keywords' => 'new user employee create'],
                 ]
             ],
             'permission' => [

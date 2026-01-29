@@ -52,7 +52,7 @@
                     <label for="start_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">تاريخ
                         البدء:</label>
                     <input type="date" id="start_date" name="start_date"
-                        value="{{ old('start_date', $activeRecord->start_date) }}" required>
+                        value="{{ old('start_date', $activeRecord->start_date?->format('Y-m-d')) }}" required>
                     @error('start_date')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                     @enderror
@@ -63,7 +63,7 @@
                     <label for="end_date" class="block text-sm font-medium text-gray-700 dark:text-gray-300">تاريخ
                         الانتهاء (اختياري):</label>
                     <input type="date" id="end_date" name="end_date"
-                        value="{{ old('end_date', $activeRecord->end_date) }}">
+                        value="{{ old('end_date', $activeRecord->end_date?->format('Y-m-d')) }}">
                     <p class="text-xs text-gray-500 mt-1">تجاهل هذا الحقل إذا كان المسمى الوظيفي لا يزال نشطاً.</p>
                     @error('end_date')
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>

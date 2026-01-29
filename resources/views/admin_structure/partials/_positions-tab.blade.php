@@ -51,21 +51,6 @@
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
-            <div>
-                <label for="reports_to_position_id" class="block text-sm font-medium text-gray-700">
-                    يتبع مباشرةً إلى (الرئيس المباشر)
-                </label>
-                <select id="reports_to_position_id" name="reports_to_position_id"
-                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm p-2 border">
-                    <option value="">(لا يوجد / وظيفة عليا)</option>
-                    @foreach ($allPositions as $position)
-                        <option value="{{ $position->id }}"
-                            {{ old('reports_to_position_id') == $position->id ? 'selected' : '' }}>
-                            {{ $position->title }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
             <button type="submit"
                 class="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 transition">
                 <span class="material-icons text-lg -mt-1 rtl:ml-1">add</span>

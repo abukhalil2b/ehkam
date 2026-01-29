@@ -1,0 +1,35 @@
+---
+description: القاعدة الذهبية لبنية الهيكل التنظيمي والوظائف والموظفين
+alwaysApply: true
+---
+
+# القاعدة الذهبية للهيكل التنظيمي
+
+## البنية الأساسية
+
+1. **الهيكل التنظيمي (OrgUnits)**: يُبنى بالـ `parent_id` (علاقة هرمية ذاتية)
+2. **الوظائف (Positions)**: تُربط بالوحدات التنظيمية عبر جدول `org_unit_positions` (Many-to-Many)
+3. **الموظفون (Users)**: يُربطون بالوظائف عبر جدول `employee_assignments`
+
+## العلاقات
+
+```
+OrgUnit (parent_id → self)
+    ↓
+org_unit_positions (pivot)
+    ↓
+Position
+    ↓
+employee_assignments
+    ↓
+User
+```
+
+## الجداول
+
+| الجدول | الوصف |
+|--------|-------|
+| `org_units` | الوحدات التنظيمية (parent_id للهرمية) |
+| `positions` | المسميات الوظيفية |
+| `org_unit_positions` | ربط الوظائف بالوحدات |
+| `employee_assignments` | ربط الموظفين بالوظائف (مع start_date, end_date) |

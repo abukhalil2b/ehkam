@@ -46,7 +46,8 @@ use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
 
-Route::view('/', 'welcome2')->name('home');
+// Route::view('/', 'welcome2')->name('home');
+Route::view('/', 'welcome')->name('home');
 
 // ========== DOCUMENTATION ROUTES ==========
 Route::group(['middleware' => ['auth']], function () {
@@ -418,6 +419,23 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('assessment_questions.update_ordered');
 });
 
+Route::get('statistic/bsc', [StatisticController::class, 'bsc'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.bsc');
+
+// KPI API Routes
+Route::post('statistic/kpi/update-value', [StatisticController::class, 'updateKpiValue'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.update_value');
+
+Route::post('statistic/kpi/update-justification', [StatisticController::class, 'updateKpiJustification'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.update_justification');
+
+Route::get('statistic/kpi/data', [StatisticController::class, 'getKpiData'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.data');
+
 Route::get('statistic/index', [StatisticController::class, 'index'])
     ->middleware('permission:statistic.index')
     ->name('statistic.index');
@@ -746,6 +764,29 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:org_unit.edit')
         ->name('org_unit.positions.destroy');
 
+    // Specialized Structure Management Pages
+    Route::get('org_unit/directorates', [OrgUnitController::class, 'directorates'])
+        ->middleware('permission:org_unit.index')
+        ->name('org_unit.directorates');
+
+    Route::get('org_unit/departments', [OrgUnitController::class, 'departments'])
+        ->middleware('permission:org_unit.index')
+        ->name('org_unit.departments');
+
+    Route::get('org_unit/sections', [OrgUnitController::class, 'sections'])
+        ->middleware('permission:org_unit.index')
+        ->name('org_unit.sections');
+
+    // Quick Store for specialized pages
+    Route::post('org_unit/store-quick', [OrgUnitController::class, 'storeQuick'])
+        ->middleware('permission:org_unit.create')
+        ->name('org_unit.store_quick');
+
+    // Delete Unit with validation
+    Route::delete('org_unit/{orgUnit}', [OrgUnitController::class, 'destroy'])
+        ->middleware('permission:org_unit.delete')
+        ->name('org_unit.destroy');
+
     // Admin Workflows Dashboard
     Route::get('/admin/workflows', [WorkflowController::class, 'index'])
         ->middleware('permission:admin.workflow.index')
@@ -871,7 +912,7 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
     // Competition Management
     Route::resource('competitions', AdminCompetitionController::class);
     Route::post('/competitions/{competition}/generate-ai', [AdminCompetitionController::class, 'generateWithAI'])
-    ->name('competitions.generate');
+        ->name('competitions.generate');
     // Question Management
     Route::post('competitions/{competition}/questions', [AdminCompetitionController::class, 'storeQuestion'])
         ->name('competitions.questions.store');

@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Aim;
 use App\Models\Indicator;
 use App\Models\Sector;
+use App\Models\Step;
 use App\Models\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -22,7 +23,7 @@ class DashboardController extends Controller
         $tasks = Task::where('assigned_to', $loggedUser->id)->get();
 
         // 1. Step Status/Phase Stats
-        $stepsByPhase = \App\Models\Step::select('phase', \Illuminate\Support\Facades\DB::raw('count(*) as total'))
+        $stepsByPhase = Step::select('phase', DB::raw('count(*) as total'))
             ->groupBy('phase')
             ->pluck('total', 'phase')
             ->toArray();
@@ -35,13 +36,13 @@ class DashboardController extends Controller
         }
 
         // 2. Active Alerts (Steps approaching end date)
-        $activeAlerts = \App\Models\Step::whereDate('end_date', '<', now())
+        $activeAlerts = Step::whereDate('end_date', '<', now())
             ->whereDate('end_date', '>=', now()->subDays(7))
             ->count();
 
         // 3. Project Health (Based on steps with end dates)
-        $totalSteps = \App\Models\Step::whereNotNull('end_date')->count();
-        $stepsOnTime = \App\Models\Step::whereNotNull('end_date')
+        $totalSteps = Step::whereNotNull('end_date')->count();
+        $stepsOnTime = Step::whereNotNull('end_date')
             ->whereDate('end_date', '>=', now())
             ->count();
         $healthPercentage = $totalSteps > 0 ? round(($stepsOnTime / $totalSteps) * 100) : 100;
@@ -66,7 +67,7 @@ class DashboardController extends Controller
 
         if ($activeRole && $activeRole->slug === 'sector') {
             $sector = $loggedUser->sectors()->first();
-            $aims = \App\Models\Aim::all();
+            $aims = Aim::all();
             return view('dashboard_sector', compact('tasks', 'sector', 'aims', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows', 'activeRole'));
         }
 
