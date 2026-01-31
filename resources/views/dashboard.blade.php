@@ -188,7 +188,7 @@
     </div>
 
     <!-- Chart.js Implementation -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ asset('assets/js/chart.min.js') }}"></script>
     <script>
         // Project Status Chart
         const projectCtx = document.getElementById('projectStatusChart').getContext('2d');

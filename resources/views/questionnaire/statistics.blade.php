@@ -1,6 +1,6 @@
 <x-app-layout>
-    {{-- Chart.js CDN --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    {{-- Chart.js Local --}}
+    <script src="{{ asset('assets/js/chart.min.js') }}"></script>
 
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 font-sans" dir="rtl">
 

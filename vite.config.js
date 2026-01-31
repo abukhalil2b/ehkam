@@ -24,4 +24,17 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    build: {
+        sourcemap: false,
+        rollupOptions: {
+            output: {
+                // Remove source map comments from minified files
+                generatedCode: {
+                    constBindings: true,
+                },
+            },
+        },
+    },
+    // Suppress warnings for external resources
+    logLevel: 'error',
 });

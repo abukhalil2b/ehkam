@@ -4,14 +4,14 @@
     $sidebarSections = $sidebarService->getSidebarSections();
 @endphp
 
-<div :class="{ 'dark text-white-dark': $store.app.semidark }">
+<div :class="{ 'dark text-white-dark': $store.app.semidark }" x-cloak>
     <nav x-data="sidebar"
         class="sidebar fixed min-h-screen h-full top-0 bottom-0 w-[260px] shadow-[5px_0_25px_0_rgba(94,92,154,0.1)] z-50 transition-all duration-300">
         <div class="bg-white dark:bg-[#0e1726] h-full overflow-y-scroll print:hidden">
             <div class="flex justify-between items-center px-4 py-3 ">
                 <a href="{{ route('dashboard') }}" class="main-logo flex items-center shrink-0">
                     <span class="text-[10px]">
-                        متابعة المشاريع والمؤشرات
+                          إحكام
                     </span>
                 </a>
                 <div class="flex items-center gap-2">
@@ -69,7 +69,7 @@
                                 <div class="flex items-center">
                                     {{-- Optional: Icon for the Category (Can be customized per section via SidebarService if
                                     needed, using general icon for now) --}}
-                                    <svg class="group-hover:!text-primary shrink-0" width="20" height="20" viewBox="0 0 24 24"
+                                    <svg class="group-hover:!text-primary shrink-0" width="20" height="20" ViewBox="0 0 24 24"
                                         fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path
                                             d="M2 12C2 8.22876 2 6.34315 3.17157 5.17157C4.34315 4 6.22876 4 10 4H14C17.7712 4 19.6569 4 20.8284 5.17157C22 6.34315 22 8.22876 22 12C22 15.7712 22 17.6569 20.8284 18.8284C19.6569 20 17.7712 20 14 20H10C6.22876 20 4.34315 20 3.17157 18.8284C2 17.6569 2 15.7712 2 12Z"

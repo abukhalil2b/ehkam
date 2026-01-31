@@ -47,7 +47,7 @@ use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
 
 // Route::view('/', 'welcome2')->name('home');
-Route::view('/', 'welcome')->name('home');
+Route::view('/', 'welcome2')->name('home');
 
 // ========== DOCUMENTATION ROUTES ==========
 Route::group(['middleware' => ['auth']], function () {

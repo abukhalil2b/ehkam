@@ -223,7 +223,7 @@
   </footer>
 
   <!-- مكتبة Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ asset('assets/js/chart.min.js') }}"></script>
 
   <script>
     // مراجع الرسوم لتدميرها قبل إعادة الإنشاء
