@@ -38,56 +38,36 @@
                             @enderror
                         </div>
 
-                        {{-- Start Date and Time --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                            {{-- Start Date --}}
-                            <div>
-                                <label for="start_date" class="block text-gray-700 font-bold mb-2">تاريخ البدء</label>
-                                <input type="date" id="start_date" name="start_date"
-                                    value="{{ old('start_date', date('Y-m-d')) }}"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('start_date') border-red-500 @enderror"
-                                    required>
-                                @error('start_date')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
+                        {{-- Workshop Days --}}
+                        <div class="mb-6">
+                            <label class="block text-gray-700 font-bold mb-2">أيام الورشة</label>
+                            <div id="days-container" class="space-y-3">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 day-item">
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">التاريخ</label>
+                                        <input type="date" name="days[0][date]"
+                                            value="{{ old('days.0.date', date('Y-m-d')) }}"
+                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">الوصف (مثال: اليوم الأول - اختياري)</label>
+                                        <input type="text" name="days[0][label]" value="{{ old('days.0.label') }}"
+                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            placeholder="مثال: اليوم الأول">
+                                    </div>
+                                </div>
                             </div>
-
-                            {{-- Start Time --}}
-                            <div>
-                                <label for="start_time" class="block text-gray-700 font-bold mb-2">وقت البدء</label>
-                                <input type="time" id="start_time" name="start_time"
-                                    value="{{ old('start_time', '09:00') }}"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('start_time') border-red-500 @enderror"
-                                    required>
-                                @error('start_time')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- End Date and Time (Optional) --}}
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                            {{-- End Date --}}
-                            <div>
-                                <label for="end_date" class="block text-gray-700 font-bold mb-2">تاريخ الانتهاء
-                                    (اختياري)</label>
-                                <input type="date" id="end_date" name="end_date" value="{{ old('end_date') }}"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('end_date') border-red-500 @enderror">
-                                @error('end_date')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
-
-                            {{-- End Time --}}
-                            <div>
-                                <label for="end_time" class="block text-gray-700 font-bold mb-2">وقت الانتهاء
-                                    (اختياري)</label>
-                                <input type="time" id="end_time" name="end_time" value="{{ old('end_time') }}"
-                                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('end_time') border-red-500 @enderror">
-                                @error('end_time')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            
+                            <button type="button"
+                                class="text-blue-600 hover:text-blue-800 font-semibold transition duration-150 ease-in-out mt-1"
+                                onclick="addDay()">
+                                + إضافة يوم آخر
+                            </button>
+                            
+                             @error('days.*.date')
+                                <p class="text-red-500 text-sm mt-1">يرجى إدخال تاريخ صحيح لكل يوم.</p>
+                            @enderror
                         </div>
 
                         {{-- Location --}}
@@ -137,3 +117,53 @@
     </form>
 
 </x-app-layout>
+
+<script>
+    let dayIndex = 1; // Start from 1 as 0 is already present
+
+    function addDay() {
+        const container = document.getElementById('days-container');
+        const newItem = document.createElement('div');
+        newItem.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 day-item relative';
+        
+        newItem.innerHTML = `
+            <div>
+                 <label class="block text-sm text-gray-600 mb-1">التاريخ</label>
+                <input type="date" name="days[${dayIndex}][date]"
+                    class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    required>
+            </div>
+            <div class="flex gap-2 items-end">
+                <div class="flex-grow">
+                     <label class="block text-sm text-gray-600 mb-1">الوصف</label>
+                    <input type="text" name="days[${dayIndex}][label]"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="مثال: اليوم الثاني">
+                </div>
+                <button type="button" onclick="removeDay(this)"
+                    class="text-red-600 hover:text-red-800 font-semibold p-2 transition duration-150 ease-in-out whitespace-nowrap mb-1">
+                    حذف
+                </button>
+            </div>
+        `;
+        container.appendChild(newItem);
+        dayIndex++;
+    }
+
+    function removeDay(button) {
+        const item = button.closest('.day-item');
+        item.remove();
+        reindexDays();
+    }
+
+    function reindexDays() {
+        const items = document.querySelectorAll('.day-item');
+        items.forEach((item, index) => {
+            const inputs = item.querySelectorAll('input');
+            // Assuming first input is date, second is label
+             if(inputs[0]) inputs[0].name = `days[${index}][date]`;
+             if(inputs[1]) inputs[1].name = `days[${index}][label]`;
+        });
+        dayIndex = items.length;
+    }
+</script>

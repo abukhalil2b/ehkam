@@ -7,7 +7,7 @@
                 <nav class="flex mb-4" aria-label="مسار التنقل">
                     <ol class="inline-flex items-center space-x-1 space-x-reverse rtl:space-x-reverse">
                         <li class="inline-flex items-center">
-                            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-blue-600 text-sm">
+                            <a href="{{ route('dashboard') }}" class="text-gray-600 hover:text-indigo-600 text-sm">
                                 الرئيسية
                             </a>
                         </li>
@@ -17,8 +17,8 @@
                                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                                     clip-rule="evenodd" />
                             </svg>
-                            <a href="{{ route('swot.index') }}" class="text-gray-600 hover:text-blue-600 text-sm">
-                                مشاريع SWOT
+                            <a href="{{ route('pestle.index') }}" class="text-gray-600 hover:text-indigo-600 text-sm">
+                                مشاريع PESTLE
                             </a>
                         </li>
                         <li class="flex items-center">
@@ -83,14 +83,14 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
 
                 <!-- Display Screen -->
-                <a href="{{ route('swot.display', $project->id) }}" target="_blank"
+                <a href="{{ route('pestle.display', $project->id) }}" target="_blank"
                     class="group bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 print:hidden">
                     <div class="flex items-center justify-between">
                         <div>
-                            <h3 class="font-semibold text-gray-900 group-hover:text-green-600 transition">
+                            <h3 class="font-semibold text-gray-900 group-hover:text-indigo-600 transition">
                                 شاشة العرض
                             </h3>
                             <p class="text-sm text-gray-500 mt-1">
@@ -98,9 +98,8 @@
                             </p>
                         </div>
 
-                        <div class="w-11 h-11 bg-green-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                        <div class="w-11 h-11 bg-indigo-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10
                              a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
@@ -152,22 +151,15 @@
                     </div>
                 </div>
 
-                <!-- Open Data / Export -->
-                <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm print:hidden">
+                <!-- Open Data / Export (Disabled for PESTLE for now) -->
+                <!--  <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm print:hidden opacity-50 cursor-not-allowed">
                     <h3 class="font-semibold text-gray-900 mb-1">
                         البيانات المفتوحة
                     </h3>
                     <p class="text-sm text-gray-500 mb-4">
-                        تصدير نتائج التحليل
+                        قريبا
                     </p>
-
-                    <div class="flex gap-2">
-                        <a href="{{ route('swot.export.excel', $project->id) }}"
-                            class="flex-1 text-center px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded-lg hover:bg-blue-100 transition">
-                            Excel
-                        </a>
-                    </div>
-                </div>
+                </div> -->
 
             </div>
 
@@ -191,8 +183,8 @@
                         <!-- Total Items -->
                         <div class="flex items-center justify-between pt-1">
                             <div class="flex items-center">
-                                <div class="w-11 h-11 bg-blue-100 rounded-lg flex items-center justify-center ml-3">
-                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor"
+                                <div class="w-11 h-11 bg-indigo-100 rounded-lg flex items-center justify-center ml-3">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -202,7 +194,7 @@
                                 <div>
                                     <p class="text-sm text-gray-600">إجمالي العناصر</p>
                                     <p class="text-2xl font-bold text-gray-900">
-                                        {{ $project->boards->count() }}
+                                        {{ $project->items->count() }}
                                     </p>
                                 </div>
                             </div>
@@ -232,7 +224,7 @@
                                 <div>
                                     <p class="text-sm text-gray-600">عدد المشاركين</p>
                                     <p class="text-2xl font-bold text-gray-900">
-                                        {{ $project->boards->groupBy('session_id')->count() }}
+                                        {{ $project->items->groupBy('session_id')->count() }}
                                     </p>
                                 </div>
                             </div>
@@ -243,12 +235,12 @@
                         </div>
 
                         <!-- Last Activity -->
-                        @if ($project->boards->isNotEmpty())
+                        @if ($project->items->isNotEmpty())
                             <div class="pt-5">
                                 <p class="text-xs text-gray-500">
                                     آخر إضافة:
                                     <span class="font-medium text-gray-700">
-                                        {{ $project->boards->sortByDesc('created_at')->first()->created_at->diffForHumans() }}
+                                        {{ $project->items->sortByDesc('created_at')->first()->created_at->diffForHumans() }}
                                     </span>
                                 </p>
                             </div>
@@ -257,65 +249,48 @@
                     </div>
                 </div>
 
-                <!-- SWOT Distribution -->
+                <!-- PESTLE Distribution -->
                 <div class="lg:col-span-2 bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                    <h3 class="font-semibold text-gray-900 mb-6">توزيع SWOT</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <h3 class="font-semibold text-gray-900 mb-6">توزيع PESTLE</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         @php
                             $categories = [
-                                'strength' => [
-                                    'title' => 'نقاط القوة',
-                                    'color' => 'green',
-                                    'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
-                                ],
-                                'weakness' => [
-                                    'title' => 'نقاط الضعف',
-                                    'color' => 'red',
-                                    'icon' =>
-                                        'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.998-.833-2.73 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z',
-                                ],
-                                'opportunity' => [
-                                    'title' => 'الفرص',
-                                    'color' => 'blue',
-                                    'icon' => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
-                                ],
-                                'threat' => [
-                                    'title' => 'التهديدات',
-                                    'color' => 'yellow',
-                                    'icon' =>
-                                        'M20.618 5.984A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z',
-                                ],
+                                'political' => ['title' => 'السياسية', 'color' => 'red', 'icon' => 'M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8M10 9H7a2 2 0 00-2 2v2a2 2 0 002 2h3'],
+                                'economic' => ['title' => 'الاقتصادية', 'color' => 'blue', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
+                                'social' => ['title' => 'الاجتماعية', 'color' => 'yellow', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
+                                'technological' => ['title' => 'التقنية', 'color' => 'purple', 'icon' => 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
+                                'legal' => ['title' => 'القانونية', 'color' => 'gray', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
+                                'environmental' => ['title' => 'البيئية', 'color' => 'emerald', 'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707'],
                             ];
                         @endphp
 
                         @foreach ($categories as $type => $meta)
                             @php
-                                $count = $project->boards->where('type', $type)->count();
+                                $count = $project->items->where('type', $type)->count();
                                 $percentage =
-                                    $project->boards->count() > 0 ? ($count / $project->boards->count()) * 100 : 0;
+                                    $project->items->count() > 0 ? ($count / $project->items->count()) * 100 : 0;
                             @endphp
-                            <div
-                                class="bg-{{ $meta['color'] }}-50 border border-{{ $meta['color'] }}-200 rounded-xl p-4">
+                            <div class="bg-{{ $meta['color'] }}-50 border border-{{ $meta['color'] }}-200 rounded-xl p-3">
                                 <div class="flex items-center justify-between mb-2">
                                     <div
                                         class="w-8 h-8 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-{{ $meta['color'] }}-600" fill="none"
-                                            stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 text-{{ $meta['color'] }}-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="{{ $meta['icon'] }}" />
                                         </svg>
                                     </div>
-                                    <span
-                                        class="text-{{ $meta['color'] }}-700 font-bold text-lg">{{ $count }}</span>
+                                    <span class="text-{{ $meta['color'] }}-700 font-bold text-lg">{{ $count }}</span>
                                 </div>
-                                <h4 class="font-semibold text-{{ $meta['color'] }}-800 mb-1">{{ $meta['title'] }}
+                                <h4 class="font-semibold text-{{ $meta['color'] }}-800 mb-1 text-xs">{{ $meta['title'] }}
                                 </h4>
                                 <div class="w-full bg-{{ $meta['color'] }}-200 rounded-full h-2">
                                     <div class="bg-{{ $meta['color'] }}-600 h-2 rounded-full transition-all duration-500"
                                         style="width: {{ $percentage }}%"></div>
                                 </div>
-                                <p class="text-xs text-{{ $meta['color'] }}-700 mt-1">
-                                    {{ number_format($percentage, 1) }}%</p>
+                                <p class="text-[10px] text-{{ $meta['color'] }}-700 mt-1">
+                                    {{ number_format($percentage, 1) }}%
+                                </p>
                             </div>
                         @endforeach
                     </div>
@@ -338,39 +313,32 @@
                 </div>
 
                 <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                         @foreach ($categories as $type => $meta)
                             <div
                                 class="border-2 border-{{ $meta['color'] }}-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg">
-                                <div
-                                    class="bg-{{ $meta['color'] }}-100 p-4 border-b border-{{ $meta['color'] }}-200">
+                                <div class="bg-{{ $meta['color'] }}-100 p-3 border-b border-{{ $meta['color'] }}-200">
                                     <div class="flex items-center justify-between">
-                                        <h3 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h3>
+                                        <h3 class="font-bold text-{{ $meta['color'] }}-900 text-sm">{{ $meta['title'] }}
+                                        </h3>
                                         <span
-                                            class="px-2 py-1 bg-{{ $meta['color'] }}-200 text-{{ $meta['color'] }}-800 text-xs font-medium rounded transition-all duration-300"
+                                            class="px-2 py-0.5 bg-{{ $meta['color'] }}-200 text-{{ $meta['color'] }}-800 text-[10px] font-medium rounded transition-all duration-300"
                                             id="count-{{ $type }}">
-                                            {{ $project->boards->where('type', $type)->count() }}
+                                            {{ $project->items->where('type', $type)->count() }}
                                         </span>
                                     </div>
                                 </div>
-                                <div class="max-h-80 overflow-y-auto p-4 drop-zone transition-all duration-200 min-h-[200px]"
-                                    data-type="{{ $type }}" ondragover="onDragOver(event)"
-                                    ondrop="onDrop(event)" ondragenter="onDragEnter(event)"
-                                    ondragleave="onDragLeave(event)">
-                                    <div class="space-y-3" id="items-{{ $type }}">
-                                        @forelse($project->boards->where('type', $type) as $item)
-                                            <div class="bg-white border-2 border-gray-200 rounded-lg p-3 cursor-move hover:shadow-lg hover:border-{{ $meta['color'] }}-300 transition-all duration-200 drag-item group"
-                                                draggable="true" data-id="{{ $item->id }}"
-                                                data-type="{{ $type }}" ondragstart="onDragStart(event)"
-                                                ondragend="onDragEnd(event)">
-                                                <div class="flex justify-between items-start gap-2">
-                                                    <div class="flex items-start gap-2 flex-1">
-                                                        <svg class="w-4 h-4 text-gray-400 mt-0.5 group-hover:text-{{ $meta['color'] }}-500 transition-colors flex-shrink-0"
-                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                stroke-width="2" d="M4 8h16M4 16h16" />
-                                                        </svg>
-                                                        <p class="text-sm text-gray-800 flex-1 leading-relaxed"
+                                <div class="max-h-80 overflow-y-auto p-2 drop-zone transition-all duration-200 min-h-[200px]"
+                                    data-type="{{ $type }}" ondragover="onDragOver(event)" ondrop="onDrop(event)"
+                                    ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)">
+                                    <div class="space-y-2" id="items-{{ $type }}">
+                                        @forelse($project->items->where('type', $type) as $item)
+                                            <div class="bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-lg hover:border-{{ $meta['color'] }}-300 transition-all duration-200 drag-item group"
+                                                draggable="true" data-id="{{ $item->id }}" data-type="{{ $type }}"
+                                                ondragstart="onDragStart(event)" ondragend="onDragEnd(event)">
+                                                <div class="flex justify-between items-start gap-1">
+                                                    <div class="flex items-start gap-1 flex-1">
+                                                        <p class="text-xs text-gray-800 flex-1 leading-relaxed font-medium"
                                                             id="content-{{ $item->id }}">{{ $item->content }}</p>
                                                     </div>
                                                     <div class="flex items-center gap-1 flex-shrink-0">
@@ -378,43 +346,24 @@
                                                             onclick="openEditModal({{ $item->id }}, '{{ addslashes($item->content) }}')"
                                                             class="text-gray-400 hover:text-blue-600 transition-colors"
                                                             title="تعديل">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor"
                                                                 viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round"
                                                                     stroke-width="2"
                                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                             </svg>
                                                         </button>
-                                                        <button onclick="copyText('{{ addslashes($item->content) }}')"
-                                                            class="text-gray-400 hover:text-{{ $meta['color'] }}-600 transition-colors"
-                                                            title="نسخ النص">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                                            </svg>
-                                                        </button>
                                                     </div>
                                                 </div>
                                                 <div
-                                                    class="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+                                                    class="flex items-center justify-between mt-2 pt-1 border-t border-gray-100">
                                                     <span
-                                                        class="text-xs text-gray-600 font-medium">{{ $item->participant_name }}</span>
-                                                    <span
-                                                        class="text-xs text-gray-400">{{ $item->created_at->diffForHumans() }}</span>
+                                                        class="text-[10px] text-gray-500 font-medium truncate max-w-[80px]">{{ $item->participant_name }}</span>
                                                 </div>
                                             </div>
                                         @empty
-                                            <div class="text-center py-12 empty-state">
-                                                <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none"
-                                                    stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="1"
-                                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                                </svg>
-                                                <p class="text-gray-500 text-sm font-medium">لا توجد عناصر</p>
-                                                <p class="text-gray-400 text-xs mt-1">اسحب العناصر هنا</p>
+                                            <div class="text-center py-8 empty-state">
+                                                <p class="text-gray-400 text-[10px] mt-1">لا توجد عناصر</p>
                                             </div>
                                         @endforelse
                                     </div>
@@ -425,7 +374,7 @@
                 </div>
             </div>
 
-            <!-- Finalized Content -->
+            <!-- Finalized Content (Summary & Strategies) -->
             @if ($project->finalize)
                 <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
                     <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-purple-50 to-purple-25">
@@ -439,247 +388,185 @@
                                 </p>
                             </div>
                             <div class="flex items-center">
-            <a href="{{ route('swot.finalize', $project->id) }}"
-                class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center">
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                تعديل
-            </a>
-        </div>
-    </div>
-    </div>
+                                <a href="{{ route('pestle.finalize', $project->id) }}"
+                                    class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center">
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    تعديل
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
-    <div class="p-6">
-        <!-- Summary -->
-        <div class="mb-8">
-            <div class="flex items-center gap-2 mb-3">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h3 class="text-lg font-semibold text-gray-900">ملخص التحليل</h3>
-            </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                <p class="text-gray-800 leading-relaxed whitespace-pre-line">
-                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}</p>
-            </div>
-        </div>
-
-        <!-- BSC Strategies -->
-        @if(isset($bscStrategies) && collect($bscStrategies)->filter()->isNotEmpty())
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات المقترحة</h3>
-                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">بطاقة الأداء المتوازن</span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @php
-                    $bscMeta = [
-                        'financial' => ['title' => 'البعد المالي', 'color' => 'emerald', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        'beneficiaries' => ['title' => 'بعد المستفيدين', 'color' => 'blue', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
-                        'internal_processes' => ['title' => 'العمليات الداخلية', 'color' => 'purple', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
-                        'learning_growth' => ['title' => 'التعلم والنمو', 'color' => 'amber', 'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-                    ];
-                @endphp
-
-                @foreach($bscMeta as $type => $meta)
-                    @php $strategy = $bscStrategies[$type] ?? null; @endphp
-                    @if($strategy)
-                    <div class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-{{ $meta['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $meta['icon'] }}" />
+                    <div class="p-6">
+                        <!-- Summary -->
+                        <div class="mb-8">
+                            <div class="flex items-center gap-2 mb-3">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
+                                <h3 class="text-lg font-semibold text-gray-900">ملخص التحليل</h3>
                             </div>
-                            <h4 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h4>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                                <p class="text-gray-800 leading-relaxed whitespace-pre-line">
+                                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}
+                                </p>
+                            </div>
                         </div>
-                        
-                        <div class="space-y-3">
-                            @if($strategy->strategic_goal)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف الاستراتيجي</span>
-                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->strategic_goal }}</p>
+
+                        <!-- BSC Strategies (Adapted for PESTLE) -->
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات لكل مجال</h3>
                             </div>
-                            @endif
-                            
-                            @if($strategy->performance_indicator)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر الأداء</span>
-                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->performance_indicator }}</p>
-                            </div>
-                            @endif
-                            
-                            @if($strategy->initiatives && count($strategy->initiatives) > 0)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
-                                <ul class="mt-1 space-y-1">
-                                    @foreach($strategy->initiatives as $initiative)
-                                        @if($initiative)
-                                        <li class="flex items-start gap-2 text-sm text-gray-800">
-                                            <span class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
-                                            <span>{{ $initiative }}</span>
-                                        </li>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                @foreach($strategies as $type => $strategy)
+                                    @if($strategy)
+                                        @php $meta = $categories[$type] ?? null; @endphp
+                                        @if($meta)
+                                            <div
+                                                class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
+                                                <div class="flex items-center gap-2 mb-4">
+                                                    <div
+                                                        class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
+                                                        <svg class="w-5 h-5 text-{{ $meta['color'] }}-600" fill="none"
+                                                            stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                d="{{ $meta['icon'] }}" />
+                                                        </svg>
+                                                    </div>
+                                                    <h4 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h4>
+                                                </div>
+
+                                                <div class="space-y-3">
+                                                    @if($strategy->strategic_goal)
+                                                        <div>
+                                                            <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف
+                                                                الاستراتيجي</span>
+                                                            <p class="text-sm text-gray-800 mt-1">{{ $strategy->strategic_goal }}</p>
+                                                        </div>
+                                                    @endif
+
+                                                    @if($strategy->performance_indicator)
+                                                        <div>
+                                                            <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر
+                                                                الأداء</span>
+                                                            <p class="text-sm text-gray-800 mt-1">{{ $strategy->performance_indicator }}</p>
+                                                        </div>
+                                                    @endif
+
+                                                    @if($strategy->initiatives && count($strategy->initiatives) > 0)
+                                                        <div>
+                                                            <span
+                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
+                                                            <ul class="mt-1 space-y-1">
+                                                                @foreach($strategy->initiatives as $initiative)
+                                                                    @if($initiative)
+                                                                        <li class="flex items-start gap-2 text-sm text-gray-800">
+                                                                            <span class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
+                                                                            <span>{{ $initiative }}</span>
+                                                                        </li>
+                                                                    @endif
+                                                                @endforeach
+                                                            </ul>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         @endif
-                                    @endforeach
-                                </ul>
+                                    @endif
+                                @endforeach
                             </div>
-                            @endif
                         </div>
+
                     </div>
-                    @endif
-                @endforeach
-            </div>
-        </div>
-        @endif
-
-        <!-- Action Plan -->
-        @if ($project->finalize->action_items && count($project->finalize->action_items))
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <h3 class="text-lg font-semibold text-gray-900">خطة العمل</h3>
-                    </div>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                        {{ count($project->finalize->action_items) }} مهمة
-                    </span>
                 </div>
-
-                <div class="overflow-hidden border border-gray-200 rounded-xl">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    المهمة</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    المسؤول</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    الأولوية</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    موعد التسليم</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($project->finalize->action_items as $item)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $item['title'] }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-700">{{ $item['owner'] ?? '-' }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @php
-                                            $priorityColors = [
-                                                'High' => 'red',
-                                                'Medium' => 'yellow',
-                                                'Low' => 'green',
-                                            ];
-                                            $color = $priorityColors[$item['priority'] ?? ''] ?? 'gray';
-                                        @endphp
-                                        <span
-                                            class="px-2 py-1 text-xs rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
-                                            {{ $item['priority'] ?? 'غير محدد' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-700">
-                                            {{ $item['deadline'] ?? '-' }}</div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
-    </div>
-    </div>
-    @endif
-
-    <!-- Admin Guide / Legend -->
-    <div class="mb-8 bg-gray-50 rounded-xl border border-gray-200 p-5 print:hidden">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center">
-            <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            دليل إجراءات التحكم
-        </h3>
-        <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
-                <div class="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <span class="font-bold text-gray-900 block mb-1">إنهاء المشروع (بدء الاستراتيجية)</span>
-                    <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة العصف الذهني. سينقلك النظام لصفحة خاصة لكتابة "ملخص التحليل"، "استراتيجيات BSC"، و"خطة العمل".</p>
-                </div>
-            </div>
-            
-            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
-                <div class="p-2 bg-yellow-100 text-yellow-600 rounded-lg shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                </div>
-                <div>
-                    <span class="font-bold text-gray-900 block mb-1">تعطيل المشروع (إغلاق الجلسة)</span>
-                    <p class="text-gray-600">هذا الإجراء يوقف "رابط المشاركة" وكود QR فوراً. لن يتمكن المشاركون من الدخول أو إضافة عناصر جديدة. استخدمه لحماية البيانات بعد انتهاء الجلسة.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 print:hidden">
-        <div class="flex gap-3">
-            <a href="{{ route('swot.index') }}"
-                class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                العودة للمشاريع
-            </a>
-        </div>
-
-        <div class="flex gap-3">
-            @if (!$project->is_finalized)
-                <a href="{{ route('swot.finalize', $project->id) }}"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    إنهاء المشروع
-                </a>
             @endif
 
-            @if ($project->is_active)
-                <form action="#" method="POST" onsubmit="return confirm('هل تريد تعطيل هذا المشروع؟');">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit"
-                        class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+            <!-- Admin Guide / Legend -->
+            <div class="mb-8 bg-gray-50 rounded-xl border border-gray-200 p-5 print:hidden">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    دليل إجراءات التحكم
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
+                        <div class="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-900 block mb-1">إنهاء المشروع (صياغة النتائج)</span>
+                            <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة التحليل. سينقلك النظام لصفحة خاصة
+                                لكتابة "ملخص التحليل"، وصياغة الأهداف لكل مجال من مجالات PESTLE.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
+                        <div class="p-2 bg-yellow-100 text-yellow-600 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-900 block mb-1">تعطيل المشروع (إغلاق الجلسة)</span>
+                            <p class="text-gray-600">هذا الإجراء يوقف "رابط المشاركة" وكود QR فوراً. لن يتمكن المشاركون
+                                من الدخول أو إضافة عناصر جديدة.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 print:hidden">
+                <div class="flex gap-3">
+                    <a href="{{ route('pestle.index') }}"
+                        class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        تعطيل المشروع
-                    </button>
-                </form>
-            @endif
+                        العودة للمشاريع
+                    </a>
+                </div>
+
+                <div class="flex gap-3">
+                    @if (!$project->is_finalized)
+                        <a href="{{ route('pestle.finalize', $project->id) }}"
+                            class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            إنهاء المشروع
+                        </a>
+                    @endif
+
+                    @if ($project->is_active)
+                        <form action="#" method="POST" onsubmit="return confirm('هل تريد تعطيل هذا المشروع؟');">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                تعطيل المشروع
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
         </div>
-    </div>
-    </div>
     </div>
 
     <!-- Toast Notification -->
@@ -690,34 +577,7 @@
     </div>
 
     <style>
-        .bg-green-25 {
-            background-color: rgba(240, 253, 244, 0.5);
-        }
-
-        .bg-red-25 {
-            background-color: rgba(254, 242, 242, 0.5);
-        }
-
-        .bg-blue-25 {
-            background-color: rgba(239, 246, 255, 0.5);
-        }
-
-        .bg-yellow-25 {
-            background-color: rgba(254, 252, 232, 0.5);
-        }
-
-        .bg-purple-25 {
-            background-color: rgba(250, 245, 255, 0.5);
-        }
-
-        .bg-emerald-25 {
-            background-color: rgba(236, 253, 245, 0.5);
-        }
-
-        .bg-amber-25 {
-            background-color: rgba(255, 251, 235, 0.5);
-        }
-
+        /* Styles remain largely the same, no changes needed for generic logic */
         /* Custom scrollbar */
         .max-h-80::-webkit-scrollbar {
             width: 6px;
@@ -855,7 +715,6 @@
             display: flex !important;
         }
 
-        /* Smooth textarea resize */
         #editContent {
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
@@ -864,7 +723,6 @@
             outline: none;
         }
 
-        /* Button loading state */
         .btn-loading {
             position: relative;
             pointer-events: none;
@@ -988,16 +846,16 @@
             draggedElement.classList.add('item-moving');
 
             setTimeout(() => {
-                fetch(`/swot/admin/board/${draggedId}/move`, {
-                        method: 'PATCH',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: JSON.stringify({
-                            type: newType
-                        })
+                fetch(`/pestle/board/${draggedId}/move`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        type: newType
                     })
+                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -1043,13 +901,8 @@
                             // Check if old container is now empty
                             if (oldContainer.children.length === 0) {
                                 oldContainer.innerHTML = `
-                                <div class="text-center py-12 empty-state">
-                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
-                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                    <p class="text-gray-500 text-sm font-medium">لا توجد عناصر</p>
-                                    <p class="text-gray-400 text-xs mt-1">اسحب العناصر هنا</p>
+                                <div class="text-center py-8 empty-state">
+                                    <p class="text-gray-400 text-[10px] mt-1">لا توجد عناصر</p>
                                 </div>
                             `;
                             }
@@ -1129,14 +982,14 @@
         }
 
         // Character counter
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const textarea = document.getElementById('editContent');
             if (textarea) {
                 textarea.addEventListener('input', updateCharCount);
             }
 
             // Close modal on Escape key
-            document.addEventListener('keydown', function(e) {
+            document.addEventListener('keydown', function (e) {
                 const modal = document.getElementById('editModal');
                 if (modal && e.key === 'Escape' && !modal.classList.contains('hidden')) {
                     closeEditModal();
@@ -1146,7 +999,7 @@
             // Close modal on backdrop click
             const modal = document.getElementById('editModal');
             if (modal) {
-                modal.addEventListener('click', function(e) {
+                modal.addEventListener('click', function (e) {
                     if (e.target === this) {
                         closeEditModal();
                     }
@@ -1156,7 +1009,7 @@
             // Handle form submission
             const editForm = document.getElementById('editForm');
             if (editForm) {
-                editForm.addEventListener('submit', function(e) {
+                editForm.addEventListener('submit', function (e) {
                     e.preventDefault();
 
                     const content = document.getElementById('editContent').value.trim();
@@ -1174,17 +1027,17 @@
                     const submitBtn = e.target.querySelector('button[type="submit"]');
                     submitBtn.classList.add('btn-loading');
 
-                    fetch(`/swot/admin/board/${currentEditId}/update-content`, {
-                            method: 'PATCH',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .content
-                            },
-                            body: JSON.stringify({
-                                content
-                            })
+                    fetch(`/pestle/board/${currentEditId}/update`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content
+                        },
+                        body: JSON.stringify({
+                            content
                         })
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
@@ -1255,8 +1108,7 @@
                     <button type="submit"
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 13l4 4L19 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                         </svg>
                         حفظ التغييرات
                     </button>

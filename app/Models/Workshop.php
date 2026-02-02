@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Workshop extends Model
 {
-   protected $guarded = [];
+    protected $guarded = [];
 
     protected $casts = [
         'starts_at' => 'datetime:Y-m-d H:i',
@@ -24,5 +24,10 @@ class Workshop extends Model
     public function attendances()
     {
         return $this->hasMany(WorkshopAttendance::class);
+    }
+
+    public function days()
+    {
+        return $this->hasMany(WorkshopDay::class);
     }
 }

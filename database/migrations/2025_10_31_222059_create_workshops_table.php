@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -39,6 +38,26 @@ return new class extends Migration
             $table->timestamps();
             $table->index('workshop_id');
         });
+
+        Schema::create('workshop_days', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('workshop_id')->constrained('workshops')->onDelete('cascade');
+            $table->date('day_date');
+            $table->string('label')->nullable(); // e.g., "Day 1", "Session AM"
+            $table->boolean('is_active')->default(false); // To denote if this is the currently active day for check-in
+            $table->timestamps();
+        });
+
+        Schema::create('workshop_checkins', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('workshop_day_id')->constrained('workshop_days')->onDelete('cascade');
+            $table->foreignId('workshop_attendance_id')->constrained('workshop_attendances')->onDelete('cascade');
+            $table->enum('status', ['present', 'absent', 'late'])->default('present');
+            $table->timestamp('checkin_time')->useCurrent();
+            $table->timestamps();
+
+            $table->unique(['workshop_day_id', 'workshop_attendance_id'], 'unique_checkin');
+        });
     }
 
     /**
@@ -46,6 +65,8 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('workshop_checkins');
+        Schema::dropIfExists('workshop_days');
         Schema::dropIfExists('workshop_attendances');
         Schema::dropIfExists('workshops');
     }

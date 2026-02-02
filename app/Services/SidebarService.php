@@ -144,6 +144,12 @@ class SidebarService
                     ['route' => 'swot.index', 'permission' => 'swot.index', 'label' => 'تحليل سوات', 'keywords' => 'swot analysis'],
                 ]
             ],
+            'pestle' => [
+                'title' => 'تحليل بيستل',
+                'links' => [
+                    ['route' => 'pestle.index', 'permission' => 'pestle.index', 'label' => 'تحليل بيستل', 'keywords' => 'pestle analysis'],
+                ]
+            ],
             'questionnaire' => [
                 'title' => 'إستبانات',
                 'links' => [

@@ -15,10 +15,10 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4 text-gray-700">
 
-                    {{-- 1. Date --}}
+                    {{-- 1. Date Range --}}
                     <p>
-                        <strong class="font-semibold text-gray-900"> التاريخ:</strong>
-                        {{ \Carbon\Carbon::parse($workshop->date)->isoFormat('dddd، D MMMM YYYY') }}
+                        <strong class="font-semibold text-gray-900"> الفترة:</strong>
+                        من {{ $workshop->starts_at?->format('Y-m-d') }} إلى {{ $workshop->ends_at?->format('Y-m-d') }}
                     </p>
 
                     {{-- 2. Place --}}
@@ -33,12 +33,68 @@
                         <span class="text-blue-600">{{ $workshop->createdBy->name ?? '—' }}</span>
                     </p>
 
-                    {{-- 4. Creation Date (Optional but useful) --}}
+                    {{-- 4. Status --}}
                     <p>
-                        <strong class="font-semibold text-gray-900"> تاريخ التسجيل:</strong>
-                        {{ \Carbon\Carbon::parse($workshop->created_at)->diffForHumans() }}
+                        <strong class="font-semibold text-gray-900"> الحالة:</strong>
+                        <span class="{{ $workshop->is_active ? 'text-green-600' : 'text-red-600' }}">
+                            {{ $workshop->is_active ? 'نشط' : 'غير نشط' }}
+                        </span>
                     </p>
 
+                </div>
+
+                {{-- Days List --}}
+                <div class="mt-8 mb-8 bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold text-gray-900 text-lg flex items-center">
+                            <svg class="w-5 h-5 ml-2 text-blue-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            جدول أيام الورشة
+                        </h4>
+                        <a href="{{ route('workshop.edit', $workshop->id) }}#days-section"
+                            class="text-sm bg-white border border-blue-300 text-blue-700 hover:bg-blue-50 px-3 py-1.5 rounded-lg shadow-sm font-medium transition flex items-center">
+                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            إضافة يوم / تعديل الجدول
+                        </a>
+                    </div>
+
+                    <div class="flex flex-wrap gap-3">
+                        @forelse($workshop->days as $day)
+                            <div
+                                class="flex flex-col bg-white px-4 py-3 rounded-lg shadow-sm border border-gray-200 min-w-[140px] relative overflow-hidden group">
+                                <div
+                                    class="absolute top-0 right-0 w-1 h-full {{ $day->is_active ? 'bg-green-500' : 'bg-gray-200' }}">
+                                </div>
+                                <span
+                                    class="text-xs text-gray-500 mb-1 font-medium">{{ $day->label ?? 'يوم ' . $loop->iteration }}</span>
+                                <span class="font-bold text-gray-800 text-lg">{{ $day->day_date->format('Y-m-d') }}</span>
+                                <span
+                                    class="text-xs mt-1 {{ $day->is_active ? 'text-green-600 font-bold' : 'text-gray-400' }}">
+                                    {{ $day->is_active ? 'نشط اليوم' : 'غير نشط' }}
+                                </span>
+                            </div>
+                        @empty
+                            <div
+                                class="w-full text-center py-4 text-gray-500 bg-white rounded-lg border border-dashed border-gray-300">
+                                لا توجد أيام محددة لهذه الورشة بعد.
+                                <br>
+                                <a href="{{ route('workshop.edit', $workshop->id) }}"
+                                    class="text-blue-600 font-bold hover:underline mt-1 inline-block">
+                                    اضغط هنا لإضافة أيام
+                                </a>
+                            </div>
+                        @endforelse
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">
+                        <span class="font-bold text-gray-700">ملاحظة:</span> لإضافة "اليوم الثاني" أو أيام إضافية، اضغط
+                        على زر "إضافة يوم / تعديل الجدول" أعلاه.
+                    </p>
                 </div>
 
                 <hr class="my-8 border-gray-200">

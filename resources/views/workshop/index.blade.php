@@ -5,6 +5,36 @@
 
     <div class="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6 space-y-6">
 
+        {{-- Help / Info Section --}}
+        <div class="bg-blue-50 rounded-xl border border-blue-100 p-4 mb-6 shadow-sm">
+            <h3 class="font-bold text-blue-800 text-lg mb-2 flex items-center">
+                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                كيفية استخدام نظام الورش متعددة الأيام
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-blue-900">
+                <div class="bg-white p-3 rounded-lg border border-blue-100">
+                    <span class="font-bold block mb-1 text-blue-600">1. إنشاء الورشة</span>
+                    قم بإنشاء ورشة جديدة وحدد "الأيام" (مثال: اليوم الأول، اليوم الثاني) أثناء الإنشاء أو التعديل.
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-blue-100">
+                    <span class="font-bold block mb-1 text-blue-600">2. تسجيل الحضور</span>
+                    استخدم رابط "تسجيل الحضور". النظام سيكتشف تلقائياً "اليوم الحالي" بناءً على التاريخ لتسجيل الحضور
+                    لليوم الصحيح.
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-blue-100">
+                    <span class="font-bold block mb-1 text-blue-600">3. إضافة أيام لاحقاً</span>
+                    في أي وقت، يمكنك الدخول لصفحة "تعديل" الورشة وإضافة أيام جديدة (زر "بناء الجدول").
+                </div>
+                <div class="bg-white p-3 rounded-lg border border-blue-100">
+                    <span class="font-bold block mb-1 text-blue-600">4. التقارير</span>
+                    صفحة "تقرير الحضور" تعرض جدولاً تفصيلياً يوضح حضور كل مشترك في كل يوم من أيام الورشة بشكل منفصل.
+                </div>
+            </div>
+        </div>
+
         <!-- Header with Stats and Create Button -->
         <div
             class="bg-gradient-to-br from-white to-blue-50 rounded-2xl shadow-md border border-blue-100 p-6 flex flex-col md:flex-row md:items-center md:justify-between">
@@ -77,7 +107,7 @@
                                     @endif
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2
-                                                {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                                    {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7" />

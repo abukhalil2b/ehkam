@@ -9,7 +9,8 @@
     <div class="py-6">
         <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
-                <form action="{{ route('workshop.update', $workshop->id) }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ route('workshop.update', $workshop->id) }}" method="POST"
+                    enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
 
@@ -34,56 +35,44 @@
                         @enderror
                     </div>
 
-                    {{-- Start Date and Time --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        {{-- Start Date --}}
-                        <div>
-                            <label for="start_date" class="block text-gray-700 font-bold mb-2">تاريخ البدء</label>
-                            <input type="date" id="start_date" name="start_date"
-                                value="{{ old('start_date', $workshop->starts_at->format('Y-m-d')) }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('start_date') border-red-500 @enderror"
-                                required>
-                            @error('start_date')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                    {{-- Workshop Days --}}
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2">أيام الورشة</label>
+                        <div id="days-container" class="space-y-3">
+                            @foreach($workshop->days as $index => $day)
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 day-item relative">
+                                    <input type="hidden" name="days[{{ $index }}][id]" value="{{ $day->id }}">
+                                    <input type="hidden" name="days[{{ $index }}][delete]" value="0" class="delete-flag">
+
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">التاريخ</label>
+                                        <input type="date" name="days[{{ $index }}][date]"
+                                            value="{{ old('days.' . $index . '.date', $day->day_date->format('Y-m-d')) }}"
+                                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                            required>
+                                    </div>
+                                    <div class="flex gap-2 items-end">
+                                        <div class="flex-grow">
+                                            <label class="block text-sm text-gray-600 mb-1">الوصف</label>
+                                            <input type="text" name="days[{{ $index }}][label]"
+                                                value="{{ old('days.' . $index . '.label', $day->label) }}"
+                                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                placeholder="مثال: اليوم الأول">
+                                        </div>
+                                        <button type="button" onclick="markDayForDeletion(this)"
+                                            class="text-red-600 hover:text-red-800 font-semibold p-2 transition duration-150 ease-in-out whitespace-nowrap mb-1">
+                                            حذف
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
 
-                        {{-- Start Time --}}
-                        <div>
-                            <label for="start_time" class="block text-gray-700 font-bold mb-2">وقت البدء</label>
-                            <input type="time" id="start_time" name="start_time"
-                                value="{{ old('start_time', $workshop->starts_at->format('H:i')) }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('start_time') border-red-500 @enderror"
-                                required>
-                            @error('start_time')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
-
-                    {{-- End Date and Time --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
-                        {{-- End Date --}}
-                        <div>
-                            <label for="end_date" class="block text-gray-700 font-bold mb-2">تاريخ الانتهاء</label>
-                            <input type="date" id="end_date" name="end_date"
-                                value="{{ old('end_date', $workshop->ends_at?->format('Y-m-d')) }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('end_date') border-red-500 @enderror">
-                            @error('end_date')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        {{-- End Time --}}
-                        <div>
-                            <label for="end_time" class="block text-gray-700 font-bold mb-2">وقت الانتهاء</label>
-                            <input type="time" id="end_time" name="end_time"
-                                value="{{ old('end_time', $workshop->ends_at?->format('H:i')) }}"
-                                class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 @error('end_time') border-red-500 @enderror">
-                            @error('end_time')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                        <button type="button"
+                            class="text-blue-600 hover:text-blue-800 font-semibold transition duration-150 ease-in-out mt-1"
+                            onclick="addDay()">
+                            + إضافة يوم آخر
+                        </button>
                     </div>
                     {{-- Location (Added Field) --}}
                     <div class="mb-5">
@@ -105,8 +94,7 @@
                             required>
                             <option value="">اختر المستخدم</option>
                             @foreach ($users as $user)
-                                <option value="{{ $user->id }}"
-                                    {{ old('created_by', $workshop->created_by) == $user->id ? 'selected' : '' }}>
+                                <option value="{{ $user->id }}" {{ old('created_by', $workshop->created_by) == $user->id ? 'selected' : '' }}>
                                     {{ $user->name }}
                                 </option>
                             @endforeach
@@ -156,7 +144,7 @@
                                     </div>
                                 </div>
                             @empty
-                                
+
                             @endforelse
                         </div>
 
@@ -186,6 +174,59 @@
 
     <!-- JavaScript for adding attendance fields -->
     <script>
+        // Days Management
+        let dayIndex = {{ count($workshop->days) }};
+        if (dayIndex === 0) dayIndex = 0; // Just in case
+
+        function addDay() {
+            const container = document.getElementById('days-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 day-item relative';
+            
+            newItem.innerHTML = `
+                <input type="hidden" name="days[${dayIndex}][delete]" value="0" class="delete-flag">
+                <div>
+                     <label class="block text-sm text-gray-600 mb-1">التاريخ</label>
+                    <input type="date" name="days[${dayIndex}][date]"
+                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        required>
+                </div>
+                <div class="flex gap-2 items-end">
+                    <div class="flex-grow">
+                         <label class="block text-sm text-gray-600 mb-1">الوصف</label>
+                        <input type="text" name="days[${dayIndex}][label]"
+                            class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="مثال: اليوم الثاني">
+                    </div>
+                    <button type="button" onclick="markDayForDeletion(this)"
+                        class="text-red-600 hover:text-red-800 font-semibold p-2 transition duration-150 ease-in-out whitespace-nowrap mb-1">
+                        حذف
+                    </button>
+                </div>
+            `;
+            container.appendChild(newItem);
+            dayIndex++;
+        }
+
+        function markDayForDeletion(button) {
+            const item = button.closest('.day-item');
+            
+            // If it's a new item (no ID input), remove it completely
+            if (!item.querySelector('input[name*="[id]"]')) {
+                item.remove();
+                // reindexDays(); // Not strictly necessary if index is just unique key
+                return;
+            }
+
+            // If it exists in DB, mark for deletion and hide
+            const deleteInput = item.querySelector('.delete-flag');
+            if (deleteInput) {
+                deleteInput.value = "1";
+                item.style.display = 'none';
+            }
+        }
+
+        // Attendance Management (Existing)
         let attendanceIndex = {{ count($attendances) }};
 
         function addAttendance() {
@@ -220,7 +261,6 @@
         function removeAttendance(button) {
             const item = button.closest('.attendance-item');
             item.remove();
-            // Reindex remaining items if needed
             reindexAttendances();
         }
 
@@ -228,9 +268,9 @@
             const items = document.querySelectorAll('.attendance-item');
             items.forEach((item, index) => {
                 const inputs = item.querySelectorAll('input');
-                inputs[0].name = `attendances[${index}][name]`;
-                inputs[1].name = `attendances[${index}][job_title]`;
-                inputs[2].name = `attendances[${index}][department]`;
+                if(inputs[0]) inputs[0].name = `attendances[${index}][name]`;
+                if(inputs[1]) inputs[1].name = `attendances[${index}][job_title]`;
+                if(inputs[2]) inputs[2].name = `attendances[${index}][department]`;
             });
             attendanceIndex = items.length;
         }

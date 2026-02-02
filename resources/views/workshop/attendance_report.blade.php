@@ -5,7 +5,7 @@
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">تقرير حضور ورش العمل</h1>
-                <p class="text-gray-500 mt-1">سجل الحضور لجميع الورش مرتبة حسب التاريخ</p>
+                <p class="text-gray-500 mt-1">سجل الحضور التفصيلي لكل يوم من أيام الورش</p>
             </div>
             <a href="{{ route('workshop.index') }}" 
                class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
@@ -16,73 +16,109 @@
             </a>
         </div>
 
-        @if($attendances->isEmpty())
+        @if($workshops->isEmpty())
             <div class="bg-white rounded-xl shadow-sm p-12 text-center border border-gray-100">
                 <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
                     </svg>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900">لا يوجد سجلات حضور</h3>
-                <p class="text-gray-500 mt-1">لم يتم تسجيل أي حضور حتى الآن.</p>
+                <h3 class="text-lg font-medium text-gray-900">لا توجد ورش عمل</h3>
+                <p class="text-gray-500 mt-1">لم يتم إنشاء أي ورش عمل حتى الآن.</p>
             </div>
         @else
-            <div class="space-y-8">
-                @foreach($attendances as $date => $dailyAttendances)
+            <div class="space-y-12">
+                @foreach($workshops as $workshop)
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <!-- Date Header -->
-                        <div class="bg-gradient-to-r from-blue-50 to-white px-6 py-4 border-b border-gray-100 flex items-center">
-                            <div class="bg-blue-100 text-blue-600 rounded-lg p-2 ml-3">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                </svg>
-                            </div>
+                        <!-- Workshop Header -->
+                        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
-                                <h2 class="text-lg font-bold text-gray-900">{{ $date }}</h2>
-                                <span class="text-sm text-gray-500">{{ $dailyAttendances->count() }} مسجل</span>
+                                <h2 class="text-xl font-bold text-gray-900">{{ $workshop->title }}</h2>
+                                <p class="text-sm text-gray-500">
+                                    {{ $workshop->days->count() }} أيام | {{ $workshop->attendances->count() }} مشترك
+                                </p>
+                            </div>
+                            <div class="text-sm text-gray-400">
+                                {{ $workshop->starts_at?->format('Y-m-d') }}
                             </div>
                         </div>
 
-                        <!-- Table -->
+                        <!-- Statistics / Summary -->
+                        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4 border-b border-gray-100 bg-white">
+                            <!-- You can add summary stats here if needed -->
+                        </div>
+
+                        <!-- Matrix Table -->
                         <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-100">
+                            <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">الاسم</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">ورشة العمل</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">المسمى الوظيفي</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">الجهة / الدائرة</th>
-                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">مسجل منذ</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider sticky right-0 bg-gray-50 z-10 w-64 border-l">
+                                            المشترك
+                                        </th>
+                                        <!-- Days Columns -->
+                                        @foreach($workshop->days as $day)
+                                            <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[120px]">
+                                                <div class="flex flex-col">
+                                                    <span>{{ $day->day_date->format('Y-m-d') }}</span>
+                                                    <span class="text-[10px] text-gray-400 font-normal">{{ $day->label ?? 'يوم ' . $loop->iteration }}</span>
+                                                </div>
+                                            </th>
+                                        @endforeach
+                                        <th scope="col" class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-r">
+                                            المجموع
+                                        </th>
                                     </tr>
                                 </thead>
-                                <tbody class="bg-white divide-y divide-gray-100">
-                                    @foreach($dailyAttendances as $attendance)
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @forelse($workshop->attendances as $attendance)
                                         <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-6 py-4 whitespace-nowrap">
-                                                <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 font-bold text-xs border border-gray-200">
-                                                        {{ mb_substr($attendance->attendee_name, 0, 1, 'UTF-8') }}
-                                                    </div>
-                                                    <div class="mr-3">
-                                                        <div class="text-sm font-medium text-gray-900">{{ $attendance->attendee_name }}</div>
-                                                    </div>
+                                            <!-- Participant Name -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 sticky right-0 bg-white z-10 border-l group-hover:bg-gray-50">
+                                                <div class="flex flex-col">
+                                                    <span>{{ $attendance->attendee_name }}</span>
+                                                    <span class="text-xs text-gray-400 font-normal">{{ $attendance->job_title ?? '-' }}</span>
                                                 </div>
                                             </td>
-                                            <td class="px-6 py-4">
-                                                <div class="text-sm text-gray-900 font-medium">{{ $attendance->workshop->title }}</div>
-                                                <div class="text-xs text-gray-500">{{ $attendance->workshop->starts_at->format('H:i') }}</div>
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {{ $attendance->job_title ?? '-' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                                                {{ $attendance->department ?? '-' }}
-                                            </td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
-                                                {{ $attendance->created_at->diffForHumans() }}
+
+                                            <!-- Check-in Status for each Day -->
+                                            @php $presentCount = 0; @endphp
+                                            @foreach($workshop->days as $day)
+                                                @php
+                                                    // Find checkin for this day
+                                                    $checkin = $attendance->checkins->where('workshop_day_id', $day->id)->first();
+                                                    $isPresent = $checkin ? true : false;
+                                                    if ($isPresent) $presentCount++;
+                                                @endphp
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @if($isPresent)
+                                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600" title="حاضر: {{ $checkin->checkin_time->format('H:i') }}">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                            </svg>
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-400" title="غائب">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                            </svg>
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                            @endforeach
+
+                                            <!-- Total -->
+                                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-bold text-gray-700 border-r bg-gray-50">
+                                                {{ $presentCount }} / {{ $workshop->days->count() }}
                                             </td>
                                         </tr>
-                                    @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="{{ $workshop->days->count() + 2 }}" class="px-6 py-4 text-center text-sm text-gray-500">
+                                                لا يوجد مشتركين مسجلين في هذه الورشة
+                                            </td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>

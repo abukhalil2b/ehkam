@@ -45,6 +45,7 @@ use App\Http\Controllers\Admin\WorkflowTeamController;
 use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
+use App\Http\Controllers\PestleController;
 
 // Route::view('/', 'welcome2')->name('home');
 Route::view('/', 'welcome2')->name('home');
@@ -1122,5 +1123,25 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('appointments/{appointmentRequest}/approve', [AppointmentRequestController::class, 'approve'])->name('appointments.approve');
     Route::post('appointments/{appointmentRequest}/select-slot', [AppointmentRequestController::class, 'selectSlot'])->name('appointments.select-slot');
 });
+
+
+// PESTLE Routes
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('pestle/index', [PestleController::class, 'index'])->name('pestle.index');
+    Route::get('pestle/create', [PestleController::class, 'create'])->name('pestle.create');
+    Route::post('pestle/store', [PestleController::class, 'store'])->name('pestle.store');
+    Route::get('pestle/admin/{id}', [PestleController::class, 'admin'])->name('pestle.admin');
+    Route::get('pestle/display/{id}', [PestleController::class, 'display'])->name('pestle.display');
+    Route::get('pestle/finalize/{id}', [PestleController::class, 'finalize'])->name('pestle.finalize');
+    Route::post('pestle/finalize/{id}', [PestleController::class, 'finalizeSave'])->name('pestle.finalize.save');
+    Route::post('pestle/board/{board}/move', [PestleController::class, 'moveBoardItem'])->name('pestle.board.move');
+    Route::post('pestle/board/{board}/update', [PestleController::class, 'updateBoardContent'])->name('pestle.board.update');
+});
+
+// Public PESTLE
+Route::get('pestle/board/{token}', [PestleController::class, 'show'])->name('pestle.public');
+Route::post('pestle/board/{token}/init', [PestleController::class, 'initSession']);
+Route::get('pestle/board/{token}/items', [PestleController::class, 'getItems']);
+Route::post('pestle/board/{token}/add', [PestleController::class, 'addItem']);
 
 require __DIR__ . '/auth.php';
