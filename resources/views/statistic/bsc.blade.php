@@ -250,6 +250,58 @@
 
             {{-- Report View --}}
             <div x-show="!loading && kpis.length > 0 && view === 'report'" class="space-y-8 print:space-y-2">
+                {{-- Chart Type Selector --}}
+                <div class="no-print flex justify-center gap-4 mb-4">
+                    <p class="text-sm text-slate-500 font-medium flex items-center gap-2">
+                        <span class="material-icons text-sm">pie_chart</span>
+                        شكل المخطط:
+                    </p>
+                    <button 
+                        @click="changeChartType('bar')"
+                        :class="chartType === 'bar' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+                        class="px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 text-sm font-medium">
+                        <span class="material-icons text-base">bar_chart</span>
+                        <span>أعمدة متجاورة</span>
+                    </button>
+                    <button 
+                        @click="changeChartType('bar-stacked')"
+                        :class="chartType === 'bar-stacked' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+                        class="px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 text-sm font-medium">
+                        <span class="material-icons text-base">stacked_bar_chart</span>
+                        <span>أعمدة متداخلة</span>
+                    </button>
+                    <button 
+                        @click="changeChartType('line')"
+                        :class="chartType === 'line' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+                        class="px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 text-sm font-medium">
+                        <span class="material-icons text-base">show_chart</span>
+                        <span>خطوط</span>
+                    </button>
+                    <button 
+                        @click="changeChartType('radar')"
+                        :class="chartType === 'radar' ? 'bg-blue-100 text-blue-700 border-blue-300' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'"
+                        class="px-3 py-1.5 rounded-lg border transition flex items-center gap-1.5 text-sm font-medium">
+                        <span class="material-icons text-base">radar</span>
+                        <span>عجلة</span>
+                    </button>
+                </div>
+                {{-- Dataset Toggle --}}
+                <div class="no-print flex justify-center gap-4 mb-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" x-model="showTarget" @change="renderCharts()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        <span class="text-sm text-slate-600 flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-slate-400"></span>
+                            المستهدف
+                        </span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" x-model="showActual" @change="renderCharts()" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        <span class="text-sm text-slate-600 flex items-center gap-1">
+                            <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                            المحقق
+                        </span>
+                    </label>
+                </div>
                 <template x-for="(kpi, kIndex) in kpis" :key="'report-' + kpi.id">
                     <div class="kpi-card bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden page-break print:rounded-lg print:shadow-none">
                         {{-- Card Header --}}
@@ -269,31 +321,49 @@
                                 <canvas :id="'chart-' + kpi.id"></canvas>
                             </div>
 
-                            {{-- Summary Stats --}}
-                            <div class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-6 text-center print:gap-2 print:mb-3">
-                                <div class="bg-blue-50 rounded-lg p-3 border border-blue-100 print:p-2">
-                                    <p class="text-[10px] text-blue-600 font-bold print:text-[9px]">مستهدف 2023</p>
-                                    <p class="text-lg font-bold text-blue-700 print:text-sm" x-text="formatNumber(sumArray(kpi.data2023.target), kpi.unit)"></p>
+                            {{-- Summary Stats - Simplified Cards for All Years --}}
+                            <div class="flex justify-center gap-6 mb-6 print:mb-3 print:gap-4">
+                                {{-- 2023 Summary Card --}}
+                                <div class="bg-slate-50 rounded-xl p-4 border-2 border-slate-200 text-center min-w-[120px] print:p-3 print:min-w-[100px]">
+                                    <p class="text-lg font-bold text-slate-700 mb-3 print:text-base print:mb-2">2023</p>
+                                    <div class="space-y-2">
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المستهدف:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2023.target), kpi.unit)"></span>
+                                        </p>
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المحقق:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2023.actual), kpi.unit)"></span>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="bg-blue-100 rounded-lg p-3 border border-blue-200 print:p-2">
-                                    <p class="text-[10px] text-blue-700 font-bold print:text-[9px]">محقق 2023</p>
-                                    <p class="text-lg font-bold text-blue-800 print:text-sm" x-text="formatNumber(sumArray(kpi.data2023.actual), kpi.unit)"></p>
+                                {{-- 2024 Summary Card --}}
+                                <div class="bg-slate-50 rounded-xl p-4 border-2 border-slate-200 text-center min-w-[120px] print:p-3 print:min-w-[100px]">
+                                    <p class="text-lg font-bold text-slate-700 mb-3 print:text-base print:mb-2">2024</p>
+                                    <div class="space-y-2">
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المستهدف:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2024.target), kpi.unit)"></span>
+                                        </p>
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المحقق:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2024.actual), kpi.unit)"></span>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="bg-emerald-50 rounded-lg p-3 border border-emerald-100 print:p-2">
-                                    <p class="text-[10px] text-emerald-600 font-bold print:text-[9px]">مستهدف 2024</p>
-                                    <p class="text-lg font-bold text-emerald-700 print:text-sm" x-text="formatNumber(sumArray(kpi.data2024.target), kpi.unit)"></p>
-                                </div>
-                                <div class="bg-emerald-100 rounded-lg p-3 border border-emerald-200 print:p-2">
-                                    <p class="text-[10px] text-emerald-700 font-bold print:text-[9px]">محقق 2024</p>
-                                    <p class="text-lg font-bold text-emerald-800 print:text-sm" x-text="formatNumber(sumArray(kpi.data2024.actual), kpi.unit)"></p>
-                                </div>
-                                <div class="bg-purple-50 rounded-lg p-3 border border-purple-100 print:p-2">
-                                    <p class="text-[10px] text-purple-600 font-bold print:text-[9px]">مستهدف 2025</p>
-                                    <p class="text-lg font-bold text-purple-700 print:text-sm" x-text="formatNumber(sumArray(kpi.data2025.target), kpi.unit)"></p>
-                                </div>
-                                <div class="bg-purple-100 rounded-lg p-3 border border-purple-200 print:p-2">
-                                    <p class="text-[10px] text-purple-700 font-bold print:text-[9px]">محقق 2025</p>
-                                    <p class="text-lg font-bold text-purple-800 print:text-sm" x-text="formatNumber(sumArray(kpi.data2025.actual), kpi.unit)"></p>
+                                {{-- 2025 Summary Card --}}
+                                <div class="bg-slate-50 rounded-xl p-4 border-2 border-slate-200 text-center min-w-[120px] print:p-3 print:min-w-[100px]">
+                                    <p class="text-lg font-bold text-slate-700 mb-3 print:text-base print:mb-2">2025</p>
+                                    <div class="space-y-2">
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المستهدف:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2025.target), kpi.unit)"></span>
+                                        </p>
+                                        <p class="text-sm print:text-xs">
+                                            <span class="text-slate-500 font-medium">المحقق:</span>
+                                            <span class="font-bold text-slate-700" x-text="formatNumber(sumArray(kpi.data2025.actual), kpi.unit)"></span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -325,6 +395,9 @@
                 view: 'edit',
                 loading: true,
                 saveStatus: null,
+                chartType: 'bar',
+                showTarget: true,
+                showActual: true,
                 kpis: @json($kpis ?? []),
                 charts: {},
                 quarterNames: ['الربع الأول', 'الربع الثاني', 'الربع الثالث', 'الربع الرابع'],
@@ -348,6 +421,11 @@
                             setTimeout(() => this.renderCharts(), 50);
                         });
                     }
+                },
+
+                changeChartType(type) {
+                    this.chartType = type;
+                    this.renderCharts();
                 },
 
                 printReport() {
@@ -449,6 +527,9 @@
                 },
 
                 renderCharts() {
+                    const chartType = this.chartType === 'bar-stacked' ? 'bar' : this.chartType;
+                    const isStacked = this.chartType === 'bar-stacked';
+                    
                     this.kpis.forEach(kpi => {
                         const canvasId = 'chart-' + kpi.id;
                         const canvas = document.getElementById(canvasId);
@@ -461,32 +542,38 @@
 
                         const ctx = canvas.getContext('2d');
                         
+                        // Build datasets based on visibility
+                        const datasets = [];
+                        if (this.showTarget) {
+                            datasets.push({
+                                label: 'المستهدف',
+                                data: [...(kpi.data2023?.target || [0,0,0,0]), ...(kpi.data2024?.target || [0,0,0,0]), ...(kpi.data2025?.target || [0,0,0,0])],
+                                backgroundColor: 'rgba(148, 163, 184, 0.7)',
+                                borderColor: '#64748b',
+                                borderWidth: 1,
+                                borderRadius: isStacked ? 2 : 4
+                            });
+                        }
+                        if (this.showActual) {
+                            datasets.push({
+                                label: 'المحقق فعلياً',
+                                data: [...(kpi.data2023?.actual || [0,0,0,0]), ...(kpi.data2024?.actual || [0,0,0,0]), ...(kpi.data2025?.actual || [0,0,0,0])],
+                                backgroundColor: 'rgba(37, 99, 235, 0.9)',
+                                borderColor: '#1d4ed8',
+                                borderWidth: 1,
+                                borderRadius: isStacked ? 2 : 4
+                            });
+                        }
+                        
                         this.charts[kpi.id] = new Chart(ctx, {
-                            type: 'bar',
+                            type: chartType,
                             data: {
                                 labels: [
                                     'الربع الأول 2023', 'الربع الثاني 2023', 'الربع الثالث 2023', 'الربع الرابع 2023',
                                     'الربع الأول 2024', 'الربع الثاني 2024', 'الربع الثالث 2024', 'الربع الرابع 2024',
                                     'الربع الأول 2025', 'الربع الثاني 2025', 'الربع الثالث 2025', 'الربع الرابع 2025'
                                 ],
-                                datasets: [
-                                    {
-                                        label: 'المستهدف',
-                                        data: [...(kpi.data2023?.target || [0,0,0,0]), ...(kpi.data2024?.target || [0,0,0,0]), ...(kpi.data2025?.target || [0,0,0,0])],
-                                        backgroundColor: 'rgba(148, 163, 184, 0.5)',
-                                        borderColor: '#64748b',
-                                        borderWidth: 1,
-                                        borderRadius: 4
-                                    },
-                                    {
-                                        label: 'المحقق فعلياً',
-                                        data: [...(kpi.data2023?.actual || [0,0,0,0]), ...(kpi.data2024?.actual || [0,0,0,0]), ...(kpi.data2025?.actual || [0,0,0,0])],
-                                        backgroundColor: 'rgba(37, 99, 235, 0.8)',
-                                        borderColor: '#1d4ed8',
-                                        borderWidth: 1,
-                                        borderRadius: 4
-                                    }
-                                ]
+                                datasets: datasets
                             },
                             options: {
                                 responsive: true,
@@ -506,8 +593,9 @@
                                         callbacks: {
                                             label: function(context) {
                                                 // استخدام الأرقام الإنجليزية في التلميحات
+                                                let value = context.parsed.y || (context.parsed.r || 0);
                                                 return context.dataset.label + ': ' + 
-                                                    new Intl.NumberFormat('en-US').format(context.parsed.y);
+                                                    new Intl.NumberFormat('en-US').format(value);
                                             }
                                         }
                                     }
@@ -528,6 +616,7 @@
                                         }
                                     },
                                     x: { 
+                                        stacked: isStacked,
                                         grid: { display: false },
                                         ticks: { font: { size: 9 }, maxRotation: 45, minRotation: 45 }
                                     }

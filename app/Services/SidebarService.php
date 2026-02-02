@@ -176,7 +176,7 @@ class SidebarService
                     ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات', 'keywords' => 'statistics all sectors'],
                     ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1], 'keywords' => 'statistics quran'],
                     ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1], 'keywords' => 'statistics zakah'],
-                    ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية', 'params' => [1], 'keywords' => 'statistics bsc'],
+                    ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية','keywords' => 'statistics bsc'],
                 ]
             ],
             'qr' => [
