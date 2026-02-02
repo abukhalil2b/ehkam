@@ -54,6 +54,16 @@ return new class extends Migration
 
             $table->unique(['kpi_indicator_id', 'year']);
         });
+
+        Schema::create('kpi_report_settings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
+            $table->string('setting_key', 100);
+            $table->text('setting_value')->nullable();
+            $table->timestamps();
+
+            $table->unique(['user_id', 'setting_key'], 'user_setting_unique');
+        });
     }
 
     /**

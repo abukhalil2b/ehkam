@@ -21,7 +21,7 @@
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-blue-100">
                     <span class="font-bold block mb-1 text-blue-600">2. تسجيل الحضور</span>
-                    استخدم رابط "تسجيل الحضور". النظام سيكتشف تلقائياً "اليوم الحالي" بناءً على التاريخ لتسجيل الحضور
+                    استخدم <a href="{{ route('workshow_attendance_register') }}" class="text-blue-700 font-bold underline hover:text-blue-900">رابط تسجيل الحضور</a>. النظام سيكتشف تلقائياً "اليوم الحالي" بناءً على التاريخ لتسجيل الحضور
                     لليوم الصحيح.
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-blue-100">
@@ -57,6 +57,15 @@
                     <div class="text-2xl font-bold text-blue-600">{{ $workshops->total() }}</div>
                     <div class="text-xs font-medium text-blue-700">إجمالي الورش</div>
                 </div>
+
+                <a href="{{ route('workshow_attendance_register') }}"
+                    class="bg-white text-purple-700 hover:bg-purple-50 border border-purple-300 px-4 py-3 rounded-lg font-semibold shadow-sm hover:shadow transition mr-2 flex items-center">
+                    <svg class="w-5 h-5 ml-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    تسجيل الحضور
+                </a>
 
                 <a href="{{ route('workshop.attendance_report') }}"
                     class="bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 px-4 py-3 rounded-lg font-semibold shadow-sm hover:shadow transition mr-2 flex items-center">

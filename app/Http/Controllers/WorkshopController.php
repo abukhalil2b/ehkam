@@ -30,7 +30,7 @@ class WorkshopController extends Controller
         }
 
         $qrImage = null;
-        $checkins = collect([]);
+        $attendances = collect([]);
 
         // Handle case where no active workshop or day is found
         if (!$workshop || !$currentDay) {
@@ -92,23 +92,108 @@ class WorkshopController extends Controller
         }
 
         // 3. Handle GET Request - Show checkins for THIS DAY
-        $checkins = WorkshopCheckin::with('participant')
+        $attendances = WorkshopCheckin::with('participant')
             ->where('workshop_day_id', $currentDay->id)
             ->latest()
             ->get();
 
-        return view('workshow_attendance_register', compact('checkins', 'workshop', 'qrImage', 'currentDay'));
+        return view('workshow_attendance_register', compact('attendances', 'workshop', 'qrImage', 'currentDay'));
     }
 
     // ---------------------- ATTENDANCE REPORT ----------------------
-    public function attendanceReport()
+    public function attendanceReport(Request $request)
     {
-        // This seems to be a general report for all workshops, or maybe we should default to the active one?
-        // The previous implementation showed all attendances for all workshops grouped by date. 
-        // Let's keep it creating a report for each workshop.
-
         $workshops = Workshop::with(['days', 'attendances.checkins'])->latest()->get();
-        return view('workshop.attendance_report', compact('workshops'));
+        
+        $selectedWorkshop = null;
+        $reportData = null;
+        
+        if ($request->has('workshop_id') && $request->workshop_id) {
+            $selectedWorkshop = Workshop::with([
+                'days.checkins.participant',
+                'attendances.checkins'
+            ])->find($request->workshop_id);
+            
+            if ($selectedWorkshop) {
+                $reportData = $this->generateWorkshopReportData($selectedWorkshop);
+            }
+        }
+        
+        return view('workshop.attendance_report', compact('workshops', 'selectedWorkshop', 'reportData'));
+    }
+    
+    /**
+     * Generate detailed report data for a specific workshop
+     */
+    private function generateWorkshopReportData(Workshop $workshop)
+    {
+        $totalDays = $workshop->days->count();
+        $totalParticipants = $workshop->attendances->count();
+        
+        // Day-wise statistics
+        $dayStats = [];
+        $totalCheckins = 0;
+        
+        foreach ($workshop->days as $day) {
+            $dayCheckins = $day->checkins->count();
+            $totalCheckins += $dayCheckins;
+            $attendanceRate = $totalParticipants > 0 
+                ? round(($dayCheckins / $totalParticipants) * 100, 1) 
+                : 0;
+            
+            $dayStats[] = [
+                'id' => $day->id,
+                'date' => $day->day_date,
+                'label' => $day->label,
+                'checkins_count' => $dayCheckins,
+                'attendance_rate' => $attendanceRate,
+            ];
+        }
+        
+        // Participant attendance details
+        $participantStats = [];
+        foreach ($workshop->attendances as $attendance) {
+            $participantCheckins = $attendance->checkins->count();
+            $attendanceRate = $totalDays > 0 
+                ? round(($participantCheckins / $totalDays) * 100, 1) 
+                : 0;
+            
+            $participantStats[] = [
+                'id' => $attendance->id,
+                'name' => $attendance->attendee_name,
+                'job_title' => $attendance->job_title,
+                'department' => $attendance->department,
+                'days_attended' => $participantCheckins,
+                'attendance_rate' => $attendanceRate,
+                'is_full_attendance' => $participantCheckins == $totalDays,
+                'days' => $attendance->checkins->pluck('workshop_day_id')->toArray(),
+            ];
+        }
+        
+        // Summary statistics
+        $totalPossibleAttendances = $totalParticipants * $totalDays;
+        $overallAttendanceRate = $totalPossibleAttendances > 0 
+            ? round(($totalCheckins / $totalPossibleAttendances) * 100, 1) 
+            : 0;
+            
+        $fullAttendanceCount = collect($participantStats)->where('is_full_attendance', true)->count();
+        $partialAttendanceCount = collect($participantStats)->where('attendance_rate', '>', 0)->where('is_full_attendance', false)->count();
+        $noAttendanceCount = collect($participantStats)->where('attendance_rate', 0)->count();
+        
+        return [
+            'workshop' => $workshop,
+            'summary' => [
+                'total_days' => $totalDays,
+                'total_participants' => $totalParticipants,
+                'total_checkins' => $totalCheckins,
+                'overall_attendance_rate' => $overallAttendanceRate,
+                'full_attendance_count' => $fullAttendanceCount,
+                'partial_attendance_count' => $partialAttendanceCount,
+                'no_attendance_count' => $noAttendanceCount,
+            ],
+            'day_stats' => $dayStats,
+            'participant_stats' => $participantStats,
+        ];
     }
 
     // ---------------------- INDEX ----------------------

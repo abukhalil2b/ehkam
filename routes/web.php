@@ -38,6 +38,7 @@ use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminStepImportController;
 use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
 use App\Http\Controllers\SwotController;
+use App\Http\Controllers\KpiYearController;
 use App\Http\Controllers\DocumentationController;
 use Illuminate\Support\Facades\Route;
 // ========== WORKFLOW ENGINE ROUTES ==========
@@ -423,6 +424,62 @@ Route::group(['middleware' => ['auth']], function () {
 Route::get('statistic/bsc', [StatisticController::class, 'bsc'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.bsc');
+
+// BSC Report/Charts Page
+Route::get('statistic/bsc/report', [StatisticController::class, 'bscReport'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.bsc.report');
+
+// KPI Indicator Management Routes
+Route::get('statistic/kpi/indicators', [StatisticController::class, 'kpiIndicators'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicators');
+
+Route::get('statistic/kpi/indicator/create', [StatisticController::class, 'createKpiIndicator'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicator.create');
+
+Route::post('statistic/kpi/indicator/store', [StatisticController::class, 'storeKpiIndicator'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicator.store');
+
+Route::get('statistic/kpi/indicator/{indicator}/edit', [StatisticController::class, 'editKpiIndicator'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicator.edit');
+
+Route::put('statistic/kpi/indicator/{indicator}/update', [StatisticController::class, 'updateKpiIndicator'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicator.update');
+
+Route::delete('statistic/kpi/indicator/{indicator}/destroy', [StatisticController::class, 'destroyKpiIndicator'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.kpi.indicator.destroy');
+
+// Report Settings Routes
+Route::get('statistic/settings', [StatisticController::class, 'reportSettings'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.settings');
+
+Route::post('statistic/settings/save', [StatisticController::class, 'saveReportSettings'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.settings.save');
+
+Route::get('statistic/settings/data', [StatisticController::class, 'getReportSettings'])
+    ->middleware('permission:statistic.bsc')
+    ->name('statistic.settings.data');
+
+// KPI Years Management Routes
+Route::resource('admin/kpi-years', KpiYearController::class)
+    ->middleware('permission:admin.kpi-years');
+
+// KPI Years sorting routes
+Route::post('admin/kpi-years/{kpiYear}/move-up', [KpiYearController::class, 'moveUp'])
+    ->middleware('permission:admin.kpi-years')
+    ->name('kpi-years.move-up');
+
+Route::post('admin/kpi-years/{kpiYear}/move-down', [KpiYearController::class, 'moveDown'])
+    ->middleware('permission:admin.kpi-years')
+    ->name('kpi-years.move-down');
 
 // KPI API Routes
 Route::post('statistic/kpi/update-value', [StatisticController::class, 'updateKpiValue'])
