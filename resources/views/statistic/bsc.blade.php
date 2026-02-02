@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         [x-cloak] { display: none !important; }
+        .container { max-width: 1600px !important; }
         @media print {
             .no-print { display: none !important; }
             body { background: white !important; padding: 0 !important; margin: 0 !important; }
@@ -82,7 +83,7 @@
             </div>
         </nav>
 
-        <main class="container mx-auto py-8 px-6">
+        <main class="container mx-auto py-8 px-3">
             {{-- Header --}}
             <div class="mb-8 text-center print:mb-2 print:py-2">
                 <h2 class="text-2xl font-bold text-slate-800 mb-2 print:text-lg print:mb-1">المديرية العامة للتخطيط والدراسات</h2>
@@ -127,8 +128,8 @@
                         </div>
                         <div class="p-6 grid grid-cols-1 lg:grid-cols-{{ count($years) }} gap-4">
                             @foreach($years as $year)
-                            <div class="bg-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-50/50 p-4 rounded-xl border border-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-100">
-                                <h4 class="font-bold text-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-700 mb-3 text-sm flex items-center gap-2">
+                            <div class="bg-amber-50/50 p-4 rounded-xl border border-amber-100">
+                                <h4 class="font-bold text-amber-700 mb-3 text-sm flex items-center gap-2">
                                     <span class="material-icons text-base">calendar_today</span>
                                     سنة {{ $year }}
                                 </h4>
@@ -142,23 +143,34 @@
                                     </thead>
                                     <tbody>
                                         @for($q = 1; $q <= 4; $q++)
-                                        <tr class="border-t border-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-100">
+                                        <tr class="border-t border-amber-100">
                                             <td class="py-1.5 text-xs font-medium text-slate-600">الربع {{ $q }}</td>
                                             <td class="py-1.5 px-1">
                                                 <input type="number" 
                                                     x-model.number="kpi.data{{ $year }}.target[{{ $q - 1 }}]" 
                                                     @change="saveValue(kpi.id, {{ $year }}, {{ $q }}, 'target', kpi.data{{ $year }}.target[{{ $q - 1 }}])"
-                                                    class="w-full border border-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-200 rounded p-1.5 text-center text-xs">
+                                                    class="w-full border border-amber-200 rounded p-1.5 text-center text-xs">
                                             </td>
                                             <td class="py-1.5 px-1">
                                                 <input type="number" 
                                                     x-model.number="kpi.data{{ $year }}.actual[{{ $q - 1 }}]" 
                                                     @change="saveValue(kpi.id, {{ $year }}, {{ $q }}, 'actual', kpi.data{{ $year }}.actual[{{ $q - 1 }}])"
-                                                    class="w-full border border-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-200 rounded p-1.5 text-center text-xs">
+                                                    class="w-full border border-amber-200 rounded p-1.5 text-center text-xs">
                                             </td>
                                         </tr>
                                         @endfor
                                     </tbody>
+                                    <tfoot>
+                                        <tr class="border-t-2 border-amber-300 bg-amber-100/50">
+                                            <td class="py-2 text-xs font-bold text-amber-800">المجموع</td>
+                                            <td class="py-2 px-1 text-center">
+                                                <span class="text-xs font-bold text-amber-700" x-text="getYearSum(kpi, {{ $year }}, 'target')"></span>
+                                            </td>
+                                            <td class="py-2 px-1 text-center">
+                                                <span class="text-xs font-bold text-amber-700" x-text="getYearSum(kpi, {{ $year }}, 'actual')"></span>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                             @endforeach
@@ -266,6 +278,28 @@
                 printReport() {
                     // Redirect to report page for printing
                     window.location.href = '{{ route("statistic.bsc.report") }}';
+                },
+
+                // حساب مجموع القيم في مصفوفة
+                sumArray(arr) {
+                    if (!arr || !Array.isArray(arr)) return 0;
+                    return arr.reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+                },
+
+                // حساب مجموع سنة معينة
+                getYearSum(kpi, year, type) {
+                    const dataKey = `data${year}`;
+                    const data = kpi[dataKey];
+                    if (!data || !data[type] || !Array.isArray(data[type])) return 0;
+                    return data[type].reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+                },
+
+                // الحصول على قيمة ربع معين
+                getQuarterValue(kpi, year, quarterIndex, type) {
+                    const dataKey = `data${year}`;
+                    const data = kpi[dataKey];
+                    if (!data || !data[type] || !Array.isArray(data[type])) return 0;
+                    return data[type][quarterIndex] || 0;
                 },
 
                 async saveValue(indicatorId, year, quarter, type, value) {

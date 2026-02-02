@@ -14,6 +14,10 @@
             display: none !important;
         }
 
+        .container {
+            max-width: 1600px !important;
+        }
+
         @media print {
             .no-print {
                 display: none !important;
@@ -237,28 +241,44 @@
                                 <canvas :id="'chart-' + kpi.id"></canvas>
                             </div>
 
-                            {{-- Summary Stats - Per Year --}}
+                            {{-- Summary Stats - Per Year with Quarterly Details --}}
                             <div class="grid grid-cols-{{ count($years) }} gap-4 mb-6 print:mb-3">
                                 @foreach($years as $year)
-                                    <div
-                                        class="bg-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-50 rounded-xl p-4 border border-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-100 text-center">
-                                        <p
-                                            class="font-bold text-{{ $loop->index == 0 ? 'blue' : ($loop->index == 1 ? 'emerald' : ($loop->index == 2 ? 'purple' : 'amber')) }}-700 mb-3 text-sm flex items-center justify-center gap-1">
+                                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-100">
+                                        <p class="font-bold text-amber-700 mb-3 text-sm flex items-center justify-center gap-1">
                                             <span class="material-icons text-base">calendar_today</span>
                                             سنة {{ $year }}
                                         </p>
-                                        <div class="space-y-2">
-                                            <p class="text-sm print:text-xs">
-                                                <span class="text-slate-500 font-medium">المستهدف:</span>
-                                                <span class="font-bold text-slate-700"
-                                                    x-text="formatNumber(sumArray(kpi.data{{ $year }}.target), kpi.unit)"></span>
-                                            </p>
-                                            <p class="text-sm print:text-xs">
-                                                <span class="text-slate-500 font-medium">المحقق:</span>
-                                                <span class="font-bold text-slate-700"
-                                                    x-text="formatNumber(sumArray(kpi.data{{ $year }}.actual), kpi.unit)"></span>
-                                            </p>
-                                        </div>
+                                        {{-- Quarterly Details Table --}}
+                                        <table class="w-full text-sm mb-2">
+                                            <thead>
+                                                <tr class="text-slate-600 text-xs">
+                                                    <th class="text-right pb-2">الربع</th>
+                                                    <th class="text-center pb-2">مستهدف</th>
+                                                    <th class="text-center pb-2">محقق</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @for($q = 1; $q <= 4; $q++)
+                                                <tr class="border-t border-amber-100">
+                                                    <td class="py-1.5 text-xs font-medium text-slate-600">الربع {{ $q }}</td>
+                                                    <td class="py-1.5 px-1 text-center text-xs text-slate-700" x-text="formatNumber(getQuarterValue(kpi, {{ $year }}, {{ $q - 1 }}, 'target'), kpi.unit)"></td>
+                                                    <td class="py-1.5 px-1 text-center text-xs text-slate-700" x-text="formatNumber(getQuarterValue(kpi, {{ $year }}, {{ $q - 1 }}, 'actual'), kpi.unit)"></td>
+                                                </tr>
+                                                @endfor
+                                            </tbody>
+                                            <tfoot>
+                                                <tr class="border-t-2 border-amber-300 bg-amber-100/50">
+                                                    <td class="py-2 text-xs font-bold text-amber-800">المجموع</td>
+                                                    <td class="py-2 px-1 text-center">
+                                                        <span class="text-xs font-bold text-amber-700" x-text="formatNumber(getYearSum(kpi, {{ $year }}, 'target'), kpi.unit)"></span>
+                                                    </td>
+                                                    <td class="py-2 px-1 text-center">
+                                                        <span class="text-xs font-bold text-amber-700" x-text="formatNumber(getYearSum(kpi, {{ $year }}, 'actual'), kpi.unit)"></span>
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
                                     </div>
                                 @endforeach
                             </div>
@@ -503,6 +523,22 @@
                         }
                         return sum;
                     }, 0);
+                },
+
+                // حساب مجموع سنة معينة
+                getYearSum(kpi, year, type) {
+                    const dataKey = `data${year}`;
+                    const data = kpi[dataKey];
+                    if (!data || !data[type] || !Array.isArray(data[type])) return 0;
+                    return data[type].reduce((sum, val) => sum + (parseFloat(val) || 0), 0);
+                },
+
+                // الحصول على قيمة ربع معين
+                getQuarterValue(kpi, year, quarterIndex, type) {
+                    const dataKey = `data${year}`;
+                    const data = kpi[dataKey];
+                    if (!data || !data[type] || !Array.isArray(data[type])) return 0;
+                    return data[type][quarterIndex] || 0;
                 },
 
                 formatNumber(value, unit) {
