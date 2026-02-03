@@ -32,13 +32,13 @@ return new class extends Migration {
             $table->foreignId('workshop_id')
                 ->constrained('workshops')
                 ->onDelete('cascade');
-            $table->uuid('attendee_key')
-                ->unique();
+            $table->uuid('attendee_key');
             $table->string('attendee_name'); // More explicit than 'name'
             $table->string('job_title')->nullable();
             $table->string('department')->nullable();
             $table->timestamps();
             $table->index('workshop_id');
+            $table->unique(['workshop_id', 'attendee_key'], 'workshop_attendee_unique');
         });
 
         Schema::create('workshop_days', function (Blueprint $table) {

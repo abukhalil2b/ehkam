@@ -29,25 +29,9 @@
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
         }
 
-        .animate-tilt {
-            animation: tilt 10s infinite linear;
-        }
-
-        @keyframes tilt {
-
-            0%,
-            50%,
-            100% {
-                transform: rotate(0deg);
-            }
-
-            25% {
-                transform: rotate(1deg);
-            }
-
-            75% {
-                transform: rotate(-1deg);
-            }
+        .option-selected {
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+            border-color: #3b82f6 !important;
         }
     </style>
 </head>
@@ -62,8 +46,7 @@
             style="animation-delay: 2s"></div>
     </div>
 
-    <div class="relative max-w-md mx-auto min-h-screen flex flex-col p-4"
-        x-data="competitionPlay({{ $competition->id }})" x-init="init()">
+    <div class="relative max-w-md mx-auto min-h-screen flex flex-col p-4" x-data="competitionPlay()" x-init="init()">
 
         <!-- Top Bar -->
         <div class="flex justify-between items-center mb-8 pt-4">
@@ -78,213 +61,239 @@
                 </div>
             </div>
             <div class="glass px-4 py-2 rounded-2xl flex flex-col items-center">
-                <span class="text-xs text-gray-300 font-medium">النقاط</span>
+                <span class="text-xs text-gray-300 font-medium">السؤال</span>
                 <span
                     class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-500"
-                    x-text="score"></span>
+                    x-text="(currentQuestionIndex + 1) + '/' + questions.length"></span>
             </div>
         </div>
 
-        <!-- Waiting State -->
-        <div x-show="!currentQuestion && !showResults" x-transition:enter="transition ease-out duration-300"
+        <!-- Progress Bar -->
+        <div class="mb-6 relative h-2 bg-white/10 rounded-full overflow-hidden">
+            <div class="absolute top-0 right-0 h-full bg-gradient-to-l from-green-400 via-yellow-400 to-blue-500 transition-all duration-500 ease-out"
+                :style="`width: ${((currentQuestionIndex + 1) / questions.length) * 100}%`"></div>
+        </div>
+
+        <!-- Question Card -->
+        <div x-show="!isSubmitting && !isFinished" class="flex-1 flex flex-col">
+            <div class="glass-card text-gray-800 rounded-3xl p-6 mb-6 text-center transform transition-all">
+                <div class="mb-4 text-blue-600 font-bold tracking-wider text-xs uppercase">
+                    السؤال <span x-text="currentQuestionIndex + 1"></span>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold leading-relaxed mb-4" x-text="currentQuestion?.question_text">
+                </h2>
+            </div>
+
+            <!-- Options Grid -->
+            <div class="grid grid-cols-1 gap-3 pb-8">
+                <template x-for="(option, index) in currentQuestion?.options" :key="option.id">
+                    <button @click="selectOption(option.id)"
+                        :class="selectedOptionId === option.id ? 'option-selected' : 'bg-white/10 hover:bg-white/20'"
+                        class="group relative overflow-hidden backdrop-blur-md border border-white/10 p-5 rounded-2xl text-right transition-all duration-200 transform hover:scale-[1.02] active:scale-95 shadow-lg">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold group-hover:bg-white/20 transition-colors">
+                                <span x-text="['أ', 'ب', 'ج', 'د'][index]"></span>
+                            </div>
+                            <span class="text-lg font-medium text-white" x-text="option.option_text"></span>
+                        </div>
+                    </button>
+                </template>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex gap-4 mt-auto pb-8">
+                <button x-show="currentQuestionIndex > 0" @click="previousQuestion()"
+                    class="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-2xl font-bold transition-all">
+                    السابق
+                </button>
+                <button x-show="currentQuestionIndex < questions.length - 1" @click="nextQuestion()"
+                    :disabled="!selectedOptionId"
+                    :class="selectedOptionId ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 cursor-not-allowed'"
+                    class="flex-1 text-white px-6 py-3 rounded-2xl font-bold transition-all">
+                    التالي
+                </button>
+                <button x-show="currentQuestionIndex === questions.length - 1" @click="submitAllAnswers()"
+                    :disabled="!selectedOptionId || isSubmitting"
+                    :class="selectedOptionId ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-500 cursor-not-allowed'"
+                    class="flex-1 text-white px-6 py-3 rounded-2xl font-bold transition-all">
+                    <span x-show="!isSubmitting">إرسال الإجابات</span>
+                    <span x-show="isSubmitting" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor"
+                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                            </path>
+                        </svg>
+                        جاري الإرسال...
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Submitting State -->
+        <div x-show="isSubmitting" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100"
             class="flex-1 flex flex-col items-center justify-center text-center pb-20">
             <div class="relative mb-8">
                 <div class="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse rounded-full"></div>
                 <div
                     class="w-24 h-24 bg-gradient-to-tr from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl relative z-10 animate-bounce">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <svg class="animate-spin h-10 w-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
                     </svg>
                 </div>
             </div>
-            <h2 class="text-3xl font-black mb-3">استعد!</h2>
-            <p class="text-blue-200 text-lg">بانتظار السؤال القادم...</p>
-            <div class="mt-8 flex gap-2">
-                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0s"></div>
-                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
-                <div class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
-            </div>
+            <h2 class="text-3xl font-black mb-3">جاري إرسال الإجابات...</h2>
+            <p class="text-blue-200 text-lg">يرجى الانتظار</p>
         </div>
 
-        <!-- Question State -->
-        <div x-show="currentQuestion && !hasAnswered" x-transition:enter="transition ease-out duration-500"
-            x-transition:enter-start="opacity-0 translate-y-10" x-transition:enter-end="opacity-100 translate-y-0"
-            class="flex-1 flex flex-col">
-
-            <!-- Timer Bar -->
-            <div class="mb-6 relative h-2 bg-white/10 rounded-full overflow-hidden">
-                <div class="absolute top-0 right-0 h-full bg-gradient-to-l from-green-400 via-yellow-400 to-red-500 transition-all duration-1000 ease-linear shadow-[0_0_10px_rgba(255,255,255,0.5)]"
-                    :style="`width: ${(timeRemaining / 30) * 100}%`"></div>
-            </div>
-
-            <!-- Question Card -->
-            <div
-                class="glass-card text-gray-800 rounded-3xl p-6 mb-6 text-center transform transition-all hover:scale-[1.01] duration-300">
-                <div class="mb-4 text-blue-600 font-bold tracking-wider text-xs uppercase">جاري اللعب</div>
-                <h2 class="text-2xl md:text-3xl font-bold leading-relaxed mb-4" x-text="currentQuestion?.question_text">
-                </h2>
-
-                <div
-                    class="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-100 rounded-full text-sm font-bold shadow-inner">
-                    <span class="w-2 h-2 rounded-full animate-pulse"
-                        :class="timeRemaining <= 10 ? 'bg-red-500' : 'bg-green-500'"></span>
-                    <span :class="timeRemaining <= 10 ? 'text-red-600' : 'text-gray-600'"
-                        x-text="timeRemaining + ' ثانية'"></span>
-                </div>
-            </div>
-
-            <!-- Options Grid -->
-            <div class="grid grid-cols-1 gap-3 pb-8">
-                <template x-for="(option, index) in currentQuestion?.options" :key="option.id">
-                    <button @click="submitAnswer(option.id)"
-                        class="group relative overflow-hidden bg-white/10 hover:bg-white/20 active:bg-blue-600 backdrop-blur-md border border-white/10 p-5 rounded-2xl text-right transition-all duration-200 transform hover:scale-[1.02] active:scale-95 shadow-lg">
-                        <div
-                            class="absolute inset-0 bg-gradient-to-r from-blue-600/0 via-blue-600/0 to-blue-600/0 group-hover:from-blue-600/10 group-hover:via-purple-600/10 group-hover:to-blue-600/10 transition-all duration-300">
-                        </div>
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-bold group-hover:bg-white/20 transition-colors">
-                                <span x-text="['أ', 'ب', 'ج', 'د'][index]"></span>
-                            </div>
-                            <span class="text-lg font-medium text-white group-hover:text-blue-100"
-                                x-text="option.option_text"></span>
-                        </div>
-                    </button>
-                </template>
-            </div>
-        </div>
-
-        <!-- Submitted/Waiting Result State -->
-        <div x-show="currentQuestion && hasAnswered" x-transition:enter="transition ease-out duration-300"
+        <!-- Finished State -->
+        <div x-show="isFinished" x-transition:enter="transition ease-out duration-500"
             x-transition:enter-start="opacity-0 scale-90" x-transition:enter-end="opacity-100 scale-100"
-            class="flex-1 flex flex-col items-center justify-center text-center pb-20">
-            <div
-                class="w-24 h-24 bg-green-500/20 rounded-full flex items-center justify-center mb-6 ring-4 ring-green-500/30 animate-[pulse_3s_infinite]">
-                <svg class="w-12 h-12 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h2 class="text-2xl font-bold mb-2">تم استلام إجابتك</h2>
-            <p class="text-gray-400">ننتظر باقي المتسابقين...</p>
-        </div>
+            class="flex-1 flex flex-col items-center justify-center text-center pb-10">
 
-        <!-- Round Results State -->
-        <div x-show="showResults" class="flex-1 flex flex-col items-center justify-center text-center pb-10">
+            <div class="glass-card rounded-3xl p-8 w-full max-w-sm mb-8">
+                <div
+                    class="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-orange-500/30 animate-bounce">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black text-gray-900 mb-2">تم الإرسال!</h2>
+                <p class="text-gray-500 mb-6" x-text="getFeedbackMessage()"></p>
 
-            <div
-                class="glass-card rounded-3xl p-8 w-full max-w-sm mb-8 transform transition-all duration-500 hover:rotate-1">
-                <div class="text-gray-500 font-medium mb-4 uppercase tracking-wider text-xs">الإجابة الصحيحة</div>
-                <div class="text-xl font-bold text-gray-900 mb-6" x-text="correctAnswer?.option_text"></div>
+                <div class="bg-gray-50 rounded-2xl p-6 mb-4">
+                    <span class="block text-gray-400 text-sm mb-2 uppercase tracking-wide">النتيجة النهائية</span>
+                    <span class="block text-5xl font-black text-gray-900" x-text="finalScore"></span>
+                </div>
 
-                <div class="h-px bg-gray-200 w-full mb-6"></div>
-
-                <div class="text-gray-500 font-medium mb-2">رصيدك الحالي</div>
-                <div class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-br from-blue-600 to-purple-600"
-                    x-text="score"></div>
-            </div>
-        </div>
-
-        <!-- Finished Modal -->
-        <div x-show="status === 'finished'" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-            class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-            <div class="glass-card rounded-3xl p-8 max-w-sm w-full text-center relative overflow-hidden">
-                <!-- Fireworks decorations could go here -->
-                <div class="relative z-10">
-                    <div
-                        class="w-20 h-20 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full mx-auto mb-6 flex items-center justify-center shadow-lg shadow-orange-500/30 animate-bounce">
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                        </svg>
+                <div class="flex gap-4 text-sm">
+                    <div class="flex-1 bg-green-100 rounded-xl p-3">
+                        <span class="block text-green-600 font-bold" x-text="correctCount"></span>
+                        <span class="text-green-500">صحيح</span>
                     </div>
-                    <h2 class="text-3xl font-black text-gray-900 mb-2">انتهت اللعبة!</h2>
-                    <p class="text-gray-500 mb-8" x-text="getFeedbackMessage()"></p>
-
-                    <div class="bg-gray-50 rounded-2xl p-6 mb-6">
-                        <span class="block text-gray-400 text-sm mb-2 uppercase tracking-wide">النتيجة النهائية</span>
-                        <span class="block text-5xl font-black text-gray-900" x-text="score"></span>
+                    <div class="flex-1 bg-red-100 rounded-xl p-3">
+                        <span class="block text-red-600 font-bold" x-text="incorrectCount"></span>
+                        <span class="text-red-500">خطأ</span>
                     </div>
-
-                    <p class="text-sm text-gray-400">شكراً لمشاركتك معنا</p>
                 </div>
             </div>
+
+            <a href="{{ route('participant.competition.finished', $competition) }}"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold transition-all">
+                عرض التفاصيل
+            </a>
         </div>
 
     </div>
 
-    <!-- Background Logic -->
     <script>
-        function competitionPlay(competitionId) {
+        function competitionPlay() {
             return {
-                status: 'started',
-                currentQuestion: null,
-                hasAnswered: false,
-                timeRemaining: 0,
-                score: {{ $participant->score }},
-                showResults: false,
-                correctAnswer: null,
+                questions: @json($questions),
+                currentQuestionIndex: 0,
+                answers: {}, // { question_id: option_id }
+                selectedOptionId: null,
+                isSubmitting: false,
+                isFinished: false,
+                finalScore: 0,
+                correctCount: 0,
+                incorrectCount: 0,
+                competitionId: {{ $competition->id }},
 
                 init() {
-                    this.startPolling();
-                    // Check if already finished
-                    this.fetchLiveData();
+                    // Restore previously selected answer if exists
+                    this.restoreSelectedOption();
                 },
 
-                getFeedbackMessage() {
-                    if (this.score == 0) return 'حظاً أوفر في المرة القادمة!';
-                    if (this.score < 50) return 'بداية جيدة، القادم أفضل!';
-                    if (this.score < 100) return 'أداء جيد جداً!';
-                    return 'أداء استثنائي ومميز!';
+                get currentQuestion() {
+                    return this.questions[this.currentQuestionIndex];
                 },
 
-                startPolling() {
-                    setInterval(() => this.fetchLiveData(), 2500);
+                selectOption(optionId) {
+                    this.selectedOptionId = optionId;
+                    // Store answer
+                    this.answers[this.currentQuestion.id] = optionId;
                 },
 
-                async fetchLiveData() {
-                    try {
-                        const response = await fetch(`/compete/live/${competitionId}?t=${new Date().getTime()}`);
-                        const data = await response.json();
-
-                        this.status = data.status;
-                        this.currentQuestion = data.current_question;
-                        this.hasAnswered = data.has_answered;
-                        this.timeRemaining = data.time_remaining;
-                        // Only update score if changed to animate (optional enhancement idea)
-                        this.score = data.score;
-                        this.showResults = data.show_results;
-                        this.correctAnswer = data.correct_answer;
-                    } catch (error) {
-                        console.error('Error fetching live data:', error);
+                restoreSelectedOption() {
+                    const questionId = this.currentQuestion?.id;
+                    if (questionId && this.answers[questionId]) {
+                        this.selectedOptionId = this.answers[questionId];
+                    } else {
+                        this.selectedOptionId = null;
                     }
                 },
 
-                async submitAnswer(optionId) {
+                nextQuestion() {
+                    if (this.currentQuestionIndex < this.questions.length - 1) {
+                        this.currentQuestionIndex++;
+                        this.restoreSelectedOption();
+                    }
+                },
+
+                previousQuestion() {
+                    if (this.currentQuestionIndex > 0) {
+                        this.currentQuestionIndex--;
+                        this.restoreSelectedOption();
+                    }
+                },
+
+                getFeedbackMessage() {
+                    const percentage = (this.correctCount / this.questions.length) * 100;
+                    if (percentage === 100) return 'ممتاز! إجابات صحيحة بالكامل!';
+                    if (percentage >= 80) return 'أداء رائع!';
+                    if (percentage >= 60) return 'أداء جيد!';
+                    if (percentage >= 40) return 'بداية جيدة!';
+                    return 'حظاً أوفر في المرة القادمة!';
+                },
+
+                async submitAllAnswers() {
                     // Haptic feedback if supported
                     if (navigator.vibrate) navigator.vibrate(50);
 
+                    this.isSubmitting = true;
+
+                    // Convert answers object to array
+                    const answersArray = Object.entries(this.answers).map(([questionId, optionId]) => ({
+                        question_id: parseInt(questionId),
+                        option_id: optionId
+                    }));
+
                     try {
-                        const response = await fetch(`/compete/answer/${competitionId}`, {
+                        const response = await fetch(`/compete/answers/${this.competitionId}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                             },
-                            body: JSON.stringify({
-                                question_id: this.currentQuestion.id,
-                                option_id: optionId
-                            })
+                            body: JSON.stringify({ answers: answersArray })
                         });
 
                         const data = await response.json();
+
                         if (data.success) {
-                            this.hasAnswered = true;
+                            this.finalScore = data.final_score;
+                            this.correctCount = data.correct_count;
+                            this.incorrectCount = data.incorrect_count;
+                            this.isFinished = true;
+                        } else {
+                            alert(data.error || 'حدث خطأ أثناء الإرسال');
                         }
                     } catch (error) {
-                        console.error('Error submitting answer:', error);
+                        console.error('Error submitting answers:', error);
+                        alert('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+                    } finally {
+                        this.isSubmitting = false;
                     }
                 }
             }

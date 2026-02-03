@@ -1,11 +1,29 @@
 <x-app-layout>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" dir="rtl"
         x-data="competitionControl({{ $competition->id }}, '{{ $competition->status }}')">
 
-        <div class="mb-6 text-right">
-            <h1 class="text-3xl font-bold text-gray-900">{{ $competition->title }}</h1>
-            <p class="text-gray-600 mt-1">الرمز: <span class="font-mono font-bold">{{ $competition->join_code }}</span>
-            </p>
+        <div class="mb-6 flex items-center justify-between" dir="rtl">
+            <div class="text-right">
+                <h1 class="text-3xl font-bold text-gray-900">{{ $competition->title }}</h1>
+                <p class="text-gray-600 mt-1">الرمز: <span class="font-mono font-bold">{{ $competition->join_code }}</span></p>
+            </div>
+            <div class="flex gap-2">
+                <a href="{{ route('admin.competitions.edit', $competition) }}" 
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition">
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                    تعديل
+                </a>
+                <a href="{{ route('admin.competitions.index') }}" 
+                   class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition">
+                    <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                    </svg>
+                    العودة للقائمة
+                </a>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -37,11 +55,19 @@
                                 المسابقة</button>
                         </form>
                     @elseif($competition->status === 'started')
-                        <button @click="closeCurrentQuestion()" x-show="currentQuestion"
-                            class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium mb-2">إغلاق
-                            السؤال الحالي</button>
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">إنهاء
-                        المسابقة</button>
+                        <button @click="sendAllQuestions()"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium mb-2 flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            إرسال جميع الأسئلة تلقائياً
+                        </button>
+                        <form action="{{ route('admin.competitions.finish', $competition) }}" method="POST">
+                            @csrf
+                            <button type="submit"
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">إنهاء
+                                المسابقة</button>
                         </form>
                     @elseif($competition->status === 'finished')
                         <div class="space-y-2">
@@ -233,13 +259,16 @@
                                 </div>
                             </div>
                             <div class="flex gap-2 mr-4">
-                                <button x-show="status === 'started'" @click="pushQuestion({{ $question->id }})"
-                                    class="bg-green-600 text-white px-3 py-1 rounded text-sm">إرسال</button>
+
+                                <a x-show="status === 'closed'"
+                                    href="{{ route('admin.competitions.questions.edit', [$competition, $question]) }}"
+                                    class="text-blue-600 hover:text-blue-800 text-sm">تعديل</a>
 
                                 <form x-show="status === 'closed'"
                                     action="{{ route('admin.questions.destroy', $question) }}" method="POST">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 text-sm">حذف</button>
+                                    <button type="submit" class="text-red-600 text-sm"
+                                        onclick="return confirm('هل أنت متأكد من حذف هذا السؤال؟')">حذف</button>
                                 </form>
                             </div>
                         </div>
@@ -256,37 +285,40 @@
             return {
                 status: initialStatus,
                 participantsCount: {{ $competition->participants->count() }},
-                currentQuestionId: {{ $competition->current_question_id ?? 'null' }},
-                currentQuestion: null,
                 showAddQuestion: false,
                 showQuestionList: true,
+                sendingAll: false,
                 init() {
-                    // Polling removed as per request
+                    // No polling needed for bulk mode
                 },
-                async fetchLiveData() {
-                    const response = await fetch(`/admin/competitions/${competitionId}/live`);
-                    const data = await response.json();
-                    this.status = data.status;
-                    this.participantsCount = data.participants_count;
-                    if (data.current_question) {
-                        this.currentQuestionId = data.current_question.id;
+                async sendAllQuestions() {
+                    if (!confirm('هل أنت متأكد؟ سيتم تفعيل الأسئلة لجميع المشاركين.')) {
+                        return;
                     }
-                },
-                async pushQuestion(questionId) {
-                    // Optimistic update
-                    this.currentQuestionId = questionId;
 
-                    await fetch(`/admin/competitions/${competitionId}/push-question/${questionId}`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                    });
-                },
-                async closeCurrentQuestion() {
-                    await fetch(`/admin/competitions/${competitionId}/close-question`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-                    });
-                    this.currentQuestionId = null;
+                    this.sendingAll = true;
+
+                    try {
+                        const response = await fetch(`/admin/competitions/${competitionId}/send-all-questions`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            alert(data.message);
+                        } else {
+                            alert(data.error || 'حدث خطأ');
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('حدث خطأ في الاتصال');
+                    } finally {
+                        this.sendingAll = false;
+                    }
                 }
             }
         }

@@ -10,11 +10,16 @@ class ComParticipant extends Model
         'competition_id',
         'name',
         'ip_address',
-        'score'
+        'score',
+        'current_question_id',
+        'question_started_at',
+        'auto_mode'
     ];
 
     protected $casts = [
-        'score' => 'integer'
+        'score' => 'integer',
+        'question_started_at' => 'datetime',
+        'auto_mode' => 'boolean'
     ];
 
     // Relationships
@@ -79,5 +84,56 @@ class ComParticipant extends Model
         return $this->competition->participants()
             ->where('score', '>', $this->score)
             ->count() + 1;
+    }
+
+    // Auto-sequential mode helpers
+    public function currentQuestion()
+    {
+        return $this->belongsTo(ComQuestion::class, 'current_question_id');
+    }
+
+    public function advanceToNextQuestion(): ?ComQuestion
+    {
+        $questions = $this->competition->questions()->orderBy('order')->get();
+        
+        // Find current position
+        $currentIndex = $questions->search(function ($q) {
+            return $q->id === $this->current_question_id;
+        });
+        
+        if ($currentIndex === false) {
+            // Start from first question
+            $nextQuestion = $questions->first();
+        } elseif ($currentIndex < $questions->count() - 1) {
+            $nextQuestion = $questions[$currentIndex + 1];
+        } else {
+            // No more questions
+            return null;
+        }
+        
+        $this->update([
+            'current_question_id' => $nextQuestion->id,
+            'question_started_at' => now()
+        ]);
+        
+        return $nextQuestion;
+    }
+
+    public function getTimeRemainingAttribute(): int
+    {
+        if (!$this->question_started_at) {
+            return 0;
+        }
+        
+        $elapsed = now()->diffInSeconds($this->question_started_at);
+        return max(0, 30 - $elapsed);
+    }
+
+    public function isCompetitionFinished(): bool
+    {
+        $totalQuestions = $this->competition->questions()->count();
+        $answeredQuestions = $this->answers()->distinct()->count();
+        
+        return $answeredQuestions >= $totalQuestions;
     }
 }

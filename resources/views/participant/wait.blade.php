@@ -209,7 +209,7 @@
                     }
                     
                     if (data.status === 'finished') {
-                        window.location.href = '/compete/finished';
+                        window.location.href = `/compete/finished/${competitionId}`;
                     }
                 } catch (error) {
                     console.error('Error checking status:', error);

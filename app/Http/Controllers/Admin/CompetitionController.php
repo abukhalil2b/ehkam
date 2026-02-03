@@ -283,6 +283,50 @@ class CompetitionController extends Controller
             ->with('success', 'تم حذف السؤال بنجاح!');
     }
 
+    public function editQuestion(ComCompetition $competition, ComQuestion $question)
+    {
+        $question->load('options');
+
+        return view('admin.competitions.edit-question', compact('competition', 'question'));
+    }
+
+    public function updateQuestion(Request $request, ComCompetition $competition, ComQuestion $question)
+    {
+        $validated = $request->validate([
+            'question_text' => 'required|string',
+            'order' => 'required|integer|min:1',
+            'options' => 'required|array|min:2|max:6',
+            'options.*' => 'required|string|max:500',
+            'correct_option' => 'required|integer|min:0'
+        ]);
+
+        // Ensure correct_option index exists
+        if (!isset($validated['options'][$validated['correct_option']])) {
+            return back()->withErrors(['correct_option' => 'تم اختيار خيار صحيح غير صالح.']);
+        }
+
+        // Update question
+        $question->update([
+            'question_text' => $validated['question_text'],
+            'order' => $validated['order']
+        ]);
+
+        // Delete existing options
+        $question->options()->delete();
+
+        // Create new options
+        foreach ($validated['options'] as $index => $optionText) {
+            $question->options()->create([
+                'option_text' => $optionText,
+                'is_correct' => $index == $validated['correct_option']
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.competitions.show', $competition)
+            ->with('success', 'تم تحديث السؤال بنجاح!');
+    }
+
     public function start(ComCompetition $competition)
     {
         if (!$competition->isClosed()) {
@@ -363,6 +407,44 @@ class CompetitionController extends Controller
         ]);
     }
 
+    public function sendAllQuestions(ComCompetition $competition)
+    {
+        if (!$competition->isStarted()) {
+            return response()->json(['error' => 'لم تبدأ المنافسة بعد'], 400);
+        }
+
+        $questions = $competition->questions()->orderBy('order')->get();
+
+        if ($questions->isEmpty()) {
+            return response()->json(['error' => 'لا توجد أسئلة في هذه المسابقة'], 400);
+        }
+
+        // Initialize all participants with auto mode and first question
+        // Optimized to update all rows in one query to prevent loop timeout
+        $competition->participants()->update([
+            'current_question_id' => $questions->first()->id,
+            'question_started_at' => now(),
+            'auto_mode' => true
+        ]);
+
+        // Activate the first question
+        $firstQuestion = $questions->first();
+        $firstQuestion->activate();
+
+        $competition->update([
+            'current_question_id' => $firstQuestion->id,
+            'question_started_at' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'تم إرسال جميع الأسئلة بنجاح! ستظهر الأسئلة للمتسابقين تلقائياً.',
+            'questions_count' => $questions->count(),
+            'participants_count' => $competition->participants()->count(),
+            'first_question' => $firstQuestion->load('options')
+        ]);
+    }
+
     public function finish(ComCompetition $competition)
     {
         $competition->update([
@@ -394,6 +476,31 @@ class CompetitionController extends Controller
         return redirect()
             ->route('admin.competitions.show', $competition)
             ->with('success', 'تم إعادة فتح المسابقة بنجاح! يمكن للمتسابقين المتابعة الآن.');
+    }
+
+    /**
+     * Clear all participants and their answers (for testing)
+     */
+    public function clearData(ComCompetition $competition)
+    {
+        // Delete all answers for this competition's participants
+        $participantIds = $competition->participants()->pluck('id');
+        \App\Models\ComAnswer::whereIn('participant_id', $participantIds)->delete();
+
+        // Delete all participants
+        $participantsCount = $competition->participants()->count();
+        $competition->participants()->delete();
+
+        // Reset competition state
+        $competition->update([
+            'status' => 'closed',
+            'current_question_id' => null,
+            'question_started_at' => null
+        ]);
+
+        return redirect()
+            ->route('admin.competitions.show', $competition)
+            ->with('success', "تم حذف {$participantsCount} مشارك وجميع إجاباتهم بنجاح!");
     }
 
     public function liveData(ComCompetition $competition)

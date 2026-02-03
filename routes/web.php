@@ -999,10 +999,16 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
         ->name('competitions.questions.store');
     Route::delete('questions/{question}', [AdminCompetitionController::class, 'destroyQuestion'])
         ->name('questions.destroy');
+    Route::get('competitions/{competition}/questions/{question}/edit', [AdminCompetitionController::class, 'editQuestion'])
+        ->name('competitions.questions.edit');
+    Route::put('competitions/{competition}/questions/{question}', [AdminCompetitionController::class, 'updateQuestion'])
+        ->name('competitions.questions.update');
 
     // Competition Control
     Route::post('competitions/{competition}/start', [AdminCompetitionController::class, 'start'])
         ->name('competitions.start');
+    Route::post('competitions/{competition}/send-all-questions', [AdminCompetitionController::class, 'sendAllQuestions'])
+        ->name('competitions.send-all-questions');
     Route::post('competitions/{competition}/push-question/{question}', [AdminCompetitionController::class, 'pushQuestion'])
         ->name('competitions.push-question');
     Route::post('competitions/{competition}/close-question', [AdminCompetitionController::class, 'closeQuestion'])
@@ -1011,6 +1017,8 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
         ->name('competitions.finish');
     Route::post('competitions/{competition}/reopen', [AdminCompetitionController::class, 'reopen'])
         ->name('competitions.reopen');
+    Route::post('competitions/{competition}/clear-data', [AdminCompetitionController::class, 'clearData'])
+        ->name('competitions.clear-data');
 
     // Live Data
     Route::get('competitions/{competition}/live', [AdminCompetitionController::class, 'liveData'])
@@ -1029,8 +1037,12 @@ Route::prefix('compete')->name('participant.competition.')->group(function () {
         ->name('wait');
     Route::get('play/{competition}', [ParticipantCompetitionController::class, 'play'])
         ->name('play');
+    Route::get('finished/{competition}', [ParticipantCompetitionController::class, 'finished'])
+        ->name('finished');
     Route::post('answer/{competition}', [ParticipantCompetitionController::class, 'submitAnswer'])
         ->name('answer');
+    Route::post('answers/{competition}', [ParticipantCompetitionController::class, 'submitAllAnswers'])
+        ->name('submit-all');
     Route::get('live/{competition}', [ParticipantCompetitionController::class, 'liveData'])
         ->name('live');
 });
