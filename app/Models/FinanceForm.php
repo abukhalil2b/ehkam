@@ -12,4 +12,9 @@ class FinanceForm extends Model
     {
         return $this->hasMany(FinanceFormItem::class);
     }
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

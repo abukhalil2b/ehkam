@@ -201,7 +201,7 @@
                         </svg>
                     </div>
                     <h2 class="text-3xl font-black text-gray-900 mb-2">انتهت اللعبة!</h2>
-                    <p class="text-gray-500 mb-8">كان أداؤك رائعاً</p>
+                    <p class="text-gray-500 mb-8" x-text="getFeedbackMessage()"></p>
 
                     <div class="bg-gray-50 rounded-2xl p-6 mb-6">
                         <span class="block text-gray-400 text-sm mb-2 uppercase tracking-wide">النتيجة النهائية</span>
@@ -233,13 +233,20 @@
                     this.fetchLiveData();
                 },
 
+                getFeedbackMessage() {
+                    if (this.score == 0) return 'حظاً أوفر في المرة القادمة!';
+                    if (this.score < 50) return 'بداية جيدة، القادم أفضل!';
+                    if (this.score < 100) return 'أداء جيد جداً!';
+                    return 'أداء استثنائي ومميز!';
+                },
+
                 startPolling() {
-                    setInterval(() => this.fetchLiveData(), 1000);
+                    setInterval(() => this.fetchLiveData(), 2500);
                 },
 
                 async fetchLiveData() {
                     try {
-                        const response = await fetch(`/compete/live/${competitionId}`);
+                        const response = await fetch(`/compete/live/${competitionId}?t=${new Date().getTime()}`);
                         const data = await response.json();
 
                         this.status = data.status;

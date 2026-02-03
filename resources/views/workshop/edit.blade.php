@@ -71,7 +71,7 @@
                         <button type="button"
                             class="text-blue-600 hover:text-blue-800 font-semibold transition duration-150 ease-in-out mt-1"
                             onclick="addDay()">
-                            + إضافة يوم آخر
+                            + إضافة يوم 
                         </button>
                     </div>
                     {{-- Location (Added Field) --}}

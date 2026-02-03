@@ -30,11 +30,11 @@ class CompetitionController extends Controller
                 'error' => 'يمكن إضافة الأسئلة فقط عندما تكون المسابقة مغلقة'
             ], 400);
         }
-    
+
         try {
             // Use your service to get the data from Gemini
             $questionsData = $generator->generate($request->topic, $request->count);
-    
+
             if (!$questionsData || !is_array($questionsData) || empty($questionsData)) {
                 Log::warning('Gemini returned empty or invalid questions', [
                     'competition_id' => $competition->id,
@@ -43,7 +43,7 @@ class CompetitionController extends Controller
                     'questions_data_type' => gettype($questionsData),
                     'questions_data' => $questionsData
                 ]);
-                
+
                 // Check Laravel logs for more details
                 $logMessage = 'فشل الذكاء الاصطناعي في توليد المحتوى. ';
                 $logMessage .= 'يرجى التحقق من:';
@@ -51,19 +51,19 @@ class CompetitionController extends Controller
                 $logMessage .= '<br>2. أن الاتصال بالإنترنت يعمل';
                 $logMessage .= '<br>3. أن الموضوع واضح ومحدد';
                 $logMessage .= '<br>4. مراجعة ملفات السجلات (storage/logs) لمزيد من التفاصيل';
-                
+
                 return response()->json([
                     'success' => false,
                     'error' => $logMessage
                 ], 500);
             }
-    
+
             $savedCount = 0;
             $skippedCount = 0;
-            
+
             DB::transaction(function () use ($questionsData, $competition, &$savedCount, &$skippedCount) {
                 $maxOrder = ComQuestion::where('competition_id', $competition->id)->max('order') ?? 0;
-                
+
                 foreach ($questionsData as $q) {
                     // Validate question structure
                     if (!isset($q['question']) || empty(trim($q['question']))) {
@@ -90,7 +90,7 @@ class CompetitionController extends Controller
                             break;
                         }
                     }
-                    
+
                     if (!$allOptionsValid) {
                         $skippedCount++;
                         continue;
@@ -100,7 +100,7 @@ class CompetitionController extends Controller
                         $skippedCount++;
                         continue;
                     }
-    
+
                     // Create the question based on your schema
                     $maxOrder++;
                     $newQuestion = ComQuestion::create([
@@ -109,7 +109,7 @@ class CompetitionController extends Controller
                         'order' => $maxOrder,
                         'is_active' => false,
                     ]);
-    
+
                     // Create the 4 options
                     $correctAnswer = trim($q['correct_answer']);
                     foreach ($q['options'] as $optionText) {
@@ -120,23 +120,23 @@ class CompetitionController extends Controller
                             'is_correct' => ($trimmedOption === $correctAnswer),
                         ]);
                     }
-                    
+
                     $savedCount++;
                 }
             });
-    
+
             if ($savedCount === 0) {
                 return response()->json([
                     'success' => false,
                     'error' => 'لم يتم حفظ أي سؤال. قد تكون البيانات المُولدة غير صحيحة. يرجى المحاولة مرة أخرى.'
                 ], 500);
             }
-    
+
             $message = "تم حفظ {$savedCount} سؤال بنجاح!";
             if ($skippedCount > 0) {
                 $message .= " (تم تخطي {$skippedCount} سؤال بسبب بيانات غير صحيحة)";
             }
-    
+
             return response()->json([
                 'success' => true,
                 'message' => $message,
@@ -157,7 +157,7 @@ class CompetitionController extends Controller
 
             // Provide more specific error messages
             $errorMessage = $e->getMessage();
-            
+
             // Check for common errors
             if (str_contains($errorMessage, 'API key')) {
                 $errorMessage = 'مفتاح API غير صحيح أو غير موجود. يرجى التحقق من ملف .env';
@@ -377,6 +377,23 @@ class CompetitionController extends Controller
         return redirect()
             ->route('admin.competitions.results', $competition)
             ->with('success', 'انتهت المسابقة!');
+    }
+
+    public function reopen(ComCompetition $competition)
+    {
+        if (!$competition->isFinished()) {
+            return back()->with('error', 'يمكن إعادة فتح المسابقات المنتهية فقط');
+        }
+
+        $competition->update([
+            'status' => 'started',
+            'current_question_id' => null,
+            'question_started_at' => null
+        ]);
+
+        return redirect()
+            ->route('admin.competitions.show', $competition)
+            ->with('success', 'تم إعادة فتح المسابقة بنجاح! يمكن للمتسابقين المتابعة الآن.');
     }
 
     public function liveData(ComCompetition $competition)

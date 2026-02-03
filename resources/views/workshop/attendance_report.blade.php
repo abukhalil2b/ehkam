@@ -1,325 +1,262 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="min-h-screen bg-gray-50 pb-12">
         
-        <!-- Header -->
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">تقرير حضور ورش العمل</h1>
-                <p class="text-gray-500 mt-1">عرض وتحليل حضور المشاركين في ورش العمل</p>
-            </div>
-            <a href="{{ route('workshop.index') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
-                <svg class="w-5 h-5 ml-2 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                </svg>
-                عودة للقائمة
-            </a>
-        </div>
-
-        <!-- Workshop Selector -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <form method="GET" action="{{ route('workshop.attendance_report') }}" class="flex flex-col md:flex-row gap-4 items-end">
-                <div class="flex-1 w-full">
-                    <label for="workshop_id" class="block text-sm font-medium text-gray-700 mb-2">اختر الورشة</label>
-                    <select name="workshop_id" id="workshop_id" class="block w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 border p-3">
-                        <option value="">-- اختر ورشة عمل --</option>
-                        @foreach($workshops as $workshop)
-                            <option value="{{ $workshop->id }}" {{ $selectedWorkshop && $selectedWorkshop->id == $workshop->id ? 'selected' : '' }}>
-                                {{ $workshop->title }} ({{ $workshop->days->count() }} أيام | {{ $workshop->attendances->count() }} مشارك)
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-sm">
-                    عرض التقرير
-                </button>
-                @if($selectedWorkshop)
-                    <a href="{{ route('workshop.attendance_report') }}" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-medium">
-                        مسح
-                    </a>
-                @endif
-            </form>
-        </div>
-
-        @if($selectedWorkshop && $reportData)
-            <!-- Workshop Info -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                        <div>
-                            <h2 class="text-xl font-bold text-gray-900">{{ $selectedWorkshop->title }}</h2>
-                            <p class="text-sm text-gray-500 mt-1">
-                                {{ $selectedWorkshop->location ?? 'غير محدد' }} | 
-                                {{ $selectedWorkshop->starts_at?->format('Y-m-d') }} 
-                                @if($selectedWorkshop->ends_at && $selectedWorkshop->ends_at != $selectedWorkshop->starts_at)
-                                    إلى {{ $selectedWorkshop->ends_at->format('Y-m-d') }}
-                                @endif
-                            </p>
-                        </div>
-                        @if($selectedWorkshop->is_active)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                                نشطة
+        <!-- Hero Header with Gradient -->
+        <div class="bg-gradient-to-r from-blue-900 to-teal-800 text-white shadow-lg mb-8">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div class="flex items-center gap-3 mb-2">
+                             <a href="{{ route('workshop.index') }}" class="text-blue-100 hover:text-white transition bg-white/10 p-2 rounded-lg backdrop-blur-sm">
+                                <svg class="w-5 h-5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                </svg>
+                            </a>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-teal-500/20 text-teal-100 border border-teal-500/30">
+                                تقرير تفصيلي
                             </span>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-6 bg-white">
-                    <div class="bg-blue-50 rounded-xl p-4 text-center">
-                        <div class="text-3xl font-bold text-blue-600">{{ $reportData['summary']['total_days'] }}</div>
-                        <div class="text-sm text-blue-800 mt-1">أيام الورشة</div>
-                    </div>
-                    <div class="bg-green-50 rounded-xl p-4 text-center">
-                        <div class="text-3xl font-bold text-green-600">{{ $reportData['summary']['total_participants'] }}</div>
-                        <div class="text-sm text-green-800 mt-1">المشاركين</div>
-                    </div>
-                    <div class="bg-purple-50 rounded-xl p-4 text-center">
-                        <div class="text-3xl font-bold text-purple-600">{{ $reportData['summary']['overall_attendance_rate'] }}%</div>
-                        <div class="text-sm text-purple-800 mt-1">معدل الحضور</div>
-                    </div>
-                    <div class="bg-orange-50 rounded-xl p-4 text-center">
-                        <div class="text-3xl font-bold text-orange-600">{{ $reportData['summary']['total_checkins'] }}</div>
-                        <div class="text-sm text-orange-800 mt-1">إجمالي تسجيلات الحضور</div>
-                    </div>
-                </div>
-
-                <!-- Attendance Breakdown -->
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">توزيع الحضور</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="flex items-center gap-3 p-4 bg-green-50 rounded-lg">
-                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-gray-900">{{ $reportData['summary']['full_attendance_count'] }}</div>
-                                <div class="text-sm text-gray-600">حضور كامل (100%)</div>
-                            </div>
                         </div>
-                        <div class="flex items-center gap-3 p-4 bg-yellow-50 rounded-lg">
-                            <div class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-gray-900">{{ $reportData['summary']['partial_attendance_count'] }}</div>
-                                <div class="text-sm text-gray-600">حضور جزئي</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 p-4 bg-red-50 rounded-lg">
-                            <div class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-                                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <div class="text-2xl font-bold text-gray-900">{{ $reportData['summary']['no_attendance_count'] }}</div>
-                                <div class="text-sm text-gray-600">بدون حضور</div>
-                            </div>
-                        </div>
+                        <h1 class="text-3xl font-bold tracking-tight">تقرير حضور ورش العمل</h1>
+                        <p class="text-blue-100 mt-2 text-lg opacity-90">تحليل بيانات الحضور والمشاركين والالتزام اليومي</p>
                     </div>
-                </div>
-
-                <!-- Day-wise Statistics -->
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">الحضور اليومي</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">اليوم</th>
-                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">التاريخ</th>
-                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">الحضور</th>
-                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">معدل الحضور</th>
-                                    <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">نسبة</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($reportData['day_stats'] as $dayStat)
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-900">{{ $dayStat['label'] ?? 'اليوم ' . ($loop->iteration) }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $dayStat['date']->format('Y-m-d') }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-900 text-center font-semibold">{{ $dayStat['checkins_count'] }}</td>
-                                        <td class="px-4 py-3 text-sm text-gray-600 text-center">{{ $dayStat['attendance_rate'] }}%</td>
-                                        <td class="px-4 py-3 text-center">
-                                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                                <div class="bg-blue-600 h-2 rounded-full" style="width: {{ $dayStat['attendance_rate'] }}%"></div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                    
+                    <!-- Workshop Selector in Header -->
+                    <div class="bg-white/10 backdrop-blur-md p-1 rounded-xl border border-white/20">
+                         <form method="GET" action="{{ route('workshop.attendance_report') }}" class="flex">
+                            <select name="workshop_id" onchange="this.form.submit()" class="block w-64 border-0 bg-transparent text-white placeholder-gray-300 focus:ring-0 text-sm font-medium [&>option]:text-gray-900 cursor-pointer py-2.5 px-4">
+                                <option value="" class="text-gray-500">-- اختر ورشة لعرض التقرير --</option>
+                                @foreach($workshops as $workshop)
+                                    <option value="{{ $workshop->id }}" {{ $selectedWorkshop && $selectedWorkshop->id == $workshop->id ? 'selected' : '' }}>
+                                        {{ $workshop->title }}
+                                    </option>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Participant Attendance Matrix -->
-                <div class="border-t border-gray-100 p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">مصفوفة حضور المشاركين</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider sticky right-0 bg-gray-50 z-10 border-l">
-                                        المشارك
-                                    </th>
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">الحضور</th>
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">معدل الحضور</th>
-                                    <!-- Days Columns -->
-                                    @foreach($reportData['day_stats'] as $dayStat)
-                                        <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider min-w-[100px]">
-                                            <div class="flex flex-col">
-                                                <span>{{ $dayStat['date']->format('m/d') }}</span>
-                                                <span class="text-[10px] text-gray-400 font-normal">{{ $dayStat['label'] ?? 'يوم ' . $loop->iteration }}</span>
-                                            </div>
-                                        </th>
-                                    @endforeach
-                                    <th scope="col" class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-r">
-                                        أيام الحضور
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($reportData['participant_stats'] as $participant)
-                                    <tr class="hover:bg-gray-50 transition-colors">
-                                        <!-- Participant Name -->
-                                        <td class="px-4 py-3 text-sm font-medium text-gray-900 sticky right-0 bg-white z-10 border-l">
-                                            <div class="flex flex-col">
-                                                <span>{{ $participant['name'] }}</span>
-                                                @if($participant['job_title'] || $participant['department'])
-                                                    <span class="text-xs text-gray-400 font-normal">
-                                                        {{ $participant['job_title'] ?? '' }}@if($participant['job_title'] && $participant['department']) | @endif{{ $participant['department'] ?? '' }}
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        
-                                        <!-- Attendance Badge -->
-                                        <td class="px-4 py-3 text-center">
-                                            @if($participant['is_full_attendance'])
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                    حضور كامل
-                                                </span>
-                                            @elseif($participant['attendance_rate'] > 0)
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                                    حضور جزئي
-                                                </span>
-                                            @else
-                                                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                    غياب
-                                                </span>
-                                            @endif
-                                        </td>
-                                        
-                                        <!-- Attendance Rate -->
-                                        <td class="px-4 py-3 text-center">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                                    <div class="h-2 rounded-full {{ $participant['attendance_rate'] >= 75 ? 'bg-green-500' : ($participant['attendance_rate'] >= 50 ? 'bg-yellow-500' : 'bg-red-500') }}" style="width: {{ $participant['attendance_rate'] }}%"></div>
-                                                </div>
-                                                <span class="text-xs text-gray-600">{{ $participant['attendance_rate'] }}%</span>
-                                            </div>
-                                        </td>
-
-                                        <!-- Check-in Status for each Day -->
-                                        @php $presentDays = $participant['days']; @endphp
-                                        @foreach($reportData['day_stats'] as $dayStat)
-                                            <td class="px-4 py-3 text-center">
-                                                @if(in_array($dayStat['id'], $presentDays))
-                                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-100 text-green-600" title="حاضر">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                        </svg>
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-400" title="غائب">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                                        </svg>
-                                                    </span>
-                                                @endif
-                                            </td>
-                                        @endforeach
-
-                                        <!-- Total Days Attended -->
-                                        <td class="px-4 py-3 text-center text-sm font-bold text-gray-700 border-r bg-gray-50">
-                                            {{ $participant['days_attended'] }} / {{ $reportData['summary']['total_days'] }}
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="{{ count($reportData['day_stats']) + 4 }}" class="px-6 py-8 text-center text-sm text-gray-500">
-                                            لا يوجد مشتركين مسجلين في هذه الورشة
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        @elseif(!$selectedWorkshop)
-            <!-- No workshop selected - show all workshops list -->
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
-                    <h2 class="text-xl font-bold text-gray-900">ورش العمل المتاحة</h2>
-                    <p class="text-sm text-gray-500 mt-1">اختر ورشة عمل لعرض تقرير الحضور التفصيلي</p>
-                </div>
-                <div class="divide-y divide-gray-200">
-                    @forelse($workshops as $workshop)
-                        <div class="p-6 hover:bg-gray-50 transition-colors">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                                <div class="flex-1">
-                                    <h3 class="text-lg font-semibold text-gray-900">{{ $workshop->title }}</h3>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        {{ $workshop->days->count() }} أيام | {{ $workshop->attendances->count() }} مشارك
-                                        @if($workshop->location)
-                                            | {{ $workshop->location }}
-                                        @endif
-                                    </p>
-                                    <p class="text-xs text-gray-400 mt-2">
-                                        {{ $workshop->starts_at?->format('Y-m-d') }}
-                                        @if($workshop->ends_at && $workshop->ends_at != $workshop->starts_at)
-                                            إلى {{ $workshop->ends_at->format('Y-m-d') }}
-                                        @endif
-                                    </p>
-                                </div>
-                                <a href="{{ route('workshop.attendance_report', ['workshop_id' => $workshop->id]) }}" 
-                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium">
-                                    عرض التقرير
-                                    <svg class="w-5 h-5 ml-2 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="p-12 text-center">
-                            <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg class="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </select>
+                            <div class="flex items-center justify-center px-3 text-white/50 border-r border-white/20">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-medium text-gray-900">لا توجد ورش عمل</h3>
-                            <p class="text-gray-500 mt-1">لم يتم إنشاء أي ورش عمل حتى الآن.</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+            
+            @if($selectedWorkshop && $reportData)
+                <!-- Workshop Context Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse divide-gray-100">
+                        <div class="p-6">
+                            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">الورشة المختارة</h2>
+                            <div class="text-xl font-bold text-gray-900">{{ $selectedWorkshop->title }}</div>
+                            <div class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                {{ $selectedWorkshop->location ?? 'غير محدد' }}
+                            </div>
                         </div>
-                    @endforelse
+                        <div class="p-6">
+                            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">الفترة الزمنية</h2>
+                            <div class="flex items-center gap-2 text-gray-900 font-semibold">
+                                <span>{{ $selectedWorkshop->starts_at?->format('Y-m-d') }}</span>
+                                <span class="text-gray-300">➜</span>
+                                <span>{{ $selectedWorkshop->ends_at?->format('Y-m-d') }}</span>
+                            </div>
+                            <div class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                {{ $reportData['summary']['total_days'] }} أيام عمل
+                            </div>
+                        </div>
+                         <div class="p-6 flex items-center justify-between">
+                            <div>
+                                <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">الحالة</h2>
+                                @if($selectedWorkshop->is_active)
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-700">
+                                        <span class="w-2 h-2 rounded-full bg-green-500 ml-2 animate-pulse"></span>
+                                        نشطة حالياً
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-gray-100 text-gray-600">
+                                        مكتملة
+                                    </span>
+                                @endif
+                            </div>
+                             <div class="text-right">
+                                <div class="text-3xl font-bold text-blue-600">{{ $reportData['summary']['overall_attendance_rate'] }}%</div>
+                                <div class="text-xs text-blue-800">معدل الحضور العام</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        @else
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
-                <div class="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+
+                <!-- Stats Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                     <!-- Card 1 -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-900">{{ $reportData['summary']['total_participants'] }}</div>
+                        <div class="text-sm font-medium text-gray-500 mt-1">إجمالي المشاركين</div>
+                    </div>
+                    
+                     <!-- Card 2 -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-900">{{ $reportData['summary']['full_attendance_count'] }}</div>
+                        <div class="text-sm font-medium text-gray-500 mt-1">حضور كامل (100%)</div>
+                    </div>
+
+                      <!-- Card 3 -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-4">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-900">{{ $reportData['summary']['partial_attendance_count'] }}</div>
+                        <div class="text-sm font-medium text-gray-500 mt-1">حضور جزئي</div>
+                    </div>
+
+                     <!-- Card 4 -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center text-center hover:shadow-md transition-shadow">
+                        <div class="w-12 h-12 bg-teal-50 text-teal-600 rounded-xl flex items-center justify-center mb-4">
+                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+                        </div>
+                        <div class="text-3xl font-bold text-gray-900">{{ $reportData['summary']['total_checkins'] }}</div>
+                        <div class="text-sm font-medium text-gray-500 mt-1">إجمالي الحضور المسجل</div>
+                    </div>
                 </div>
-                <h3 class="text-lg font-medium text-gray-900">الورشة غير موجودة</h3>
-                <p class="text-gray-500 mt-1">الورشة المطلوبة غير موجودة أو تم حذفها.</p>
-            </div>
-        @endif
+
+                <!-- Main Content Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Left Column: Daily Stats -->
+                    <div class="lg:col-span-1 space-y-6">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                                <h3 class="font-bold text-gray-900">الأداء اليومي</h3>
+                                <span class="text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded border border-gray-200">الأيام: {{ count($reportData['day_stats']) }}</span>
+                            </div>
+                            <div class="divide-y divide-gray-100">
+                                @foreach($reportData['day_stats'] as $dayStat)
+                                    <div class="p-4 hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <div class="font-medium text-gray-900">{{ $dayStat['label'] ?? 'اليوم ' . ($loop->iteration) }}</div>
+                                            <span class="text-xs text-gray-500">{{ $dayStat['date']->format('Y-m-d') }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <div class="flex-1 bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                                                <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ $dayStat['attendance_rate'] }}%"></div>
+                                            </div>
+                                            <span class="text-xs font-bold text-blue-700 w-8 text-left">{{ $dayStat['attendance_rate'] }}%</span>
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-500 flex justify-between">
+                                            <span>
+                                                <strong>{{ $dayStat['checkins_count'] }}</strong> حضور
+                                            </span>
+                                            <span class="text-red-400">
+                                                {{ $reportData['summary']['total_participants'] - $dayStat['checkins_count'] }} غياب
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Participants Table -->
+                    <div class="lg:col-span-2">
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                                <h3 class="font-bold text-gray-900">سجل الحضور التفصيلي</h3>
+                                <button class="text-sm text-blue-600 hover:text-blue-800 font-medium transition flex items-center gap-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                    تصدير (Excel)
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-100">
+                                    <thead>
+                                        <tr class="bg-gray-50/50">
+                                            <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider sticky right-0 bg-gray-50 z-10">المشارك</th>
+                                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">الحالة</th>
+                                             <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">أيام الحضور</th>
+                                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">النسبة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-100">
+                                        @forelse($reportData['participant_stats'] as $participant)
+                                            <tr class="hover:bg-blue-50/30 transition-colors group">
+                                                <td class="px-6 py-4 whitespace-nowrap sticky right-0 bg-white group-hover:bg-blue-50/30 z-10 transition-colors">
+                                                    <div class="flex items-center">
+                                                        <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                                                            {{ substr($participant['name'], 0, 2) }}
+                                                        </div>
+                                                        <div class="mr-4">
+                                                            <div class="text-sm font-bold text-gray-900">{{ $participant['name'] }}</div>
+                                                            <div class="text-xs text-gray-500">{{ $participant['job_title'] ?? 'مشارك' }}</div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                    @if($participant['is_full_attendance'])
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                                            كامل
+                                                        </span>
+                                                    @elseif($participant['attendance_rate'] > 0)
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                                                            جزئي
+                                                        </span>
+                                                    @else
+                                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
+                                                            غياب
+                                                        </span>
+                                                    @endif
+                                                </td>
+                                                <td class="px-6 py-4 text-center">
+                                                    <div class="flex items-center justify-center gap-1">
+                                                        @foreach($reportData['day_stats'] as $dayStat)
+                                                            @if(in_array($dayStat['id'], $participant['days']))
+                                                                <div class="w-2.5 h-8 rounded-full bg-green-500" title="{{ $dayStat['label'] }}: حضر"></div>
+                                                            @else
+                                                                <div class="w-2.5 h-6 rounded-full bg-gray-200 opacity-50" title="{{ $dayStat['label'] }}: غائب"></div>
+                                                            @endif
+                                                        @endforeach
+                                                    </div>
+                                                </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                                     <div class="text-sm font-bold text-gray-700">{{ $participant['days_attended'] }}/{{ $reportData['summary']['total_days'] }}</div>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                                    لا توجد بيانات حضور لعرضها
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            @else
+                <!-- Empty State -->
+                <div class="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-dashed border-gray-300">
+                    <div class="w-20 h-20 bg-blue-50 text-blue-400 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-900 mb-2">اختر ورشة عمل</h2>
+                    <p class="text-gray-500 text-center max-w-md">الرجاء اختيار ورشة عمل من القائمة في الأعلى لعرض تقرير الحضور التفصيلي والإحصائيات.</p>
+                </div>
+            @endif
+
+        </div>
     </div>
 </x-app-layout>

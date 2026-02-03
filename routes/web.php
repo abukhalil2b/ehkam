@@ -57,8 +57,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/docs/{slug}', [DocumentationController::class, 'show'])->name('docs.show');
 });
 
-Route::match(['get', 'post'], 'workshow_attendance_register', [WorkshopController::class, 'attendance_register'])
-    ->name('workshow_attendance_register');
+// Hash-based workshop attendance registration (each day has unique link)
+Route::match(['get', 'post'], 'workshop/attend/{hash}', [WorkshopController::class, 'attendByHash'])
+    ->name('workshop.attend');
+
+// Admin routes for day management (toggle status and regenerate hash)
+Route::group(['middleware' => ['auth']], function () {
+    Route::post('workshop/day/{day}/toggle', [WorkshopController::class, 'toggleDayStatus'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.day.toggle');
+    Route::post('workshop/day/{day}/regenerate-hash', [WorkshopController::class, 'regenerateDayHash'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.day.regenerate');
+});
 
 Route::get('explain_assessment_to_audience', [AssessmentQuestionController::class, 'explain_assessment_to_audience'])
     ->name('explain_assessment_to_audience');
@@ -279,6 +290,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('workshop/attendance_report', [WorkshopController::class, 'attendanceReport'])
         ->middleware('permission:workshop.show')
         ->name('workshop.attendance_report');
+
+    Route::delete('workshop/attendance/{attendance}/destroy', [WorkshopController::class, 'destroyAttendance'])
+        ->middleware('permission:workshop.delete')
+        ->name('workshop.attendance.destroy');
 
     Route::delete('workshop/destroy/{workshop}', [WorkshopController::class, 'destroy'])
         ->middleware('permission:workshop.delete')
@@ -517,6 +532,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('admin/finance_form/store', [FinanceFormController::class, 'store'])
         // ->middleware('permission:finance_form.store')
         ->name('admin.finance_form.store');
+
+    Route::get('admin/finance_form/{financeForm}', [FinanceFormController::class, 'show'])
+        // ->middleware('permission:finance_form.show')
+        ->name('admin.finance_form.show');
+
+    Route::delete('admin/finance_form/{financeForm}', [FinanceFormController::class, 'destroy'])
+        // ->middleware('permission:finance_form.destroy')
+        ->name('admin.finance_form.destroy');
 });
 
 Route::group(['middleware' => ['auth']], function () {
@@ -986,6 +1009,8 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
         ->name('competitions.close-question');
     Route::post('competitions/{competition}/finish', [AdminCompetitionController::class, 'finish'])
         ->name('competitions.finish');
+    Route::post('competitions/{competition}/reopen', [AdminCompetitionController::class, 'reopen'])
+        ->name('competitions.reopen');
 
     // Live Data
     Route::get('competitions/{competition}/live', [AdminCompetitionController::class, 'liveData'])

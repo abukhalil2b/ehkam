@@ -164,8 +164,11 @@ class CompetitionController extends Controller
                 ->first();
 
             if ($lastQuestion) {
-                $showResults = true;
-                $correctAnswer = $lastQuestion->correctOption;
+                // Only show results if participant was present when question closed or has answered it
+                if ($participant->created_at->lte($lastQuestion->updated_at) || $participant->hasAnsweredQuestion($lastQuestion->id)) {
+                    $showResults = true;
+                    $correctAnswer = $lastQuestion->correctOption;
+                }
             }
         }
 

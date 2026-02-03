@@ -21,8 +21,7 @@
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-blue-100">
                     <span class="font-bold block mb-1 text-blue-600">2. تسجيل الحضور</span>
-                    استخدم <a href="{{ route('workshow_attendance_register') }}" class="text-blue-700 font-bold underline hover:text-blue-900">رابط تسجيل الحضور</a>. النظام سيكتشف تلقائياً "اليوم الحالي" بناءً على التاريخ لتسجيل الحضور
-                    لليوم الصحيح.
+                    استعرض بيانات الورشة وستجد رابط تسجيل الحضور
                 </div>
                 <div class="bg-white p-3 rounded-lg border border-blue-100">
                     <span class="font-bold block mb-1 text-blue-600">3. إضافة أيام لاحقاً</span>
@@ -53,19 +52,11 @@
 
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div
-                    class="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3 text-center hover:shadow-md transition">
-                    <div class="text-2xl font-bold text-blue-600">{{ $workshops->total() }}</div>
-                    <div class="text-xs font-medium text-blue-700">إجمالي الورش</div>
+                    class="bg-white flex items-center gap-2 rounded-lg shadow-sm border border-gray-200 px-4 py-3 text-center hover:shadow-md transition">
+                    <span class="text-xs font-medium text-blue-700">إجمالي الورش</span>
+                    <span class="text-2xl font-bold text-blue-600">{{ $workshops->total() }}</span>
                 </div>
 
-                <a href="{{ route('workshow_attendance_register') }}"
-                    class="bg-white text-purple-700 hover:bg-purple-50 border border-purple-300 px-4 py-3 rounded-lg font-semibold shadow-sm hover:shadow transition mr-2 flex items-center">
-                    <svg class="w-5 h-5 ml-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    تسجيل الحضور
-                </a>
 
                 <a href="{{ route('workshop.attendance_report') }}"
                     class="bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 px-4 py-3 rounded-lg font-semibold shadow-sm hover:shadow transition mr-2 flex items-center">
@@ -116,7 +107,7 @@
                                     @endif
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium mt-2
-                                                    {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
+                                                            {{ $workshop->is_active ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700' }}">
                                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7" />
@@ -144,42 +135,76 @@
                                 </td>
 
                                 <td class="px-6 py-3 text-sm">
-                                    <div class="flex items-center space-x-2 space-x-reverse">
+                                    <div class="flex items-center space-x-2 space-x-reverse justify-end">
+                                        {{-- Show --}}
                                         <a href="{{ route('workshop.show', $workshop) }}"
-                                            class="text-blue-600 hover:text-blue-900 font-medium transition" title="عرض">
-                                            👁 عرض
+                                            class="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded transition"
+                                            title="عرض التفاصيل">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
                                         </a>
 
+                                        {{-- Edit --}}
                                         <a href="{{ route('workshop.edit', $workshop) }}"
-                                            class="text-green-600 hover:text-green-800 font-medium transition"
+                                            class="text-green-600 hover:text-green-800 p-1 hover:bg-green-50 rounded transition"
                                             title="تعديل">
-                                            ✏️ تعديل
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
                                         </a>
 
+                                        <!-- Report Button -->
+                                        <a href="{{ route('workshop.attendance_report', ['workshop_id' => $workshop->id]) }}"
+                                            class="text-teal-600 hover:text-teal-900 p-2 hover:bg-teal-50 rounded-lg transition-colors group relative"
+                                            title="تقرير الحضور">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                            </svg>
+                                        </a>
+
+                                        {{-- Edit Status --}}
                                         <a href="{{ route('workshop.edit_status', $workshop) }}"
-                                            class="text-yellow-600 hover:text-yellow-800 font-medium transition"
-                                            title="تفعيل/تعطيل">
-                                            🔄 الحالة
+                                            class="text-amber-600 hover:text-amber-800 p-1 hover:bg-amber-50 rounded transition"
+                                            title="تغيير الحالة">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                            </svg>
                                         </a>
 
+                                        {{-- Replicate --}}
                                         <form action="{{ route('workshop.replicate', $workshop) }}" method="POST"
                                             class="inline">
                                             @csrf
                                             <button type="button"
                                                 onclick="confirmReplicate('{{ $workshop->title }}', this.form)"
-                                                class="text-indigo-600 hover:text-indigo-900 font-medium transition"
+                                                class="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-50 rounded transition"
                                                 title="إنشاء نسخة">
-                                                📄 نسخة
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                                </svg>
                                             </button>
                                         </form>
 
+                                        {{-- Delete --}}
                                         <form action="{{ route('workshop.destroy', $workshop) }}" method="POST"
                                             class="inline">
                                             @csrf @method('DELETE')
                                             <button type="button"
                                                 onclick="confirmDelete('{{ $workshop->title }}', this.form)"
-                                                class="text-red-600 hover:text-red-900 font-medium transition" title="حذف">
-                                                🗑 حذف
+                                                class="text-red-600 hover:text-red-800 p-1 hover:bg-red-50 rounded transition"
+                                                title="حذف">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
                                             </button>
                                         </form>
                                     </div>

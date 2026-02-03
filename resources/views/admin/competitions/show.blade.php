@@ -40,12 +40,24 @@
                         <button @click="closeCurrentQuestion()" x-show="currentQuestion"
                             class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium mb-2">إغلاق
                             السؤال الحالي</button>
-                        <form action="{{ route('admin.competitions.finish', $competition) }}" method="POST">
-                            @csrf
-                            <button type="submit"
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">إنهاء
-                                المسابقة</button>
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">إنهاء
+                        المسابقة</button>
                         </form>
+                    @elseif($competition->status === 'finished')
+                        <div class="space-y-2">
+                            <a href="{{ route('admin.competitions.results', $competition) }}"
+                                class="block w-full text-center bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium">
+                                عرض النتائج
+                            </a>
+                            <form action="{{ route('admin.competitions.reopen', $competition) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                    onclick="return confirm('هل أنت متأكد؟ سيعود جميع المتسابقين لشاشة الانتظار.')"
+                                    class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-medium">
+                                    إعادة فتح المسابقة 🔄
+                                </button>
+                            </form>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -249,7 +261,7 @@
                 showAddQuestion: false,
                 showQuestionList: true,
                 init() {
-                    setInterval(() => this.fetchLiveData(), 3000);
+                    // Polling removed as per request
                 },
                 async fetchLiveData() {
                     const response = await fetch(`/admin/competitions/${competitionId}/live`);

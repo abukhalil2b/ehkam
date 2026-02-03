@@ -17,4 +17,11 @@ class WorkshopAttendance extends Model
     {
         return $this->hasMany(WorkshopCheckin::class, 'workshop_attendance_id');
     }
+
+    public function days()
+    {
+        return $this->belongsToMany(WorkshopDay::class, 'workshop_checkins', 'workshop_attendance_id', 'workshop_day_id')
+            ->withPivot('status', 'checkin_time', 'ip_address')
+            ->withTimestamps();
+    }
 }

@@ -43,6 +43,28 @@
             max-height: 0;
             overflow: hidden;
         }
+
+        /* Range buttons styling */
+        .range-btn {
+            opacity: 0.7;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .range-btn:hover {
+            opacity: 1;
+        }
+
+        .range-btn.selected {
+            opacity: 1;
+            transform: scale(1.15);
+            box-shadow: 0 0 0 3px white, 0 0 0 5px currentColor, 0 6px 16px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            position: relative;
+        }
+
+        .range-btn:active {
+            transform: scale(0.95);
+        }
     </style>
 </head>
 
@@ -189,18 +211,56 @@
                             @php
                                 $min = $question->min_value ?? 1;
                                 $max = $question->max_value ?? 10;
-                                $mid = intval(($min + $max) / 2);
+                                $total = $max - $min;
+                                
+                                // Color gradient function: Red (low) -> Yellow (mid) -> Blue (high)
+                                if (!function_exists('getRangeColor')) {
+                                    function getRangeColor($value, $min, $max) {
+                                        $percent = ($value - $min) / max(1, $max - $min);
+                                        
+                                        if ($percent <= 0.5) {
+                                            // Red to Yellow (0% - 50%)
+                                            $r = 185;
+                                            $g = intval(28 + (180 * ($percent * 2)));
+                                            $b = 28;
+                                        } else {
+                                            // Yellow to Blue (50% - 100%)
+                                            $adjustedPercent = ($percent - 0.5) * 2;
+                                            $r = intval(185 - (185 * $adjustedPercent));
+                                            $g = intval(208 - (130 * $adjustedPercent));
+                                            $b = intval(28 + (191 * $adjustedPercent));
+                                        }
+                                        
+                                        return "rgb($r, $g, $b)";
+                                    }
+                                }
                             @endphp
-                            <div class="flex items-center gap-3">
-                                <input type="range" 
+                            <div class="range-buttons-container">
+                                <input type="hidden" 
                                        name="question_{{ $question->id }}" 
-                                       min="{{ $min }}"
-                                       max="{{ $max }}" 
-                                       value="{{ $mid }}" 
-                                       class="w-full accent-green-600"
-                                       oninput="this.nextElementSibling.value=this.value" 
+                                       id="range_input_{{ $question->id }}"
                                        required>
-                                <output class="text-sm text-gray-700">{{ $mid }}</output>
+                                <div class="flex flex-wrap gap-2 justify-center">
+                                    @for($i = $min; $i <= $max; $i++)
+                                        @php
+                                            $bgColor = getRangeColor($i, $min, $max);
+                                        @endphp
+                                        <button type="button"
+                                                class="range-btn w-12 h-12 rounded-lg border-2 border-transparent bg-gray-100 text-gray-700 font-bold text-lg
+                                                       hover:bg-gray-200 hover:scale-110 hover:shadow-lg transition-all duration-200
+                                                       focus:outline-none focus:ring-2 focus:ring-offset-2"
+                                                data-active-color="{{ $bgColor }}"
+                                                data-value="{{ $i }}"
+                                                data-input="range_input_{{ $question->id }}"
+                                                onclick="selectRangeValue(this)">
+                                            {{ $i }}
+                                        </button>
+                                    @endfor
+                                </div>
+                                <div class="flex justify-between mt-3 text-xs px-1">
+                                    <span class="text-red-700 font-medium">😞 منخفض</span>
+                                    <span class="text-blue-700 font-medium">😊 مرتفع</span>
+                                </div>
                             </div>
                         @break
                     @endswitch
@@ -229,6 +289,38 @@
     </div>
 
     <script>
+        // Range button selection function
+        function selectRangeValue(button) {
+            const value = button.getAttribute('data-value');
+            const inputId = button.getAttribute('data-input');
+            const hiddenInput = document.getElementById(inputId);
+            
+            // Update hidden input value
+            hiddenInput.value = value;
+            
+            // Remove selected class and reset styles from all buttons in this group
+            const container = button.closest('.range-buttons-container');
+            container.querySelectorAll('.range-btn').forEach(btn => {
+                btn.classList.remove('selected', 'text-white', 'scale-110');
+                btn.style.backgroundColor = ''; // Revert to CSS default (gray)
+                btn.style.borderColor = 'transparent';
+                
+                // Re-add default gray classes if they were removed (optional, but good for safety)
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            // Remove error styling from container
+            container.classList.remove('ring-2', 'ring-red-500', 'ring-offset-2', 'rounded-lg', 'p-2');
+            
+            // Add selected styling to clicked button
+            button.classList.add('selected', 'text-white', 'scale-110');
+            button.classList.remove('bg-gray-100', 'text-gray-700');
+            
+            const activeColor = button.getAttribute('data-active-color');
+            button.style.backgroundColor = activeColor;
+            button.style.borderColor = activeColor;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize dependent dropdown system
             const dropdowns = document.querySelectorAll('.dropdown-question');
@@ -305,6 +397,16 @@
                         dropdown.addEventListener('change', function() {
                             this.classList.remove('border-red-500');
                         }, { once: true });
+                    }
+                });
+
+                // Validate range button inputs
+                const rangeInputs = form.querySelectorAll('.range-buttons-container input[type="hidden"][required]');
+                rangeInputs.forEach(input => {
+                    if (!input.value) {
+                        isValid = false;
+                        const container = input.closest('.range-buttons-container');
+                        container.classList.add('ring-2', 'ring-red-500', 'ring-offset-2', 'rounded-lg', 'p-2');
                     }
                 });
                 

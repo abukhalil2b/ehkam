@@ -10,118 +10,147 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
+use Illuminate\Support\Str;
 
 class WorkshopController extends Controller
 {
-
-    public function attendance_register(Request $request)
+    // ---------------------- HASH-BASED ATTENDANCE ----------------------
+    /**
+     * Handle attendance registration via unique hash link
+     * Each workshop day has its own unique hash URL
+     */
+    public function attendByHash(Request $request, string $hash)
     {
-        // 1. Find the currently active workshop
-        $workshop = Workshop::where('is_active', true)->first();
+        // 1. Find the day by hash
+        $day = WorkshopDay::with('workshop')->where('attendance_hash', $hash)->first();
 
-        $currentDay = null;
-        if ($workshop) {
-            // Find active day: Explicitly active OR today's date
-            $currentDay = $workshop->days()->where('is_active', true)->first();
-
-            if (!$currentDay) {
-                $currentDay = $workshop->days()->whereDate('day_date', now()->toDateString())->first();
-            }
+        // Hash not found
+        if (!$day) {
+            abort(404);
         }
 
-        $qrImage = null;
-        $attendances = collect([]);
+        $workshop = $day->workshop;
 
-        // Handle case where no active workshop or day is found
-        if (!$workshop || !$currentDay) {
-            $message = 'لا توجد ورشة عمل أو يوم نشط حاليًا لتسجيل الحضور.';
-
-            if ($request->isMethod('POST')) {
-                return back()->with('error', $message);
-            }
-
-            return view('workshow_attendance_register', compact('workshop', 'checkins', 'qrImage', 'currentDay'))
-                ->with('warning', $message);
+        // 2. Check if the day is active for registration
+        if (!$day->is_active) {
+            return view('workshop.attend_closed', compact('day', 'workshop'));
         }
 
-        // 2. Handle POST Request (Registration Submission)
+        // 3. Get client IP
+        $ip = $request->ip();
+
+        // 4. Check if IP already registered today
+        $existingCheckin = WorkshopCheckin::where('workshop_day_id', $day->id)
+            ->where('ip_address', $ip)
+            ->with('participant')
+            ->first();
+
+        // 5. Handle POST request (registration)
         if ($request->isMethod('POST')) {
-            // Validate the incoming data
+            // If already registered, show duplicate message
+            if ($existingCheckin) {
+                return view('workshop.attend_duplicate', [
+                    'day' => $day,
+                    'workshop' => $workshop,
+                    'checkin' => $existingCheckin,
+                ]);
+            }
+
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|max:255|regex:/^[\p{Arabic}\p{Latin}\s]+$/u',
                 'job_title' => 'nullable|string|max:255',
                 'department' => 'nullable|string|max:255',
-            ], [
-                'name.required' => 'حقل الاسم مطلوب.',
             ]);
 
-            DB::transaction(function () use ($workshop, $currentDay, $validated) {
-                // A. Ensure Participant is Registered
+            DB::transaction(function () use ($validated, $workshop, $day, $ip) {
+                // Create or find attendance record (in case same person registers on different days)
                 $attendance = WorkshopAttendance::firstOrCreate(
                     [
                         'workshop_id' => $workshop->id,
-                        'attendee_name' => $validated['name'],
+                        'attendee_key' => $ip, // Using IP as key for this flow
                     ],
                     [
+                        'attendee_name' => $validated['name'],
                         'job_title' => $validated['job_title'],
                         'department' => $validated['department'],
                     ]
                 );
 
-                // B. Check-in for the specific day
-                // Check if already checked in
-                $existingCheckin = WorkshopCheckin::where('workshop_day_id', $currentDay->id)
-                    ->where('workshop_attendance_id', $attendance->id)
-                    ->first();
-
-                if (!$existingCheckin) {
-                    WorkshopCheckin::create([
-                        'workshop_day_id' => $currentDay->id,
-                        'workshop_attendance_id' => $attendance->id,
-                        'status' => 'present',
-                        'checkin_time' => now(),
-                    ]);
-                }
+                // Create checkin for this day
+                WorkshopCheckin::create([
+                    'workshop_day_id' => $day->id,
+                    'workshop_attendance_id' => $attendance->id,
+                    'status' => 'present',
+                    'checkin_time' => now(),
+                    'ip_address' => $ip,
+                ]);
             });
 
-            // Check if we just created it or it existed to show correct message (optional, kept simple)
-            return back()->with('success', 'تم تسجيل حضورك لليوم: ' . ($currentDay->label ?? $currentDay->day_date->format('Y-m-d')));
-        } else {
-            // Generate QR code
-            $qrImage = QrCodeGenerator::size(200)->generate(route('workshow_attendance_register'));
+            return redirect()
+                ->route('workshop.attend', $hash)
+                ->with('success', 'تم تسجيل حضورك بنجاح!');
         }
 
-        // 3. Handle GET Request - Show checkins for THIS DAY
-        $attendances = WorkshopCheckin::with('participant')
-            ->where('workshop_day_id', $currentDay->id)
-            ->latest()
-            ->get();
+        // 6. GET request - show form or duplicate message
+        if ($existingCheckin) {
+            return view('workshop.attend_duplicate', [
+                'day' => $day,
+                'workshop' => $workshop,
+                'checkin' => $existingCheckin,
+            ]);
+        }
 
-        return view('workshow_attendance_register', compact('attendances', 'workshop', 'qrImage', 'currentDay'));
+        // Generate QR code for this specific day
+        $qrImage = QrCodeGenerator::size(200)->generate($day->attendance_url);
+
+        return view('workshop.attend', compact('day', 'workshop', 'qrImage'));
+    }
+
+    /**
+     * Toggle day active status (for admin)
+     */
+    public function toggleDayStatus(WorkshopDay $day)
+    {
+        $day->update(['is_active' => !$day->is_active]);
+
+        return redirect()->back()->with(
+            'success',
+            $day->is_active ? 'تم تفعيل التسجيل لهذا اليوم' : 'تم إيقاف التسجيل لهذا اليوم'
+        );
+    }
+
+    /**
+     * Regenerate hash for a day (for admin)
+     */
+    public function regenerateDayHash(WorkshopDay $day)
+    {
+        $day->regenerateHash();
+
+        return redirect()->back()->with('success', 'تم توليد رابط جديد');
     }
 
     // ---------------------- ATTENDANCE REPORT ----------------------
     public function attendanceReport(Request $request)
     {
         $workshops = Workshop::with(['days', 'attendances.checkins'])->latest()->get();
-        
+
         $selectedWorkshop = null;
         $reportData = null;
-        
+
         if ($request->has('workshop_id') && $request->workshop_id) {
             $selectedWorkshop = Workshop::with([
                 'days.checkins.participant',
                 'attendances.checkins'
             ])->find($request->workshop_id);
-            
+
             if ($selectedWorkshop) {
                 $reportData = $this->generateWorkshopReportData($selectedWorkshop);
             }
         }
-        
+
         return view('workshop.attendance_report', compact('workshops', 'selectedWorkshop', 'reportData'));
     }
-    
+
     /**
      * Generate detailed report data for a specific workshop
      */
@@ -129,18 +158,18 @@ class WorkshopController extends Controller
     {
         $totalDays = $workshop->days->count();
         $totalParticipants = $workshop->attendances->count();
-        
+
         // Day-wise statistics
         $dayStats = [];
         $totalCheckins = 0;
-        
+
         foreach ($workshop->days as $day) {
             $dayCheckins = $day->checkins->count();
             $totalCheckins += $dayCheckins;
-            $attendanceRate = $totalParticipants > 0 
-                ? round(($dayCheckins / $totalParticipants) * 100, 1) 
+            $attendanceRate = $totalParticipants > 0
+                ? round(($dayCheckins / $totalParticipants) * 100, 1)
                 : 0;
-            
+
             $dayStats[] = [
                 'id' => $day->id,
                 'date' => $day->day_date,
@@ -149,15 +178,15 @@ class WorkshopController extends Controller
                 'attendance_rate' => $attendanceRate,
             ];
         }
-        
+
         // Participant attendance details
         $participantStats = [];
         foreach ($workshop->attendances as $attendance) {
             $participantCheckins = $attendance->checkins->count();
-            $attendanceRate = $totalDays > 0 
-                ? round(($participantCheckins / $totalDays) * 100, 1) 
+            $attendanceRate = $totalDays > 0
+                ? round(($participantCheckins / $totalDays) * 100, 1)
                 : 0;
-            
+
             $participantStats[] = [
                 'id' => $attendance->id,
                 'name' => $attendance->attendee_name,
@@ -169,17 +198,17 @@ class WorkshopController extends Controller
                 'days' => $attendance->checkins->pluck('workshop_day_id')->toArray(),
             ];
         }
-        
+
         // Summary statistics
         $totalPossibleAttendances = $totalParticipants * $totalDays;
-        $overallAttendanceRate = $totalPossibleAttendances > 0 
-            ? round(($totalCheckins / $totalPossibleAttendances) * 100, 1) 
+        $overallAttendanceRate = $totalPossibleAttendances > 0
+            ? round(($totalCheckins / $totalPossibleAttendances) * 100, 1)
             : 0;
-            
+
         $fullAttendanceCount = collect($participantStats)->where('is_full_attendance', true)->count();
         $partialAttendanceCount = collect($participantStats)->where('attendance_rate', '>', 0)->where('is_full_attendance', false)->count();
         $noAttendanceCount = collect($participantStats)->where('attendance_rate', 0)->count();
-        
+
         return [
             'workshop' => $workshop,
             'summary' => [
@@ -282,7 +311,7 @@ class WorkshopController extends Controller
     // ---------------------- SHOW ----------------------
     public function show(Workshop $workshop)
     {
-        $workshop->load(['createdBy', 'attendances.checkins', 'days.checkins']);
+        $workshop->load(['createdBy', 'attendances.checkins.workshopDay', 'days.checkins']);
         return view('workshop.show', compact('workshop'));
     }
 
@@ -418,5 +447,11 @@ class WorkshopController extends Controller
         $workshop->delete();
         return redirect()->route('workshop.index')
             ->with('success', 'تم حذف الورشة بنجاح');
+    }
+    // ---------------------- ATTENDANCE DESTROY ----------------------
+    public function destroyAttendance(WorkshopAttendance $attendance)
+    {
+        $attendance->delete();
+        return redirect()->back()->with('success', 'تم حذف الحضور بنجاح');
     }
 }

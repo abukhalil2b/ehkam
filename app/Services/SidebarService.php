@@ -103,13 +103,7 @@ class SidebarService
                     ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء', 'keywords' => 'performance report project assessment'],
                 ]
             ],
-            'aim' => [
-                'title' => 'الأهداف',
-                'links' => [
-                    ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات', 'keywords' => 'sector aims goals'],
-                    ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => [date('Y')], 'keywords' => 'aim achievement feedback sector'],
-                ]
-            ],
+            
             'calendar' => [
                 'title' => 'التقويم',
                 'links' => [
@@ -173,6 +167,8 @@ class SidebarService
             'statistics' => [
                 'title' => 'إحصائيات',
                 'links' => [
+                    ['route' => 'admin.aim.index', 'permission' => 'admin.aim.index', 'label' => 'أهداف القطاعات', 'keywords' => 'sector aims goals'],
+                    ['route' => 'admin.aim_sector_feedback.index', 'permission' => 'admin.aim_sector_feedback.index', 'label' => 'المحقق للأهداف', 'params' => [date('Y')], 'keywords' => 'aim achievement feedback sector'],
                     ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات', 'keywords' => 'statistics all sectors'],
                     ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1], 'keywords' => 'statistics quran'],
                     ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1], 'keywords' => 'statistics zakah'],

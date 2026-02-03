@@ -32,6 +32,8 @@ return new class extends Migration {
             $table->foreignId('workshop_id')
                 ->constrained('workshops')
                 ->onDelete('cascade');
+            $table->uuid('attendee_key')
+                ->unique();
             $table->string('attendee_name'); // More explicit than 'name'
             $table->string('job_title')->nullable();
             $table->string('department')->nullable();
@@ -45,6 +47,7 @@ return new class extends Migration {
             $table->date('day_date');
             $table->string('label')->nullable(); // e.g., "Day 1", "Session AM"
             $table->boolean('is_active')->default(false); // To denote if this is the currently active day for check-in
+            $table->string('attendance_hash', 64)->unique()->nullable();
             $table->timestamps();
         });
 
@@ -54,6 +57,7 @@ return new class extends Migration {
             $table->foreignId('workshop_attendance_id')->constrained('workshop_attendances')->onDelete('cascade');
             $table->enum('status', ['present', 'absent', 'late'])->default('present');
             $table->timestamp('checkin_time')->useCurrent();
+            $table->string('ip_address', 45)->nullable();
             $table->timestamps();
 
             $table->unique(['workshop_day_id', 'workshop_attendance_id'], 'unique_checkin');
