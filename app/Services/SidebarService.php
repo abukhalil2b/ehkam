@@ -130,6 +130,13 @@ class SidebarService
                 'title' => 'الورش',
                 'links' => [
                     ['route' => 'workshop.index', 'permission' => 'workshop.index', 'label' => 'قائمة الورش', 'keywords' => 'workshops list'],
+                    ['route' => 'workshop.agenda_board', 'permission' => '', 'label' => 'لوحة الورش', 'keywords' => 'workshops agenda board'],
+                ]
+            ],
+            'fishbone' => [
+                'title' => 'مخطط عظم السمكة',
+                'links' => [
+                    ['route' => 'fishbone.dashboard', 'permission' => 'fishbone.dashboard', 'label' => 'لوحة مخطط عظم السمكة', 'keywords' => 'fishbone diagram dashboard'],
                 ]
             ],
             'swot' => [

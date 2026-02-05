@@ -220,7 +220,7 @@
                         </div>
                         <li
                             class="p-3 text-center border-t border-gray-100 dark:border-gray-600 bg-gray-50/50 backdrop-blur-sm">
-                            <a href="{{ route('notifications.readAll') }}"
+                            <a href="{{ route('notifications.markAllRead') }}"
                                 class="text-xs font-bold text-primary hover:text-primary-dark block py-1 transition-colors">تحديد
                                 الكل كمقروء</a>
                         </li>

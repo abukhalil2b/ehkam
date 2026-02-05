@@ -454,4 +454,9 @@ class WorkshopController extends Controller
         $attendance->delete();
         return redirect()->back()->with('success', 'تم حذف الحضور بنجاح');
     }
+
+    public function agendaBoard()
+    {
+        return view('workshop.agenda_board');
+    }
 }

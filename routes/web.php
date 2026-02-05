@@ -46,6 +46,7 @@ use App\Http\Controllers\Admin\WorkflowTeamController;
 use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
+use App\Http\Controllers\FishboneController;
 use App\Http\Controllers\PestleController;
 
 // Route::view('/', 'welcome2')->name('home');
@@ -60,7 +61,8 @@ Route::group(['middleware' => ['auth']], function () {
 // Hash-based workshop attendance registration (each day has unique link)
 Route::match(['get', 'post'], 'workshop/attend/{hash}', [WorkshopController::class, 'attendByHash'])
     ->name('workshop.attend');
-
+ Route::get('workshop/agenda_board', [WorkshopController::class, 'agendaBoard'])
+        ->name('workshop.agenda_board');
 // Admin routes for day management (toggle status and regenerate hash)
 Route::group(['middleware' => ['auth']], function () {
     Route::post('workshop/day/{day}/toggle', [WorkshopController::class, 'toggleDayStatus'])
@@ -364,10 +366,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('calendar/department/{orgUnit}', [AnnualCalendarController::class, 'department'])->name('calendar.department');
 });
 
-Route::get('/notifications/read-all', function () {
-    auth()->user()->unreadNotifications->markAsRead();
-    return back();
-})->name('notifications.readAll');
 
 
 // ACTIVITY & ASSESSMENT ROUTES
@@ -1069,6 +1067,12 @@ Route::get('/swot/board/{token}', [SwotController::class, 'show'])->name('swot.p
 Route::post('/swot/board/{token}/init', [SwotController::class, 'initSession'])->name('swot.init');
 Route::post('/swot/board/{token}/add', [SwotController::class, 'addItem'])->name('swot.add');
 Route::get('/swot/board/{token}/items', [SwotController::class, 'getItems'])->name('swot.items');
+
+// Admin routes (requires authentication)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/fishbone/dashboard', [FishboneController::class, 'dashboard'])->name('fishbone.dashboard');
+});
+
 
 // ========== WORKFLOW ENGINE ROUTES ==========
 
