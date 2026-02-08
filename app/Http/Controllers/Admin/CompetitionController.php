@@ -528,6 +528,11 @@ class CompetitionController extends Controller
             'total_participants' => $competition->participants()->count()
         ];
 
+        $competition->load([
+            'questions.options',
+        ]);
+
+
         $participants = $competition->participants()
             ->with('answers')
             ->get()

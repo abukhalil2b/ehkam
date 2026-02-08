@@ -36,7 +36,7 @@
     </style>
 </head>
 
-<body class="bg-[#0f172a] min-h-screen relative overflow-hidden text-white">
+<body class="bg-[#0f172a] min-h-screen relative overflow-scroll text-white">
     <!-- Background Effects -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
         <div
@@ -190,7 +190,7 @@
 
             <a href="{{ route('participant.competition.finished', $competition) }}"
                 class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-2xl font-bold transition-all">
-                عرض التفاصيل
+               موافق
             </a>
         </div>
 

@@ -61,8 +61,8 @@ Route::group(['middleware' => ['auth']], function () {
 // Hash-based workshop attendance registration (each day has unique link)
 Route::match(['get', 'post'], 'workshop/attend/{hash}', [WorkshopController::class, 'attendByHash'])
     ->name('workshop.attend');
- Route::get('workshop/agenda_board', [WorkshopController::class, 'agendaBoard'])
-        ->name('workshop.agenda_board');
+Route::get('workshop/agenda_board', [WorkshopController::class, 'agendaBoard'])
+    ->name('workshop.agenda_board');
 // Admin routes for day management (toggle status and regenerate hash)
 Route::group(['middleware' => ['auth']], function () {
     Route::post('workshop/day/{day}/toggle', [WorkshopController::class, 'toggleDayStatus'])
@@ -812,6 +812,10 @@ Route::group(['middleware' => ['auth']], function () {
     |--------------------------------------------------------------------------
     */
 
+    Route::get('org_unit/diagram', [OrgUnitController::class, 'diagram'])
+        ->middleware('permission:org_unit.index')
+        ->name('org_unit.diagram');
+
     Route::get('org_unit/index', [OrgUnitController::class, 'index'])
         ->middleware('permission:org_unit.index')
         ->name('org_unit.index');
@@ -1026,24 +1030,22 @@ Route::prefix('admin')->middleware(['auth'])->name('admin.')->group(function () 
 });
 
 // Participant Routes (Public)
-Route::prefix('compete')->name('participant.competition.')->group(function () {
-    Route::get('join/{code}', [ParticipantCompetitionController::class, 'join'])
-        ->name('join');
-    Route::post('register/{code}', [ParticipantCompetitionController::class, 'register'])
-        ->name('register');
-    Route::get('wait/{competition}', [ParticipantCompetitionController::class, 'wait'])
-        ->name('wait');
-    Route::get('play/{competition}', [ParticipantCompetitionController::class, 'play'])
-        ->name('play');
-    Route::get('finished/{competition}', [ParticipantCompetitionController::class, 'finished'])
-        ->name('finished');
-    Route::post('answer/{competition}', [ParticipantCompetitionController::class, 'submitAnswer'])
-        ->name('answer');
-    Route::post('answers/{competition}', [ParticipantCompetitionController::class, 'submitAllAnswers'])
-        ->name('submit-all');
-    Route::get('live/{competition}', [ParticipantCompetitionController::class, 'liveData'])
-        ->name('live');
-});
+Route::get('compete/join/{code}', [ParticipantCompetitionController::class, 'join'])
+    ->name('participant.competition.join');
+Route::post('compete/register/{code}', [ParticipantCompetitionController::class, 'register'])
+    ->name('participant.competition.register');
+Route::get('compete/wait/{competition}', [ParticipantCompetitionController::class, 'wait'])
+    ->name('participant.competition.wait');
+Route::get('compete/play/{competition}', [ParticipantCompetitionController::class, 'play'])
+    ->name('participant.competition.play');
+Route::get('compete/finished/{competition}', [ParticipantCompetitionController::class, 'finished'])
+    ->name('participant.competition.finished');
+Route::post('compete/answer/{competition}', [ParticipantCompetitionController::class, 'submitAnswer'])
+    ->name('participant.competition.answer');
+Route::post('compete/answers/{competition}', [ParticipantCompetitionController::class, 'submitAllAnswers'])
+    ->name('participant.competition.submit-all');
+Route::get('compete/live/{competition}', [ParticipantCompetitionController::class, 'liveData'])
+    ->name('participant.competition.live');
 
 // Admin routes (requires authentication)
 Route::middleware(['auth'])->group(function () {

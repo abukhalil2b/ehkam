@@ -198,6 +198,7 @@ class SidebarService
             'admin_structure' => [
                 'title' => 'الهيكل',
                 'links' => [
+                    ['route' => 'org_unit.diagram', 'permission' => 'org_unit.diagram', 'label' => 'عرض الهيكل شجرة', 'keywords' => 'org unit structure view all'],
                     ['route' => 'org_unit.index', 'permission' => 'org_unit.index', 'label' => 'عرض الهيكل الكامل', 'keywords' => 'org unit structure view all'],
                     ['route' => 'org_unit.directorates', 'permission' => 'org_unit.index', 'label' => 'إدارة المديريات', 'keywords' => 'directorates structure management'],
                     ['route' => 'org_unit.departments', 'permission' => 'org_unit.index', 'label' => 'إدارة الدوائر', 'keywords' => 'departments structure management'],

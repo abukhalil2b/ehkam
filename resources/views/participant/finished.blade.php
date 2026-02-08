@@ -115,20 +115,8 @@
                     <div class="h-px bg-gray-200 my-4"></div>
                     <p class="text-gray-700 leading-relaxed">
                         <span class="font-bold text-gray-900">تم تسجيل نتائجك بنجاح!</span><br>
-                        يمتلك منظم المسابقة جميع النتائج الآن وسيقوم بمشاركتها قريباً.
+                        يمتلك منظم المسابقة جميع النتائج الآن وسيقوم بمشاركتها بعد نهاية المسابقة.
                     </p>
-                </div>
-
-                <div class="space-y-3">
-                    <button onclick="window.location.reload()"
-                        class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-3 rounded-xl transition duration-200 transform hover:scale-105 shadow-lg">
-                        تحديث الصفحة
-                    </button>
-
-                    <button onclick="window.close()"
-                        class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 rounded-xl transition duration-200">
-                        إغلاق النافذة
-                    </button>
                 </div>
 
                 <div class="mt-8 pt-6 border-t border-gray-200">

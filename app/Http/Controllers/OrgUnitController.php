@@ -16,6 +16,45 @@ class OrgUnitController extends Controller
         $this->structureService = $structureService;
     }
 
+    public function diagram()
+    {
+        // Get the root organizational unit (Minister level)
+        $rootUnit = OrgUnit::whereNull('parent_id')
+            ->with([
+                'children' => function ($query) {
+                    $query->orderBy('hierarchy_order')->orderBy('name');
+                },
+                'children.children' => function ($query) {
+                    $query->orderBy('hierarchy_order')->orderBy('name');
+                },
+                'children.children.children' => function ($query) {
+                    $query->orderBy('hierarchy_order')->orderBy('name');
+                },
+                'positions.employees' => function ($query) {
+                    $query->whereNull('end_date')
+                        ->orWhere('end_date', '>=', now());
+                }
+            ])
+            ->first();
+
+        // Get all organizational units in a flat structure for alternative views
+        $allUnits = OrgUnit::with([
+            'parent',
+            'positions.employees' => function ($query) {
+                $query->whereNull('end_date')
+                    ->orWhere('end_date', '>=', now());
+            }
+        ])
+            ->orderBy('hierarchy_order')
+            ->orderBy('name')
+            ->get();
+
+        // Count statistics using service
+        $stats = $this->structureService->getStats();
+
+        return view('org_units.diagram', compact('rootUnit', 'allUnits', 'stats'));
+    }
+
     public function index()
     {
         // Get the root organizational unit (Minister level)

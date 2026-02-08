@@ -134,5 +134,51 @@
             </div>
         </div>
     </div>
+    <div class="mt-10">
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">
+            📘 الأسئلة والإجابات الصحيحة
+        </h2>
+
+        <div class="space-y-6">
+            @foreach($competition->questions->sortBy('order') as $question)
+                <div class="border rounded-lg p-5">
+                    {{-- Question --}}
+                    <div class="flex items-start gap-3 mb-4">
+                        <span class="font-bold text-blue-600">
+                            س{{ $loop->iteration }}.
+                        </span>
+                        <p class="text-gray-900 font-medium">
+                            {{ $question->question_text }}
+                        </p>
+                    </div>
+
+                    {{-- Options --}}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mr-6">
+                        @foreach($question->options as $option)
+                            <div
+                                class="p-3 rounded-lg border flex items-center justify-between
+                                {{ $option->is_correct
+                                    ? 'bg-green-50 border-green-400'
+                                    : 'bg-gray-50 border-gray-200' }}"
+                            >
+                                <span class="text-gray-800">
+                                    {{ $option->option_text }}
+                                </span>
+
+                                @if($option->is_correct)
+                                    <span class="text-green-600 font-bold text-sm">
+                                        ✔ صحيحة
+                                    </span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</div>
+
 </div>
 </x-app-layout>
