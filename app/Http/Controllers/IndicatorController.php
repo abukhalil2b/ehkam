@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\IndicatorAchievement;
+use App\Models\IndicatorTarget;
 use App\Models\Indicator;
 use App\Models\PeriodTemplate;
 use App\Models\Sector;
@@ -12,53 +14,73 @@ use Illuminate\Support\Facades\DB;
 class IndicatorController extends Controller
 {
 
-    public function target(Indicator $indicator)
-    {
-        $current_year = date('Y');
-        // Decode selected sectors from the JSON column if it's a string (fixes double encoding issue)
-        $sectorsData = $indicator->sectors;
-        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
-        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
-        $sectors = Sector::whereIn('id', $selectedSectorIds)->get();
 
-        $periods = PeriodTemplate::where('cate', $indicator->period)->get();
-        // Load existing targets
-        $targets = \App\Models\IndicatorTarget::where('indicator_id', $indicator->id)
+    public function target(Indicator $indicator, Request $request)
+    {
+        $current_year = now()->year;
+
+        // القطاعات المرتبطة بالمؤشر
+        $sectors = $indicator->sectorsCollection;
+
+        // جلب الفترات حسب نوع الدورة
+        $periods = PeriodTemplate::where('cate', $indicator->period)
+            ->orderBy('id')
+            ->get();
+
+        // جلب المستهدفات الموجودة بالفعل
+        $existingTargets = IndicatorTarget::where('indicator_id', $indicator->id)
             ->where('year', $current_year)
             ->get()
-            ->keyBy(function ($item) {
-                return $item->sector_id . '-' . $item->period_index;
-            });
+            ->groupBy('sector_id'); // الآن كل قطاع يحتوي على مجموعة من الـ periods
 
-        return view('indicator.target', compact('indicator', 'current_year', 'sectors', 'periods', 'targets'));
+        // القطاع المحدد للاستخدام في الـ View
+        $sectorId = $request->get('sector_id');
+
+        $targets = [];
+        if ($sectorId) {
+            $targets = IndicatorTarget::where('indicator_id', $indicator->id)
+                ->where('sector_id', $sectorId)
+                ->where('year', $current_year)
+                ->get()
+                ->keyBy('period_index');
+        }
+
+        return view('indicator.target', compact(
+            'indicator',
+            'current_year',
+            'sectors',
+            'periods',
+            'existingTargets',
+            'sectorId',
+            'targets'
+        ));
     }
+
 
     public function storeTarget(Request $request, Indicator $indicator)
     {
-        $validated = $request->validate([
-            'year' => 'required|integer',
-            'targets' => 'array',
-            'targets.*.sector_id' => 'required|exists:sectors,id',
-            'targets.*.period_index' => 'required|integer',
-            'targets.*.value' => 'nullable|numeric|min:0',
-        ]);
+        $current_year = $request->input('year');
+        $sectorId = $request->input('sector_id');
+        $values = $request->input('values', []);
 
-        foreach ($validated['targets'] ?? [] as $data) {
-            \App\Models\IndicatorTarget::updateOrCreate(
+        foreach ($values as $periodId => $value) {
+            IndicatorTarget::updateOrCreate(
                 [
                     'indicator_id' => $indicator->id,
-                    'sector_id' => $data['sector_id'],
-                    'year' => $validated['year'],
-                    'period_index' => $data['period_index'],
+                    'sector_id' => $sectorId,
+                    'year' => $current_year,
+                    'period_index' => $periodId,
                 ],
                 [
-                    'target_value' => $data['value'] ?? 0,
+                    'target_value' => $value ?: 0,
                 ]
             );
         }
 
         return back()->with('success', 'تم حفظ المستهدفات بنجاح');
     }
+
+
 
     public function achieved(Indicator $indicator)
     {
@@ -70,7 +92,7 @@ class IndicatorController extends Controller
         $periods = PeriodTemplate::where('cate', $indicator->period)->get();
 
         // Load targets for context
-        $targets = \App\Models\IndicatorTarget::where('indicator_id', $indicator->id)
+        $targets = IndicatorTarget::where('indicator_id', $indicator->id)
             ->where('year', $current_year)
             ->get()
             ->keyBy(function ($item) {
@@ -78,7 +100,7 @@ class IndicatorController extends Controller
             });
 
         // Load achievements
-        $achievements = \App\Models\IndicatorAchievement::where('indicator_id', $indicator->id)
+        $achievements = IndicatorAchievement::where('indicator_id', $indicator->id)
             ->where('year', $current_year)
             ->get()
             ->keyBy(function ($item) {
@@ -100,7 +122,7 @@ class IndicatorController extends Controller
         ]);
 
         foreach ($validated['achievements'] ?? [] as $data) {
-            \App\Models\IndicatorAchievement::updateOrCreate(
+            IndicatorAchievement::updateOrCreate(
                 [
                     'indicator_id' => $indicator->id,
                     'sector_id' => $data['sector_id'],

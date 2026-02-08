@@ -46,6 +46,10 @@
                                         </tr>
                                     </thead>
                                     <tbody class="divide-y divide-gray-200">
+                                        @php
+                                            $totalTarget = 0;
+                                            $totalAchieved = 0;
+                                        @endphp
                                         @foreach ($periods as $period)
                                             @php
                                                 $key = $sector->id . '-' . $period->id;
@@ -60,20 +64,22 @@
                                                 if ($targetVal > 0 && is_numeric($achievedVal)) {
                                                     $percentage = ($achievedVal / $targetVal) * 100;
                                                 }
+                                                $totalTarget += $targetVal;
+                                                $totalAchieved += (is_numeric($achievedVal) ? $achievedVal : 0);
                                             @endphp
                                             <tr>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">
                                                     {{ $period->name }}
-                                                    <input type="hidden" name="achievements[][sector_id]"
+                                                    <input type="hidden" name="achievements[{{ $key }}][sector_id]"
                                                         value="{{ $sector->id }}">
-                                                    <input type="hidden" name="achievements[][period_index]"
+                                                    <input type="hidden" name="achievements[{{ $key }}][period_index]"
                                                         value="{{ $period->id }}">
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-500 font-medium">
                                                     {{ $targetVal > 0 ? number_format($targetVal) : '-' }}
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap">
-                                                    <input type="number" step="0.01" name="achievements[][value]"
+                                                    <input type="number" step="0.01" name="achievements[{{ $key }}][value]"
                                                         value="{{ $achievedVal }}"
                                                         class="w-32 text-center border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                         placeholder="0">
@@ -89,13 +95,31 @@
                                                     @endif
                                                 </td>
                                                 <td class="px-3 py-2 whitespace-nowrap">
-                                                    <input type="text" name="achievements[][notes]" value="{{ $achievedNotes }}"
+                                                    <input type="text" name="achievements[{{ $key }}][notes]"
+                                                        value="{{ $achievedNotes }}"
                                                         class="w-full text-right border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                         placeholder="ملاحظات...">
                                                 </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
+                                    <tfoot class="bg-gray-50 font-bold border-t-2 border-gray-200 text-gray-900">
+                                        <tr>
+                                            <td class="px-3 py-3 text-sm">المجموع</td>
+                                            <td class="px-3 py-3 text-sm">{{ number_format($totalTarget) }}</td>
+                                            <td class="px-3 py-3 text-sm">{{ number_format($totalAchieved, 2) }}</td>
+                                            <td class="px-3 py-3 text-sm">
+                                                @php
+                                                    $totalPercentage = $totalTarget > 0 ? ($totalAchieved / $totalTarget) * 100 : 0;
+                                                @endphp
+                                                <span
+                                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $totalPercentage >= 100 ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                                    {{ number_format($totalPercentage, 1) }}%
+                                                </span>
+                                            </td>
+                                            <td></td>
+                                        </tr>
+                                    </tfoot>
                                 </table>
                             </div>
                         </div>

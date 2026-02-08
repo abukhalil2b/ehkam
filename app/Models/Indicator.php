@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Arr;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Indicator extends Model
 {
@@ -21,6 +22,7 @@ class Indicator extends Model
     protected $casts = [
         'sectors' => 'array',
     ];
+    
 
     // --- Relationships ---
 
@@ -45,17 +47,25 @@ class Indicator extends Model
     }
 
 
-    /**
-     * Get all sectors related to this indicator based on the 'sectors' JSON array.
-     * NOTE: This is a complex relationship since 'sectors' is a JSON column, not a standard foreign key.
-     * You might use a custom accessor or a scope for this in real applications, but a simple relationship isn't direct.
-     * The logic in the controller's show method is the correct way to handle this.
-     */
-    public function relatedSectors()
+    protected function sectorsCollection(): Attribute
     {
-        return Sector::whereIn('id', Arr::wrap($this->sectors));
+        return Attribute::get(function () {
+            $sectors = $this->sectors;
+
+            // إذا كانت string تحتوي على JSON
+            if (is_string($sectors)) {
+                $sectors = json_decode($sectors, true);
+            }
+
+            // تأكد أنها array
+            $sectors = is_array($sectors) ? $sectors : [];
+
+            return Sector::whereIn('id', $sectors)->get();
+        });
     }
 
-
-
+    public function sectors()
+    {
+        return $this->belongsToMany(Sector::class);
+    }
 }

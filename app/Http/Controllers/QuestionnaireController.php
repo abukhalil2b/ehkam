@@ -189,6 +189,7 @@ class QuestionnaireController extends Controller
         $copy = $questionnaire->replicate();
         $copy->title = $questionnaire->title . ' (نسخة)';
         $copy->is_active = false;
+        $copy->public_hash = $questionnaire->target_response === 'open_for_all' ? Str::random(32) : null;
         $copy->push();
 
         foreach ($questionnaire->questions as $question) {

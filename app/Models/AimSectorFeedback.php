@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Contracts\HasWorkflow;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 
@@ -12,12 +11,12 @@ class AimSectorFeedback extends Model implements HasWorkflow
 {
     protected $guarded = [];
 
-    public function sector(): BelongsTo
+    public function sector()
     {
         return $this->belongsTo(Sector::class);
     }
 
-    public function indicator(): BelongsTo
+    public function indicator()
     {
         return $this->belongsTo(Aim::class);
     }
@@ -30,19 +29,19 @@ class AimSectorFeedback extends Model implements HasWorkflow
     /**
      * Get the user who created this value.
      */
-    public function createdBy(): BelongsTo
+    public function createdBy()
     {
         return $this->belongsTo(User::class, 'createdby_user_id');
     }
 
     // ========== WORKFLOW ENGINE RELATIONSHIPS ==========
 
-    public function workflow(): BelongsTo
+    public function workflow()
     {
         return $this->belongsTo(Workflow::class);
     }
 
-    public function currentStage(): BelongsTo
+    public function currentStage()
     {
         return $this->belongsTo(WorkflowStage::class, 'current_stage_id');
     }

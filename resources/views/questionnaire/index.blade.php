@@ -99,11 +99,13 @@
 
                                 <td class="px-6 py-3 text-sm">
                                     @if ($questionnaire->target_response == 'open_for_all')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                                             مفتوح للكل
                                         </span>
                                     @elseif ($questionnaire->target_response == 'registerd_only')
-                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                                             للمسجلين فقط
                                         </span>
                                     @endif
@@ -113,14 +115,16 @@
                                     <span
                                         class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium
                                                     {{ $questionnaire->is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">
-                                        <span class="w-1.5 h-1.5 rounded-full mr-1.5 {{ $questionnaire->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
+                                        <span
+                                            class="w-1.5 h-1.5 rounded-full mr-1.5 {{ $questionnaire->is_active ? 'bg-green-500' : 'bg-red-500' }}"></span>
                                         {{ $questionnaire->is_active ? 'نشط' : 'معطل' }}
                                     </span>
                                 </td>
 
                                 <td class="px-6 py-3 text-center">
                                     <a href="{{ route('questionnaire.answer_index', $questionnaire) }}" class="group">
-                                        <span class="bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1 rounded-full group-hover:bg-amber-200 transition">
+                                        <span
+                                            class="bg-amber-100 text-amber-800 text-sm font-semibold px-3 py-1 rounded-full group-hover:bg-amber-200 transition">
                                             {{-- Use correct count logic if eager loaded, fallback to relation count --}}
                                             {{ $questionnaire->answers_count ?? $questionnaire->answers()->count() }}
                                         </span>
@@ -133,19 +137,31 @@
 
                                 <td class="px-6 py-3 text-sm">
                                     <div class="flex items-center space-x-2 space-x-reverse" x-data="{ open: false }">
-                                        
+
+                                        {{-- View --}}
+                                        <a href="{{ route('questionnaire.show', $questionnaire) }}"
+                                            class="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded transition"
+                                            title="عرض">
+                                            <x-icons.eye />
+                                        </a>
+
+
                                         {{-- Edit --}}
                                         <a href="{{ route('questionnaire.edit', $questionnaire) }}"
                                             class="text-green-600 hover:text-green-800 p-1 hover:bg-green-50 rounded transition"
                                             title="تعديل">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                            <x-icons.edit />
                                         </a>
 
                                         {{-- Results/Stats --}}
                                         <a href="{{ route('questionnaire.statistics', $questionnaire) }}"
                                             class="text-blue-600 hover:text-blue-800 p-1 hover:bg-blue-50 rounded transition"
                                             title="الإحصائيات">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                            </svg>
                                         </a>
 
                                         {{-- Share Link --}}
@@ -153,25 +169,40 @@
                                             <a href="{{ route('questionnaire.share_link', $questionnaire) }}"
                                                 class="text-purple-600 hover:text-purple-800 p-1 hover:bg-purple-50 rounded transition"
                                                 title="رابط المشاركة">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                </svg>
                                             </a>
                                         @endif
-                                        
+
                                         {{-- Structure Edit --}}
                                         <a href="{{ route('questionnaire.question_edit', $questionnaire) }}"
-                                           class="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-50 rounded transition"
-                                           title="تعديل الأسئلة">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                                            class="text-indigo-600 hover:text-indigo-800 p-1 hover:bg-indigo-50 rounded transition"
+                                            title="تعديل الأسئلة">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                            </svg>
                                         </a>
 
                                         {{-- Delete --}}
-                                        <form action="{{ route('questionnaire.delete', $questionnaire) }}" method="POST" class="inline">
+                                        <form action="{{ route('questionnaire.delete', $questionnaire) }}"
+                                            method="POST" class="inline">
                                             @csrf @method('DELETE')
                                             <button type="button"
                                                 onclick="confirmDelete('{{ $questionnaire->title }}', this.form)"
                                                 class="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded transition"
                                                 title="حذف">
-                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
                                             </button>
                                         </form>
 
@@ -181,8 +212,8 @@
                         @empty
                             <tr>
                                 <td colspan="7" class="py-12 text-center text-gray-500">
-                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
+                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0119 9.414V19a2 2 0 01-2 2z" />
                                     </svg>
@@ -198,7 +229,7 @@
                     </tbody>
                 </table>
             </div>
-            
+
             {{-- Pagination (if using paginate() in controller) --}}
             {{-- @if ($questionnaires->hasPages())
                 <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">

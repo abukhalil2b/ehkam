@@ -82,11 +82,9 @@
                                 </div>
                             </div>
                             <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z">
-                                    </path>
-                                </svg>
+                                <a href="{{ route('indicator.edit', $indicator->id) }}">
+                                    <x-icons.edit />
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -136,16 +134,6 @@
                     <!-- Card Footer - Action Buttons (3-column layout) -->
                     <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
                         <div class="grid grid-cols-3 gap-2">
-                            <a href="{{ route('indicator.edit', $indicator->id) }}"
-                                class="flex items-center justify-center px-3 py-2 bg-white border border-indigo-500 text-indigo-600 hover:bg-indigo-50 text-sm font-medium rounded-lg transition duration-150">
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                    </path>
-                                </svg>
-                                تعديل
-                            </a>
-
                             <a href="{{ route('indicator.show', $indicator->id) }}"
                                 class="flex items-center justify-center px-3 py-2 bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition duration-150">
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
