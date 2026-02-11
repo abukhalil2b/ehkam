@@ -241,7 +241,8 @@
                                                 class="inline-block bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
                                                 {!! SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->generate($day->attendance_url) !!}
                                             </div>
-                                            <p class="text-xs text-gray-500 mt-2">امسح للتسجيل</p>
+                                            <p class="text-sm font-bold text-gray-800 mt-2">تسجيل الحضور</p>
+                                            <p class="text-xs text-gray-500">امسح الكود</p>
                                         </div>
 
                                         {{-- Link Info --}}
@@ -335,7 +336,24 @@
 
                 {{-- In your show.blade.php --}}
                 <div class="mb-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-3">قائمة الحضور</h3>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                        <h3 class="text-lg font-semibold text-gray-800">قائمة الحضور</h3>
+
+                        {{-- Filter Buttons --}}
+                        <div class="flex flex-wrap gap-2">
+                            <a href="{{ route('workshop.show', $workshop->id) }}"
+                                class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ !request('day_id') ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                                الكل
+                            </a>
+                            @foreach($workshop->days as $day)
+                                <a href="{{ route('workshop.show', ['workshop' => $workshop->id, 'day_id' => $day->id]) }}"
+                                    class="px-3 py-1.5 rounded-lg text-sm font-medium transition {{ request('day_id') == $day->id ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' }}">
+                                    {{ $day->label ?? $day->day_date->format('Y-m-d') }}
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                         <table class="w-full">
                             <thead class="bg-gray-50">
@@ -351,7 +369,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                @forelse($workshop->attendances as $attendance)
+                                @forelse($attendances as $attendance)
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-4 py-3 text-sm text-gray-600">{{ $loop->iteration }}</td>
                                         <td class="px-4 py-3 text-sm text-gray-800">

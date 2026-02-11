@@ -177,32 +177,7 @@
             @endforeach
         </div>
 
-        @if (count($indicators) === 0)
-            <div class="text-center py-12">
-                <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد مؤشرات لعام {{ $current_year }}</h3>
-
-                <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="{{ route('indicator.create') }}"
-                        class="inline-flex items-center px-5 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition duration-150">
-                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
-                        إضافة مؤشر جديد
-                    </a>
-
-                    @if ($has_previous_data)
-                        <form action="{{ route('admin_setting.copy_year', ['year' => $current_year]) }}"method="POST"
-                            onsubmit="return confirm('سيتم نسخ جميع بيانات عام {{ $current_year - 1 }}. هل أنت متأكد؟')">
-                            @csrf
-                            <button class="px-5 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                نسخ بيانات عام {{ $current_year - 1 }}
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
-        @endif
+    
     </div>
 
     <script>

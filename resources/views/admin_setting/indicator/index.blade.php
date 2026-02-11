@@ -1,20 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col gap-4">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                إعدادات المؤشرات للسنة {{ $selectedYear }}
-            </h2>
 
-            <!-- Year Selector -->
-            <div class="flex flex-wrap gap-2">
-                @foreach ($availableYears as $year)
-                    <a href="{{ route('admin_setting.indicator.index', ['year' => $year]) }}"
-                        class="px-4 py-2 rounded-lg text-sm font-medium transition
-                            {{ $year == $selectedYear ? 'bg-blue-600 text-white shadow' : 'bg-gray-100 text-gray-700 hover:bg-gray-200' }}">
-                        {{ $year }}
-                    </a>
-                @endforeach
-            </div>
         </div>
     </x-slot>
 

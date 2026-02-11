@@ -145,7 +145,9 @@
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </span>
-                            <input type="text" name="name" value="{{ old('name') }}" required
+                            <input type="text" name="name"
+                                value="{{ old('name', \Illuminate\Support\Facades\Cookie::get('attendee_name')) }}"
+                                required
                                 class="w-full pr-11 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white transition-all outline-none"
                                 placeholder="اكتب اسمك هنا...">
                         </div>
@@ -165,7 +167,8 @@
                                         d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
                             </span>
-                            <input type="text" name="job_title" value="{{ old('job_title') }}"
+                            <input type="text" name="job_title"
+                                value="{{ old('job_title', \Illuminate\Support\Facades\Cookie::get('attendee_job')) }}"
                                 class="w-full pr-11 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white transition-all outline-none"
                                 placeholder="مثال: إمام، موظف إداري...">
                         </div>
@@ -182,7 +185,8 @@
                                         d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </span>
-                            <input type="text" name="department" value="{{ old('department') }}"
+                            <input type="text" name="department"
+                                value="{{ old('department', \Illuminate\Support\Facades\Cookie::get('attendee_dept')) }}"
                                 class="w-full pr-11 pl-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:bg-white transition-all outline-none"
                                 placeholder="مثال: دائرة المساجد...">
                         </div>
@@ -205,19 +209,16 @@
             {{-- Footer Area --}}
             <div class="bg-gray-50 p-6 border-t border-gray-100 text-center">
                 @if(isset($qrImage))
-                    <p class="text-xs text-gray-500 mb-3">رمز QR لهذا الرابط</p>
+                    <p class="text-gray-500 mb-3">تسجيل الحضور</p>
                     <div class="inline-block bg-white p-2 border border-gray-200 rounded-lg shadow-sm">
                         {!! $qrImage !!}
                     </div>
                 @endif
-                <p class="text-xs text-gray-400 mt-4">جميع الحقوق محفوظة &copy; {{ date('Y') }}</p>
+                <p class="text-xs text-gray-400 mt-4">دائرة التخطيط والإحصاء</p>
             </div>
 
         </div>
 
-        <p class="text-center text-gray-400 text-xs mt-6">
-            تم التطوير بواسطة فريق تقنية المعلومات
-        </p>
     </div>
 
 </body>

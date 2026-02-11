@@ -22,10 +22,12 @@ class Indicator extends Model
     protected $casts = [
         'sectors' => 'array',
     ];
-    
 
-    // --- Relationships ---
 
+    public function targets()
+    {
+        return $this->hasMany(IndicatorTarget::class);
+    }
     /**
      * Get the parent indicator (if it is a sub-indicator).
      */

@@ -36,18 +36,13 @@ class WorkshopController extends Controller
             return view('workshop.attend_closed', compact('day', 'workshop'));
         }
 
-        // 3. Get client IP
-        $ip = $request->ip();
+        // 3. Check for Cookie (Unqiue per Day) used to prevent re-submission for same day
+        $cookieName = 'workshop_day_' . $day->id;
+        if ($request->hasCookie($cookieName)) {
+            $checkinId = $request->cookie($cookieName);
+            $existingCheckin = WorkshopCheckin::with('participant')->find($checkinId);
 
-        // 4. Check if IP already registered today
-        $existingCheckin = WorkshopCheckin::where('workshop_day_id', $day->id)
-            ->where('ip_address', $ip)
-            ->with('participant')
-            ->first();
-
-        // 5. Handle POST request (registration)
-        if ($request->isMethod('POST')) {
-            // If already registered, show duplicate message
+            // If checkin record exists, show duplicate view
             if ($existingCheckin) {
                 return view('workshop.attend_duplicate', [
                     'day' => $day,
@@ -55,19 +50,26 @@ class WorkshopController extends Controller
                     'checkin' => $existingCheckin,
                 ]);
             }
+        }
 
+        // 4. Handle POST request (registration)
+        if ($request->isMethod('POST')) {
             $validated = $request->validate([
                 'name' => 'required|string|max:255|regex:/^[\p{Arabic}\p{Latin}\s]+$/u',
                 'job_title' => 'nullable|string|max:255',
                 'department' => 'nullable|string|max:255',
             ]);
 
-            DB::transaction(function () use ($validated, $workshop, $day, $ip) {
-                // Create or find attendance record (in case same person registers on different days)
+            // Create Unique Key based on user info (Normalization) to identify the person across days
+            $keyRaw = trim($validated['name']) . '|' . trim($validated['job_title'] ?? '') . '|' . trim($validated['department'] ?? '');
+            $attendeeKey = md5($keyRaw);
+
+            $checkin = DB::transaction(function () use ($validated, $workshop, $day, $attendeeKey, $request) {
+                // Create or find attendance record (User Identity)
                 $attendance = WorkshopAttendance::firstOrCreate(
                     [
                         'workshop_id' => $workshop->id,
-                        'attendee_key' => $ip, // Using IP as key for this flow
+                        'attendee_key' => $attendeeKey,
                     ],
                     [
                         'attendee_name' => $validated['name'],
@@ -77,30 +79,31 @@ class WorkshopController extends Controller
                 );
 
                 // Create checkin for this day
-                WorkshopCheckin::create([
-                    'workshop_day_id' => $day->id,
-                    'workshop_attendance_id' => $attendance->id,
-                    'status' => 'present',
-                    'checkin_time' => now(),
-                    'ip_address' => $ip,
-                ]);
+                // Use firstOrCreate to avoid DB constraint error if double submit happens concurrently
+                return WorkshopCheckin::firstOrCreate(
+                    [
+                        'workshop_day_id' => $day->id,
+                        'workshop_attendance_id' => $attendance->id,
+                    ],
+                    [
+                        'status' => 'present',
+                        'checkin_time' => now(),
+                        'ip_address' => $request->ip(),
+                    ]
+                );
             });
 
+            // Redirect with Cookie valid for 24 hours (1440 minutes)
             return redirect()
                 ->route('workshop.attend', $hash)
-                ->with('success', 'تم تسجيل حضورك بنجاح!');
+                ->with('success', 'تم تسجيل حضورك بنجاح!')
+                ->withCookie(cookie($cookieName, $checkin->id, 1440))
+                ->withCookie(cookie('attendee_name', $validated['name'], 576000)) // 400 days
+                ->withCookie(cookie('attendee_job', $validated['job_title'], 576000))
+                ->withCookie(cookie('attendee_dept', $validated['department'], 576000));
         }
 
-        // 6. GET request - show form or duplicate message
-        if ($existingCheckin) {
-            return view('workshop.attend_duplicate', [
-                'day' => $day,
-                'workshop' => $workshop,
-                'checkin' => $existingCheckin,
-            ]);
-        }
-
-        // Generate QR code for this specific day
+        // 5. GET request - show form
         $qrImage = QrCodeGenerator::size(200)->generate($day->attendance_url);
 
         return view('workshop.attend', compact('day', 'workshop', 'qrImage'));
@@ -111,7 +114,17 @@ class WorkshopController extends Controller
      */
     public function toggleDayStatus(WorkshopDay $day)
     {
-        $day->update(['is_active' => !$day->is_active]);
+        // If we are activating this day, deactivate all others for this workshop
+        if (!$day->is_active) {
+            WorkshopDay::where('workshop_id', $day->workshop_id)
+                ->where('id', '!=', $day->id)
+                ->update(['is_active' => false]);
+
+            $day->update(['is_active' => true]);
+        } else {
+            // Just deactivate
+            $day->update(['is_active' => false]);
+        }
 
         return redirect()->back()->with(
             'success',
@@ -309,10 +322,21 @@ class WorkshopController extends Controller
     }
 
     // ---------------------- SHOW ----------------------
-    public function show(Workshop $workshop)
+    public function show(Request $request, Workshop $workshop)
     {
-        $workshop->load(['createdBy', 'attendances.checkins.workshopDay', 'days.checkins']);
-        return view('workshop.show', compact('workshop'));
+        $workshop->load(['createdBy', 'days.checkins']);
+
+        $attendancesQuery = $workshop->attendances()->with(['checkins.workshopDay']);
+
+        if ($request->has('day_id') && $request->day_id) {
+            $attendancesQuery->whereHas('checkins', function ($q) use ($request) {
+                $q->where('workshop_day_id', $request->day_id);
+            });
+        }
+
+        $attendances = $attendancesQuery->get();
+
+        return view('workshop.show', compact('workshop', 'attendances'));
     }
 
     // ---------------------- EDIT ----------------------

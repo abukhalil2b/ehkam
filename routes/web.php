@@ -47,6 +47,7 @@ use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
 use App\Http\Controllers\FishboneController;
+use App\Http\Controllers\IndicatorTargetController;
 use App\Http\Controllers\PestleController;
 
 // Route::view('/', 'welcome2')->name('home');
@@ -134,6 +135,18 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('indicator/destroy/{indicator}', [IndicatorController::class, 'destroy'])
         ->middleware('permission:indicator.delete')
         ->name('indicator.destroy');
+});
+
+
+Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('indicator_target/edit/{indicator}', [IndicatorTargetController::class, 'edit'])
+        ->middleware('permission:indicator_target.edit')
+        ->name('indicator_target.edit');
+
+    Route::put('indicator_target/update/{indicator}', [IndicatorTargetController::class, 'update'])
+        ->middleware('permission:indicator_target.update')
+        ->name('indicator_target.update');
 });
 
 // PROJECT ROUTES
@@ -791,10 +804,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('admin_setting/project/index/{year}', [AdminSettingController::class, 'projectIndex'])
             ->middleware('permission:project.index')
             ->name('admin_setting.project.index');
-
-        Route::post('admin_setting/copy-year/{year}', [AdminSettingController::class, 'copyYear'])
-            ->middleware('permission:indicator.create')
-            ->name('admin_setting.copy_year');
     });
 
     // ADMINISTRATION ROUTES
