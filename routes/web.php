@@ -306,6 +306,10 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workshop.show')
         ->name('workshop.attendance_report');
 
+    Route::get('workshop/export_attendance', [WorkshopController::class, 'exportAttendance'])
+        ->middleware('permission:workshop.show')
+        ->name('workshop.export_attendance');
+
     Route::delete('workshop/attendance/{attendance}/destroy', [WorkshopController::class, 'destroyAttendance'])
         ->middleware('permission:workshop.delete')
         ->name('workshop.attendance.destroy');

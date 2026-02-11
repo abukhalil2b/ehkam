@@ -17,17 +17,7 @@ class ActivityController extends Controller
 
     public function index($year)
     {
-        $availableYears = Indicator::query()
-            ->select('current_year')
-            ->distinct()
-            ->pluck('current_year')
-            ->toArray();
-
-        // Fallback to most recent year if invalid year is requested
-        if (!in_array($year, $availableYears)) {
-            $year = $availableYears[0] ?? now()->year;
-        }
-
+       
         // Eager load the AssessmentResults and their associated User models to show who submitted each assessment, 
         // preventing the N+1 query problem.
         $activities = Activity::where('current_year', $year)
@@ -52,7 +42,7 @@ class ActivityController extends Controller
         return view('activity.index', [
             'activities' => $activities,
             'submittedActivityIds' => $submittedActivityIds,
-            'availableYears' => $availableYears,
+            'availableYears' => [],
             'selectedYear' => $year, // Pass the year for display in the view
         ]);
     }

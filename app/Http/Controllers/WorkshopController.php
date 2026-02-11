@@ -19,6 +19,18 @@ class WorkshopController extends Controller
      * Handle attendance registration via unique hash link
      * Each workshop day has its own unique hash URL
      */
+    public function exportAttendance(Request $request)
+    {
+        $request->validate([
+            'workshop_id' => 'required|exists:workshops,id',
+        ]);
+
+        $format = $request->input('format', 'xlsx');
+        $fileName = 'attendance_report.' . $format;
+        $writerType = $format === 'csv' ? \Maatwebsite\Excel\Excel::CSV : \Maatwebsite\Excel\Excel::XLSX;
+
+        return \Maatwebsite\Excel\Facades\Excel::download(new \App\Exports\WorkshopAttendanceExport($request->workshop_id), $fileName, $writerType);
+    }
     public function attendByHash(Request $request, string $hash)
     {
         // 1. Find the day by hash

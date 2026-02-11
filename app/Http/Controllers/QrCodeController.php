@@ -17,11 +17,12 @@ class QrCodeController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'title' => 'required|string|max:100',
             'content' => 'required|url|max:255',
         ]);
 
-
         QrCode::create([
+            'title' => $request->title,
             'content' => $request->content,
             'written_by' => auth()->id(),
         ]);
