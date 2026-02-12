@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-       <div class="text-xl font-extrabold text-gray-900 tracking-tight"> قائمة أسئلة التقييم {{ $currentYear }} . عدد الأسئلة {{ count($questions) }} </div>
+       <div class="text-xl font-extrabold text-gray-900 tracking-tight"> قائمة أسئلة التقييم . عدد الأسئلة {{ count($questions) }} </div>
     </x-slot>
 
     <!-- Load SortableJS -->
@@ -9,10 +9,6 @@
     <div class="container py-8 mx-auto px-4" x-data="sortableQuestions('{{ route('assessment_questions.update_ordered') }}')">
         <div class="flex justify-between items-center mb-8 border-b pb-4">
             <div class="flex items-center space-x-3 space-x-reverse">
-                <a href="{{ route('activity.index',$currentYear ) }}"
-                    class="px-4 py-2 text-sm font-semibold  rounded-lg shadow-sm transition duration-150 ease-in-out focus:outline-none bg-blue-500 hover:bg-blue-700 text-white">
-                    <i class="fas fa-list-alt ml-2"></i> الأنشطة
-                </a>
 
                 <a href="{{ route('assessment_questions.create') }}"
                     class="px-4 py-2 text-sm font-semibold text-white bg-purple-600 rounded-lg shadow-lg hover:bg-purple-700 transition duration-150 ease-in-out">

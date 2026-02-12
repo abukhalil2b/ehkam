@@ -16,7 +16,7 @@ class ActivityPolicy
     public function view(User $user, Activity $activity)
     {
         // 1. Admin/Manager with global permission
-        if ($user->hasPermission('activity.index') || $user->hasPermission('activity.view')) {
+        if ($user->hasPermission('activity.view')) {
             return true;
         }
 
@@ -58,11 +58,6 @@ class ActivityPolicy
     public function update(User $user, Activity $activity)
     {
         if ($user->hasPermission('activity.edit')) {
-            return true;
-        }
-
-        // Allow creator to edit if it's still a draft
-        if ($user->id === $activity->creator_id && $activity->status === 'draft') {
             return true;
         }
 

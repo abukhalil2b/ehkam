@@ -71,13 +71,6 @@
                 @enderror
             </div>
 
-            {{-- Year --}}
-            <div class="mb-6">
-                <label for="assessment_year" class="block text-sm font-medium text-gray-700 mb-2">سنة التقييم:</label>
-               <div class="text-3xl"> {{ $currentYear }}</div>
-                
-            </div>
-
             {{-- Submit --}}
             <div class="flex items-center justify-end">
                 <button type="submit"

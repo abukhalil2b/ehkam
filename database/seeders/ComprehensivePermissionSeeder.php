@@ -49,10 +49,9 @@ class ComprehensivePermissionSeeder extends Seeder
             ['slug' => 'indicator.delete', 'title' => 'حذف المؤشرات', 'category' => 'indicator'],
 
             // Activities
-            ['slug' => 'activity.index', 'title' => 'عرض قائمة الأنشطة', 'category' => 'activity'],
+            ['slug' => 'assessment_stages.index', 'title' => 'عرض قائمة مراحل التقييم', 'category' => 'activity'],
             ['slug' => 'activity.create', 'title' => 'إضافة نشاط جديد', 'category' => 'activity'],
             ['slug' => 'assessment_questions.index', 'title' => 'عرض قائمة الأسئلة', 'category' => 'activity'],
-            ['slug' => 'assessment_questions.create', 'title' => 'إضافة سؤال تقييم', 'category' => 'activity'],
             ['slug' => 'assessment_questions.edit', 'title' => 'تعديل أسئلة التقييم', 'category' => 'activity'],
             ['slug' => 'project_assessment_report', 'title' => 'عرض تقرير الأداء', 'category' => 'activity'],
             ['slug' => 'assessment_result.create', 'title' => 'إضافة نتائج التقييم', 'category' => 'activity'],

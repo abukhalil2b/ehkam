@@ -187,15 +187,25 @@
                                     <p class="text-sm text-gray-600">راجع العناصر المدخلة قبل كتابة الاستراتيجيات</p>
                                 </div>
                             </div>
-                            <button @click="showReference = !showReference"
-                                class="px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-2">
-                                <span x-text="showReference ? 'إخفاء' : 'عرض'"></span>
-                                <svg class="w-4 h-4 transition-transform" :class="showReference ? 'rotate-180' : ''"
-                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                            <div class="flex items-center gap-2">
+                                <button @click="copyAllSwotToClipboard()"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    نسخ الكل
+                                </button>
+                                <button @click="showReference = !showReference"
+                                    class="px-4 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-100 rounded-lg transition-colors flex items-center gap-2">
+                                    <span x-text="showReference ? 'إخفاء' : 'عرض'"></span>
+                                    <svg class="w-4 h-4 transition-transform" :class="showReference ? 'rotate-180' : ''"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -959,6 +969,38 @@
                             }
                         }, 5000);
                     }
+                },
+
+                // SWOT data from PHP
+                swotData: {
+                    strengths: @json($swotData['strengths']->pluck('content')->toArray()),
+                    weaknesses: @json($swotData['weaknesses']->pluck('content')->toArray()),
+                    opportunities: @json($swotData['opportunities']->pluck('content')->toArray()),
+                    threats: @json($swotData['threats']->pluck('content')->toArray())
+                },
+
+                copyAllSwotToClipboard() {
+                    const formatItems = (title, items) => {
+                        if (items.length === 0) return `${title}:\nلا توجد عناصر`;
+                        return `${title}:\n${items.map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+                    };
+
+                    const text = [
+                        formatItems('نقاط القوة', this.swotData.strengths),
+                        '',
+                        formatItems('نقاط الضعف', this.swotData.weaknesses),
+                        '',
+                        formatItems('الفرص', this.swotData.opportunities),
+                        '',
+                        formatItems('التهديدات', this.swotData.threats)
+                    ].join('\n');
+
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.showMessage('success', 'تم نسخ جميع عناصر SWOT بنجاح');
+                    }).catch(err => {
+                        console.error('Failed to copy:', err);
+                        this.showMessage('error', 'فشل النسخ إلى الحافظة');
+                    });
                 }
             }
         }

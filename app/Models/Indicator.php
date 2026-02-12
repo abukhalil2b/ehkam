@@ -23,6 +23,10 @@ class Indicator extends Model
         'sectors' => 'array',
     ];
 
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 
     public function targets()
     {

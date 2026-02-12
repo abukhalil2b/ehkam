@@ -23,8 +23,7 @@ class AssessmentQuestionController extends Controller
 
     public function create()
     {
-        $currentYear = now()->year;
-        return view('assessment_questions.create', compact('currentYear'));
+        return view('assessment_questions.create');
     }
 
     public function store(Request $request)
@@ -45,7 +44,7 @@ class AssessmentQuestionController extends Controller
         }
 
         // Determine order
-        $maxOrder = AssessmentQuestion::where('assessment_year', now()->year)->max('ordered');
+        $maxOrder = AssessmentQuestion::max('ordered');
         $validatedData['ordered'] = ($maxOrder !== null) ? $maxOrder + 1 : 1;
 
         // Create
@@ -53,28 +52,19 @@ class AssessmentQuestionController extends Controller
 
         // Redirect
         return redirect()->route('assessment_questions.index')
-            ->with('success', 'تم إنشاء سؤال التقييم بنجاح للسنة ' . now()->year . '!');
+            ->with('success', 'تم إنشاء سؤال التقييم بنجاح للسنة !');
     }
 
     public function index()
     {
-        // 1. Determine the boundaries for the current year
-        $currentYear = now()->year;
-        $startOfYear = now()->startOfYear();
-        $endOfYear = now()->endOfYear();
 
-        // 2. Fetch questions created within the current year, sorted by the 'ordered' column
-        $questions = AssessmentQuestion::whereBetween('created_at', [$startOfYear, $endOfYear])
-            ->orderBy('ordered')
-            ->get();
+        $questions = AssessmentQuestion::get();
 
-        // 3. Pass the questions and the current year to the view
-        return view('assessment_questions.index', compact('questions', 'currentYear'));
+        return view('assessment_questions.index', compact('questions'));
     }
 
     public function edit(AssessmentQuestion $question)
     {
-        // No need for findOrFail, Laravel handles the 404 for you.
         return view('assessment_questions.edit', compact('question'));
     }
 

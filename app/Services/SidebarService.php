@@ -95,11 +95,10 @@ class SidebarService
                 ]
             ],
             'activity' => [
-                'title' => 'الأنشطة',
+                'title' => 'تقييم الأنشطة',
                 'links' => [
-                    ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة', 'params' => [date('Y')], 'keywords' => 'activities list'],
+                    ['route' => 'assessment_stages.index', 'permission' => 'assessment_stages.index', 'label' => 'قائمة مراحل التقييم', 'keywords' => 'assessment stage list'],
                     ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة', 'keywords' => 'assessment questions list'],
-                    ['route' => 'assessment_questions.create', 'permission' => 'assessment_questions.create', 'label' => 'إضافة سؤال', 'keywords' => 'add assessment question create'],
                     ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء', 'keywords' => 'performance report project assessment'],
                 ]
             ],

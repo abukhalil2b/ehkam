@@ -46,6 +46,7 @@ use App\Http\Controllers\Admin\WorkflowTeamController;
 use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
+use App\Http\Controllers\AssessmentStageController;
 use App\Http\Controllers\FishboneController;
 use App\Http\Controllers\IndicatorTargetController;
 use App\Http\Controllers\PestleController;
@@ -342,7 +343,6 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 Route::group(['middleware' => ['auth']], function () {
-    // Activity
     Route::get('timeline/index', [TimelineController::class, 'index'])
         ->middleware('permission:timeline.index')
         ->name('timeline.index');
@@ -385,16 +385,35 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('assessment_stages/index', [AssessmentStageController::class, 'index'])
+        ->middleware('permission:assessment_stages.index')
+        ->name('assessment_stages.index');
+
+    Route::post('assessment_stages/store', [AssessmentStageController::class, 'store'])
+        ->middleware('permission:assessment_stages.index')
+        ->name('assessment_stages.store');
+
+    Route::put('assessment_stages/update/{assessmentStage}', [AssessmentStageController::class, 'update'])
+        ->middleware('permission:assessment_stages.index')
+        ->name('assessment_stages.update');
+
+    Route::delete('assessment_stages/destroy/{assessmentStage}', [AssessmentStageController::class, 'destroy'])
+        ->middleware('permission:assessment_stages.index')
+        ->name('assessment_stages.destroy');
+
+});
+
 // ACTIVITY & ASSESSMENT ROUTES
 Route::group(['middleware' => ['auth']], function () {
-    // Activity
-    Route::get('activity/index/{year}', [ActivityController::class, 'index'])
-        ->middleware('permission:activity.index')
-        ->name('activity.index');
 
     Route::get('activity/create/{project}', [ActivityController::class, 'create'])
         ->middleware('permission:activity.create')
         ->name('activity.create');
+
+        Route::get('activity/index/{indicator}', [ActivityController::class, 'index'])
+        ->middleware('permission:activity.index')
+        ->name('activity.index');
 
     Route::post('activity/store', [ActivityController::class, 'store'])
         ->middleware('permission:activity.create')
@@ -421,6 +440,10 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:assessment_result.create')
         ->name('assessment_result.store');
 
+        Route::get('assessment_result/show/{activity}/{assessmentStage}', [AssessmentResultController::class, 'show'])
+    ->middleware('permission:assessment_result.show') // تأكد من إضافة هذا الصلاحية أو استخدم واحدة موجودة
+    ->name('assessment_result.show');
+
     // Assessment Questions
     Route::get('assessment_questions/create', [AssessmentQuestionController::class, 'create'])
         ->middleware('permission:assessment_questions.create')
@@ -442,7 +465,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:assessment_questions.edit')
         ->name('assessment_questions.update');
 
-    Route::get('project_assessment_report/{year?}', [ReportController::class, 'projectAssessmentReport'])
+    Route::get('project_assessment_report/{assessmentStageId?}', [ReportController::class, 'projectAssessmentReport'])
         ->middleware('permission:project_assessment_report')
         ->name('project_assessment_report');
 
@@ -1075,6 +1098,7 @@ Route::middleware(['auth'])->group(function () {
     //API to update board type
     Route::patch('/swot/admin/board/{board}/move', [SwotController::class, 'moveBoardItem'])->name('swot.board.move');
     Route::patch('/swot/admin/board/{board}/update-content', [SwotController::class, 'updateBoardContent'])->name('swot.board.update');
+    Route::patch('/swot/admin/board/{board}/remove-content', [SwotController::class, 'removeBoardContent'])->name('swot.board.remove');
 });
 
 // Public routes (no authentication required)

@@ -14,19 +14,12 @@ return new class extends Migration {
             $table->id();
             $table->string('title');
             $table->bigInteger('project_id');
-            $table->string('current_year', 4)->default('2025');
             $table->boolean('is_feed_indicator')->default(false);
 
             // Who created this step
             $table->foreignId('creator_id')
                 ->nullable()
                 ->unsigned();
-
-            // Status flag for the item itself
-            // Movement is driven by current_stage_id, NOT status
-            // Only terminal statuses (completed, rejected) allow current_stage_id = NULL
-            $table->enum('status', ['draft', 'in_progress', 'completed', 'returned', 'rejected', 'delayed'])
-                ->default('draft');
 
             $table->timestamps();
         });
@@ -38,7 +31,12 @@ return new class extends Migration {
             $table->string('content')->nullable(); // e.g (how do you advice your relative for purchase from our store?) 
             $table->string('description')->nullable();
             $table->tinyInteger('ordered')->default(1);
-            $table->string('assessment_year')->default('2025');
+            $table->timestamps();
+        });
+
+        Schema::create('assessment_stages', function (Blueprint $table) {
+            $table->id();
+            $table->string('title',100);
             $table->timestamps();
         });
 
@@ -58,9 +56,9 @@ return new class extends Migration {
 
             $table->foreignId('user_id')->constrained('users')->nullable()->onDelete('cascade');
 
-            $table->string('assessment_year')->default('2025');
+            $table->bigInteger('assessment_stage_id')->unsigned();
 
-            $table->bigInteger('position_id')->nullable();
+            $table->bigInteger('position_id')->nullable();//user position at the time of assessment
             $table->timestamps();
         });
     }

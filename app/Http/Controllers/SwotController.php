@@ -79,6 +79,20 @@ class SwotController extends Controller
         ]);
     }
 
+    public function removeBoardContent(Request $request, SwotBoard $board)
+    {
+        // Ownership check (via project)
+        if ($board->project->created_by !== Auth::id()) {
+            abort(403);
+        }
+
+        $board->delete();
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
     // Admin: View project with QR code
     public function admin($id, Request $request)
     {

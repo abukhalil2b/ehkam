@@ -1,133 +1,111 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex items-center justify-between">
-            <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">
-                قائمة الأنشطة {{ $selectedYear }}
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                قائمة الأنشطة
             </h2>
-
-            <div class="w-44 px-3 py-2 text-xs font-semibold rounded-xl
-                        bg-purple-100 text-purple-800 shadow-sm space-y-1">
-                <div>إجمالي: {{ count($activities) }}</div>
-                <div>تم تقييم: {{ count($submittedActivityIds) }}</div>
-            </div>
+            <a href="{{ url()->previous() }}" class="text-sm text-blue-600 hover:underline flex items-center">
+                <span>العودة للخلف</span>
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </a>
         </div>
     </x-slot>
 
-    <div class="container mx-auto px-4 py-8">
-
-        {{-- Years Tabs --}}
-        <div class="flex flex-wrap gap-2 mb-6">
-            @foreach ($availableYears as $year)
-                    <a href="{{ route('activity.index', ['year' => $year]) }}" class="px-5 py-2 text-sm font-semibold rounded-full transition
-                                   {{ $year == $selectedYear
-                ? 'bg-indigo-600 text-white shadow ring-2 ring-indigo-300'
-                : 'bg-white text-gray-600 border border-gray-300 hover:bg-gray-100' }}">
-                        {{ $year }}
-                    </a>
-            @endforeach
+    <div class="container py-8 mx-auto px-4">
+        <div class="mb-8 bg-gradient-to-l from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
+            <div class="flex items-center space-x-4 space-x-reverse">
+                <div class="p-3 bg-white/20 rounded-lg backdrop-blur-md">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium opacity-80">أنشطة المؤشر:</h3>
+                    <h2 class="text-2xl font-bold">{{ $indicator->title }}</h2>
+                </div>
+            </div>
         </div>
 
-        {{-- Top Actions --}}
-        <div class="flex gap-3 mb-6">
-            <a href="{{ route('assessment_questions.index') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold
-                      text-white bg-indigo-600 rounded-lg shadow
-                      hover:bg-indigo-700 transition">
-                أسئلة الأنشطة
-            </a>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @forelse ($activities as $activity)
+                <div
+                    class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-300 transform hover:-translate-y-1">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start mb-4">
+                            <div
+                                class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-600 transition-colors duration-300">
+                                <svg class="w-5 h-5 text-blue-600 group-hover:text-white transition-colors duration-300"
+                                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <span
+                                class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">نشط</span>
+                        </div>
 
-            <a href="{{ route('project_assessment_report') }}" class="inline-flex items-center px-4 py-2 text-sm font-semibold
-                      text-indigo-700 bg-indigo-100 rounded-lg
-                      hover:bg-indigo-200 transition">
-                تقرير
-            </a>
+                        <h4 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
+                            {{ $activity->title }}
+                        </h4>
+
+                        <div class="flex items-center text-sm text-gray-500 mb-4">
+                            <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                                </path>
+                            </svg>
+                            {{ $activity->project->title }}
+                        </div>
+                    </div>
+
+                    <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
+
+                        @if ($currentStage)
+                            @php
+                                // نتحقق هل توجد نتائج مسجلة لهذا النشاط في هذه المرحلة
+                                // بما أننا استخدمنا eager loading، التحقق سيكون سريعاً من المجموعة (Collection)
+                                $assessment = $activity->assessmentResults->first();
+                            @endphp
+
+                            @if ($assessment)
+                                <a href="{{ route('assessment_result.edit', $activity->id) }}"
+                                    class="px-3 py-1.5 bg-white border border-amber-500 text-amber-600 rounded-lg text-sm hover:bg-amber-50 transition">
+                                    تعديل التقييم
+                                </a>
+                                <span class="text-[10px] text-green-600 font-bold">✓ تم التقييم
+                                    ({{ $currentStage->title }})
+                                </span>
+                            @else
+                                <a href="{{ route('assessment_result.create', $activity->id) }}"
+                                    class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition shadow-sm">
+                                    بدء التقييم
+                                </a>
+                                <span class="text-[10px] text-gray-400 font-bold">
+                                    {{ $currentStage->title }}</span>
+                            @endif
+                        @else
+                            <span class="text-xs text-red-500">لا توجد دورة تقييم مفتوحة حالياً</span>
+                        @endif
+
+                    </div>
+                </div>
+            @empty
+                <div
+                    class="col-span-full py-12 text-center bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">لا توجد أنشطة</h3>
+                    <p class="mt-1 text-sm text-gray-500">لم يتم إضافة أي أنشطة لهذا المشروع بعد.</p>
+                </div>
+            @endforelse
         </div>
-
-        {{-- Activities Table --}}
-        <div class="shadow border border-gray-200 sm:rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            النشاط
-                        </th>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            المشروع
-                        </th>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            الحالة
-                        </th>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            الإجراءات
-                        </th>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            التقييم بواسطة
-                        </th>
-                        <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase">
-                            التاريخ
-                        </th>
-                    </tr>
-                </thead>
-
-                <tbody class="bg-white divide-y divide-gray-200">
-                    @foreach ($activities as $activity)
-                                    @php
-                                        $userSubmitted = in_array($activity->id, $submittedActivityIds);
-                                    @endphp
-
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ $activity->title }}
-                                        </td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ $activity->project->title ?? '—' }}
-                                        </td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
-                                                    {{ $activity->status === 'completed' ? 'bg-green-100 text-green-800' :
-                        ($activity->status === 'rejected' ? 'bg-red-100 text-red-800' :
-                            ($activity->status === 'returned' ? 'bg-yellow-100 text-yellow-800' :
-                                ($activity->status === 'delayed' ? 'bg-orange-100 text-orange-800' :
-                                    'bg-gray-100 text-gray-800'))) }}">
-                                                {{ $activity->status_label }}
-                                            </span>
-                                        </td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap space-y-3">
-                                            <a href="{{ route('activity.show', $activity) }}" class="inline-flex justify-center w-44 px-4 py-2
-                                                              text-white bg-slate-700 rounded-lg
-                                                              hover:bg-slate-800 transition shadow">
-                                                عرض التقييم
-                                            </a>
-
-                                            @if ($userSubmitted)
-                                                <a href="{{ route('assessment_result.edit', $activity->id) }}" class="inline-flex justify-center w-44 px-4 py-2
-                                                                          text-white bg-amber-500 rounded-lg
-                                                                          hover:bg-amber-600 transition shadow">
-                                                    تعديل تقييمي الحالي
-                                                </a>
-                                            @else
-                                                <a href="{{ route('assessment_result.create', $activity->id) }}" class="inline-flex justify-center w-44 px-4 py-2
-                                                                          text-white bg-emerald-600 rounded-lg
-                                                                          hover:bg-emerald-700 transition shadow">
-                                                    + تقييم جديد
-                                                </a>
-                                            @endif
-                                        </td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ $activity->assessmentResults->first()?->user->name ?? '—' }}
-                                        </td>
-
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ $activity->created_at->format('d-m-Y') }}
-                                        </td>
-                                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-
     </div>
 </x-app-layout>

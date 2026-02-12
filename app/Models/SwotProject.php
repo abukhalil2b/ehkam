@@ -54,7 +54,7 @@ class SwotProject extends Model
 
     public function boards()
     {
-        return $this->hasMany(SwotBoard::class);
+        return $this->hasMany(SwotBoard::class)->orderBy('id', 'desc');
     }
 
     public function getPublicUrlAttribute(): string

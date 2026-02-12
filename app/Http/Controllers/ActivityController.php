@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Project;
 use App\Models\Activity;
 use App\Models\AssessmentQuestion;
-use App\Models\AssessmentResult;
+use App\Models\AssessmentStage;
 use App\Models\Indicator;
 use App\Models\Workflow;
 use App\Models\WorkflowInstance;
@@ -15,41 +15,28 @@ use Illuminate\Support\Facades\Auth;
 class ActivityController extends Controller
 {
 
-    public function index($year)
-    {
-       
-        // Eager load the AssessmentResults and their associated User models to show who submitted each assessment, 
-        // preventing the N+1 query problem.
-        $activities = Activity::where('current_year', $year)
-            ->with('assessmentResults.user')
-            ->latest()
-            ->get();
-
-        // 3. Check if the user is authenticated
-        $userId = Auth::id();
-        $submittedActivityIds = [];
-
-        if ($userId) {
-            // 4. Efficiently fetch the IDs of all activities the authenticated user has submitted a result for
-            // NOTE: This part remains the same as it checks against all submitted results, 
-            // regardless of the activity's year, ensuring consistency if a result was submitted later.
-            $submittedActivityIds = AssessmentResult::pluck('activity_id') // Pluck only the activity_id column
-                ->unique()             // Ensure unique IDs
-                ->toArray();
-        }
-
-        // Pass activities, the array of submitted IDs, and the current year to the view
-        return view('activity.index', [
-            'activities' => $activities,
-            'submittedActivityIds' => $submittedActivityIds,
-            'availableYears' => [],
-            'selectedYear' => $year, // Pass the year for display in the view
-        ]);
-    }
-
     public function create(Project $project)
     {
         return view('activity.create', compact('project'));
+    }
+
+
+    public function index(Indicator $indicator)
+    {
+        $projectIds = $indicator->projects()->pluck('id');
+
+        $currentStage = AssessmentStage::latest()->first();
+
+        // 2. جلب الأنشطة مع نتائج التقييم الخاصة بالمرحلة الحالية فقط
+        $activities = Activity::whereIn('project_id', $projectIds)
+            ->with(['project:id,title', 'assessmentResults' => function ($query) use ($currentStage) {
+                if ($currentStage) {
+                    $query->where('assessment_stage_id', $currentStage->id);
+                }
+            }])
+            ->get();
+
+        return view('activity.index', compact('indicator', 'activities', 'currentStage'));
     }
 
     /**
@@ -67,7 +54,6 @@ class ActivityController extends Controller
         $activity = Activity::create([
             'title' => $request->title,
             'project_id' => $request->project_id,
-            'current_year' => now()->year,
             'creator_id' => Auth::id(),
             'status' => 'draft',
         ]);
@@ -104,23 +90,16 @@ class ActivityController extends Controller
             'steps',
         ]);
 
-        $currentYear = $activity->current_year;
 
-        // 1️⃣ Load assessment questions for the current year
-        $allQuestions = AssessmentQuestion::where('assessment_year', $currentYear)
-            ->orderBy('ordered')
+        $allQuestions = AssessmentQuestion::orderBy('ordered')
             ->get(['id', 'content', 'type', 'max_point']);
 
         // 2️⃣ Prepare range questions & max score
         $rangeQuestions = $allQuestions->where('type', 'range');
         $totalMaxPoints = $rangeQuestions->sum('max_point');
 
-        // 3️⃣ Load user results for this activity & year
         $userResults = $activity->assessmentResults()
             ->with('assessmentQuestion:id,type', 'user:id,name')
-            ->whereHas('assessmentQuestion', function ($q) use ($currentYear) {
-                $q->where('assessment_year', $currentYear);
-            })
             ->get();
 
         // 4️⃣ Always initialize summary (NO NULLS)
@@ -170,7 +149,6 @@ class ActivityController extends Controller
             'hasRangeResults' => $hasRangeResults,
             'canSubmitNew' => !$hasSubmitted,
             'canUpdate' => $hasSubmitted,
-            'currentYear' => $currentYear,
         ]);
     }
 }
