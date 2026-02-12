@@ -77,8 +77,8 @@
                                     class="px-3 py-1.5 bg-white border border-amber-500 text-amber-600 rounded-lg text-sm hover:bg-amber-50 transition">
                                     تعديل التقييم
                                 </a>
-                                <span class="text-[10px] text-green-600 font-bold">✓ تم التقييم
-                                    ({{ $currentStage->title }})
+                                <span class="text-[10px] text-green-600 font-bold">   
+                                    {{ $currentStage->title }}
                                 </span>
                             @else
                                 <a href="{{ route('assessment_result.create', $activity->id) }}"

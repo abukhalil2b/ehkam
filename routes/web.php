@@ -56,8 +56,12 @@ Route::view('/', 'welcome2')->name('home');
 
 // ========== DOCUMENTATION ROUTES ==========
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('/docs', [DocumentationController::class, 'index'])->name('docs.index');
-    Route::get('/docs/{slug}', [DocumentationController::class, 'show'])->name('docs.show');
+    Route::get('/docs', [DocumentationController::class, 'index'])
+        ->middleware('permission:docs')
+        ->name('docs.index');
+    Route::get('/docs/{slug}', [DocumentationController::class, 'show'])
+        ->middleware('permission:docs')
+        ->name('docs.show');
 });
 
 // Hash-based workshop attendance registration (each day has unique link)
@@ -91,15 +95,15 @@ Route::group(['middleware' => ['auth']], function () {
 Route::group(['middleware' => ['auth']], function () {
 
     Route::get('indicator/target/{indicator}', [IndicatorController::class, 'target'])
-        ->middleware('permission:indicator.index')
+        ->middleware('permission:indicator.target')
         ->name('indicator.target');
 
     Route::get('indicator/achieved/{indicator}', [IndicatorController::class, 'achieved'])
-        ->middleware('permission:indicator.index')
+        ->middleware('permission:indicator.achieved')
         ->name('indicator.achieved');
 
     Route::get('indicator/show/{indicator}', [IndicatorController::class, 'show'])
-        ->middleware('permission:indicator.index')
+        ->middleware('permission:indicator.show')
         ->name('indicator.show');
 
     Route::get('indicator/index', [IndicatorController::class, 'index'])
@@ -107,11 +111,11 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('indicator.index');
 
     Route::post('indicator/target/store/{indicator}', [IndicatorController::class, 'storeTarget'])
-        ->middleware('permission:indicator.index')
+        ->middleware('permission:indicator.target.store')
         ->name('indicator.target.store');
 
     Route::post('indicator/achieved/store/{indicator}', [IndicatorController::class, 'storeAchieved'])
-        ->middleware('permission:indicator.index')
+        ->middleware('permission:indicator.achieved.store')
         ->name('indicator.achieved.store');
 
 
@@ -401,7 +405,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('assessment_stages/destroy/{assessmentStage}', [AssessmentStageController::class, 'destroy'])
         ->middleware('permission:assessment_stages.index')
         ->name('assessment_stages.destroy');
-
 });
 
 // ACTIVITY & ASSESSMENT ROUTES
@@ -411,7 +414,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:activity.create')
         ->name('activity.create');
 
-        Route::get('activity/index/{indicator}', [ActivityController::class, 'index'])
+    Route::get('activity/index/{indicator}', [ActivityController::class, 'index'])
         ->middleware('permission:activity.index')
         ->name('activity.index');
 
@@ -440,9 +443,9 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:assessment_result.create')
         ->name('assessment_result.store');
 
-        Route::get('assessment_result/show/{activity}/{assessmentStage}', [AssessmentResultController::class, 'show'])
-    ->middleware('permission:assessment_result.show') // تأكد من إضافة هذا الصلاحية أو استخدم واحدة موجودة
-    ->name('assessment_result.show');
+    Route::get('assessment_result/show/{activity}/{assessmentStage}', [AssessmentResultController::class, 'show'])
+        ->middleware('permission:assessment_result.show') 
+        ->name('assessment_result.show');
 
     // Assessment Questions
     Route::get('assessment_questions/create', [AssessmentQuestionController::class, 'create'])

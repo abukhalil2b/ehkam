@@ -15,23 +15,25 @@ use Illuminate\Support\Facades\DB;
 class AssessmentResultController extends Controller
 {
 
-public function show(Activity $activity, AssessmentStage $assessmentStage)
-{
-    // جلب النتائج مع الأسئلة المرتبطة بها
-    $userResults = AssessmentResult::where('activity_id', $activity->id)
-        ->where('assessment_stage_id', $assessmentStage->id)
-        ->with('assessmentQuestion')
-        ->get()
-        ->keyBy('assessment_question_id');
+    public function show(Activity $activity, AssessmentStage $assessmentStage)
+    {
+        $userResults = AssessmentResult::where('activity_id', $activity->id)
+            ->where('assessment_stage_id', $assessmentStage->id)
+            ->with(['assessmentQuestion', 'user']) // تحميل المستخدم
+            ->get()
+            ->keyBy('assessment_question_id');
 
-    if ($userResults->isEmpty()) {
-        return back()->with('error', 'لا توجد بيانات تقييم متاحة لهذا النشاط في هذه المرحلة.');
+        if ($userResults->isEmpty()) {
+            return back()->with('error', 'لا توجد بيانات تقييم متاحة.');
+        }
+
+        // جلب بيانات المقيم من أول سجل موجود
+        $evaluator = $userResults->first()->user;
+
+        $allQuestions = AssessmentQuestion::orderBy('ordered')->get();
+
+        return view('assessment_result.show', compact('activity', 'allQuestions', 'userResults', 'assessmentStage', 'evaluator'));
     }
-
-    $allQuestions = AssessmentQuestion::orderBy('ordered')->get();
-
-    return view('assessment_result.show', compact('activity', 'allQuestions', 'userResults', 'assessmentStage'));
-}
 
     /**
      * Show the form for creating a new set of assessment results for a specific activity.
