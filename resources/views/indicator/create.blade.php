@@ -281,13 +281,13 @@
                 </div>
 
                 <div>
-                    <label for="baseline_after_application" class="block text-gray-700 font-medium mb-2">خط
-                        الأساس بعد التطبيق</label>
-                    <input id="baseline_after_application" name="baseline_after_application"
-                        value="{{ old('baseline_after_application') }}"
+                    <label for="baseline_numeric" class="block text-gray-700 font-medium mb-2">خط
+                        الأساس خط</label>
+                    <input id="baseline_numeric" name="baseline_numeric"
+                        value="{{ old('baseline_numeric') }}"
                         class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                         placeholder="1.5% (80,000,000)">
-                    @error('baseline_after_application')
+                    @error('baseline_numeric')
                         <p class="text-red-600 text-sm mt-2 flex items-center">
                             <svg class="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd"

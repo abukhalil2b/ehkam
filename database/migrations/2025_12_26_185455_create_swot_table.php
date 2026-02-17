@@ -16,8 +16,6 @@ return new class extends Migration
             $table->text('performance_indicator')->nullable();
             $table->json('initiatives')->nullable();
             $table->timestamps();
-
-            $table->unique(['swot_project_id', 'dimension_type']);
         });
         
         Schema::create('swot_projects', function (Blueprint $table) {
@@ -65,7 +63,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('swot_finalizes');
         Schema::dropIfExists('swot_boards');
         Schema::dropIfExists('swot_projects');
+        Schema::dropIfExists('swot_finalized_strategies');
+
     }
 };

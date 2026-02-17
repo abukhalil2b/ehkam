@@ -11,7 +11,7 @@
             <div class="flex justify-between items-center px-4 py-3 ">
                 <a href="{{ route('dashboard') }}" class="main-logo flex items-center shrink-0">
                     <span class="text-[10px]">
-                          إحكام
+                          إتقان
                     </span>
                 </a>
                 <div class="flex items-center gap-2">

@@ -97,6 +97,7 @@ class SidebarService
             'activity' => [
                 'title' => 'تقييم الأنشطة',
                 'links' => [
+                    ['route' => 'activity.index', 'permission' => 'activity.index', 'label' => 'قائمة الأنشطة', 'keywords' => 'activity list'],
                     ['route' => 'assessment_stages.index', 'permission' => 'assessment_stages.index', 'label' => 'قائمة مراحل التقييم', 'keywords' => 'assessment stage list'],
                     ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة', 'keywords' => 'assessment questions list'],
                     ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء', 'keywords' => 'performance report project assessment'],
@@ -190,8 +191,7 @@ class SidebarService
             'settings' => [
                 'title' => 'الإعدادات',
                 'links' => [
-                    ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'params' => [date('Y')], 'keywords' => 'settings indicators'],
-                    ['route' => 'admin_setting.project.index', 'permission' => 'project.index', 'label' => ' المشاريع', 'params' => [date('Y')], 'keywords' => 'settings projects'],
+                    ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'keywords' => 'settings indicators'],
                 ]
             ],
             'admin_structure' => [

@@ -112,8 +112,8 @@ class SwotController extends Controller
         ];
 
         foreach ($dimensionTypes as $type) {
-            $strategy = $project->finalizedStrategies->where('dimension_type', $type)->first();
-            $bscStrategies[$type] = $strategy;
+            $strategies = $project->finalizedStrategies->where('dimension_type', $type);
+            $bscStrategies[$type] = $strategies;
         }
 
         return view('swot.admin', compact('project', 'bscStrategies'));
@@ -312,30 +312,24 @@ class SwotController extends Controller
     {
         $project = SwotProject::with('boards', 'finalize', 'finalizedStrategies')->findOrFail($id);
 
-        // Check if project has any boards
         if ($project->boards()->count() === 0) {
             return redirect()->back()->with('error', 'لا يمكن إنهاء المشروع قبل إضافة عناصر SWOT.');
         }
 
-        // Authorization check
         if ($project->created_by !== Auth::id()) {
             abort(403);
         }
 
-        // Check if already finalized (optional warning)
         if ($project->is_finalized) {
             session()->flash('warning', 'هذا المشروع تم إنهاؤه مسبقاً. يمكنك تعديل الاستراتيجيات.');
         }
 
-        // Deactivate project
         $project->update(['is_active' => 0]);
 
-        // Get or create finalize entry
         $finalize = $project->finalize ?? $project->finalize()->create([
             'created_by' => Auth::id()
         ]);
 
-        // Aggregate SWOT data for better strategy writing
         $swotData = [
             'strengths' => $project->boards()->where('type', 'strength')->get(),
             'weaknesses' => $project->boards()->where('type', 'weakness')->get(),
@@ -343,7 +337,6 @@ class SwotController extends Controller
             'threats' => $project->boards()->where('type', 'threat')->get(),
         ];
 
-        // Calculate statistics
         $stats = [
             'total_items' => $project->boards->count(),
             'participants' => $project->boards->groupBy('session_id')->count(),
@@ -353,29 +346,28 @@ class SwotController extends Controller
             'threat_count' => $swotData['threats']->count(),
         ];
 
-        // Prepare BSC dimension strategies
-        $dimensionTypes = [
-            SwotFinalizedStrategy::TYPE_FINANCIAL,
-            SwotFinalizedStrategy::TYPE_BENEFICIARIES,
-            SwotFinalizedStrategy::TYPE_INTERNAL_PROCESSES,
-            SwotFinalizedStrategy::TYPE_LEARNING_GROWTH,
-        ];
-
-        $bscStrategies = [];
-        foreach ($dimensionTypes as $type) {
-            $strategy = $project->finalizedStrategies->where('dimension_type', $type)->first();
-            $bscStrategies[$type] = $strategy ? [
+        // Load dimension instances from database
+        $dimensionInstances = $project->finalizedStrategies->map(function ($strategy) {
+            return [
+                'id' => $strategy->id,
+                'type' => $strategy->dimension_type,
                 'strategic_goal' => $strategy->strategic_goal ?? '',
                 'performance_indicator' => $strategy->performance_indicator ?? '',
                 'initiatives' => $strategy->initiatives ?? [],
-            ] : [
-                'strategic_goal' => '',
-                'performance_indicator' => '',
-                'initiatives' => [],
+            ];
+        })->values()->toArray();
+
+        // If no strategies exist, create default 4 dimensions
+        if (empty($dimensionInstances)) {
+            $dimensionInstances = [
+                ['id' => 1, 'type' => 'financial', 'strategic_goal' => '', 'performance_indicator' => '', 'initiatives' => []],
+                ['id' => 2, 'type' => 'beneficiaries', 'strategic_goal' => '', 'performance_indicator' => '', 'initiatives' => []],
+                ['id' => 3, 'type' => 'internal_processes', 'strategic_goal' => '', 'performance_indicator' => '', 'initiatives' => []],
+                ['id' => 4, 'type' => 'learning_growth', 'strategic_goal' => '', 'performance_indicator' => '', 'initiatives' => []],
             ];
         }
 
-        return view('swot.finalize', compact('project', 'finalize', 'swotData', 'stats', 'bscStrategies'));
+        return view('swot.finalize', compact('project', 'finalize', 'swotData', 'stats', 'dimensionInstances'));
     }
 
     public function finalizeSave(Request $request, $id)
@@ -389,45 +381,41 @@ class SwotController extends Controller
             ], 403);
         }
 
-        // Validate finalize data
         $data = $request->validate([
             'summary' => 'nullable|string|max:5000',
-            'strength_strategy' => 'nullable|string|max:2000',
-            'weakness_strategy' => 'nullable|string|max:2000',
-            'opportunity_strategy' => 'nullable|string|max:2000',
-            'threat_strategy' => 'nullable|string|max:2000',
             'action_items' => 'nullable|array',
             'action_items.*.title' => 'required_with:action_items|string|max:255',
             'action_items.*.owner' => 'nullable|string|max:100',
             'action_items.*.priority' => 'nullable|in:High,Medium,Low',
             'action_items.*.deadline' => 'nullable|date|after_or_equal:today',
-            // BSC Dimension strategies validation
-            'bsc_strategies' => 'nullable|array',
-            'bsc_strategies.*.strategic_goal' => 'nullable|string|max:2000',
-            'bsc_strategies.*.performance_indicator' => 'nullable|string|max:2000',
-            'bsc_strategies.*.initiatives' => 'nullable|array',
-            'bsc_strategies.*.initiatives.*' => 'nullable|string|max:500',
+            'dimension_instances' => 'nullable|array',
+            'dimension_instances.*.id' => 'required|integer',
+            'dimension_instances.*.type' => 'required|in:financial,beneficiaries,internal_processes,learning_growth',
+            'dimension_instances.*.strategic_goal' => 'nullable|string|max:2000',
+            'dimension_instances.*.performance_indicator' => 'nullable|string|max:2000',
+            'dimension_instances.*.initiatives' => 'nullable|array',
+            'dimension_instances.*.initiatives.*' => 'nullable|string|max:500',
         ]);
 
         $finalize = $project->finalize;
-        // Exclude bsc_strategies from finalize update (stored in separate table)
-        $finalizeData = collect($data)->except('bsc_strategies')->toArray();
-        $finalize->update($finalizeData);
+        $finalize->update([
+            'summary' => $data['summary'] ?? null,
+            'action_items' => $data['action_items'] ?? [],
+        ]);
 
-        // Save BSC dimension strategies
-        if ($request->has('bsc_strategies')) {
-            foreach ($request->bsc_strategies as $dimensionType => $strategyData) {
-                SwotFinalizedStrategy::updateOrCreate(
-                    [
-                        'swot_project_id' => $project->id,
-                        'dimension_type' => $dimensionType,
-                    ],
-                    [
-                        'strategic_goal' => $strategyData['strategic_goal'] ?? null,
-                        'performance_indicator' => $strategyData['performance_indicator'] ?? null,
-                        'initiatives' => $strategyData['initiatives'] ?? [],
-                    ]
-                );
+        // Delete existing strategies
+        $project->finalizedStrategies()->delete();
+
+        // Save new dimension instances
+        if (isset($data['dimension_instances'])) {
+            foreach ($data['dimension_instances'] as $instance) {
+                SwotFinalizedStrategy::create([
+                    'swot_project_id' => $project->id,
+                    'dimension_type' => $instance['type'],
+                    'strategic_goal' => $instance['strategic_goal'] ?? null,
+                    'performance_indicator' => $instance['performance_indicator'] ?? null,
+                    'initiatives' => $instance['initiatives'] ?? [],
+                ]);
             }
         }
 
@@ -442,4 +430,28 @@ class SwotController extends Controller
         ]);
     }
 
+    public function print($id)
+    {
+        $project = SwotProject::with('boards', 'finalize', 'finalizedStrategies')->findOrFail($id);
+
+        if ($project->created_by !== Auth::id()) {
+            abort(403);
+        }
+
+        // Prepare BSC strategies for display
+        $bscStrategies = [];
+        $dimensionTypes = [
+            SwotFinalizedStrategy::TYPE_FINANCIAL,
+            SwotFinalizedStrategy::TYPE_BENEFICIARIES,
+            SwotFinalizedStrategy::TYPE_INTERNAL_PROCESSES,
+            SwotFinalizedStrategy::TYPE_LEARNING_GROWTH,
+        ];
+
+        foreach ($dimensionTypes as $type) {
+            $strategies = $project->finalizedStrategies->where('dimension_type', $type);
+            $bscStrategies[$type] = $strategies;
+        }
+
+        return view('swot.print', compact('project', 'bscStrategies'));
+    }
 }

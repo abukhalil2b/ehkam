@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">إدارة المؤشرات {{ $current_year }}</h1>
+            <h1 class="text-2xl font-bold text-gray-900">إدارة المؤشرات </h1>
             <div class="mt-2 md:mt-0 flex items-center">
                 <span id="indicators-count" class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                     {{ count($indicators) }} مؤشر
@@ -10,6 +10,7 @@
         </div>
     </x-slot>
 
+   
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" dir="rtl">
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -171,22 +172,14 @@
                                 </svg>
                                 المشاريع
                             </a>
-                            <a href="{{ route('activity.index', $indicator->id) }}"
-                                class="flex items-center justify-center px-3 py-2 bg-white border border-rose-500 text-rose-600 hover:bg-rose-50 text-sm font-medium rounded-lg transition duration-150">
-                                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01">
-                                    </path>
-                                </svg>
-                                الأنشطة
-                            </a>
+
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
 
-    
+
     </div>
 
     <script>

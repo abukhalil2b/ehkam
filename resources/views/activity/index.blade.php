@@ -14,22 +14,6 @@
     </x-slot>
 
     <div class="container py-8 mx-auto px-4">
-        <div class="mb-8 bg-gradient-to-l from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg">
-            <div class="flex items-center space-x-4 space-x-reverse">
-                <div class="p-3 bg-white/20 rounded-lg backdrop-blur-md">
-                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="text-sm font-medium opacity-80">أنشطة المؤشر:</h3>
-                    <h2 class="text-2xl font-bold">{{ $indicator->title }}</h2>
-                </div>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse ($activities as $activity)
                 <div
@@ -51,7 +35,6 @@
                         <h4 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
                             {{ $activity->title }}
                         </h4>
-
                         <div class="flex items-center text-sm text-gray-500 mb-4">
                             <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -77,7 +60,7 @@
                                     class="px-3 py-1.5 bg-white border border-amber-500 text-amber-600 rounded-lg text-sm hover:bg-amber-50 transition">
                                     تعديل التقييم
                                 </a>
-                                <span class="text-[10px] text-green-600 font-bold">   
+                                <span class="text-[10px] text-green-600 font-bold">
                                     {{ $currentStage->title }}
                                 </span>
                             @else

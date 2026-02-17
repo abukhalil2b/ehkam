@@ -94,6 +94,20 @@ Route::group(['middleware' => ['auth']], function () {
 // INDICATOR ROUTES
 Route::group(['middleware' => ['auth']], function () {
 
+// عرض صفحة ربط القطاعات
+Route::get('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'editSectors'])
+    ->name('indicator.sectors.edit');
+
+// حفظ الربط
+Route::post('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'updateSectors'])
+    ->name('indicator.sectors.update');
+
+Route::get('/indicator/baselines/edit/{indicator}', [IndicatorController::class, 'editBaselines'])
+    ->name('indicator.baselines.edit');
+
+Route::post('/indicator/baselines/update/{indicator}', [IndicatorController::class, 'updateBaselines'])
+    ->name('indicator.baselines.update');
+
     Route::get('indicator/target/{indicator}', [IndicatorController::class, 'target'])
         ->middleware('permission:indicator.target')
         ->name('indicator.target');
@@ -414,7 +428,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:activity.create')
         ->name('activity.create');
 
-    Route::get('activity/index/{indicator}', [ActivityController::class, 'index'])
+    Route::get('activity/index', [ActivityController::class, 'index'])
         ->middleware('permission:activity.index')
         ->name('activity.index');
 
@@ -444,7 +458,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('assessment_result.store');
 
     Route::get('assessment_result/show/{activity}/{assessmentStage}', [AssessmentResultController::class, 'show'])
-        ->middleware('permission:assessment_result.show') 
+        ->middleware('permission:assessment_result.show')
         ->name('assessment_result.show');
 
     // Assessment Questions
@@ -827,13 +841,11 @@ Route::group(['middleware' => ['auth']], function () {
 
 
     Route::group(['middleware' => ['auth']], function () {
-        Route::get('admin_setting/indicator/index/{year}', [AdminSettingController::class, 'indicatorIndex'])
+        Route::get('admin_setting/indicator/index', [AdminSettingController::class, 'indicatorIndex'])
             ->middleware('permission:indicator.index')
             ->name('admin_setting.indicator.index');
 
-        Route::get('admin_setting/project/index/{year}', [AdminSettingController::class, 'projectIndex'])
-            ->middleware('permission:project.index')
-            ->name('admin_setting.project.index');
+     
     });
 
     // ADMINISTRATION ROUTES
@@ -1092,11 +1104,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/swot/create', [SwotController::class, 'create'])->name('swot.create');
     Route::post('/swot', [SwotController::class, 'store'])->name('swot.store');
     Route::get('/swot/admin/{id}', [SwotController::class, 'admin'])->name('swot.admin');
-    Route::get('/swot/admin/{id}/display', [SwotController::class, 'display'])
-        ->name('swot.display');
-    Route::get('/swot/admin/{id}/finalize', [SwotController::class, 'finalize'])->name('swot.finalize');
-    Route::post('/swot/admin/{id}/finalize', [SwotController::class, 'finalizeSave'])->name('swot.finalize.save');
-    Route::get('/swot/admin/{id}/export-excel', [SwotController::class, 'exportExcel'])->name('swot.export.excel');
+    Route::get('/swot/print/{id}', [SwotController::class, 'print'])->name('swot.print');
+    Route::get('/swot/admin/display/{id}', [SwotController::class, 'display'])->name('swot.display');
+    Route::get('/swot/admin/finalize/{id}', [SwotController::class, 'finalize'])->name('swot.finalize');
+    Route::post('/swot/admin/finalize/{id}', [SwotController::class, 'finalizeSave'])->name('swot.finalize.save');
+    Route::get('/swot/admin/export-excel/{id}', [SwotController::class, 'exportExcel'])->name('swot.export.excel');
 
     //API to update board type
     Route::patch('/swot/admin/board/{board}/move', [SwotController::class, 'moveBoardItem'])->name('swot.board.move');

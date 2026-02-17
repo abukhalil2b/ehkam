@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        تقييم النشاط: {{ $activity->title }}
+       {{ $currentStage->title }} - {{ $activity->title }}  
     </x-slot>
 
     <div class="container py-8 mx-auto px-4 max-w-4xl">

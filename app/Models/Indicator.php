@@ -32,6 +32,19 @@ class Indicator extends Model
     {
         return $this->hasMany(IndicatorTarget::class);
     }
+
+    public function achieved()
+    {
+        return $this->hasMany(IndicatorAchievement::class);
+    }
+
+    public function sectors_with_baseline()
+    {
+        return $this->belongsToMany(Sector::class, 'indicator_sector')
+            ->withPivot('baseline_numeric', 'baseline_year')
+            ->withTimestamps();
+    }
+
     /**
      * Get the parent indicator (if it is a sub-indicator).
      */

@@ -21,22 +21,20 @@ class ActivityController extends Controller
     }
 
 
-    public function index(Indicator $indicator)
+    public function index()
     {
-        $projectIds = $indicator->projects()->pluck('id');
 
         $currentStage = AssessmentStage::latest()->first();
 
         // 2. جلب الأنشطة مع نتائج التقييم الخاصة بالمرحلة الحالية فقط
-        $activities = Activity::whereIn('project_id', $projectIds)
-            ->with(['project:id,title', 'assessmentResults' => function ($query) use ($currentStage) {
-                if ($currentStage) {
-                    $query->where('assessment_stage_id', $currentStage->id);
-                }
-            }])
+        $activities = Activity::with(['project:id,title', 'assessmentResults' => function ($query) use ($currentStage) {
+            if ($currentStage) {
+                $query->where('assessment_stage_id', $currentStage->id);
+            }
+        }])
             ->get();
 
-        return view('activity.index', compact('indicator', 'activities', 'currentStage'));
+        return view('activity.index', compact('activities', 'currentStage'));
     }
 
     /**

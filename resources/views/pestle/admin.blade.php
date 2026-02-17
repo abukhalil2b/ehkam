@@ -99,7 +99,8 @@
                         </div>
 
                         <div class="w-11 h-11 bg-indigo-100 rounded-lg flex items-center justify-center">
-                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10
                              a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                             </svg>
@@ -255,12 +256,42 @@
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         @php
                             $categories = [
-                                'political' => ['title' => 'السياسية', 'color' => 'red', 'icon' => 'M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8M10 9H7a2 2 0 00-2 2v2a2 2 0 002 2h3'],
-                                'economic' => ['title' => 'الاقتصادية', 'color' => 'blue', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                                'social' => ['title' => 'الاجتماعية', 'color' => 'yellow', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
-                                'technological' => ['title' => 'التقنية', 'color' => 'purple', 'icon' => 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'],
-                                'legal' => ['title' => 'القانونية', 'color' => 'gray', 'icon' => 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'],
-                                'environmental' => ['title' => 'البيئية', 'color' => 'emerald', 'icon' => 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707'],
+                                'political' => [
+                                    'title' => 'السياسية',
+                                    'color' => 'red',
+                                    'icon' =>
+                                        'M3 21v-8a2 2 0 012-2h14a2 2 0 012 2v8M10 9H7a2 2 0 00-2 2v2a2 2 0 002 2h3',
+                                ],
+                                'economic' => [
+                                    'title' => 'الاقتصادية',
+                                    'color' => 'blue',
+                                    'icon' =>
+                                        'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                                ],
+                                'social' => [
+                                    'title' => 'الاجتماعية',
+                                    'color' => 'yellow',
+                                    'icon' =>
+                                        'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+                                ],
+                                'technological' => [
+                                    'title' => 'التقنية',
+                                    'color' => 'purple',
+                                    'icon' =>
+                                        'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z',
+                                ],
+                                'legal' => [
+                                    'title' => 'القانونية',
+                                    'color' => 'gray',
+                                    'icon' =>
+                                        'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z',
+                                ],
+                                'environmental' => [
+                                    'title' => 'البيئية',
+                                    'color' => 'emerald',
+                                    'icon' =>
+                                        'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707',
+                                ],
                             ];
                         @endphp
 
@@ -270,19 +301,22 @@
                                 $percentage =
                                     $project->items->count() > 0 ? ($count / $project->items->count()) * 100 : 0;
                             @endphp
-                            <div class="bg-{{ $meta['color'] }}-50 border border-{{ $meta['color'] }}-200 rounded-xl p-3">
+                            <div
+                                class="bg-{{ $meta['color'] }}-50 border border-{{ $meta['color'] }}-200 rounded-xl p-3">
                                 <div class="flex items-center justify-between mb-2">
                                     <div
                                         class="w-8 h-8 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-4 h-4 text-{{ $meta['color'] }}-600" fill="none" stroke="currentColor"
-                                            viewBox="0 0 24 24">
+                                        <svg class="w-4 h-4 text-{{ $meta['color'] }}-600" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="{{ $meta['icon'] }}" />
                                         </svg>
                                     </div>
-                                    <span class="text-{{ $meta['color'] }}-700 font-bold text-lg">{{ $count }}</span>
+                                    <span
+                                        class="text-{{ $meta['color'] }}-700 font-bold text-lg">{{ $count }}</span>
                                 </div>
-                                <h4 class="font-semibold text-{{ $meta['color'] }}-800 mb-1 text-xs">{{ $meta['title'] }}
+                                <h4 class="font-semibold text-{{ $meta['color'] }}-800 mb-1 text-xs">
+                                    {{ $meta['title'] }}
                                 </h4>
                                 <div class="w-full bg-{{ $meta['color'] }}-200 rounded-full h-2">
                                     <div class="bg-{{ $meta['color'] }}-600 h-2 rounded-full transition-all duration-500"
@@ -317,9 +351,11 @@
                         @foreach ($categories as $type => $meta)
                             <div
                                 class="border-2 border-{{ $meta['color'] }}-200 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg">
-                                <div class="bg-{{ $meta['color'] }}-100 p-3 border-b border-{{ $meta['color'] }}-200">
+                                <div
+                                    class="bg-{{ $meta['color'] }}-100 p-3 border-b border-{{ $meta['color'] }}-200">
                                     <div class="flex items-center justify-between">
-                                        <h3 class="font-bold text-{{ $meta['color'] }}-900 text-sm">{{ $meta['title'] }}
+                                        <h3 class="font-bold text-{{ $meta['color'] }}-900 text-sm">
+                                            {{ $meta['title'] }}
                                         </h3>
                                         <span
                                             class="px-2 py-0.5 bg-{{ $meta['color'] }}-200 text-{{ $meta['color'] }}-800 text-[10px] font-medium rounded transition-all duration-300"
@@ -329,13 +365,15 @@
                                     </div>
                                 </div>
                                 <div class="max-h-80 overflow-y-auto p-2 drop-zone transition-all duration-200 min-h-[200px]"
-                                    data-type="{{ $type }}" ondragover="onDragOver(event)" ondrop="onDrop(event)"
-                                    ondragenter="onDragEnter(event)" ondragleave="onDragLeave(event)">
+                                    data-type="{{ $type }}" ondragover="onDragOver(event)"
+                                    ondrop="onDrop(event)" ondragenter="onDragEnter(event)"
+                                    ondragleave="onDragLeave(event)">
                                     <div class="space-y-2" id="items-{{ $type }}">
                                         @forelse($project->items->where('type', $type) as $item)
                                             <div class="bg-white border border-gray-200 rounded-lg p-3 cursor-move hover:shadow-lg hover:border-{{ $meta['color'] }}-300 transition-all duration-200 drag-item group"
-                                                draggable="true" data-id="{{ $item->id }}" data-type="{{ $type }}"
-                                                ondragstart="onDragStart(event)" ondragend="onDragEnd(event)">
+                                                draggable="true" data-id="{{ $item->id }}"
+                                                data-type="{{ $type }}" ondragstart="onDragStart(event)"
+                                                ondragend="onDragEnd(event)">
                                                 <div class="flex justify-between items-start gap-1">
                                                     <div class="flex items-start gap-1 flex-1">
                                                         <p class="text-xs text-gray-800 flex-1 leading-relaxed font-medium"
@@ -390,7 +428,8 @@
                             <div class="flex items-center">
                                 <a href="{{ route('pestle.finalize', $project->id) }}"
                                     class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center">
-                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
@@ -402,18 +441,23 @@
 
                     <div class="p-6">
                         <!-- Summary -->
-                        <div class="mb-8">
+                        <div class="mb-8" x-data="{ show: false }">
                             <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
-                                <h3 class="text-lg font-semibold text-gray-900">ملخص التحليل</h3>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    ملخص التحليل
+                                    <span class="ml-2 text-sm text-blue-600 cursor-pointer" @click="show = !show">
+                                        <span x-text="show ? 'إخفاء' : 'عرض '"></span>
+                                    </span>
+                                </h3>
                             </div>
                             <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                                <p class="text-gray-800 leading-relaxed whitespace-pre-line">
-                                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}
-                                </p>
+                                <p class="text-gray-800 leading-relaxed whitespace-pre-line" x-show="show">
+                                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}</p>
                             </div>
                         </div>
 
@@ -423,50 +467,57 @@
                                 <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات لكل مجال</h3>
                             </div>
                             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                @foreach($strategies as $type => $strategy)
-                                    @if($strategy)
+                                @foreach ($strategies as $type => $strategy)
+                                    @if ($strategy)
                                         @php $meta = $categories[$type] ?? null; @endphp
-                                        @if($meta)
+                                        @if ($meta)
                                             <div
                                                 class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
                                                 <div class="flex items-center gap-2 mb-4">
                                                     <div
                                                         class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
-                                                        <svg class="w-5 h-5 text-{{ $meta['color'] }}-600" fill="none"
-                                                            stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                                d="{{ $meta['icon'] }}" />
+                                                        <svg class="w-5 h-5 text-{{ $meta['color'] }}-600"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="{{ $meta['icon'] }}" />
                                                         </svg>
                                                     </div>
-                                                    <h4 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h4>
+                                                    <h4 class="font-bold text-{{ $meta['color'] }}-900">
+                                                        {{ $meta['title'] }}</h4>
                                                 </div>
 
                                                 <div class="space-y-3">
-                                                    @if($strategy->strategic_goal)
+                                                    @if ($strategy->strategic_goal)
                                                         <div>
-                                                            <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف
+                                                            <span
+                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف
                                                                 الاستراتيجي</span>
-                                                            <p class="text-sm text-gray-800 mt-1">{{ $strategy->strategic_goal }}</p>
+                                                            <p class="text-sm text-gray-800 mt-1">
+                                                                {{ $strategy->strategic_goal }}</p>
                                                         </div>
                                                     @endif
 
-                                                    @if($strategy->performance_indicator)
+                                                    @if ($strategy->performance_indicator)
                                                         <div>
-                                                            <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر
+                                                            <span
+                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر
                                                                 الأداء</span>
-                                                            <p class="text-sm text-gray-800 mt-1">{{ $strategy->performance_indicator }}</p>
+                                                            <p class="text-sm text-gray-800 mt-1">
+                                                                {{ $strategy->performance_indicator }}</p>
                                                         </div>
                                                     @endif
 
-                                                    @if($strategy->initiatives && count($strategy->initiatives) > 0)
+                                                    @if ($strategy->initiatives && count($strategy->initiatives) > 0)
                                                         <div>
                                                             <span
                                                                 class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
                                                             <ul class="mt-1 space-y-1">
-                                                                @foreach($strategy->initiatives as $initiative)
-                                                                    @if($initiative)
-                                                                        <li class="flex items-start gap-2 text-sm text-gray-800">
-                                                                            <span class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
+                                                                @foreach ($strategy->initiatives as $initiative)
+                                                                    @if ($initiative)
+                                                                        <li
+                                                                            class="flex items-start gap-2 text-sm text-gray-800">
+                                                                            <span
+                                                                                class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
                                                                             <span>{{ $initiative }}</span>
                                                                         </li>
                                                                     @endif
@@ -489,7 +540,8 @@
             <!-- Admin Guide / Legend -->
             <div class="mb-8 bg-gray-50 rounded-xl border border-gray-200 p-5 print:hidden">
                 <h3 class="font-bold text-gray-800 mb-3 flex items-center">
-                    <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -505,7 +557,8 @@
                         </div>
                         <div>
                             <span class="font-bold text-gray-900 block mb-1">إنهاء المشروع (صياغة النتائج)</span>
-                            <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة التحليل. سينقلك النظام لصفحة خاصة
+                            <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة التحليل. سينقلك النظام لصفحة
+                                خاصة
                                 لكتابة "ملخص التحليل"، وصياغة الأهداف لكل مجال من مجالات PESTLE.</p>
                         </div>
                     </div>
@@ -847,15 +900,15 @@
 
             setTimeout(() => {
                 fetch(`/pestle/board/${draggedId}/move`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        type: newType
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({
+                            type: newType
+                        })
                     })
-                })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -982,14 +1035,14 @@
         }
 
         // Character counter
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const textarea = document.getElementById('editContent');
             if (textarea) {
                 textarea.addEventListener('input', updateCharCount);
             }
 
             // Close modal on Escape key
-            document.addEventListener('keydown', function (e) {
+            document.addEventListener('keydown', function(e) {
                 const modal = document.getElementById('editModal');
                 if (modal && e.key === 'Escape' && !modal.classList.contains('hidden')) {
                     closeEditModal();
@@ -999,7 +1052,7 @@
             // Close modal on backdrop click
             const modal = document.getElementById('editModal');
             if (modal) {
-                modal.addEventListener('click', function (e) {
+                modal.addEventListener('click', function(e) {
                     if (e.target === this) {
                         closeEditModal();
                     }
@@ -1009,7 +1062,7 @@
             // Handle form submission
             const editForm = document.getElementById('editForm');
             if (editForm) {
-                editForm.addEventListener('submit', function (e) {
+                editForm.addEventListener('submit', function(e) {
                     e.preventDefault();
 
                     const content = document.getElementById('editContent').value.trim();
@@ -1028,16 +1081,16 @@
                     submitBtn.classList.add('btn-loading');
 
                     fetch(`/pestle/board/${currentEditId}/update`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                .content
-                        },
-                        body: JSON.stringify({
-                            content
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .content
+                            },
+                            body: JSON.stringify({
+                                content
+                            })
                         })
-                    })
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
@@ -1108,7 +1161,8 @@
                     <button type="submit"
                         class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center gap-2">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 13l4 4L19 7" />
                         </svg>
                         حفظ التغييرات
                     </button>

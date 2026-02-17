@@ -166,6 +166,10 @@
                             class="flex-1 text-center px-3 py-2 bg-blue-50 text-blue-700 text-sm rounded-lg hover:bg-blue-100 transition">
                             Excel
                         </a>
+                        <a href="{{ route('swot.print', $project->id) }}" target="_blank"
+                            class="flex-1 text-center px-3 py-2 bg-gray-50 text-gray-700 text-sm rounded-lg hover:bg-gray-100 transition border border-gray-200">
+                            طباعة التقرير
+                        </a>
                     </div>
                 </div>
 
@@ -385,8 +389,7 @@
                                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                             </svg>
                                                         </button>
-                                                        <button
-                                                            onclick="deleteItem({{ $item->id }})"
+                                                        <button onclick="deleteItem({{ $item->id }})"
                                                             class="text-gray-400 hover:text-red-600 transition-colors"
                                                             title="حذف">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
@@ -440,247 +443,315 @@
                                 </p>
                             </div>
                             <div class="flex items-center">
-            <a href="{{ route('swot.finalize', $project->id) }}"
-                class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center">
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                تعديل
-            </a>
-        </div>
-    </div>
-    </div>
-
-    <div class="p-6">
-        <!-- Summary -->
-        <div class="mb-8">
-            <div class="flex items-center gap-2 mb-3">
-                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h3 class="text-lg font-semibold text-gray-900">ملخص التحليل</h3>
-            </div>
-            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
-                <p class="text-gray-800 leading-relaxed whitespace-pre-line">
-                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}</p>
-            </div>
-        </div>
-
-        <!-- BSC Strategies -->
-        @if(isset($bscStrategies) && collect($bscStrategies)->filter()->isNotEmpty())
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات المقترحة</h3>
-                <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">بطاقة الأداء المتوازن</span>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @php
-                    $bscMeta = [
-                        'financial' => ['title' => 'البعد المالي', 'color' => 'emerald', 'icon' => 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z'],
-                        'beneficiaries' => ['title' => 'بعد المستفيدين', 'color' => 'blue', 'icon' => 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'],
-                        'internal_processes' => ['title' => 'العمليات الداخلية', 'color' => 'purple', 'icon' => 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z'],
-                        'learning_growth' => ['title' => 'التعلم والنمو', 'color' => 'amber', 'icon' => 'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253'],
-                    ];
-                @endphp
-
-                @foreach($bscMeta as $type => $meta)
-                    @php $strategy = $bscStrategies[$type] ?? null; @endphp
-                    @if($strategy)
-                    <div class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
-                                <svg class="w-5 h-5 text-{{ $meta['color'] }}-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $meta['icon'] }}" />
-                                </svg>
+                                <a href="{{ route('swot.finalize', $project->id) }}"
+                                    class="px-3 py-1 text-sm bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 flex items-center">
+                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    تعديل
+                                </a>
                             </div>
-                            <h4 class="font-bold text-{{ $meta['color'] }}-900">{{ $meta['title'] }}</h4>
                         </div>
-                        
-                        <div class="space-y-3">
-                            @if($strategy->strategic_goal)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف الاستراتيجي</span>
-                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->strategic_goal }}</p>
+                    </div>
+
+                    <div class="p-6">
+                        <!-- Summary -->
+                        <div class="mb-8" x-data="{ show: false }">
+                            <div class="flex items-center gap-2 mb-3">
+                                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <h3 class="text-lg font-semibold text-gray-900">
+                                    ملخص التحليل
+                                    <span class="ml-2 text-sm text-blue-600 cursor-pointer" @click="show = !show">
+                                        <span x-text="show ? 'إخفاء' : 'عرض '"></span>
+                                    </span>
+                                </h3>
                             </div>
-                            @endif
-                            
-                            @if($strategy->performance_indicator)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر الأداء</span>
-                                <p class="text-sm text-gray-800 mt-1">{{ $strategy->performance_indicator }}</p>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-6">
+                                <p class="text-gray-800 leading-relaxed whitespace-pre-line" x-show="show">
+                                    {{ $project->finalize->summary ?? 'لم يتم إضافة ملخص' }}</p>
                             </div>
-                            @endif
-                            
-                            @if($strategy->initiatives && count($strategy->initiatives) > 0)
-                            <div>
-                                <span class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
-                                <ul class="mt-1 space-y-1">
-                                    @foreach($strategy->initiatives as $initiative)
-                                        @if($initiative)
-                                        <li class="flex items-start gap-2 text-sm text-gray-800">
-                                            <span class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
-                                            <span>{{ $initiative }}</span>
-                                        </li>
+                        </div>
+
+                        <!-- BSC Strategies -->
+                        @if (isset($bscStrategies) && collect($bscStrategies)->filter()->isNotEmpty())
+                            <div class="mb-8">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-semibold text-gray-900">الاستراتيجيات المقترحة</h3>
+                                    <span class="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full">بطاقة
+                                        الأداء المتوازن</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    @php
+                                        $bscMeta = [
+                                            'financial' => [
+                                                'title' => 'البعد المالي',
+                                                'color' => 'emerald',
+                                                'icon' =>
+                                                    'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+                                            ],
+                                            'beneficiaries' => [
+                                                'title' => 'بعد المستفيدين',
+                                                'color' => 'blue',
+                                                'icon' =>
+                                                    'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+                                            ],
+                                            'internal_processes' => [
+                                                'title' => 'العمليات الداخلية',
+                                                'color' => 'purple',
+                                                'icon' =>
+                                                    'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z',
+                                            ],
+                                            'learning_growth' => [
+                                                'title' => 'التعلم والنمو',
+                                                'color' => 'amber',
+                                                'icon' =>
+                                                    'M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253',
+                                            ],
+                                        ];
+                                    @endphp
+
+                                    @foreach ($bscMeta as $type => $meta)
+                                        @php $strategies = $bscStrategies[$type] ?? collect(); @endphp
+                                        @if ($strategies->isNotEmpty())
+                                            <div
+                                                class="bg-gradient-to-br from-{{ $meta['color'] }}-50 to-{{ $meta['color'] }}-25 border-2 border-{{ $meta['color'] }}-200 rounded-xl p-5">
+                                                <div class="flex items-center gap-2 mb-4">
+                                                    <div
+                                                        class="w-10 h-10 bg-{{ $meta['color'] }}-100 rounded-lg flex items-center justify-center">
+                                                        <svg class="w-5 h-5 text-{{ $meta['color'] }}-600"
+                                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2" d="{{ $meta['icon'] }}" />
+                                                        </svg>
+                                                    </div>
+                                                    <h4 class="font-bold text-{{ $meta['color'] }}-900">
+                                                        {{ $meta['title'] }}</h4>
+                                                </div>
+
+                                                <div class="space-y-6">
+                                                    @foreach ($strategies as $index => $strategy)
+                                                        @if ($strategy->strategic_goal || $strategy->performance_indicator || ($strategy->initiatives && count($strategy->initiatives) > 0))
+                                                            <div class="bg-white/50 rounded-lg p-3 border border-{{ $meta['color'] }}-100 relative">
+                                                                @if ($strategies->count() > 1)
+                                                                    <div class="absolute top-2 left-2">
+                                                                        <span class="text-xs font-bold text-{{ $meta['color'] }}-800 bg-{{ $meta['color'] }}-100 px-2 py-0.5 rounded-full">#{{ $loop->iteration }}</span>
+                                                                    </div>
+                                                                @endif
+
+                                                                <div class="space-y-3">
+                                                                    @if ($strategy->strategic_goal)
+                                                                        <div>
+                                                                            <span
+                                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">الهدف
+                                                                                الاستراتيجي</span>
+                                                                            <p class="text-sm text-gray-800 mt-1">
+                                                                                {{ $strategy->strategic_goal }}</p>
+                                                                        </div>
+                                                                    @endif
+
+                                                                    @if ($strategy->performance_indicator)
+                                                                        <div>
+                                                                            <span
+                                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">مؤشر
+                                                                                الأداء</span>
+                                                                            <p class="text-sm text-gray-800 mt-1">
+                                                                                {{ $strategy->performance_indicator }}</p>
+                                                                        </div>
+                                                                    @endif
+
+                                                                    @if ($strategy->initiatives && count($strategy->initiatives) > 0)
+                                                                        <div>
+                                                                            <span
+                                                                                class="text-xs font-medium text-{{ $meta['color'] }}-700 uppercase">المبادرات</span>
+                                                                            <ul class="mt-1 space-y-1">
+                                                                                @foreach ($strategy->initiatives as $initiative)
+                                                                                    @if ($initiative)
+                                                                                        <li
+                                                                                            class="flex items-start gap-2 text-sm text-gray-800">
+                                                                                            <span
+                                                                                                class="text-{{ $meta['color'] }}-500 mt-0.5">•</span>
+                                                                                            <span>{{ $initiative }}</span>
+                                                                                        </li>
+                                                                                    @endif
+                                                                                @endforeach
+                                                                            </ul>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
+                                            </div>
                                         @endif
                                     @endforeach
-                                </ul>
+                                </div>
                             </div>
-                            @endif
+                        @endif
+
+                        <!-- Action Plan -->
+                        @if ($project->finalize->action_items && count($project->finalize->action_items))
+                            <div>
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <h3 class="text-lg font-semibold text-gray-900">خطة العمل</h3>
+                                    </div>
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
+                                        {{ count($project->finalize->action_items) }} مهمة
+                                    </span>
+                                </div>
+
+                                <div class="overflow-hidden border border-gray-200 rounded-xl">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                                    المهمة</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                                    المسؤول</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                                    الأولوية</th>
+                                                <th scope="col"
+                                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                                                    موعد التسليم</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            @foreach ($project->finalize->action_items as $item)
+                                                <tr class="hover:bg-gray-50">
+                                                    <td class="px-6 py-4">
+                                                        <div class="text-sm font-medium text-gray-900">
+                                                            {{ $item['title'] }}</div>
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        <div class="text-sm text-gray-700">{{ $item['owner'] ?? '-' }}
+                                                        </div>
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        @php
+                                                            $priorityColors = [
+                                                                'High' => 'red',
+                                                                'Medium' => 'yellow',
+                                                                'Low' => 'green',
+                                                            ];
+                                                            $color = $priorityColors[$item['priority'] ?? ''] ?? 'gray';
+                                                        @endphp
+                                                        <span
+                                                            class="px-2 py-1 text-xs rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
+                                                            {{ $item['priority'] ?? 'غير محدد' }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4">
+                                                        <div class="text-sm text-gray-700">
+                                                            {{ $item['deadline'] ?? '-' }}</div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
+            <!-- Admin Guide / Legend -->
+            <div class="mb-8 bg-gray-50 rounded-xl border border-gray-200 p-5 print:hidden">
+                <h3 class="font-bold text-gray-800 mb-3 flex items-center">
+                    <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    دليل إجراءات التحكم
+                </h3>
+                <div class="grid md:grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
+                        <div class="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-900 block mb-1">إنهاء المشروع (بدء الاستراتيجية)</span>
+                            <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة العصف الذهني. سينقلك النظام
+                                لصفحة خاصة لكتابة "ملخص التحليل"، "استراتيجيات BSC"، و"خطة العمل".</p>
                         </div>
                     </div>
-                    @endif
-                @endforeach
-            </div>
-        </div>
-        @endif
 
-        <!-- Action Plan -->
-        @if ($project->finalize->action_items && count($project->finalize->action_items))
-            <div>
-                <div class="flex items-center justify-between mb-4">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                        <h3 class="text-lg font-semibold text-gray-900">خطة العمل</h3>
+                    <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
+                        <div class="p-2 bg-yellow-100 text-yellow-600 rounded-lg shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <span class="font-bold text-gray-900 block mb-1">تعطيل المشروع (إغلاق الجلسة)</span>
+                            <p class="text-gray-600">هذا الإجراء يوقف "رابط المشاركة" وكود QR فوراً. لن يتمكن المشاركون
+                                من الدخول أو إضافة عناصر جديدة. استخدمه لحماية البيانات بعد انتهاء الجلسة.</p>
+                        </div>
                     </div>
-                    <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                        {{ count($project->finalize->action_items) }} مهمة
-                    </span>
-                </div>
-
-                <div class="overflow-hidden border border-gray-200 rounded-xl">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    المهمة</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    المسؤول</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    الأولوية</th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                                    موعد التسليم</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach ($project->finalize->action_items as $item)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ $item['title'] }}</div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-700">{{ $item['owner'] ?? '-' }}
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        @php
-                                            $priorityColors = [
-                                                'High' => 'red',
-                                                'Medium' => 'yellow',
-                                                'Low' => 'green',
-                                            ];
-                                            $color = $priorityColors[$item['priority'] ?? ''] ?? 'gray';
-                                        @endphp
-                                        <span
-                                            class="px-2 py-1 text-xs rounded-full bg-{{ $color }}-100 text-{{ $color }}-800">
-                                            {{ $item['priority'] ?? 'غير محدد' }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <div class="text-sm text-gray-700">
-                                            {{ $item['deadline'] ?? '-' }}</div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
                 </div>
             </div>
-        @endif
-    </div>
-    </div>
-    @endif
-
-    <!-- Admin Guide / Legend -->
-    <div class="mb-8 bg-gray-50 rounded-xl border border-gray-200 p-5 print:hidden">
-        <h3 class="font-bold text-gray-800 mb-3 flex items-center">
-            <svg class="w-5 h-5 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            دليل إجراءات التحكم
-        </h3>
-        <div class="grid md:grid-cols-2 gap-4 text-sm">
-            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
-                <div class="p-2 bg-blue-100 text-blue-600 rounded-lg shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <div>
-                    <span class="font-bold text-gray-900 block mb-1">إنهاء المشروع (بدء الاستراتيجية)</span>
-                    <p class="text-gray-600">اختر هذا الإجراء عندما تنتهي جلسة العصف الذهني. سينقلك النظام لصفحة خاصة لكتابة "ملخص التحليل"، "استراتيجيات BSC"، و"خطة العمل".</p>
-                </div>
-            </div>
-            
-            <div class="flex items-start gap-3 bg-white p-3 rounded-lg border border-gray-100">
-                <div class="p-2 bg-yellow-100 text-yellow-600 rounded-lg shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                </div>
-                <div>
-                    <span class="font-bold text-gray-900 block mb-1">تعطيل المشروع (إغلاق الجلسة)</span>
-                    <p class="text-gray-600">هذا الإجراء يوقف "رابط المشاركة" وكود QR فوراً. لن يتمكن المشاركون من الدخول أو إضافة عناصر جديدة. استخدمه لحماية البيانات بعد انتهاء الجلسة.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 print:hidden">
-        <div class="flex gap-3">
-            <a href="{{ route('swot.index') }}"
-                class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
-                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                العودة للمشاريع
-            </a>
-        </div>
-
-        <div class="flex gap-3">
-            @if (!$project->is_finalized)
-                <a href="{{ route('swot.finalize', $project->id) }}"
-                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
-                    <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    إنهاء المشروع
-                </a>
-            @endif
-
-            @if ($project->is_active)
-                <form action="#" method="POST" onsubmit="return confirm('هل تريد تعطيل هذا المشروع؟');">
-                    @csrf
-                    @method('PATCH')
-                    <button type="submit"
-                        class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+            <div
+                class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-gray-200 print:hidden">
+                <div class="flex gap-3">
+                    <a href="{{ route('swot.index') }}"
+                        class="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors duration-200 inline-flex items-center">
                         <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
-                        تعطيل المشروع
-                    </button>
-                </form>
-            @endif
+                        العودة للمشاريع
+                    </a>
+                </div>
+
+                <div class="flex gap-3">
+                    @if (!$project->is_finalized)
+                        <a href="{{ route('swot.finalize', $project->id) }}"
+                            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+                            <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            إنهاء المشروع
+                        </a>
+                    @endif
+
+                    @if ($project->is_active)
+                        <form action="#" method="POST" onsubmit="return confirm('هل تريد تعطيل هذا المشروع؟');">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit"
+                                class="px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition-colors duration-200 inline-flex items-center">
+                                <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                تعطيل المشروع
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
         </div>
-    </div>
-    </div>
     </div>
 
     <!-- Toast Notification -->
@@ -1122,37 +1193,37 @@
             }
 
             fetch(`/swot/admin/board/${id}/remove-content`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Remove the item from DOM
-                    const itemElement = document.querySelector(`[data-id="${id}"]`);
-                    if (itemElement) {
-                        itemElement.style.transition = 'all 0.3s ease';
-                        itemElement.style.opacity = '0';
-                        itemElement.style.transform = 'scale(0.8)';
-                        
-                        setTimeout(() => {
-                            itemElement.remove();
-                            
-                            // Update counts
-                            const type = itemElement.dataset.type;
-                            const countElement = document.getElementById(`count-${type}`);
-                            if (countElement) {
-                                const currentCount = parseInt(countElement.textContent);
-                                countElement.textContent = currentCount - 1;
-                            }
-                            
-                            // Check if container is now empty
-                            const container = document.getElementById(`items-${type}`);
-                            if (container && container.children.length === 0) {
-                                container.innerHTML = `
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the item from DOM
+                        const itemElement = document.querySelector(`[data-id="${id}"]`);
+                        if (itemElement) {
+                            itemElement.style.transition = 'all 0.3s ease';
+                            itemElement.style.opacity = '0';
+                            itemElement.style.transform = 'scale(0.8)';
+
+                            setTimeout(() => {
+                                itemElement.remove();
+
+                                // Update counts
+                                const type = itemElement.dataset.type;
+                                const countElement = document.getElementById(`count-${type}`);
+                                if (countElement) {
+                                    const currentCount = parseInt(countElement.textContent);
+                                    countElement.textContent = currentCount - 1;
+                                }
+
+                                // Check if container is now empty
+                                const container = document.getElementById(`items-${type}`);
+                                if (container && container.children.length === 0) {
+                                    container.innerHTML = `
                                     <div class="text-center py-12 empty-state">
                                         <svg class="w-16 h-16 mx-auto text-gray-300 mb-3" fill="none"
                                             stroke="currentColor" viewBox="0 0 24 24">
@@ -1164,19 +1235,19 @@
                                         <p class="text-gray-400 text-xs mt-1">اسحب العناصر هنا</p>
                                     </div>
                                 `;
-                            }
-                        }, 300);
+                                }
+                            }, 300);
+                        }
+
+                        showToast('تم حذف العنصر بنجاح', 'success');
+                    } else {
+                        showToast('فشل حذف العنصر', 'error');
                     }
-                    
-                    showToast('تم حذف العنصر بنجاح', 'success');
-                } else {
-                    showToast('فشل حذف العنصر', 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('حدث خطأ أثناء الحذف', 'error');
-            });
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('حدث خطأ أثناء الحذف', 'error');
+                });
         }
 
         function updateCharCount() {

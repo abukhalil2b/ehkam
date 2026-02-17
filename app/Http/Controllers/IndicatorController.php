@@ -7,12 +7,65 @@ use App\Models\IndicatorTarget;
 use App\Models\Indicator;
 use App\Models\PeriodTemplate;
 use App\Models\Sector;
+use App\Services\IndicatorTargetCalculationService;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class IndicatorController extends Controller
 {
+
+
+    public function editSectors(Indicator $indicator)
+    {
+        // جلب جميع القطاعات المتاحة في النظام
+        $allSectors = Sector::all();
+
+        // جلب أرقام (IDs) القطاعات المرتبطة حالياً بهذا المؤشر
+        $currentSectorIds = $indicator->sectors_with_baseline->pluck('id')->toArray();
+
+        return view('indicator.link_sectors', compact('indicator', 'allSectors', 'currentSectorIds'));
+    }
+
+    public function updateSectors(Request $request, Indicator $indicator)
+    {
+        // استلام المصفوفة من الـ Checkboxes
+        $sectorIds = $request->input('sectors', []);
+
+        /*
+    * استخدام sync بدون حذف البيانات السابقة في الجدول الوسيط
+    * سنستخدم syncWithoutDetaching أو sync مع الحفاظ على قيم الـ baseline
+    * الأفضل هنا استخدام sync لأنه يسمح بإزالة القطاعات التي تم إلغاء تحديدها
+    */
+
+        // ملاحظة: sync سيحذف القطاعات غير الموجودة في المصفوفة. 
+        // إذا أردت الحفاظ على قيم baseline للقطاعات القديمة، سنقوم بعملية ذكية:
+        $indicator->sectors_with_baseline()->sync($sectorIds);
+
+        return redirect()->route('indicator.baselines.edit', $indicator)
+            ->with('success', 'تم ربط القطاعات بنجاح، يرجى الآن تحديد خطوط الأساس لها.');
+    }
+    public function editBaselines(Indicator $indicator)
+    {
+        // جلب القطاعات المرتبطة بالمؤشر مع بيانات الجدول الوسيط
+        $indicator->load('sectors_with_baseline');
+
+        return view('indicator.baselines_edit', compact('indicator'));
+    }
+
+    public function updateBaselines(Request $request, Indicator $indicator)
+    {
+        $baselines = $request->input('baselines');
+
+        foreach ($baselines as $sectorId => $data) {
+            // تحديث بيانات الجدول الوسيط (الربط بين المؤشر والقطاع)
+            $indicator->sectors_with_baseline()->updateExistingPivot($sectorId, [
+                'baseline_numeric' => $data['value'],
+                'baseline_year'    => $data['year'],
+            ]);
+        }
+
+        return redirect()->route('indicator.show', $indicator)
+            ->with('success', 'تم تحديث خطوط الأساس للقطاعات بنجاح');
+    }
 
     public function target(Indicator $indicator, Request $request)
     {
@@ -76,8 +129,8 @@ class IndicatorController extends Controller
         }
 
         // fallback في حال عدم وجود بيانات
-        if (!$sectorTarget && $indicator->baseline_after_application) {
-            $sectorTarget = $indicator->baseline_after_application;
+        if (!$sectorTarget && $indicator->baseline_numeric) {
+            $sectorTarget = $indicator->baseline_numeric;
         }
 
         return view('indicator.target', compact(
@@ -180,30 +233,22 @@ class IndicatorController extends Controller
 
     public function index()
     {
-        $current_year = date('Y');
 
         $indicators = Indicator::all();
 
-        return view('indicator.index', compact('indicators', 'current_year'));
+        return view('indicator.index', compact('indicators'));
     }
 
-    public function show(Indicator $indicator)
+
+    public function show(Indicator $indicator, IndicatorTargetCalculationService $service)
     {
-        // 1. Get Sectors
-        $sectorsData = $indicator->sectors;
-        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
-        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
-        $selectedSectors = Sector::whereIn('id', $selectedSectorIds)->pluck('name')->toArray();
+        $calculatedTargets = $service->calculateTargets($indicator, true);
 
-        // 2. Get Sub-indicators
-        $subIndicators = Indicator::where('parent_id', $indicator->id)->get(['id', 'title', 'code']);
-
-        // 3. Get Targets (New Logic)
-        // We order by year so they show up chronologically in the table
-        $targets = $indicator->targets()->orderBy('year')->orderBy('period_index')->get();
-
-        return view('indicator.show', compact('indicator', 'selectedSectors', 'subIndicators', 'targets'));
+        $sectorRanking = $service->getSectorsRanking($indicator, now()->year);
+        return view('indicator.show', compact('calculatedTargets', 'indicator', 'sectorRanking'));
     }
+
+
 
     public function create()
     {
@@ -212,24 +257,7 @@ class IndicatorController extends Controller
         return view('indicator.create', compact('sectors'));
     }
 
-    private function getMonthMap()
-    {
-        // Centralized map for Arabic month names
-        return [
-            'يناير' => 'January',
-            'فبراير' => 'February',
-            'مارس' => 'March',
-            'أبريل' => 'April',
-            'مايو' => 'May',
-            'يونيو' => 'June',
-            'يوليو' => 'July',
-            'أغسطس' => 'August',
-            'سبتمبر' => 'September',
-            'أكتوبر' => 'October',
-            'نوفمبر' => 'November',
-            'ديسمبر' => 'December',
-        ];
-    }
+
 
     private function validateAndPrepareData(Request $request)
     {
@@ -244,11 +272,12 @@ class IndicatorController extends Controller
             'measurement_tool' => 'nullable|string',
             'polarity' => 'nullable|string|max:255',
             'polarity_description' => 'nullable|string',
-            'unit' => 'nullable|string|max:255',
+            'unit' => 'nullable|in:percentage,number',
             'formula' => 'nullable|string|max:255',
             'first_observation_date' => 'nullable|date',
             'baseline_formula' => 'nullable|string',
-            'baseline_after_application' => 'nullable|string|max:255',
+            'baseline_numeric' => 'nullable|numeric|min:0|max:1000000000',
+            'baseline_year' => 'nullable|numeric|min:2022|max:2040',
             'survey_question' => 'nullable|string',
             'proposed_initiatives' => 'nullable|string',
             'period' => 'required|string|max:11',
