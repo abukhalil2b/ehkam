@@ -45,7 +45,9 @@
 
             <p class="md:col-span-4 font-semibold text-gray-700 dark:text-gray-300 mt-2">مهام </p>
             @foreach ($tasks as $task)
-                    <div class="bg-white dark:bg-[#1b2e4b] p-3 rounded-xl shadow-sm border 
+                <a href="{{ route('missions.task.show', $task->mission_id) }}">
+                    <div
+                        class="bg-white dark:bg-[#1b2e4b] p-3 rounded-xl shadow-sm border 
                 {{ $task->status_styles['border'] }} dark:border-[#191e3a]
                 hover:shadow-md transition">
 
@@ -53,11 +55,12 @@
 
                             <div>
                                 <div class="text-sm font-semibold text-gray-800 dark:text-white-light leading-tight">
-                                    {{ $task->title }}
+                                    {{ Str::limit($task->title, 25, '...') }}
                                 </div>
 
                                 <div class="mt-1">
-                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-medium
+                                    <span
+                                        class="px-2 py-0.5 rounded-full text-[10px] font-medium
                                 {{ $task->status_styles['bg'] }} 
                                 {{ $task->status_styles['text'] }}">
                                         {{ $task->status_label }}
@@ -75,6 +78,7 @@
 
                         </div>
                     </div>
+                </a>
             @endforeach
 
 

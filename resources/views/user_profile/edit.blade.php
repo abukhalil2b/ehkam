@@ -1,13 +1,13 @@
 <x-app-layout>
     <div class="max-w-4xl mx-auto py-12 px-4 sm:px-6 lg:px-8" x-data="{ photoName: null, photoPreview: null }">
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
             {{-- Header with gradient --}}
             <div class="bg-gradient-to-r from-blue-600 to-indigo-700 h-32 md:h-48 relative">
                 <div class="absolute -bottom-16 right-6 md:right-12">
                     <div class="relative">
                         {{-- Profile Photo --}}
                         <div
-                            class="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white bg-white shadow-lg overflow-hidden relative group">
+                            class="h-32 w-32 md:h-40 md:w-40 rounded-full border-4 border-white dark:border-gray-800 bg-white dark:bg-gray-800 shadow-lg overflow-hidden relative group">
                             <!-- Current Profile Photo -->
                             <img x-show="!photoPreview" src="{{ auth()->user()->avatar_url }}"
                                 alt="{{ auth()->user()->name }}" class="h-full w-full object-cover">
@@ -34,8 +34,8 @@
 
             <div class="pt-20 px-6 md:px-12 pb-10">
                 <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">{{ auth()->user()->name }}</h1>
-                    <p class="text-gray-500">{{ auth()->user()->email }}</p>
+                    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{{ auth()->user()->name }}</h1>
+                    <p class="text-gray-500 dark:text-gray-400">{{ auth()->user()->email }}</p>
                     @if(auth()->user()->activeRole)
                         <span
                             class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800 mt-2">
@@ -66,46 +66,51 @@
                     <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                         {{-- Name --}}
                         <div class="sm:col-span-3">
-                            <label for="name" class="block text-sm font-medium text-gray-700">الاسم الكامل</label>
+                            <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">الاسم
+                                الكامل</label>
                             <div class="mt-1">
                                 <input type="text" name="name" id="name" value="{{ old('name', auth()->user()->name) }}"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             </div>
                             @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Email --}}
                         <div class="sm:col-span-3">
-                            <label for="email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
+                            <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">البريد
+                                الإلكتروني</label>
                             <div class="mt-1">
                                 <input type="email" name="email" id="email"
                                     value="{{ old('email', auth()->user()->email) }}"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             </div>
                             @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
 
                         {{-- Password Section (Optional) --}}
-                        <div class="sm:col-span-6 pt-6 border-t border-gray-100 mt-6">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">تغيير كلمة المرور</h3>
+                        <div class="sm:col-span-6 pt-6 border-t border-gray-100 dark:border-gray-700 mt-6">
+                            <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-4">تغيير كلمة المرور</h3>
                         </div>
 
                         <div class="sm:col-span-3">
-                            <label for="password" class="block text-sm font-medium text-gray-700">كلمة المرور
+                            <label for="password"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">كلمة المرور
                                 الجديدة</label>
                             <div class="mt-1">
                                 <input type="password" name="password" id="password"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             </div>
-                            <p class="text-xs text-gray-500 mt-1">اتركه فارغاً إذا كنت لا تريد تغييره.</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">اتركه فارغاً إذا كنت لا تريد
+                                تغييره.</p>
                         </div>
 
                         <div class="sm:col-span-3">
-                            <label for="password_confirmation" class="block text-sm font-medium text-gray-700">تأكيد
+                            <label for="password_confirmation"
+                                class="block text-sm font-medium text-gray-700 dark:text-gray-300">تأكيد
                                 كلمة المرور</label>
                             <div class="mt-1">
                                 <input type="password" name="password_confirmation" id="password_confirmation"
-                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                                    class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                             </div>
                         </div>
                     </div>

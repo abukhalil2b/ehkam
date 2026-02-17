@@ -1,16 +1,17 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-            <h1 class="text-2xl font-bold text-gray-900">إدارة المؤشرات </h1>
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white-light">إدارة المؤشرات </h1>
             <div class="mt-2 md:mt-0 flex items-center">
-                <span id="indicators-count" class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                <span id="indicators-count"
+                    class="bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400 text-sm font-medium px-3 py-1 rounded-full">
                     {{ count($indicators) }} مؤشر
                 </span>
             </div>
         </div>
     </x-slot>
 
-   
+
     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8" dir="rtl">
         <!-- Header Actions -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
@@ -27,8 +28,8 @@
             <div class="flex flex-wrap gap-3">
                 <div class="relative">
                     <input type="text" id="search-input" placeholder="بحث في المؤشرات..."
-                        class="pr-10 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 w-64">
-                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                        class="pr-10 pl-4 py-2 border border-gray-300 dark:border-[#191e3a] dark:bg-[#1b2e4b] dark:text-white-light rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 w-64 placeholder-gray-400 dark:placeholder-gray-500">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -37,52 +38,55 @@
                 </div>
 
                 <select id="type-filter"
-                    class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    class="border border-gray-300 dark:border-[#191e3a] dark:bg-[#1b2e4b] dark:text-white-light rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150">
                     <option value="all">جميع الأنواع</option>
                     <option value="main">رئيسي</option>
                     <option value="sub">فرعي</option>
                 </select>
 
                 <button id="clear-filters"
-                    class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition duration-150">
+                    class="px-4 py-2 text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-[#191e3a] dark:bg-[#1b2e4b] rounded-lg hover:bg-gray-50 dark:hover:bg-[#0e1726] transition duration-150">
                     مسح الفلاتر
                 </button>
             </div>
         </div>
 
         <!-- No Results Message (Hidden by default) -->
-        <div id="no-results" class="hidden text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-            <svg class="mx-auto h-16 w-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="no-results"
+            class="hidden text-center py-12 bg-white dark:bg-[#1b2e4b] rounded-xl shadow-sm border border-gray-100 dark:border-[#191e3a]">
+            <svg class="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">لا توجد نتائج</h3>
-            <p class="mt-2 text-gray-500">جرب تغيير كلمات البحث أو الفلاتر.</p>
+            <h3 class="mt-4 text-lg font-medium text-gray-900 dark:text-white-light">لا توجد نتائج</h3>
+            <p class="mt-2 text-gray-500 dark:text-gray-400">جرب تغيير كلمات البحث أو الفلاتر.</p>
         </div>
 
         <!-- Indicators Grid -->
         <div id="indicators-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             @foreach ($indicators as $indicator)
-                <div class="indicator-card bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-200 hover:shadow-md"
-                    data-type="{{ $indicator->period ? 'sub' : 'main' }}"
-                    data-title="{{ strtolower($indicator->title) }}"
+                <div class="indicator-card bg-white dark:bg-[#1b2e4b] rounded-xl shadow-sm border border-gray-100 dark:border-[#191e3a] overflow-hidden transition-all duration-200 hover:shadow-md"
+                    data-type="{{ $indicator->period ? 'sub' : 'main' }}" data-title="{{ strtolower($indicator->title) }}"
                     data-owner="{{ strtolower($indicator->owner ?? '') }}"
                     data-code="{{ strtolower($indicator->code ?? '') }}">
                     <!-- Card Header -->
-                    <div class="p-5 border-b border-gray-100">
+                    <div class="p-5 border-b border-gray-100 dark:border-[#191e3a]">
                         <div class="flex justify-between items-start">
                             <div>
-                                <h3 class="font-bold text-lg text-gray-800 line-clamp-2">{{ $indicator->title }}</h3>
+                                <h3 class="font-bold text-lg text-gray-800 dark:text-white-light line-clamp-2">
+                                    {{ $indicator->title }}</h3>
                                 <div class="flex items-center mt-2">
                                     <span
-                                        class="indicator-type inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $indicator->period ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800' }}">
+                                        class="indicator-type inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $indicator->period ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400' : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400' }}">
                                         {{ $indicator->is_main ? 'رئيسي' : 'فرعي' }}
                                     </span>
                                     <span
-                                        class="text-xs text-gray-500 mr-2">{{ $indicator->code ?? 'بدون رمز' }}</span>
+                                        class="text-xs text-gray-500 dark:text-gray-400 mr-2">{{ $indicator->code ?? 'بدون رمز' }}</span>
                                 </div>
                             </div>
-                            <div class="text-gray-400 hover:text-gray-600 cursor-pointer">
+                            <div
+                                class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer">
                                 <a href="{{ route('indicator.edit', $indicator->id) }}">
                                     <x-icons.edit />
                                 </a>
@@ -92,26 +96,26 @@
 
                     <!-- Card Body -->
                     <div class="p-5">
-                        <div class="text-sm text-gray-600 mb-4">
+                        <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
                             <div class="flex items-center mb-2">
-                                <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor"
+                                <svg class="w-4 h-4 ml-2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
                                     viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
-                                <span class="text-gray-800 font-medium">مالك المؤشر:</span>
+                                <span class="text-gray-800 dark:text-gray-300 font-medium">مالك المؤشر:</span>
                                 <span class="mr-2">{{ $indicator->owner ?? 'غير محدد' }}</span>
                             </div>
 
                             @if ($indicator->first_observation_date)
                                 <div class="flex items-center">
-                                    <svg class="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor"
+                                    <svg class="w-4 h-4 ml-2 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
                                         viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                         </path>
                                     </svg>
-                                    <span class="text-gray-800 font-medium">تاريخ الرصد الأول:</span>
+                                    <span class="text-gray-800 dark:text-gray-300 font-medium">تاريخ الرصد الأول:</span>
                                     <span class="mr-2">{{ $indicator->first_observation_date }}</span>
                                 </div>
                             @endif
@@ -119,24 +123,24 @@
 
                         <!-- Progress Bar (if applicable) -->
                         <div class="mb-4">
-                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                            <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
                                 <span>التقدم</span>
                                 <span>65%</span>
                             </div>
-                            <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="w-full bg-gray-200 dark:bg-[#0e1726] rounded-full h-2">
                                 <div class="bg-green-600 h-2 rounded-full" style="width: 65%"></div>
                             </div>
                         </div>
 
-                        <div class="text-xs">المستهدف:{{ $indicator->target_for_indicator }}
+                        <div class="text-xs dark:text-gray-400">المستهدف:{{ $indicator->target_for_indicator }}
                             لسنة:{{ $indicator->current_year }}</div>
                     </div>
 
                     <!-- Card Footer - Action Buttons (3-column layout) -->
-                    <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
+                    <div class="bg-gray-50 dark:bg-[#0e1726]/50 px-5 py-3 border-t border-gray-100 dark:border-[#191e3a]">
                         <div class="grid grid-cols-3 gap-2">
                             <a href="{{ route('indicator.show', $indicator->id) }}"
-                                class="flex items-center justify-center px-3 py-2 bg-white border border-blue-500 text-blue-600 hover:bg-blue-50 text-sm font-medium rounded-lg transition duration-150">
+                                class="flex items-center justify-center px-3 py-2 bg-white dark:bg-[#1b2e4b] border border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 text-sm font-medium rounded-lg transition duration-150">
                                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -183,7 +187,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('search-input');
             const typeFilter = document.getElementById('type-filter');
             const clearFilters = document.getElementById('clear-filters');
@@ -243,7 +247,7 @@
             searchInput.addEventListener('input', filterIndicators);
             typeFilter.addEventListener('change', filterIndicators);
 
-            clearFilters.addEventListener('click', function() {
+            clearFilters.addEventListener('click', function () {
                 searchInput.value = '';
                 typeFilter.value = 'all';
                 filterIndicators();

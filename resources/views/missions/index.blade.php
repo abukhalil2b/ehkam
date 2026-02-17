@@ -18,12 +18,13 @@
     </style>
 </head>
 
-<body @class(['bg-slate-50', 'min-h-screen']) x-data="missionDrawer(@js($users), @js($missions))">
+<body @class(['bg-slate-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200', 'min-h-screen'])
+    x-data="missionDrawer(@js($users), @js($missions))" :class="{ 'dark': $store.app.theme === 'dark' || $store.app.isDarkMode }">
 
 
 
     <!-- HEADER -->
-    <nav @class(['bg-white', 'border-b', 'shadow-sm'])>
+    <nav @class(['bg-white dark:bg-gray-800 border-b dark:border-gray-700 shadow-sm transition-colors'])>
         <div @class([
             'max-w-7xl',
             'mx-auto',
@@ -35,16 +36,24 @@
         ])>
             <h1 @class(['text-2xl', 'font-bold'])>إدارة المهمات</h1>
             <button @click="openCreate()" @class(['bg-indigo-600', 'text-white', 'px-6', 'py-2', 'rounded-xl'])>+ مهمة</button>
-            <a href="{{ route('dashboard') }}"
-                class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
-                <span class="hidden sm:inline">العودة إلى الرئيسية</span>
-                <span class="sm:hidden">عودة</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
+            <div class="flex items-center gap-4">
+                {{-- Dark Mode Toggle --}}
+                <button type="button" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-gray-600 dark:text-gray-300"
+                    @click="$store.app.toggleTheme($store.app.theme === 'dark' ? 'light' : 'dark')">
+                    <svg x-show="$store.app.theme === 'light'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                    <svg x-show="$store.app.theme === 'dark'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </button>
 
-            </a>
+                <a href="{{ route('dashboard') }}"
+                    class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
+                    <x-svgicon.back_arrow/>
+                        <span>عودة </span>
+                </a>
+            </div>
         </div>
     </nav>
 
@@ -59,7 +68,7 @@
         'gap-8',
     ])>
         @foreach ($missions as $mission)
-            <div @class(['bg-white', 'rounded-3xl', 'border', 'shadow-sm', 'p-6'])>
+            <div @class(['bg-white dark:bg-gray-800', 'rounded-3xl', 'border dark:border-gray-700', 'shadow-sm', 'p-6 transition-colors'])>
                 <div @class(['flex', 'justify-between', 'mb-3'])>
                     <span @class([
                         'text-xs',
@@ -74,13 +83,12 @@
                     <span @class(['text-slate-400', 'text-sm'])>#{{ $mission->id }}</span>
                 </div>
 
-                <h2 @class(['font-bold', 'text-lg', 'mb-2'])>{{ $mission->title }}</h2>
+                <h2 @class(['font-bold', 'text-lg','dark:text-gray-400', 'mb-2'])>{{ $mission->title }}</h2>
                 <div @class([
-                    'flex',
-                    'items-center',
                     'gap-2',
                     'text-xs',
-                    'text-slate-500',
+                    'text-slate-500 dark:text-gray-400',
+                    'mb-4',
                     'mb-4',
                 ])>
                     <svg @class(['w-4', 'h-4']) fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -99,7 +107,7 @@
 
                             <!-- AVATAR -->
                             <div
-                                class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center
+                                class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center
                    font-bold shadow-sm transition-transform
                    group-hover:scale-110 z-0 group-hover:z-10
                    {{ $m->role === 'leader' ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-700' }}">
@@ -150,7 +158,7 @@
                 <a href="{{ route('missions.task.show', $mission->id) }}" @class([
                     'block',
                     'text-center',
-                    'bg-slate-900',
+                    'bg-slate-900 dark:bg-slate-700',
                     'text-white',
                     'py-3',
                     'rounded-xl',
@@ -158,7 +166,7 @@
                 ])>
                     فتح الكانبان
                 </a>
-                <button @click="openEdit({{ $mission->id }})" @class(['text-sm', 'text-indigo-600', 'font-bold'])>تعديل</button>
+                <button @click="openEdit({{ $mission->id }})" @class(['text-sm', 'text-indigo-600 dark:text-indigo-400', 'font-bold'])>تعديل</button>
 
             </div>
         @endforeach
@@ -172,9 +180,10 @@
             'relative',
             'w-full',
             'max-w-lg',
-            'bg-white',
+            'bg-white dark:bg-gray-800',
             'shadow-2xl',
             'h-full',
+            'dark:text-gray-400', 
             'flex',
             'flex-col',
             'transform',
@@ -182,7 +191,7 @@
         ]) x-transition:enter="translate-x-full" x-transition:enter-end="translate-x-0"
             x-transition:leave="translate-x-0" x-transition:leave-end="translate-x-full">
 
-            <div @class(['p-6', 'border-b', 'flex', 'justify-between', 'items-center'])>
+            <div @class(['p-6', 'border-b dark:border-gray-700', 'flex', 'justify-between', 'items-center'])>
                 <h2 @class(['text-xl', 'font-bold']) x-text="mode === 'create' ? 'إنشاء مهمة جديدة' : 'تعديل المهمة'"></h2>
                 <button @click="open=false" @class(['text-slate-400', 'hover:text-red-500', 'transition'])>
                     <svg @class(['w-7', 'h-7']) fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -218,31 +227,29 @@
                             <div @class([
                                 'flex-1',
                                 'h-1.5',
-                                'rounded-full',
-                                'transition-colors',
                                 'duration-300',
-                            ]) :class="step >= i ? 'bg-indigo-600' : 'bg-slate-100'">
+                            ]) :class="step >= i ? 'bg-indigo-600' : 'bg-slate-100 dark:bg-gray-700'">
                             </div>
                         </template>
                     </div>
 
                     <div x-show="step===1">
-                        <label @class(['font-bold', 'block', 'mb-1'])>اسم المهمة</label>
-                        <input name="title" x-model="form.title" required @class(['w-full', 'border', 'rounded-xl', 'p-3', 'mb-4'])>
+                        <label @class(['font-bold', 'block','mb-1'])>اسم المهمة</label>
+                        <input name="title" x-model="form.title" required @class(['w-full', 'border dark:border-gray-600', 'rounded-xl', 'p-3', 'mb-4', 'bg-white dark:bg-gray-700', 'text-gray-900 dark:text-white'])>
 
                         <label @class(['font-bold', 'block', 'mb-1'])>الوصف</label>
-                        <textarea name="description" x-model="form.description" @class(['w-full', 'border', 'rounded-xl', 'p-3', 'mb-4'])></textarea>
+                        <textarea name="description" x-model="form.description" @class(['w-full', 'border dark:border-gray-600', 'rounded-xl', 'p-3', 'mb-4', 'bg-white dark:bg-gray-700', 'text-gray-900 dark:text-white'])></textarea>
 
                         <div @class(['grid', 'grid-cols-2', 'gap-4', 'mb-4'])>
                             <div>
                                 <label @class(['font-bold', 'text-sm', 'block', 'mb-1'])>تاريخ البدء</label>
                                 <input type="date" name="start_date" x-model="form.start_date"
-                                    @class(['w-full', 'border', 'rounded-xl', 'p-3'])>
+                                    @class(['w-full', 'border dark:border-gray-600', 'rounded-xl', 'p-3', 'bg-white dark:bg-gray-700', 'text-gray-900 dark:text-white'])>
                             </div>
                             <div>
                                 <label @class(['font-bold', 'text-sm', 'block', 'mb-1'])>تاريخ الانتهاء</label>
                                 <input type="date" name="end_date" x-model="form.end_date"
-                                    @class(['w-full', 'border', 'rounded-xl', 'p-3'])>
+                                    @class(['w-full', 'border dark:border-gray-600', 'rounded-xl', 'p-3', 'bg-white dark:bg-gray-700', 'text-gray-900 dark:text-white'])>
                             </div>
                         </div>
                     </div>
@@ -255,22 +262,25 @@
                             'rounded-xl',
                             'p-3',
                             'mb-3',
-                            'bg-slate-50',
+                            'bg-slate-50 dark:bg-gray-700',
+                            'dark:border-gray-600',
+                            'text-gray-900 dark:text-white',
                         ])>
                         <div @class([
                             'border',
                             'rounded-xl',
                             'max-h-64',
                             'overflow-y-auto',
-                            'divide-y',
+                            'divide-y dark:divide-gray-700',
                             'shadow-sm',
+                            'dark:border-gray-600',
                         ])>
                             <template x-for="u in filteredLeaders" :key="u.id">
-                                <div @click="selectLeader(u)" :class="leader?.id === u.id ? 'bg-indigo-50' : ''"
+                                    <div @click="selectLeader(u)" :class="leader?.id === u.id ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''"
                                     @class([
                                         'px-4',
                                         'py-3',
-                                        'hover:bg-slate-50',
+                                        'hover:bg-slate-50 dark:hover:bg-gray-700',
                                         'cursor-pointer',
                                         'flex',
                                         'justify-between',
@@ -292,7 +302,9 @@
                             'rounded-xl',
                             'p-3',
                             'mb-4',
-                            'bg-slate-50',
+                            'bg-slate-50 dark:bg-gray-700',
+                            'dark:border-gray-600',
+                            'text-gray-900 dark:text-white',
                         ])>
 
                         <div @class([
@@ -301,13 +313,14 @@
                             'max-h-40',
                             'overflow-y-auto',
                             'mb-6',
-                            'bg-white',
+                            'bg-white dark:bg-gray-800',
+                            'dark:border-gray-600',
                         ])>
                             <template x-for="u in filteredMembers" :key="u.id">
                                 <div @click="addMember(u)" @class([
                                     'px-4',
                                     'py-2',
-                                    'hover:bg-indigo-50',
+                                    'hover:bg-indigo-50 dark:hover:bg-gray-700',
                                     'cursor-pointer',
                                     'border-b',
                                     'last:border-0',
@@ -321,13 +334,13 @@
                             <template x-for="m in members" :key="m.id">
                                 <div @class([
                                     'border',
-                                    'border-slate-200',
+                                    'border-slate-200 dark:border-gray-600',
                                     'rounded-2xl',
                                     'p-4',
-                                    'bg-slate-50/50',
+                                    'bg-slate-50/50 dark:bg-gray-700/50',
                                 ])>
                                     <div @class(['flex', 'justify-between', 'items-center', 'mb-3'])>
-                                        <span @class(['font-bold', 'text-indigo-900']) x-text="m.name"></span>
+                                        <span @class(['font-bold', 'text-indigo-900 dark:text-indigo-300']) x-text="m.name"></span>
                                         <button type="button" @click="removeMember(m.id)"
                                             @class(['text-red-400', 'hover:text-red-600'])>✕</button>
                                     </div>
@@ -369,8 +382,8 @@
                     'left-0',
                     'right-0',
                     'p-6',
-                    'bg-white',
-                    'border-t',
+                    'bg-white dark:bg-gray-800',
+                    'border-t dark:border-gray-700',
                     'flex',
                     'items-center',
                     'justify-between',
@@ -381,11 +394,11 @@
                         <button type="button" x-show="step > 1" @click="step--" @class([
                             'px-6',
                             'py-2.5',
-                            'bg-slate-100',
-                            'text-slate-600',
+                            'bg-slate-100 dark:bg-gray-700',
+                            'text-slate-600 dark:text-gray-300',
                             'rounded-xl',
                             'font-bold',
-                            'hover:bg-slate-200',
+                            'hover:bg-slate-200 dark:hover:bg-gray-600',
                             'transition',
                         ])>
                             السابق
@@ -400,7 +413,6 @@
                             'text-white',
                             'rounded-xl',
                             'font-bold',
-                            'shadow-lg',
                             'shadow-indigo-100',
                             'hover:bg-indigo-700',
                             'transition',
@@ -534,6 +546,7 @@
         })
     </script>
 
+    <script src="/assets/js/custom.js"></script>
 </body>
 
 </html>

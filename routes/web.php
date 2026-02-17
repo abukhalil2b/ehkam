@@ -736,7 +736,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('mission/update', [MissionTaskController::class, 'missionUpdate'])
         ->name('mission.update');
 
-    Route::get('missions/task/{mission}', [MissionTaskController::class, 'show'])
+    Route::get('missions/task/show/{mission}', [MissionTaskController::class, 'show'])
         ->name('missions.task.show');
     // إنشاء مهمة
     Route::post('missions/task/{mission}', [MissionTaskController::class, 'store'])

@@ -19,7 +19,9 @@ class MissionTaskController extends Controller
             'members.user'
         ])->withCount('tasks')->latest()->get();
 
-        $users = User::select('id', 'name')->get();
+        $users = User::select('id', 'name')->whereHas('roles', function ($query) {
+            $query->where('slug', '!=', 'admin')->where('slug', 'planner');
+        })->where('id', '!=', auth()->id())->get();
 
         return view('missions.index', compact('missions', 'users'));
     }
