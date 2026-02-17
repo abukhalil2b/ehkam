@@ -170,4 +170,12 @@ class Activity extends Model implements HasWorkflow
         $due = $this->workflowInstance?->stage_due_at;
         return $due && now()->gt($due);
     }
+    /**
+     * The employees assigned to evaluate this activity.
+     */
+    public function employees(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'activity_user_assign')
+            ->withTimestamps();
+    }
 }

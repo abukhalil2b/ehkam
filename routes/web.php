@@ -40,6 +40,7 @@ use App\Http\Controllers\Participant\CompetitionController as ParticipantCompeti
 use App\Http\Controllers\SwotController;
 use App\Http\Controllers\KpiYearController;
 use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\ActivityAssignmentController;
 use Illuminate\Support\Facades\Route;
 // ========== WORKFLOW ENGINE ROUTES ==========
 use App\Http\Controllers\Admin\WorkflowTeamController;
@@ -94,19 +95,19 @@ Route::group(['middleware' => ['auth']], function () {
 // INDICATOR ROUTES
 Route::group(['middleware' => ['auth']], function () {
 
-// عرض صفحة ربط القطاعات
-Route::get('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'editSectors'])
-    ->name('indicator.sectors.edit');
+    // عرض صفحة ربط القطاعات
+    Route::get('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'editSectors'])
+        ->name('indicator.sectors.edit');
 
-// حفظ الربط
-Route::post('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'updateSectors'])
-    ->name('indicator.sectors.update');
+    // حفظ الربط
+    Route::post('/indicator/{indicator}/link-sectors', [IndicatorController::class, 'updateSectors'])
+        ->name('indicator.sectors.update');
 
-Route::get('/indicator/baselines/edit/{indicator}', [IndicatorController::class, 'editBaselines'])
-    ->name('indicator.baselines.edit');
+    Route::get('/indicator/baselines/edit/{indicator}', [IndicatorController::class, 'editBaselines'])
+        ->name('indicator.baselines.edit');
 
-Route::post('/indicator/baselines/update/{indicator}', [IndicatorController::class, 'updateBaselines'])
-    ->name('indicator.baselines.update');
+    Route::post('/indicator/baselines/update/{indicator}', [IndicatorController::class, 'updateBaselines'])
+        ->name('indicator.baselines.update');
 
     Route::get('indicator/target/{indicator}', [IndicatorController::class, 'target'])
         ->middleware('permission:indicator.target')
@@ -421,13 +422,26 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('assessment_stages.destroy');
 });
 
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('activity_user_assign/index', [ActivityAssignmentController::class, 'index'])
+        ->middleware('permission:activity_user_assign.index')
+        ->name('activity_user_assign.index');
+
+    Route::post('activity_user_assign/store', [ActivityAssignmentController::class, 'store'])
+        ->middleware('permission:activity_user_assign.index')
+        ->name('activity_user_assign.store');
+
+    Route::delete('activity_user_assign/destroy', [ActivityAssignmentController::class, 'destroy'])
+        ->middleware('permission:activity_user_assign.index')
+        ->name('activity_user_assign.destroy');
+});
+
 // ACTIVITY & ASSESSMENT ROUTES
 Route::group(['middleware' => ['auth']], function () {
 
     Route::get('activity/create/{project}', [ActivityController::class, 'create'])
         ->middleware('permission:activity.create')
         ->name('activity.create');
-
     Route::get('activity/index', [ActivityController::class, 'index'])
         ->middleware('permission:activity.index')
         ->name('activity.index');
@@ -712,9 +726,11 @@ Route::group(['middleware' => ['auth', 'permission:task.index']], function () {
 Route::middleware(['auth'])->group(function () {
 
     Route::get('mission/index', [MissionTaskController::class, 'missionIndex'])
+        ->middleware('permission:mission.index')
         ->name('mission.index');
 
     Route::post('mission/store', [MissionTaskController::class, 'missionStore'])
+        ->middleware('permission:mission.store')
         ->name('mission.store');
 
     Route::post('mission/update', [MissionTaskController::class, 'missionUpdate'])
@@ -844,8 +860,6 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('admin_setting/indicator/index', [AdminSettingController::class, 'indicatorIndex'])
             ->middleware('permission:indicator.index')
             ->name('admin_setting.indicator.index');
-
-     
     });
 
     // ADMINISTRATION ROUTES

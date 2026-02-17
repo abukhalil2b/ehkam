@@ -28,22 +28,32 @@
                                         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                 </svg>
                             </div>
-                            <span
-                                class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">نشط</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-bold rounded-full">نشط</span>
                         </div>
 
                         <h4 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">
                             {{ $activity->title }}
                         </h4>
                         <div class="flex items-center text-sm text-gray-500 mb-4">
-                            <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                                 </path>
                             </svg>
                             {{ $activity->project->title }}
                         </div>
+
+                        @if($activity->employees->count() > 0)
+                            <div class="mt-2 pt-2 border-t border-gray-100">
+                                <p class="text-xs text-gray-500 mb-1">الموظفين المعينين:</p>
+                                <div class="flex flex-wrap gap-1">
+                                    @foreach($activity->employees as $employee)
+                                        <span
+                                            class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[10px] rounded-md">{{ $employee->name }}</span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center">
@@ -78,10 +88,8 @@
                     </div>
                 </div>
             @empty
-                <div
-                    class="col-span-full py-12 text-center bg-white rounded-2xl border-2 border-dashed border-gray-200">
-                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
+                <div class="col-span-full py-12 text-center bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                    <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1"
                             d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>

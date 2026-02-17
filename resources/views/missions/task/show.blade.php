@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>لوحة كانبان - {{ $mission->title }}</title>
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
@@ -22,7 +22,8 @@
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
         }
-  [x-cloak] {
+
+        [x-cloak] {
             display: none !important;
         }
 
@@ -53,6 +54,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         .mobile-tab-button {
             flex: 1;
             padding: 12px 16px;
@@ -198,7 +200,7 @@
     </nav>
 
     {{-- Main Content --}}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"  x-data="{ activeTab: 'pending' }">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6" x-data="{ activeTab: 'pending' }">
         {{-- Mission Header --}}
         <div class="mission-header mb-8 bg-white rounded-xl shadow-sm p-6">
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -219,8 +221,13 @@
 
                 <div class="grid grid-cols-2 lg:grid-cols-3 gap-4 w-full lg:w-auto mobile-stats">
                     <div class="bg-blue-50 p-4 rounded-lg text-center">
-                        <p class="text-blue-600 text-sm">المسؤول</p>
-                        <p class="font-bold text-gray-900 truncate">{{ $mission->leader->name }}</p>
+                        <p class="text-blue-600 text-xs">المسؤول عن توزيع المهام</p>
+                        <div class="flex items-center min-w-0">
+                            <p class="font-bold text-gray-900 truncate" title="{{ $mission->leader->name }}">
+                                {{ $mission->leader->name }}
+                            </p>
+                        </div>
+
                     </div>
                     <div class="bg-green-50 p-4 rounded-lg text-center">
                         <p class="text-green-600 text-sm">عدد المهام</p>
@@ -346,21 +353,29 @@
                                                 خاص
                                             </span>
                                         </template>
-                                        
+
                                         {{-- Action Buttons --}}
                                         <div class="flex items-center gap-1" @click.stop>
-                                            <button @click="openEditModal(task)" 
+                                            <button @click="openEditModal(task)"
                                                 class="p-1 text-gray-400 hover:text-blue-600 transition-colors"
                                                 title="تعديل">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                                    </path>
                                                 </svg>
                                             </button>
-                                            <button @click="confirmDelete(task)" 
+                                            <button @click="confirmDelete(task)"
                                                 class="p-1 text-gray-400 hover:text-red-600 transition-colors"
                                                 title="حذف">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                                    </path>
                                                 </svg>
                                             </button>
                                         </div>
@@ -585,7 +600,8 @@
                     <h3 class="text-xl font-bold text-gray-900">تعديل المهمة</h3>
                     <button @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
                     </button>
                 </div>
@@ -605,13 +621,18 @@
                             <label class="block text-sm font-medium text-gray-700 mb-2">الأولوية *</label>
                             <div class="grid grid-cols-3 gap-2">
                                 <button type="button" @click="editingTask.priority = 'low'"
-                                    :class="editingTask.priority === 'low' ? 'bg-green-100 border-green-500 text-green-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    :class="editingTask.priority === 'low' ?
+                                        'bg-green-100 border-green-500 text-green-700' :
+                                        'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
                                     class="py-2 border rounded-lg text-center text-sm font-medium transition">منخفض</button>
                                 <button type="button" @click="editingTask.priority = 'medium'"
-                                    :class="editingTask.priority === 'medium' ? 'bg-yellow-100 border-yellow-500 text-yellow-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    :class="editingTask.priority === 'medium' ?
+                                        'bg-yellow-100 border-yellow-500 text-yellow-700' :
+                                        'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
                                     class="py-2 border rounded-lg text-center text-sm font-medium transition">متوسط</button>
                                 <button type="button" @click="editingTask.priority = 'high'"
-                                    :class="editingTask.priority === 'high' ? 'bg-red-100 border-red-500 text-red-700' : 'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
+                                    :class="editingTask.priority === 'high' ? 'bg-red-100 border-red-500 text-red-700' :
+                                        'bg-gray-100 border-gray-300 text-gray-700 hover:bg-gray-200'"
                                     class="py-2 border rounded-lg text-center text-sm font-medium transition">عالي</button>
                             </div>
                         </div>
@@ -665,8 +686,11 @@
                 <div class="p-6">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="flex-shrink-0 w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                                </path>
                             </svg>
                         </div>
                         <div>

@@ -27,11 +27,15 @@ class ActivityController extends Controller
         $currentStage = AssessmentStage::latest()->first();
 
         // 2. جلب الأنشطة مع نتائج التقييم الخاصة بالمرحلة الحالية فقط
-        $activities = Activity::with(['project:id,title', 'assessmentResults' => function ($query) use ($currentStage) {
-            if ($currentStage) {
-                $query->where('assessment_stage_id', $currentStage->id);
+        $activities = Activity::with([
+            'project:id,title',
+            'employees',
+            'assessmentResults' => function ($query) use ($currentStage) {
+                if ($currentStage) {
+                    $query->where('assessment_stage_id', $currentStage->id);
+                }
             }
-        }])
+        ])
             ->get();
 
         return view('activity.index', compact('activities', 'currentStage'));

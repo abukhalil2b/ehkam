@@ -11,7 +11,7 @@
             <div class="flex justify-between items-center px-4 py-3 ">
                 <a href="{{ route('dashboard') }}" class="main-logo flex items-center shrink-0">
                     <span class="text-[10px]">
-                          إتقان
+                        إتقان
                     </span>
                 </a>
                 <div class="flex items-center gap-2">
@@ -93,7 +93,8 @@
                             </button>
 
                             {{-- Collapsible Links --}}
-                            <ul x-show="open" x-collapse style="display: none;" class="sub-menu text-gray-500">
+                            <ul x-show="open" x-collapse style="display: none;"
+                                class="sub-menu text-gray-500 dark:text-gray-400">
                                 @foreach($section['links'] as $link)
                                     @if(!$link['permission'] || in_array($link['permission'], $userPermissions) || auth()->id() == 1)
                                         <li>

@@ -20,7 +20,9 @@ class DashboardController extends Controller
     {
         $loggedUser = auth()->user();
 
-        $tasks = Task::where('assigned_to', $loggedUser->id)->get();
+        $tasks = Task::where('assigned_to', $loggedUser->id)
+        ->whereIn('status', ['pending', 'in_progress'])
+        ->get();
 
         // 1. Step Status/Phase Stats
         $stepsByPhase = Step::select('phase', DB::raw('count(*) as total'))

@@ -101,9 +101,10 @@ class SidebarService
                     ['route' => 'assessment_stages.index', 'permission' => 'assessment_stages.index', 'label' => 'قائمة مراحل التقييم', 'keywords' => 'assessment stage list'],
                     ['route' => 'assessment_questions.index', 'permission' => 'assessment_questions.index', 'label' => 'قائمة الأسئلة', 'keywords' => 'assessment questions list'],
                     ['route' => 'project_assessment_report', 'permission' => 'project_assessment_report', 'label' => 'تقرير أداء', 'keywords' => 'performance report project assessment'],
+                    ['route' => 'activity_user_assign.index', 'permission' => 'activity_user_assign.index', 'label' => 'إدارة تعيين الأنشطة', 'keywords' => 'assign activities employees management'],
                 ]
             ],
-            
+
             'calendar' => [
                 'title' => 'التقويم',
                 'links' => [
@@ -179,19 +180,13 @@ class SidebarService
                     ['route' => 'statistic.index', 'permission' => 'statistic.index', 'label' => 'كل القطاعات', 'keywords' => 'statistics all sectors'],
                     ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1], 'keywords' => 'statistics quran'],
                     ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1], 'keywords' => 'statistics zakah'],
-                    ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية','keywords' => 'statistics bsc'],
+                    ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية', 'keywords' => 'statistics bsc'],
                 ]
             ],
             'qr' => [
                 'title' => 'الكيوآر',
                 'links' => [
                     ['route' => 'qr.index', 'permission' => 'qr.index', 'label' => 'قائمة الكيوآر', 'keywords' => 'qr code list'],
-                ]
-            ],
-            'settings' => [
-                'title' => 'الإعدادات',
-                'links' => [
-                    ['route' => 'admin_setting.indicator.index', 'permission' => 'indicator.index', 'label' => ' المؤشرات', 'keywords' => 'settings indicators'],
                 ]
             ],
             'admin_structure' => [
@@ -216,13 +211,19 @@ class SidebarService
                     ['route' => 'permission.index', 'permission' => 'permission.index', 'label' => 'كل الصلاحيات', 'keywords' => 'permissions all list'],
                 ]
             ],
+            'settings' => [
+                'title' => 'الإعدادات',
+                'links' => [
+                    ['route' => 'admin_setting.indicator.index', 'permission' => 'admin_setting', 'label' => ' المؤشرات', 'keywords' => 'settings indicators'],
+                ]
+            ],
             'documentation' => [
                 'title' => 'الوثائق التقنية',
                 'links' => [
-                    ['route' => 'docs.show', 'params' => ['step-workflow'], 'permission' => null, 'label' => 'سير عمل الخطوات', 'keywords' => 'step workflow documentation guide steps'],
-                    ['route' => 'docs.show', 'params' => ['workflow-architecture'], 'permission' => null, 'label' => 'بنية سير العمل', 'keywords' => 'workflow architecture documentation guide'],
-                    ['route' => 'docs.show', 'params' => ['roles-permissions'], 'permission' => 'permission.index', 'label' => 'شرح الصلاحيات', 'keywords' => 'roles permissions documentation guide'],
-                    ['route' => 'docs.index', 'permission' => null, 'label' => 'كل الوثائق', 'keywords' => 'documentation docs technical markdown all'],
+                    ['route' => 'docs.show', 'params' => ['step-workflow'], 'permission' => 'docs', 'label' => 'سير عمل الخطوات', 'keywords' => 'step workflow documentation guide steps'],
+                    ['route' => 'docs.show', 'params' => ['workflow-architecture'], 'permission' => 'docs', 'label' => 'بنية سير العمل', 'keywords' => 'workflow architecture documentation guide'],
+                    ['route' => 'docs.show', 'params' => ['roles-permissions'], 'permission' => 'docs', 'label' => 'شرح الصلاحيات', 'keywords' => 'roles permissions documentation guide'],
+                    ['route' => 'docs.index', 'permission' => 'docs', 'label' => 'كل الوثائق', 'keywords' => 'documentation docs technical markdown all'],
                 ]
             ],
         ];

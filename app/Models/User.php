@@ -554,4 +554,12 @@ class User extends Authenticatable
             ->where('workflow_teams.id', $stageTeamId)
             ->exists();
     }
+    /**
+     * The activities assigned to this user for evaluation.
+     */
+    public function assignedActivities(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Activity::class, 'activity_user_assign')
+            ->withTimestamps();
+    }
 }

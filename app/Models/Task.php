@@ -31,6 +31,44 @@ class Task extends Model implements HasWorkflow
         'completed_at' => 'datetime',
     ];
 
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status) {
+            'pending' => 'قيد الانتظار',
+            'in_progress' => 'قيد التنفيذ',
+            'completed' => 'مكتملة',
+            default => 'غير معروف',
+        };
+    }
+
+    public function getStatusStylesAttribute(): array
+    {
+        return match ($this->status) {
+            'pending' => [
+                'text' => 'text-yellow-700',
+                'bg' => 'bg-yellow-100',
+                'border' => 'border-yellow-300'
+            ],
+            'in_progress' => [
+                'text' => 'text-blue-700',
+                'bg' => 'bg-blue-100',
+                'border' => 'border-blue-300'
+            ],
+            'completed' => [
+                'text' => 'text-green-700',
+                'bg' => 'bg-green-100',
+                'border' => 'border-green-300'
+            ],
+            default => [
+                'text' => 'text-gray-700',
+                'bg' => 'bg-gray-100',
+                'border' => 'border-gray-300'
+            ],
+        };
+    }
+
+
+
     public function mission()
     {
         return $this->belongsTo(Mission::class);
