@@ -119,6 +119,7 @@ class SidebarService
                 'title' => 'المهام',
                 'links' => [
                     ['route' => 'mission.index', 'permission' => 'mission.index', 'label' => 'قائمة المهام', 'keywords' => 'missions list tasks'],
+                    ['route' => 'mission.logs', 'permission' => 'mission.index', 'label' => 'سجل المهام', 'keywords' => 'missions logs history'],
                 ]
             ],
             'meeting_minute' => [

@@ -10,8 +10,32 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
+use App\Models\TaskLog;
+
 class MissionTaskController extends Controller
 {
+    /**
+     * Display a listing of task logs for missions the user is a leader of.
+     */
+    public function logs()
+    {
+        $user = auth()->user();
+
+        // Get IDs of missions where the user is a leader
+        $missionIds = Mission::where('leader_id', $user->id)
+            ->pluck('id');
+
+        // Fetch logs for tasks in these missions
+        $logs = TaskLog::whereHas('task', function ($query) use ($missionIds) {
+            $query->whereIn('mission_id', $missionIds);
+        })
+            ->with(['user', 'task.mission'])
+            ->latest()
+            ->paginate(20);
+
+        return view('missions.logs', compact('logs'));
+    }
+
     public function missionIndex()
     {
         $missions = Mission::with([
@@ -19,9 +43,18 @@ class MissionTaskController extends Controller
             'members.user'
         ])->withCount('tasks')->latest()->get();
 
+        // جلب المستخدمين (بدون استبعاد المستخدم الحالي)
         $users = User::select('id', 'name')->whereHas('roles', function ($query) {
             $query->where('slug', '!=', 'admin')->where('slug', 'planner');
-        })->where('id', '!=', auth()->id())->get();
+        })->get();
+
+        // إضافة المستخدم الحالي للقائمة إذا لم يكن موجوداً (مثلاً إذا كان حسابك Admin)
+        if (!$users->contains('id', auth()->id())) {
+            $currentUser = User::select('id', 'name')->find(auth()->id());
+            if ($currentUser) {
+                $users->prepend($currentUser);
+            }
+        }
 
         return view('missions.index', compact('missions', 'users'));
     }
@@ -310,7 +343,7 @@ class MissionTaskController extends Controller
 
         // Update task
         $task->update($validated);
-        
+
         // If task is completed and has workflow, complete the workflow
         if (isset($validated['status']) && $validated['status'] === 'completed' && $task->workflowInstance) {
             $task->workflowInstance->update([

@@ -729,6 +729,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:mission.index')
         ->name('mission.index');
 
+    Route::get('missions/logs', [MissionTaskController::class, 'logs'])
+        ->middleware('permission:mission.index')
+        ->name('mission.logs');
+
     Route::post('mission/store', [MissionTaskController::class, 'missionStore'])
         ->middleware('permission:mission.store')
         ->name('mission.store');

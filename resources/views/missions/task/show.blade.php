@@ -71,7 +71,7 @@
                     </button>
                     <a href="{{ route('mission.index') }}"
                         class="flex items-center gap-2 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        <x-svgicon.back_arrow/>
+                        <x-svgicon.back_arrow />
                         <span>عودة </span>
                     </a>
                 </div>
@@ -87,12 +87,11 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white truncate">{{ $mission->title }}</h1>
-                        <span
-                            class="px-2 py-0.5 rounded text-[10px] font-bold {{ $mission->status == 'active'
-                                ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
-                                : ($mission->status == 'completed'
-                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
-                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $mission->status == 'active'
+    ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400'
+    : ($mission->status == 'completed'
+        ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300') }}">
                             {{ $mission->status == 'active' ? 'نشط' : ($mission->status == 'completed' ? 'مكتمل' : 'مؤرشف') }}
                         </span>
                     </div>
@@ -124,6 +123,121 @@
             </div>
         </div>
 
+        {{-- Mobile Board (Tabs) --}}
+        <div class="lg:hidden mb-6">
+            {{-- Tabs Navigation --}}
+            <div class="flex overflow-x-auto pb-2 gap-2 scrollbar-hide mb-4">
+                @foreach (['pending' => 'قيد الانتظار', 'in_progress' => 'قيد التنفيذ', 'completed' => 'مكتمل', 'cancelled' => 'ملغى'] as $status => $label)
+                    <button @click="activeTab = '{{ $status }}'"
+                        :class="activeTab === '{{ $status }}' ?
+                                    'bg-blue-600 text-white shadow-md' :
+                                    'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-700'"
+                        class="flex-shrink-0 px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-2">
+                        <span>{{ $label }}</span>
+                        <span :class="activeTab === '{{ $status }}' ? 'bg-white/20 text-white' :
+                                        'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'"
+                            class="px-1.5 py-0.5 rounded text-[10px]"
+                            x-text="tasks.filter(t => t.status === '{{ $status }}').length"></span>
+                    </button>
+                @endforeach
+            </div>
+
+            {{-- Mobile Task List --}}
+            <div class="space-y-3 min-h-[300px]">
+                <template x-for="task in tasks.filter(t => t.status === activeTab)" :key="task.id">
+                    <div @click="openTaskDetails(task)"
+                        :class="`task-card ${task.priority}-priority bg-white dark:bg-gray-800 rounded-lg shadow-sm p-3 border border-gray-200 dark:border-gray-700 active:scale-[0.99] transition-transform`">
+
+                        {{-- Task Header --}}
+                        <div class="flex justify-between items-start gap-2 mb-2">
+                            <h4 class="font-bold text-gray-900 dark:text-gray-100 leading-tight text-[13px] line-clamp-2 flex-1"
+                                x-text="task.title"></h4>
+
+                            <div class="flex items-center gap-1">
+                                {{-- Move Dropdown --}}
+                                <div class="relative" x-data="{ open: false }">
+                                    <button @click.stop="open = !open"
+                                        class="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                                        </svg>
+                                    </button>
+
+                                    <div x-show="open" @click.outside="open = false" style="display: none;"
+                                        class="absolute left-0 mt-1 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-100 dark:border-gray-700 z-10 py-1">
+                                        <template x-for="(label, status) in statusMap">
+                                            <div x-show="status !== task.status">
+                                                <button @click.stop="handleDrop(null, status, task.id); open = false"
+                                                    class="w-full text-right px-3 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                                                    x-text="label"></button>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <button @click.stop="openEditModal(task)"
+                                    class="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                        </path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Description --}}
+                        <p class="text-gray-500 dark:text-gray-400 text-[11px] mb-3 line-clamp-2"
+                            x-text="task.description || 'لا يوجد وصف'"></p>
+
+                        {{-- Footer --}}
+                        <div
+                            class="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                <template x-if="getMember(task.assigned_to)">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
+                                            :class="{ 'ring-2 ring-blue-300 ring-offset-1': String(task.assigned_to) === String(currentUserId) }"
+                                            :style="{ backgroundColor: getMemberColor(task.assigned_to) }"
+                                            x-text="getMember(task.assigned_to).name.charAt(0)"></div>
+                                        <p class="text-[11px] font-medium text-gray-600 dark:text-gray-300 truncate"
+                                            x-text="getMember(task.assigned_to).name"></p>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <template x-if="task.due_date">
+                                    <div class="flex items-center gap-1 text-[10px] font-bold" :class="isOverdue(task.due_date) ? 'text-red-600 dark:text-red-400' :
+                                            'text-gray-400 dark:text-gray-500'">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            </path>
+                                        </svg>
+                                        <span x-text="formatDate(task.due_date)"></span>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                {{-- Empty State --}}
+                <div x-show="tasks.filter(t => t.status === activeTab).length === 0"
+                    class="text-center py-10 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-lg">
+                    <svg class="w-10 h-10 text-gray-300 dark:text-gray-600 mx-auto mb-2" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+                        </path>
+                    </svg>
+                    <p class="text-xs text-gray-400 dark:text-gray-500">لا توجد مهام في هذه القائمة</p>
+                </div>
+            </div>
+        </div>
+
         {{-- Desktop Kanban Board --}}
         <div class="hidden lg:grid grid-cols-4 gap-4 kanban-container">
             @foreach (['pending' => 'قيد الانتظار', 'in_progress' => 'قيد التنفيذ', 'completed' => 'مكتمل', 'cancelled' => 'ملغى'] as $status => $label)
@@ -143,8 +257,7 @@
                     </div>
 
                     <div class="space-y-2.5 min-h-[150px]">
-                        <template x-for="task in tasks.filter(t => t.status === '{{ $status }}')"
-                            :key="task.id">
+                        <template x-for="task in tasks.filter(t => t.status === '{{ $status }}')" :key="task.id">
                             <div @dragstart="startDrag(task.id, $event)" draggable="true" @click="openTaskDetails(task)"
                                 :class="`task-card ${task.priority}-priority bg-white dark:bg-gray-800 rounded-lg shadow-sm hover:shadow p-3 cursor-move border border-gray-200 dark:border-gray-700 transition-all group`"
                                 :data-task-id="task.id">
@@ -158,8 +271,7 @@
                                         class="flex gap-1 shrink-0 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button @click.stop="openEditModal(task)"
                                             class="p-1 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded transition-colors">
-                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                                 </path>
@@ -179,6 +291,7 @@
                                         <template x-if="getMember(task.assigned_to)">
                                             <div class="flex items-center gap-1.5 min-w-0">
                                                 <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white shadow-sm"
+                                                    :class="{ 'ring-2 ring-blue-300 ring-offset-1': String(task.assigned_to) === String(currentUserId) }"
                                                     :style="{ backgroundColor: getMemberColor(task.assigned_to) }"
                                                     x-text="getMember(task.assigned_to).name.charAt(0)"></div>
                                                 <p class="text-[11px] font-medium text-gray-600 dark:text-gray-300 truncate"
@@ -189,13 +302,10 @@
 
                                     <div class="flex items-center gap-2 shrink-0">
                                         <template x-if="task.due_date">
-                                            <div class="flex items-center gap-1 text-[10px] font-bold"
-                                                :class="isOverdue(task.due_date) ? 'text-red-600 dark:text-red-400' :
-                                                    'text-gray-400 dark:text-gray-500'">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
+                                            <div class="flex items-center gap-1 text-[10px] font-bold" :class="isOverdue(task.due_date) ? 'text-red-600 dark:text-red-400' :
+                                                                'text-gray-400 dark:text-gray-500'">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                         d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
                                                     </path>
                                                 </svg>
@@ -269,23 +379,19 @@
                                 <label
                                     class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">الأولوية</label>
                                 <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                                    <button type="button" @click="newTask.priority = 'low'"
-                                        :class="newTask.priority === 'low' ?
+                                    <button type="button" @click="newTask.priority = 'low'" :class="newTask.priority === 'low' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-green-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">منخفض</button>
-                                    <button type="button" @click="newTask.priority = 'medium'"
-                                        :class="newTask.priority === 'medium' ?
+                                    <button type="button" @click="newTask.priority = 'medium'" :class="newTask.priority === 'medium' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-yellow-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">متوسط</button>
-                                    <button type="button" @click="newTask.priority = 'high'"
-                                        :class="newTask.priority === 'high' ?
+                                    <button type="button" @click="newTask.priority = 'high'" :class="newTask.priority === 'high' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-red-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">عالي</button>
                                 </div>
                             </div>
                             <div>
-                                <label
-                                    class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">تاريخ
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">تاريخ
                                     التسليم</label>
                                 <input type="date" x-model="newTask.due_date"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
@@ -381,23 +487,19 @@
                                 <label
                                     class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">الأولوية</label>
                                 <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-                                    <button type="button" @click="editingTask.priority = 'low'"
-                                        :class="editingTask.priority === 'low' ?
+                                    <button type="button" @click="editingTask.priority = 'low'" :class="editingTask.priority === 'low' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-green-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">منخفض</button>
-                                    <button type="button" @click="editingTask.priority = 'medium'"
-                                        :class="editingTask.priority === 'medium' ?
+                                    <button type="button" @click="editingTask.priority = 'medium'" :class="editingTask.priority === 'medium' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-yellow-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">متوسط</button>
-                                    <button type="button" @click="editingTask.priority = 'high'"
-                                        :class="editingTask.priority === 'high' ?
+                                    <button type="button" @click="editingTask.priority = 'high'" :class="editingTask.priority === 'high' ?
                                             'bg-white dark:bg-gray-600 shadow-sm text-red-600' : 'text-gray-500'"
                                         class="flex-1 py-1 text-[11px] font-medium rounded-md transition-all">عالي</button>
                                 </div>
                             </div>
                             <div>
-                                <label
-                                    class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">تاريخ
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1.5">تاريخ
                                     التسليم</label>
                                 <input type="date" x-model="editingTask.due_date"
                                     class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
@@ -488,8 +590,8 @@
                             <span x-show="!isDeleting">حذف</span>
                             <span x-show="isDeleting" class="flex items-center gap-2">
                                 <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor"
                                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                     </path>
@@ -512,8 +614,7 @@
             'bg-green-100 border-green-400 text-green-700 dark:bg-green-900/80 dark:border-green-600 dark:text-green-200': notificationType === 'success',
             'bg-red-100 border-red-400 text-red-700 dark:bg-red-900/80 dark:border-red-600 dark:text-red-200': notificationType === 'error',
             'bg-blue-100 border-blue-400 text-blue-700 dark:bg-blue-900/80 dark:border-blue-600 dark:text-blue-200': notificationType === 'info'
-        }"
-            class="border rounded-xl px-6 py-4 shadow-lg max-w-sm backdrop-blur-sm">
+        }" class="border rounded-xl px-6 py-4 shadow-lg max-w-sm backdrop-blur-sm">
             <div class="flex items-center gap-3">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path x-show="notificationType === 'success'" stroke-linecap="round" stroke-linejoin="round"
@@ -535,6 +636,7 @@
                 tasks: @json($tasks),
                 members: @json($members),
                 colors: @json($colors),
+                currentUserId: {{ auth()->id() }},
 
                 // UI States
                 showCreateModal: false,
@@ -576,10 +678,10 @@
                 },
 
                 getMemberColor(userId) {
-                    const member = this.getMember(userId);
-                    if (!member) return '#94a3b8';
-                    const index = this.members.findIndex(m => parseInt(m.id) === parseInt(userId));
-                    return this.colors[index % this.colors.length] || '#94a3b8';
+                    if (String(userId) === String(this.currentUserId)) {
+                        return '#3b82f6'; // Bright Blue to "shine"
+                    }
+                    return '#9ca3af'; // Gray for others
                 },
 
                 // Date Utilities
@@ -632,15 +734,15 @@
                     try {
                         const response = await fetch(
                             "{{ route('missions.task.store', $mission) }}", {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                                    'Accept': 'application/json',
-                                    'X-Requested-With': 'XMLHttpRequest'
-                                },
-                                body: JSON.stringify(this.newTask)
-                            });
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify(this.newTask)
+                        });
 
                         const data = await response.json();
 
@@ -671,13 +773,16 @@
                     event.target.classList.add('dragging');
                 },
 
-                async handleDrop(event, newStatus) {
-                    event.preventDefault();
-                    if (!this.draggedTaskId) return;
+                async handleDrop(event, newStatus, manualTaskId = null) {
+                    if (event && event.preventDefault) {
+                        event.preventDefault();
+                    }
 
-                    const taskId = this.draggedTaskId;
+                    const taskId = manualTaskId ? String(manualTaskId) : this.draggedTaskId;
+
+                    if (!taskId) return;
+
                     const task = this.tasks.find(t => String(t.id) === String(taskId));
-
 
                     if (!task || task.status === newStatus) {
                         this.draggedTaskId = null;
@@ -709,6 +814,7 @@
 
                         this.showNotification('تم تحديث حالة المهمة', 'success');
                     } catch (error) {
+                        task.status = oldStatus;
                         this.showNotification(error.message, 'error');
                     }
 
