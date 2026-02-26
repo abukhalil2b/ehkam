@@ -70,6 +70,7 @@ Route::match(['get', 'post'], 'workshop/attend/{hash}', [WorkshopController::cla
     ->name('workshop.attend');
 Route::get('workshop/agenda_board', [WorkshopController::class, 'agendaBoard'])
     ->name('workshop.agenda_board');
+
 // Admin routes for day management (toggle status and regenerate hash)
 Route::group(['middleware' => ['auth']], function () {
     Route::post('workshop/day/{day}/toggle', [WorkshopController::class, 'toggleDayStatus'])
@@ -337,6 +338,18 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('workshop/destroy/{workshop}', [WorkshopController::class, 'destroy'])
         ->middleware('permission:workshop.delete')
         ->name('workshop.destroy');
+
+    Route::post('workshop/{workshop}/link-questionnaire', [WorkshopController::class, 'linkQuestionnaire'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.link_questionnaire');
+
+    Route::post('workshop/{workshop}/link-swot', [WorkshopController::class, 'linkSwot'])
+        ->middleware('permission:workshop.edit')
+        ->name('workshop.link_swot');
+
+    Route::get('workshop/{workshop}/report', [WorkshopController::class, 'report'])
+        ->middleware('permission:workshop.show')
+        ->name('workshop.report');
 });
 
 

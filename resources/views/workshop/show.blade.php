@@ -422,6 +422,7 @@
                     </div>
                 </div>
 
+
                 <div class="mt-8 pt-4 border-t flex justify-end">
                     <a href="{{ route('workshop.edit', $workshop->id) }}"
                         class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
@@ -429,10 +430,6 @@
                     </a>
                 </div>
 
-            </div>
-
-        </div>
-    </div>
     @push('scripts')
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>

@@ -30,4 +30,5 @@ class Workshop extends Model
     {
         return $this->hasMany(WorkshopDay::class);
     }
+
 }

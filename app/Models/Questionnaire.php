@@ -19,9 +19,9 @@ class Questionnaire extends Model
         return $this->hasMany(Answer::class);
     }
 
+
     public function getIsOpenForAllAttribute(): bool
     {
         return $this->target_response === 'open_for_all';
     }
-    
 }

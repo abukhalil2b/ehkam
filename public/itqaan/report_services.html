@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إتقان (للتخطيط والإحصاء)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-color: #ffffff;
+            --bg-offset: #f3f4f6;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-offset);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .intro {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            page-break-inside: avoid;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .section-number {
+            background-color: var(--primary-color);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+
+        .section h2 {
+            color: var(--secondary-color);
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .section p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+
+        .image-placeholder {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-weight: 500;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 0;
+                border-radius: 0;
+            }
+
+            .section {
+                page-break-inside: avoid;
+            }
+
+            .image-placeholder {
+                border-color: #000;
+                background-color: #f9f9f9;
+                color: #555;
+            }
+
+            /* Add some spacing for print specifically */
+            @page {
+                size: A4 portrait;
+                margin: 2cm;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>إتقان (للتخطيط والإحصاء)</h1>
+            <p class="intro">هو نظام مؤسسي متكامل يهدف إلى وضع الاستراتيجيات وإدارة المشاريع والأنشطة.</p>
+        </header>
+
+        <main>
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">1</div>
+                    <h2>مؤشرات الوزارة والمشاريع والأنشطة</h2>
+                </div>
+                <p>إدارة شاملة لمؤشرات الأداء الرئيسية (KPIs) المرتبطة بالوزارة، ومتابعة تنفيذ المشاريع والأنشطة
+                    وتقييمها. ويشمل ذلك احتساب التكلفة المالية والاحتياجات الخاصة بالمشاريع.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="مؤشرات1.png" alt="واجهة المؤشرات والمشاريع 1"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                    <img src="مؤشرات2.png" alt="واجهة المؤشرات والمشاريع 2"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">2</div>
+                    <h2>الورش التدريبية</h2>
+                </div>
+                <p>إدارة متكاملة للورش التدريبية وما يتعلق بها من تسجيل الحضور، استبانة الرضا، وتوفير الأدوات
+                    الإلكترونية التفاعلية المستخدمة في تقديم الورشة مثل أدوات التحليل والتفاعل المباشر.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="الورش.png" alt="لوحة الورش التدريبية"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">3</div>
+                    <h2>أدوات الورشة (التحليل الاستراتيجي)</h2>
+                </div>
+                <p>مجموعة من أدوات التحليل الاستراتيجي المتقدمة التي تدعم الورش التدريبية وجلسات التخطيط، وتشمل: تحليل
+                    سوات (SWOT Analysis)، مخطط عظم السمكة (Fishbone Diagram)، وبطاقة الأداء المتوازن (Balanced
+                    Scorecard).</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="أدوات1.png" alt="أدوات الورشة 1"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                    <img src="أدوات2.png" alt="أدوات الورشة 2"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">4</div>
+                    <h2>التقويم المؤسسي</h2>
+                </div>
+                <p>تقويم تفاعلي مخصص لإدارة وعرض الجدول الزمني لأحداث وفعاليات الوزارة ومواعيد الاجتماعات والمهام
+                    المختلفة.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="التقويم.png" alt="واجهة التقويم"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">5</div>
+                    <h2>إدارة المهام (Missions)</h2>
+                </div>
+                <p>أدوات متقدمة لتوزيع وإدارة المهام بين فرق العمل المختلفة، وتتبع التقدم في إنجازها عبر لوحات متابعة
+                    حالة المهام المخصصة (Kanban).</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="Missions1.png" alt="واجهة إدارة المهام وفرق العمل 1"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                    <img src="Missions2.png" alt="واجهة إدارة المهام وفرق العمل 2"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">6</div>
+                    <h2>الإستبانات (Questionnaires)</h2>
+                </div>
+                <p>بناء وتصميم الإستبانات المخصصة لجمع آراء المستفيدين أو تقييم الفعاليات، مع أدوات متقدمة لتحليل
+                    الردود.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="الإستبانات.png" alt="لوحة الإستبانات 1"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                    <img src="الإستبانات2.png" alt="لوحة الإستبانات 2"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">7</div>
+                    <h2>الإحصائيات وصنع القرار</h2>
+                </div>
+                <p>لوحات تحكم (Dashboards) وتقارير إحصائية دقيقة توفر رؤى عميقة لدعم متخذي القرار في تقييم الأداء العام
+                    وتحديد فرص التحسين.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="الإحصائيات.png" alt="لوحة الإحصائيات (Dashboard)"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">8</div>
+                    <h2>الهيكل الإداري للوزارة</h2>
+                </div>
+                <p>إدارة مرنة وعرض واضح للشجرة التنظيمية للوزارة بمديرياتها ودوائرها وأقسامها، مع توزيع الصلاحيات
+                    والأدوار للموظفين المسجلين في النظام.</p>
+                <div style="text-align: center; margin-top: 20px;">
+                    <img src="الهيكل1.png" alt="مخطط الهيكل التنظيمي 1"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05); margin-bottom: 15px;">
+                    <img src="الهيكل2.png" alt="مخطط الهيكل التنظيمي 2"
+                        style="max-width: 100%; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-number">9</div>
+                    <h2>التقنيات المستخدمة ومتطلبات التشغيل</h2>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <div
+                        style="flex: 1; min-width: 250px; background-color: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border-color);">
+                        <h3 style="color: var(--secondary-color); margin-top: 0; font-size: 1.2rem;">التقنيات البرمجية
+                        </h3>
+                        <ul style="padding-right: 20px; color: var(--text-muted); font-weight: 500;">
+                            <li>Laravel (إطار عمل الواجهة الخلفية)</li>
+                            <li>Alpine.js (للواجهة الأمامية التفاعلية)</li>
+                            <li>Tailwind CSS (لتصميم واجهة المستخدم)</li>
+                            <li>MySQL (قاعدة البيانات)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                    <div
+                        style="flex: 1; min-width: 250px; background-color: #eff6ff; padding: 20px; border-radius: 8px; border: 1px solid #bfdbfe;">
+                        <h3 style="color: var(--secondary-color); margin-top: 0; font-size: 1.2rem;">خادم الاختبار
+                            (Testing Server)</h3>
+                        <ul style="list-style-type: none; padding: 0; color: var(--text-main);">
+                            <li style="margin-bottom: 8px;"><strong>نظام التشغيل:</strong> Ubuntu (Latest)</li>
+                            <li style="margin-bottom: 8px;"><strong>المعالج (CPU):</strong> 2 Core</li>
+                            <li style="margin-bottom: 8px;"><strong>الذاكرة العشوائية (RAM):</strong> 4 GB</li>
+                            <li style="margin-bottom: 8px;"><strong>التخزين (Storage):</strong> 50 GB</li>
+                        </ul>
+                    </div>
+
+                    <div
+                        style="flex: 1; min-width: 250px; background-color: #f0fdf4; padding: 20px; border-radius: 8px; border: 1px solid #bbf7d0;">
+                        <h3 style="color: #166534; margin-top: 0; font-size: 1.2rem;">خادم الإنتاج (Production Server)
+                        </h3>
+                        <ul style="list-style-type: none; padding: 0; color: var(--text-main);">
+                            <li style="margin-bottom: 8px;"><strong>نظام التشغيل:</strong> Ubuntu (Latest)</li>
+                            <li style="margin-bottom: 8px;"><strong>المعالج (CPU):</strong> 8 Core</li>
+                            <li style="margin-bottom: 8px;"><strong>الذاكرة العشوائية (RAM):</strong> 16 GB</li>
+                            <li style="margin-bottom: 8px;"><strong>التخزين (Storage):</strong> 500 GB NVMe</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div
+                    style="margin-top: 30px; padding: 20px; background-color: #f4fef2; border: 1px solid #cafed3; border-radius: 8px; text-align: center;">
+                    <h3 style="color: #1b991f; margin: 0; font-size: 1.3rem;">نسبة جاهزية إتقان</h3>
+                    <div style="font-size: 2.5rem; font-weight: bold; color: #26dc41; margin: 10px 0;">93%</div>
+                    <div
+                        style="width: 100%; background-color: #e2fee5; border-radius: 9999px; height: 12px; overflow: hidden;">
+                        <div style="width: 90%; background-color: #26dc60; height: 100%; border-radius: 9999px;"></div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+</body>
+
+</html>

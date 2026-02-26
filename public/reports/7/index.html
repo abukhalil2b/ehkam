@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقرير ورشة عمل تعزيز التكامل المؤسسي</title>
+    <!-- استيراد خط تجوال لعرض عربي احترافي -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        #logos {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        :root {
+            --primary-color: #1a5f7a;
+            /* لون أزرق مؤسسي */
+            --secondary-color: #c9a227;
+            /* لون ذهبي بسيط للعناوين الفرعية */
+            --bg-color: #f9f9f9;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        h2 {
+            color: var(--primary-color);
+            font-size: 22px;
+            margin-top: 30px;
+            border-right: 5px solid var(--secondary-color);
+            background-color: #f4f4f4;
+            padding: 10px 15px 10px 15px;
+        }
+
+        h3 {
+            font-size: 18px;
+            color: #555;
+            margin-top: 20px;
+        }
+
+        p,
+        li {
+            font-size: 16px;
+            text-align: justify;
+        }
+
+        .participants-list li {
+            font-size: 13px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: right;
+        }
+
+        table th {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .image-container {
+            margin: 25px 0;
+            text-align: center;
+
+            border-radius: 5px;
+            background: #fff;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-caption {
+            display: block;
+            margin-top: 8px;
+            font-size: 14px;
+            color: #777;
+            font-style: italic;
+        }
+
+        .recommendations ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            background: #fdfdfd;
+            border-right: 4px solid var(--secondary-color);
+            margin-bottom: 10px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .signature-section {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 45%;
+        }
+
+        .bsc-card {
+            border-right: 5px solid var(--primary-color);
+            background-color: #f0f7fa;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 6px;
+        }
+
+        .bsc-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 17px;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .bsc-card table {
+            margin: 10px 0 0 0;
+        }
+
+        .priority-high {
+            background-color: #fff0f0;
+            color: #c0392b;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .priority-medium {
+            background-color: #fffbea;
+            color: #d68910;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .action-plan-table td:last-child {
+            text-align: center;
+            font-weight: 500;
+            color: #555;
+        }
+
+        /* نتائج الاستبيان */
+        .survey-summary-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 30px;
+            background: linear-gradient(135deg, #1a5f7a 0%, #0e3d50 100%);
+            color: #fff;
+            border-radius: 10px;
+            padding: 24px 30px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .survey-summary-box .big-score {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .survey-summary-box .score-label {
+            font-size: 15px;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+        .survey-summary-box .score-of {
+            font-size: 18px;
+            opacity: 0.7;
+        }
+
+        .survey-criteria-table td,
+        .survey-criteria-table th {
+            vertical-align: middle;
+        }
+
+        .survey-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            direction: ltr;
+        }
+
+        .survey-bar {
+            height: 14px;
+            border-radius: 7px;
+            background: linear-gradient(90deg, #1a5f7a, #2fa8c8);
+            min-width: 4px;
+            transition: width 0.3s;
+        }
+
+        .survey-bar-num {
+            font-weight: 700;
+            color: #1a5f7a;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .stars {
+            color: #c9a227;
+            font-size: 15px;
+            letter-spacing: 2px;
+        }
+
+        .survey-raw-table td {
+            font-size: 13px;
+            text-align: center;
+            padding: 6px 8px;
+        }
+
+        .survey-raw-table th {
+            font-size: 12px;
+            padding: 8px 6px;
+            text-align: center;
+        }
+
+        /* تنسيق خاص للطباعة */
+        @media print {
+            body {
+                background-color: #fff;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                padding: 0;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            footer {
+                page-break-before: always;
+            }
+
+            .survey-section {
+                page-break-before: always;
+            }
+
+            .bsc-card {
+                page-break-inside: avoid;
+            }
+
+            h2 {
+                -webkit-print-color-adjust: exact;
+                background-color: #f4f4f4 !important;
+            }
+
+            table th {
+                -webkit-print-color-adjust: exact;
+                background-color: #1a5f7a !important;
+                color: #fff !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="py-4"></div>
+    <div class="container">
+        <div id="logos">
+            <img width="89" src="logo.png" alt="Logo 1">
+            <img width="89" src="vision.png" alt="Logo 2">
+            <img width="89" src="itqaan.png" alt="Logo 2">
+        </div>
+        <header>
+            <h1>تقرير ورشة عمل</h1>
+            <h2>تعزيز التكامل المؤسسي للمديريات والإدارات والمكاتب الإقليمية</h2>
+            <div>تمكين أخصائيي التخطيط من إعداد الخطط التفصيلية بكفاءة، وتحليل التحديات (SWOT)، وربط الخطط بالمستهدفات
+                المؤسسية.</div>
+            <p>وزارة الأوقاف والشؤون الدينية - دائرة التخطيط والإحصاء</p>
+        </header>
+
+        <section>
+            <h2>1. البيانات الأساسية للورشة </h2>
+
+
+
+            <!-- صورة من المصدر 3 -->
+            <div class="image-container">
+                <img src="w.info.png" alt="البيانات الأساسية للورشة من النظام">
+                <span class="image-caption">الشكل (1): البيانات الأساسية للورشة كما تظهر في النظام [3]</span>
+            </div>
+        </section>
+
+        <!-- القسم 2: الحضور -->
+        <section>
+            <h2>2. المشاركون </h2>
+            <ol class="participants-list" style="line-height:1.9;">
+                <li><strong>أحمد بن محمد بن عبدالله العوفي:</strong> مدير دائرة التخطيط والإحصاء.</li>
+                <li><strong>حمدان بن راشد الخاطري:</strong> المدير المساعد، التخطيط والإحصاء.</li>
+                <li><strong>مسعود سعيد المعولي:</strong> رئيس قسم التخطيط والدراسات، دائرة التخطيط والإحصاء.</li>
+                <li><strong>حميد سالم المعمري:</strong> رئيس قسم الجودة، دائرة التخطيط.</li>
+                <li><strong>ابراهيم بن عبدالله بن سليمان البيماني:</strong> رئيس قسم الإحصاء، دائرة التخطيط.</li>
+                <li><strong>جمال بن جابر بن خالد الهنائي:</strong> فني حاسوب، دائرة التخطيط.</li>
+                <li><strong>سامي بن علي بن محمد العويمري:</strong> أخصائي تخطيط ومتابعة، إدارة الأوقاف والشؤون الدينية
+                    بمحافظة الداخلية نزوى.</li>
+                <li><strong>محمد حبيب حسن الشحي:</strong> رئيس قسم الشؤون الإسلامية، إدارة أوقاف مسندم.</li>
+                <li><strong>هلال بن محمد بن علي الزرعي:</strong> أخصائي تخطيط ومتابعة، إدارة الأوقاف والشؤون الدينية
+                    بمحافظة جنوب الشرقية.</li>
+                <li><strong>علي خميس سليمان السعيدي:</strong> باحث شؤون إدارية، المساجد.</li>
+                <li><strong>فهد حميد عبدالله:</strong> أخصائي تخطيط، إدارة الأوقاف والشؤون الدينية بمحافظة شمال الباطنة.
+                </li>
+                <li><strong>إيمان بنت سعيد بن سليمان الهدابية:</strong> أخصائية تخطيط ومتابعة، دائرة التخطيط والإحصاء.
+                </li>
+                <li><strong>احمد بن سالم بن محمد الرواحي:</strong> رئيس قسم الشؤون الإدارية والمالية، إدارة الأوقاف
+                    والشؤون الدينية بمحافظة الوسطى.</li>
+                <li><strong>هلال بن ناصر بن علي القصابي:</strong> مدير دائرة الأوقاف بيت المال، دائرة الأوقاف وبيت
+                    المال.</li>
+                <li><strong>سلطان راشد سالم المحروقي:</strong> أخصائي تخطيط، إدارة الظاهرة.</li>
+                <li><strong>سلطان بن زايد بن خليفة العبري:</strong> باحث شؤون إدارية ومنتدب أخصائي تخطيط ومكلف برئاسة
+                    قسم الشؤون الإدارية والمالية، إدارة الأوقاف والشؤون الدينية بمحافظة جنوب الباطنة.</li>
+                <li><strong>حمدان بن خلفان بن راشد البادي:</strong> أخصائي تخطيط، إدارة الأوقاف والشؤون الدينية بمحافظة
+                    الظاهرة.</li>
+                <li><strong>محمد راشد سالم البادي:</strong> أخصائي تخطيط، الشؤون الإدارية والمالية.</li>
+                <li><strong>هدى راشد سعيد الشبيبية:</strong> باحثة شؤون إدارية، مكتب الأوقاف بالسويق.</li>
+                <li><strong>أسماء بنت سعيد بن سليمان السيابية:</strong> مرشدة دينية، مركز التعليم والإرشاد النسوي.</li>
+                <li><strong>ابراهيم بن سيف الشعيلي:</strong> باحث شؤون إسلامية، مكتب الأوقاف والشؤون الدينية بولاية
+                    بهلاء.</li>
+                <li><strong>يونس بن سعيد بن محمد الحديدي:</strong> موظف إداري، دائرة دراسات وبحوث الفتوى.</li>
+                <li><strong>عبدالله بن سالم الهنائي:</strong> مدير، التنسيق والمتابعة.</li>
+                <li><strong>إبراهيم بن حمد بن سيف العزري:</strong> رئيس قسم التقويم والتطوير، مكتب الإفتاء.</li>
+                <li><strong>قبس بن هلال بن أحمد البهلاني:</strong> المدير المساعد بدائرة الزكاة، دائرة الزكاة.</li>
+                <li><strong>خالد بن جمعه بن سالم الصلتي:</strong> مشرف إداري، دائرة التعريف بالإسلام والتبادل الثقافي
+                    بمكتب الإفتاء.</li>
+                <li><strong>هلال بن عبد الله بن أحمد الشيباني:</strong> باحث شؤون إسلامية، المديرية العامة للوعظ
+                    والإرشاد / دائرة الزكاة.</li>
+                <li><strong>عبير سيف الشبلية:</strong> مرشدة دينية، دائرة الإرشاد والتعليم.</li>
+                <li><strong>فهد سالم الغنيمي:</strong> أخصائي تخطيط ومتابعة، شمال الشرقية.</li>
+                <li><strong>شيخة بنت سعيد بن مسلم المحروقية:</strong> رئيسة قسم التعليم، دائرة التعليم والإرشاد النسوي.
+                </li>
+                <li><strong>سعيد بن سالم بن ناصر الريامي:</strong> مدير دائرة التعريف بالإسلام والتبادل الثقافي، مكتب
+                    الإفتاء.</li>
+                <li><strong>إسحاق بن سعيد بن حمد الرواحي:</strong> رئيس قسم العلاقات الخارجية، مكتب الإفتاء.</li>
+                <li><strong>محمد بن مبارك بن علي الصلتي:</strong> منسق العلاقات الخارجية، مكتب الإفتاء.</li>
+                <li><strong>فهد المقبالي:</strong> أخصائي تخطيط، إدارة أوقاف شمال الباطنة.</li>
+            </ol>
+
+        </section>
+
+        <!-- القسم 3: جلسات العمل -->
+        <section>
+            <h2>3. جلسات العمل والمحاور الرئيسية</h2>
+
+            <h3>أولاً: المقدمة الترحيبية والمؤشرات</h3>
+            <p>تم استعراض أهداف قطاع الأوقاف ومؤشرات الأداء المعتمدة، وتحليل الفجوة بين المستهدف والنتائج الفعلية، قدمها
+                الفاضل/ حميد المعمري.</p>
+
+            <h3>ثانياً: الخطط التفصيلية للقطاعات</h3>
+            <p>تم استعراض الخطط التفصيلية لعدة قطاعات :</p>
+            <ul>
+                <li><strong>قطاع الأوقاف وإعمار المساجد:</strong> (تقديم: هلال القصابي).</li>
+                <li><strong>قطاع الوعظ والإرشاد:</strong> (تقديم: جاسم السلماني).</li>
+                <li><strong>قطاع الإفتاء:</strong> (تقديم: إبراهيم العزري).</li>
+                <li><strong>قطاع القرآن الكريم:</strong> (تقديم: شيخة المحروقية).</li>
+            </ul>
+
+            <!-- صور من قاعة الورشة -->
+            <div class="image-container">
+                <img src="discuss.jpg" alt="جانب من الورشة">
+                <span class="image-caption">الشكل (4): جانب من النقاشات والعروض التقديمية في القاعة [7]</span>
+            </div>
+
+            <h3>ثالثاً: التحليل الاستراتيجي </h3>
+            <p>بناء استراتيجية التكامل المؤسسي مع مديريات وإدارات ومكاتب الأوقاف وتمكين أخصائي التخطيط والمتابعة</p>
+            <p>تضمنت الورشة بإستخدام نظام إتقان الإلكترونية جلسة عملية لتحليل (SWOT) لتشخيص نقاط القوة والضعف والفرص
+                والتهديدات المرتبطة بدور أخصائي
+                التخطيط، بالإضافة إلى مسابقات لقياس الفهم.</p>
+            <p> تم بناء هذه الاستراتيجية بالتعاون مع أخصائي التخطيط والمتابعة عبر نظام إتقان الإلكتروني وربط ثلاث
+                منهجيات تحليليه وهي تحليل ( SWOT) وتحليل (TOWS ) وتحليل ( BSC) </p>
+            <div class="image-container">
+                <img src="swot.png" alt="تحليل SWOT">
+                <span class="image-caption">الشكل (5): اللوحة التفاعلية لتحليل SWOT [8]</span>
+            </div>
+
+            <div class="image-container">
+                <img src="result.png" alt="المسابقات">
+                <img src="answes.png" alt="المسابقات">
+                <span class="image-caption">الشكل (6): نموذج من الأسئلة والإجابات الصحيحة في المسابقة </span>
+            </div>
+        </section>
+
+        <section class="analysing">
+            <h2>4. التحليل الاستراتيجي المتكامل ومخرجات التخطيط</h2>
+
+            <p>
+                باستخدام الذكاء الاصطناعي في العصف الذهني على نتائج تحليل SWOT، تم بناء
+                <strong>استراتيجية واحدة متماسكة</strong> يحمل كل توجه فيها مبادرات واضحة، وكل مبادرة مرتبطة
+                بمؤشرات قياس — ضمن إطار احترافي معتمد في التخطيط الاستراتيجي.
+                والنتيجة أدناه هي <strong>نموذج متكامل جاهز للتطبيق والمتابعة</strong>.
+            </p>
+
+            <h3>بطاقة الأداء المتوازن المتكاملة لأخصائي التخطيط</h3>
+            <p style="color:#777; font-style:italic; margin-top:-10px;">مبنية على تحليل SWOT والتوجهات التنفيذية</p>
+
+            <!-- المنظور الأول -->
+            <div class="bsc-card">
+                <h3>🏛️ المنظور الأول: النتائج المؤسسية (تحقيق الأداء والحوكمة)</h3>
+                <p><strong>الهدف الاستراتيجي:</strong> رفع جودة الخطط وتحقيق المستهدفات مع ضبط الالتزام المؤسسي.</p>
+                <p><strong>المبادرات المدمجة:</strong></p>
+                <ul>
+                    <li>إعداد خطط تشغيلية تفصيلية مرتبطة بمؤشرات أداء</li>
+                    <li>تقارير متابعة ربع سنوية ترفع للإدارة العليا</li>
+                    <li>ربط تقييمات الأقسام بدرجة الالتزام بالخطة</li>
+                    <li>بناء مصفوفة مخاطر مرتبطة بالمشاريع</li>
+                </ul>
+                <p><strong>مؤشرات الأداء:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المؤشر</th>
+                            <th>المستهدف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>نسبة تحقيق مستهدفات الخطة</td>
+                            <td>85% – 90%</td>
+                        </tr>
+                        <tr>
+                            <td>نسبة المشاريع المنجزة في وقتها</td>
+                            <td>≥ 90%</td>
+                        </tr>
+                        <tr>
+                            <td>معدل تحسن المؤشرات سنوياً</td>
+                            <td>5% – 10%</td>
+                        </tr>
+                        <tr>
+                            <td>عدد الانحرافات غير المعالجة</td>
+                            <td>انخفاض سنوي 50%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- المنظور الثاني -->
+            <div class="bsc-card">
+                <h3>🤝 المنظور الثاني: المستفيدون (الأقسام والإدارة)</h3>
+                <p><strong>الهدف الاستراتيجي:</strong> تعزيز التعاون، وبناء ثقافة التخطيط.</p>
+                <p><strong>المبادرات المدمجة:</strong></p>
+                <ul>
+                    <li>إصدار وثيقة رسمية للمهام والصلاحيات</li>
+                    <li>تعميم إلزامي لتوفير البيانات</li>
+                    <li>تحديد نقاط اتصال تخطيطية بكل قسم</li>
+                    <li>عقد ورش توعوية قصيرة للتخطيط</li>
+                    <li>إشراك الأقسام في صياغة الأهداف</li>
+                </ul>
+                <p><strong>مؤشرات الأداء:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المؤشر</th>
+                            <th>المستهدف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>نسبة رضا الأقسام عن دعم التخطيط</td>
+                            <td>≥ 85%</td>
+                        </tr>
+                        <tr>
+                            <td>نسبة الالتزام بتسليم البيانات</td>
+                            <td>≥ 90%</td>
+                        </tr>
+                        <tr>
+                            <td>عدد الورش واللقاءات التنسيقية</td>
+                            <td>لقاء شهري لكل قسم</td>
+                        </tr>
+                        <tr>
+                            <td>نسبة مشاركة الأقسام في إعداد الأهداف</td>
+                            <td>≥ 80%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- المنظور الثالث -->
+            <div class="bsc-card">
+                <h3>⚙️ المنظور الثالث: العمليات الداخلية</h3>
+                <p><strong>الهدف الاستراتيجي:</strong> ضبط البيانات، تسريع التخطيط، وتحسين جودة المتابعة.</p>
+                <p><strong>المبادرات المدمجة:</strong></p>
+                <ul>
+                    <li>نموذج موحد لجمع البيانات</li>
+                    <li>دليل مؤشرات KPI شامل</li>
+                    <li>لوحة متابعة رقمية (Dashboard)</li>
+                    <li>سياسة تدقيق البيانات</li>
+                    <li>دليل إجراءات التخطيط</li>
+                </ul>
+                <p><strong>مؤشرات الأداء:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المؤشر</th>
+                            <th>المستهدف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>دقة البيانات</td>
+                            <td>≥ 95%</td>
+                        </tr>
+                        <tr>
+                            <td>زمن إعداد التقارير</td>
+                            <td>خفض 30%</td>
+                        </tr>
+                        <tr>
+                            <td>الالتزام بالنماذج الموحدة</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>نسبة المؤشرات ذات منهجية واضحة</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>عدد المتابعات الدورية</td>
+                            <td>12 سنوياً</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- المنظور الرابع -->
+            <div class="bsc-card">
+                <h3>📈 المنظور الرابع: التعلم والنمو</h3>
+                <p><strong>الهدف الاستراتيجي:</strong> رفع الكفاءة التحليلية والعرض الاحترافي للتخطيط.</p>
+                <p><strong>المبادرات المدمجة:</strong></p>
+                <ul>
+                    <li>دورات تحليل بيانات وإحصاء تطبيقي</li>
+                    <li>التدريب على Power BI</li>
+                    <li>تطوير مهارات العرض التنفيذي</li>
+                    <li>إنشاء بنك نماذج تخطيط</li>
+                    <li>تطوير أدوات قياس داخلية</li>
+                </ul>
+                <p><strong>مؤشرات الأداء:</strong></p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المؤشر</th>
+                            <th>المستهدف</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>عدد البرامج التدريبية</td>
+                            <td>3 – 5 سنوياً</td>
+                        </tr>
+                        <tr>
+                            <td>نسبة تطوير أدوات القياس</td>
+                            <td>100%</td>
+                        </tr>
+                        <tr>
+                            <td>تحسن المهارات التحليلية</td>
+                            <td>≥ 20%</td>
+                        </tr>
+                        <tr>
+                            <td>عدد النماذج المطورة</td>
+                            <td>≥ 10 نماذج</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- الخطة الزمنية -->
+            <h3>📅 الخطة الزمنية المدمجة (12 شهراً)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>الربع</th>
+                        <th>المبادرات الرئيسية</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>الربع الأول</strong></td>
+                        <td>اعتماد الصلاحيات — نماذج البيانات — ورشة ثقافة التخطيط</td>
+                    </tr>
+                    <tr>
+                        <td><strong>الربع الثاني</strong></td>
+                        <td>إطلاق Dashboard — دليل المؤشرات — بدء المتابعة</td>
+                    </tr>
+                    <tr>
+                        <td><strong>الربع الثالث</strong></td>
+                        <td>تدقيق البيانات — تحسين التقارير — المشاركة في الخطة العامة</td>
+                    </tr>
+                    <tr>
+                        <td><strong>الربع الرابع</strong></td>
+                        <td>مراجعة شاملة — مصفوفة مخاطر — تقرير إنجاز سنوي</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- مؤشرات النجاح -->
+            <h3>🎯 مؤشرات نجاح أخصائي التخطيط (القياس الشخصي المهني)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>المؤشر</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>التزام الأقسام بتسليم البيانات في موعدها</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>وضوح منهجيات المؤشرات وتوحيدها</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>عدد التقارير التحليلية المعتمدة</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>رضا الإدارة العليا عن جودة التخطيط</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>انخفاض أخطاء البيانات وتناقضاتها</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>تحسن نتائج الأداء المؤسسي الكلي</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- الخلاصة -->
+            <h3>✅ الخلاصة الاستراتيجية المتكاملة</h3>
+            <div class="recommendations">
+                <ul>
+                    <li><strong>مهندس أداء مؤسسي:</strong> يصمم منظومة الأداء ويربطها بالأهداف الاستراتيجية.</li>
+                    <li><strong>ضابط حوكمة تخطيطية:</strong> يضمن الالتزام المؤسسي بالخطط والإجراءات.</li>
+                    <li><strong>محلل قرار:</strong> يقدم تحليلات دقيقة تدعم صنع القرار.</li>
+                    <li><strong>قائد ثقافة تخطيط:</strong> يُرسّخ ثقافة التخطيط في جميع الأقسام.</li>
+                </ul>
+            </div>
+
+            <h3>توزيع المحاور على بطاقة الأداء المتوازن</h3>
+            <div class="image-container">
+                <img src="recommendation.png" alt="توزيع المحاور على بطاقة الأداء المتوازن">
+                <span class="image-caption">الشكل (7): توزيع المحاور على بطاقة الأداء المتوازن</span>
+            </div>
+        </section>
+
+        <!-- قسم خطة العمل -->
+        <section>
+            <h2>5. خطة العمل</h2>
+            <table class="action-plan-table">
+                <thead>
+                    <tr>
+                        <th style="width:42%">المهمة</th>
+                        <th style="width:22%">المسؤول</th>
+                        <th style="width:14%">الأولوية</th>
+                        <th style="width:22%">موعد التسليم</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>تصميم نموذج موحد لجمع البيانات (Standard Data Template).</td>
+                        <td>أحمد العوفي</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-02-23</td>
+                    </tr>
+                    <tr>
+                        <td>إعداد وثيقة تعريفية رسمية للمهام والصلاحيات (Job Charter) واعتمادها من مدير الإدارة ومديرية
+                            التخطيط.</td>
+                        <td>حميد المعمري مع الحوكمة</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-02-28</td>
+                    </tr>
+                    <tr>
+                        <td>اقتراح إصدار تعميم إداري يوضح إلزامية تزويد أخصائي التخطيط بالبيانات ضمن إطار زمني محدد.
+                        </td>
+                        <td>مسعود المعولي</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-02-28</td>
+                    </tr>
+                    <tr>
+                        <td>ربط مؤشرات الأقسام بمستهدفات الخطة العامة.</td>
+                        <td>حمدان الخاطري مع أخصائي التخطيط</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-03-02</td>
+                    </tr>
+                    <tr>
+                        <td>إنشاء لوحة متابعة (Dashboard) ولو كانت أولياً عبر Excel أو Power BI.</td>
+                        <td>ابراهيم البيماني</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-03-07</td>
+                    </tr>
+                    <tr>
+                        <td>وضع آلية تفويض واضحة في حال تعذر الاستجابة.</td>
+                        <td>الحوكمة</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-03-07</td>
+                    </tr>
+                    <tr>
+                        <td>وضع دليل مؤشرات أداء (KPI Dictionary) يتضمن: تعريف المؤشر، آلية الاحتساب، مصدر البيانات،
+                            دورية القياس.</td>
+                        <td>إيمان الهدابية</td>
+                        <td class="priority-high">🔴 عالية</td>
+                        <td>2026-03-14</td>
+                    </tr>
+                    <tr>
+                        <td>تحديد نقاط اتصال رسمية (Planning Focal Points) في كل قسم.</td>
+                        <td>حميد المعمري مع أخصائي التخطيط</td>
+                        <td class="priority-medium">🟡 متوسطة</td>
+                        <td>2026-03-02</td>
+                    </tr>
+                    <tr>
+                        <td>عقد ورش تعريفية قصيرة للأقسام بعنوان: لماذا التخطيط مسؤولية مشتركة؟</td>
+                        <td>أخصائي التخطيط وفريق التخطيط</td>
+                        <td class="priority-medium">🟡 متوسطة</td>
+                        <td>2026-03-14</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+
+        <!-- القسم 6: نتائج الاستبيان -->
+        <section class="survey-section">
+            <h2>6. نتائج استبيان تقييم الورشة</h2>
+            <p>
+                شارك في تقييم الورشة <strong>12 مشاركاً</strong> عبر استبيان إلكتروني تضمّن تسعة محاور رئيسية، وُزّن كل
+                محور
+                على مقياس من <strong>1 إلى 5</strong>. وفيما يلي الملخص التحليلي لنتائج التقييم.
+            </p>
+
+            <!-- بطاقة المعدل الكلي -->
+            <div class="survey-summary-box">
+                <div>
+                    <div class="big-score">4.87</div>
+                    <div class="score-of">من 5.00</div>
+                    <div class="score-label">المعدل العام للرضا</div>
+                </div>
+                <div style="border-right:1px solid rgba(255,255,255,0.3); height:80px;"></div>
+                <div>
+                    <div style="font-size:38px;">⭐ 97.4%</div>
+                    <div class="score-label">نسبة الرضا الكلية</div>
+                </div>
+                <div style="border-right:1px solid rgba(255,255,255,0.3); height:80px;"></div>
+                <div>
+                    <div style="font-size:38px;">👥 12</div>
+                    <div class="score-label">عدد المشاركين في الاستبيان</div>
+                </div>
+            </div>
+
+            <!-- جدول نتائج المحاور -->
+            <h3>نتائج التقييم حسب المحور</h3>
+            <table class="survey-criteria-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>المحور</th>
+                        <th>المعدل</th>
+                        <th>التقييم</th>
+                        <th>التمثيل البياني</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>وضوح أهداف الورشة</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">5.00</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:100%;"></div>
+                                <span class="survey-bar-num">100%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>تنظيم المادة وترتيب الأفكار</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.75</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:95%;"></div>
+                                <span class="survey-bar-num">95%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>الجانب التطبيقي والأمثلة العملية</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.75</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:95%;"></div>
+                                <span class="survey-bar-num">95%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>إلمام المدرب بموضوع الورشة</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.83</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:96.7%;"></div>
+                                <span class="survey-bar-num">96.7%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>وضوح الشرح وأسلوب العرض</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.83</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:96.7%;"></div>
+                                <span class="survey-bar-num">96.7%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td>تفاعل المدرب مع أسئلة واستفسارات الحضور</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">5.00</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:100%;"></div>
+                                <span class="survey-bar-num">100%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td>ملائمة القاعة والتجهيزات والتغذية والغرف</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.83</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:96.7%;"></div>
+                                <span class="survey-bar-num">96.7%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>8</td>
+                        <td>جودة الصوت والصورة</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.92</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:98.3%;"></div>
+                                <span class="survey-bar-num">98.3%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>9</td>
+                        <td>مدى رضاك العام عن الورشة</td>
+                        <td style="text-align:center; font-weight:700; color:#1a5f7a;">4.92</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar" style="width:98.3%;"></div>
+                                <span class="survey-bar-num">98.3%</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr style="background-color: #f0f7fa; font-weight: bold;">
+                        <td colspan="2" style="text-align:center;">المعدل العام</td>
+                        <td style="text-align:center; color:#1a5f7a; font-size:17px;">4.87</td>
+                        <td class="stars">★★★★★</td>
+                        <td>
+                            <div class="survey-bar-wrap">
+                                <div class="survey-bar"
+                                    style="width:97.4%; background: linear-gradient(90deg, #c9a227, #e8c04a);"></div>
+                                <span class="survey-bar-num" style="color:#c9a227;">97.4%</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+
+            <!-- جدول البيانات الخام -->
+            <h3>البيانات التفصيلية لاستجابات المشاركين</h3>
+            <div style="overflow-x: auto;">
+                <table class="survey-raw-table">
+                    <thead>
+                        <tr>
+                            <th>م</th>
+                            <th>وضوح الأهداف</th>
+                            <th>تنظيم المادة</th>
+                            <th>الجانب التطبيقي</th>
+                            <th>إلمام المدرب</th>
+                            <th>وضوح الشرح</th>
+                            <th>تفاعل المدرب</th>
+                            <th>ملائمة القاعة</th>
+                            <th>جودة الصوت</th>
+                            <th>الرضا العام</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>4</td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>7</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>8</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>9</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>10</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>4</td>
+                            <td>4</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>12</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                            <td>5</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr style="background:#f0f7fa; font-weight:bold; color:#1a5f7a;">
+                            <td>المعدل</td>
+                            <td>5.00</td>
+                            <td>4.75</td>
+                            <td>4.75</td>
+                            <td>4.83</td>
+                            <td>4.83</td>
+                            <td>5.00</td>
+                            <td>4.83</td>
+                            <td>4.92</td>
+                            <td>4.92</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- خلاصة تقييم -->
+            <div class="recommendations" style="margin-top:20px;">
+                <ul>
+                    <li><strong>أعلى تقييم (5.00/5):</strong> وضوح أهداف الورشة، وتفاعل المدرب مع الحضور — مما يدل على
+                        قوة التخطيط والتواصل.</li>
+                    <li><strong>الجانب التطبيقي وتنظيم المادة (4.75/5):</strong> حصلا على أعلى نسبة من التقييمات
+                        المتنوعة، مما يشير إلى فرصة لمزيد من الأمثلة العملية في الدورات القادمة.</li>
+                    <li><strong>الرضا العام (4.92/5):</strong> يعكس نجاح الورشة بشكل شامل وارتفاع مستوى تحقيق الأهداف
+                        المرجوة لدى المشاركين.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- الخاتمة والتوقيعات -->
+        <footer>
+            <div class="image-container" style="margin-top: 40px;">
+                <img src="participants.png" alt="الصورة الجماعية للمشاركين" style="max-height: 500px; width: auto;">
+                <span class="image-caption">الشكل (8): صورة جماعية للمشاركين في الورشة</span>
+            </div>
+            <div class="signature-section">
+                <div class="signature-box">
+                    <p><strong>أعد المحضر</strong></p>
+                    <p>إيمان بنت سعيد الهدابية</p>
+                    <p>أخصائية تخطيط</p>
+                </div>
+                <div class="signature-box">
+                    <p><strong>يعتمد</strong></p>
+                    <p>.............................</p>
+                    <p>مدير عام التخطيط والدراسات</p>
+                </div>
+            </div>
+
+
+        </footer>
+    </div>
+
+</body>
+
+</html>

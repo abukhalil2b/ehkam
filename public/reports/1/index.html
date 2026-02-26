@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>تقرير ورشة إعداد الخطط التفصيلية</title>
+    <style>
+      :root {
+        --primary-color: #005a8d;
+        --secondary-color: #f4f7f6;
+        --text-color: #333333;
+        --border-color: #dddddd;
+        --accent-color: #e8f4f8;
+      }
+      body {
+        font-family: "Cairo", sans-serif;
+        background-color: #eaeff2;
+        color: var(--text-color);
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      }
+      .header {
+        text-align: center;
+        border-bottom: 3px solid var(--primary-color);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .header h1 {
+        color: var(--primary-color);
+        margin-bottom: 5px;
+        font-size: 2.2em;
+      }
+      .image-placeholder {
+        background-color: #f8f9fa;
+        border: 2px dashed #adb5bd;
+        color: #6c757d;
+        text-align: center;
+        padding: 40px 20px;
+        margin: 20px 0;
+        border-radius: 8px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100px;
+      }
+      .banner-placeholder {
+        height: 180px;
+        font-size: 1.2em;
+      }
+      h2 {
+        color: var(--primary-color);
+        border-right: 5px solid var(--primary-color);
+        padding-right: 15px;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        background-color: var(--accent-color);
+        padding: 10px 15px;
+        border-radius: 4px;
+      }
+      .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        background-color: var(--secondary-color);
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+      }
+      .info-item {
+        font-size: 16px;
+      }
+      .info-item strong {
+        color: var(--primary-color);
+        display: inline-block;
+        margin-bottom: 5px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+        margin-bottom: 30px;
+      }
+      th,
+      td {
+        border: 1px solid var(--border-color);
+        padding: 12px 15px;
+        text-align: right;
+      }
+      th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: bold;
+        font-size: 1.1em;
+      }
+      tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+      .description-box {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        border-right: 5px solid var(--primary-color);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+        font-size: 1.1em;
+      }
+
+      /* تصميم بطاقات أوراق العمل الجديد */
+      .papers-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        margin-top: 30px;
+      }
+      .paper-card {
+        background-color: #ffffff;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        transition: transform 0.2s ease-in-out;
+      }
+      .paper-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      }
+      .paper-title {
+        color: var(--primary-color);
+        font-size: 1.4em;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid var(--accent-color);
+      }
+      .paper-image-large {
+        height: 300px; /* مساحة أوسع وأطول للصور */
+        background-color: #f1f3f5;
+        border: 3px dashed #ced4da;
+        color: #495057;
+        font-size: 1.2em;
+        margin-bottom: 25px;
+      }
+      .paper-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 30px;
+      }
+      .paper-section {
+        background-color: #fafbfc;
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+      }
+      .paper-section h4 {
+        color: #212529;
+        margin-top: 0;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #dee2e6;
+        font-size: 1.1em;
+      }
+      .paper-section ul {
+        margin: 0;
+        padding-right: 20px;
+        color: #495057;
+      }
+      .paper-section li {
+        margin-bottom: 10px;
+      }
+      @media (max-width: 768px) {
+        .paper-content {
+          grid-template-columns: 1fr;
+        }
+        .paper-image-large {
+          height: 200px;
+        }
+      }
+
+      /* التوقيعات */
+      .signatures {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 60px;
+        padding-top: 30px;
+        border-top: 2px solid var(--border-color);
+        text-align: center;
+      }
+      .signature-block {
+        width: 40%;
+      }
+      .signature-block strong {
+        font-size: 1.2em;
+        color: var(--primary-color);
+      }
+      .signature-line {
+        border-bottom: 1px solid #333;
+        margin: 50px auto 15px auto;
+        width: 80%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="">
+          <img src="header.png" alt="" width="100%" />
+        </div>
+        <h1>إعداد الخطط التفصيلية لخطة عام 2026م</h1>
+      </div>
+
+      <h2>بيانات الورشة</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <strong>الموقع:</strong><br />محافظة مسقط – فندق مسك
+        </div>
+        <div class="info-item">
+          <strong>التاريخ:</strong><br />2 نوفمبر 2025م
+        </div>
+        <div class="info-item">
+          <strong>مدة الورشة:</strong><br />أربعة أيام عمل
+        </div>
+      </div>
+
+      <h2>وصف الورشة</h2>
+      <div class="description-box">
+        <p>
+          ورشة إعداد الخطط التفصيلية لبرامج ومشاريع الخطة السنوية 2026م، حيث
+          تهدف إلى تزويد المشاركين بالمهارات والأدوات المنهجية اللازمة لتحويل
+          الأهداف الاستراتيجية للوزارة إلى خطط عمل مفصلة وقابلة للتنفيذ والقياس
+          على المدى القصير إلى المتوسط باستخدام معيار SMART.
+        </p>
+        <p>
+          تركز الورشة على الجانب العملي والتطبيقي، لضمان قدرة المشاركين على
+          الخروج بخطط محددة وواقعية تضمن الاستخدام الأمثل للموارد وتحقيق الأهداف
+          المرجوة ضمن إطار زمني واضح.
+        </p>
+      </div>
+
+      <div class="image-placeholder">
+        <img src="main.png" alt="" width="100%" />
+        <img src="main2.png" alt="" width="100%" />
+      </div>
+
+      <h2>قائمة الحضور</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>الاسم</th>
+            <th>الوظيفة / الجهة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>الفاضل/ أحمد بن محمد بن عبد الله العوفي</td>
+            <td>مدير دائرة التخطيط والإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ حمدان بن راشد الخاطري</td>
+            <td>المدير المساعد بدائرة التخطيط والإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل / مسعود بن سعيد بن علي المعولي</td>
+            <td>رئيس قسم التخطيط و الدراسات بدائرة التخطيط و الإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل / حميد بن سالم بن ناصر المعمري</td>
+            <td>رئيس قسم الجودة بدائرة التخطيط و الإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل / ابراهيم بن عبدالله البيماني</td>
+            <td>رئيس قسم الإحصاء بدائرة التخطيط و الإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل / جمال بن جابر بن خالد الهنائي</td>
+            <td>دائرة التخطيط و الإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضلة/ إيمان بنت سعيد الهدابية</td>
+            <td>اخصائية تخطيط بدائرة التخطيط و الإحصاء</td>
+          </tr>
+          <tr>
+            <td>الفاضلة / رحاب بنت علي بن حمد الوهيبية</td>
+            <td>كاتبة شؤون مالية بدائرة التدقيق الداخلي</td>
+          </tr>
+          <tr>
+            <td>الفاضلة / انتصار بن مبارك عبدالله الضامرية</td>
+            <td>باحثة شؤون إدارية بدائرة التدقيق الداخلي</td>
+          </tr>
+          <tr>
+            <td>الفاضل / مصطفى بن محمد العلوي</td>
+            <td>مدير مختص بالمديرية العامة للتخطيط والدراسات</td>
+          </tr>
+          <tr>
+            <td>الفاضل / إبراهيم بن حمد العزري</td>
+            <td>محلل نظم بمكتب الإفتاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل / هلال بن ناصر بن علي القصابي</td>
+            <td>المدير المساعد بدائرة الأوقاف بيت المال</td>
+          </tr>
+          <tr>
+            <td>الفاضل / إدريس بن ناصر المعمري</td>
+            <td>رئيس قسم تنمية الأصول والاملاك بدائرة اموال الايتام والقصر</td>
+          </tr>
+          <tr>
+            <td>الفاضل / ناصر بن سعيد بن ناصر المسكري</td>
+            <td>مهندس مدني بدائرة المنشات والصيانة</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ عدي بن سعيد بن سيف المعولي</td>
+            <td>
+              المدير المساعد بدائرة الأوقاف وبيت المال لشؤون الأوقاف وبيت المال
+            </td>
+          </tr>
+          <tr>
+            <td>الفاضل/ الأشرف بن منصور بن علي الهنائي</td>
+            <td>
+              رئيس قسم الأصول والأملاك بدائرة إعمار المساجد ومدارس القرآن الكريم
+            </td>
+          </tr>
+          <tr>
+            <td>الفاضل/ احمد بن سعيد بن محمد العامري</td>
+            <td>باحث شؤون اسلاميه بمكتب الوكيل</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ أحمد بن سالم بن سويد البكاري</td>
+            <td>مدير دائرة القرآن الكريم</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ أحمد بن راشد بن هاشل الذيابي</td>
+            <td>رئيس قسم استراتيجيات تعليم القرآن الكريم</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ سلطان بن جمعة بن سالم الوهيبي</td>
+            <td>رئيس قسم البرامج القرآنية التفاعلية</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ يوسف بن سالم بن ناصر المحروقي</td>
+            <td>رئيس قسم الأداء المؤسسي بدائرة الحوكمة</td>
+          </tr>
+          <tr>
+            <td>الفاضلة / شيخة بنت سعيد بن مسلم المحروقية</td>
+            <td>رئيسة قسم تعليم القرآن الكريم</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ خالد بن جمعه بن سالم الصلتي</td>
+            <td>
+              مشرف إداري بدائرة التعريف بالإسلام والتبادل الثقافي بمكتب الإفتاء
+            </td>
+          </tr>
+          <tr>
+            <td>الفاضل/ إبراهيم بن حمد بن سيف العزري</td>
+            <td>رئيس قسم التقويم والتطوير بمكتب الإفتاء</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ قبس بن هلال بن أحمد البهلاني</td>
+            <td>المدير المساعد بدائرة الزكاة</td>
+          </tr>
+          <tr>
+            <td>الفاضلة/ كاملة بنت ناصر بن خلفان الحديدية</td>
+            <td>باحثة شؤون إدارية بدائرة التعليم والإرشاد النسوي</td>
+          </tr>
+          <tr>
+            <td>الفاضلة/ إبتهال بنت حارب بن سعيد الشكيلية</td>
+            <td>رئيسة قسم الوعظ والإرشاد بدائرة التعليم والإرشاد النسوي</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ إسماعيل بن سلمان بن محمد الرواحي</td>
+            <td>رئيس قسم الخطب بدائرة البحوث الشرعية</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ أحمد بن خميس بن سالم العلوي</td>
+            <td>مدقق لغوي بدائرة البحوث الشرعية</td>
+          </tr>
+          <tr>
+            <td>الفاضل/ جميل بن سليمان بن سالم الناعبي</td>
+            <td>رئيس قسم الوعظ والإرشاد بدائرة الشؤون الأسلامية</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>أوراق عمل الورشة وتفاصيلها</h2>
+      <div class="papers-grid">
+        <div class="paper-card">
+          <div class="paper-title">
+            عرض تقارير خطة الوزارة لعام 2025 وآليات العمل المتبعة
+          </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="1.png" alt="" width="100%" />
+            <img src="2.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>قدم الورقة: حميد بن سالم المعمري (رئيس قسم الجودة).</li>
+                <li>
+                  تم استعراض ومناقشة التقارير الخاصة بخطة الوزارة 2025م وآلية
+                  تنظيم المعلومات في التقارير وربطها بالأدلة الداعمة.
+                </li>
+                <li>
+                  التعريف بالمتطلبات الحكومية وآلية تقديمها ومواعيد تسليمها.
+                </li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  ضرورة حصر بيانات المؤشرات بشكل دقيق ونسب إنجاز المشاريع
+                  والأنشطة أول بأول لمراجعتها وتنظيمها في التقارير.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">
+            عرض خطة الوزارة لعام 2026 واستعراض مستهدفات المؤشرات والمشاريع
+          </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="3.png" alt="" width="100%" />
+            <img src="4.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>قدم الورقة: حميد بن سالم المعمري (رئيس قسم الجودة).</li>
+                <li>
+                  تم استعراض ومناقشة كافة أجزاء الخطة والآلية المتبعة في اقتراح
+                  المشاريع والأنشطة التابعة لها.
+                </li>
+                <li>
+                  استعراض المؤشرات الرئيسية لكافة القطاعات بالإضافة الى استعراض
+                  مستهدفات الوزارة لعام 2026م.
+                </li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  تجويد الخطط التفصيلية للأنشطة المصاحبة لكافة المشاريع المعتمدة
+                  بالخطة السنوية والحرص على ذكر كافة خطوات التنفيذ.
+                </li>
+                <li>إدخال كافة الخطط في نظام المؤشرات لتسهيل المتابعة.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">
+            عرض استمارة تقييم أنشطة واستمارة احتساب التكلفة للمشروع
+          </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="5.png" alt="" width="100%" />
+            <img src="6.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>قدم الورقة: إيمان بنت سعيد بن سليمان الهدابية.</li>
+                <li>
+                  استعراض استمارة تقييم أنشطة ومشاريع الخطة وفق عشرة معايير
+                  لتقييم الجودة وفرص التطوير.
+                </li>
+                <li>
+                  استعراض استمارة التكلفة المالية لاحتساب التكاليف وفق الاحتياج
+                  التشغيلي الفعلي.
+                </li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  ضرورة إعداد استمارة الاحتياجات المالية لكافة الأنشطة مع ذكر
+                  الاحتياجات التشغيلية الفعلية من قبل مدير النشاط.
+                </li>
+                <li>
+                  اعتماد استمارة التكلفة المالية من قبل مدير عام القطاع ثم
+                  اعتمادها من قبل مدير عام التخطيط والدراسات.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">
+            مناقشة برامج قطاع الأوقاف وإعمار المساجد 
+          </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="7.png" alt="" width="100%" />
+            <img src="8.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  مناقشة برامج الأوقاف وإعمار المساجد (تثمير، الوقف حياة
+                  واستدامة) وعرض الأنشطة المصاحبة.
+                </li>
+                <li>
+                  عمل ورشة عصف ذهني (SWOT) لاستخلاص أنشطة ذات تأثير إيجابي عالٍ
+                  على المؤشرات.
+                </li>
+                <li>مناقشة الفعاليات الإعلامية المصاحبة لهذه الأنشطة.</li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>ابتكار أنشطة تساهم في رفع مؤشرات قطاع الأوقاف والمساجد.</li>
+                <li>
+                  تحديد الجهات المساندة التي تسهم في إنجاح المشاريع والأنشطة.
+                </li>
+                <li>إيجاد حلول للتحديات لضمان نجاح المشاريع ورفع المؤشر.</li>
+                <li>
+                  وضع خطة إعلامية تغطي جميع البرامج بالتعاون مع دائرة التواصل
+                  والإعلام.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">
+            عرض برنامج قطاع الوعظ والإرشاد 
+          </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="9.png" alt="" width="100%" />
+            <img src="10.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  مناقشة برامج قطاع الوعظ والإرشاد (بصائر، شرعة ومنهاجا، نسك
+                  وزكاتك).
+                </li>
+                <li>عمل ورشة عصف ذهني (SWOT) لاستخلاص أنشطة ذات تأثير عالي.</li>
+                <li>مناقشة الفعاليات الإعلامية المصاحبة.</li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  إعداد خطط تفصيلية لكل برنامج لضمان التكامل وعدم التكرار
+                  بالاشتراك مع الإدارات الإقليمية.
+                </li>
+                <li>
+                  تحويل نتائج العصف الذهني إلى خطة تنفيذية لابتكار مشاريع تعزز
+                  الأثر على المجتمع.
+                </li>
+                <li>
+                  التركيز على الرسائل ذات الجودة والأثر العالي في وسائل التواصل
+                  الاجتماعي.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج قطاع الإفتاء </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="11.png" alt="" width="100%" />
+            <img src="12.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  مناقشة برنامج الإفتاء (التواصل والتبادل الثقافي، الفتوى
+                  والتعريف بالإسلام).
+                </li>
+                <li>عمل ورشة عصف ذهني (SWOT) للتركيز على نقاط القوة والفرص.</li>
+                <li>مناقشة الفعاليات الإعلامية المصاحبة.</li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  تحسين الخطط التفصيلية بما يتواكب مع المستجدات الحديثة في مجال
+                  الإفتاء.
+                </li>
+                <li>
+                  ابتكار برامج ومشاريع جديدة بناءً على العصف الذهني لتحقيق
+                  المستهدف بجودة عالية.
+                </li>
+                <li>
+                  دمج الخطة الإعلامية كجزء لا يتجزأ من تصميم وتنفيذ برامج
+                  القطاع.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج نور القرآن </div>
+          <div class="image-placeholder paper-image-large">
+            <img src="13.png" alt="" width="100%" />
+            <img src="14.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  مناقشة برنامج نور القرآن (تعليم القرآن، الإجازة القرآنية،
+                  المسابقات).
+                </li>
+                <li>عمل ورشة عصف ذهني (SWOT) لاستخلاص أنشطة ذات تأثير عالي.</li>
+                <li>مناقشة الفعاليات الإعلامية المصاحبة.</li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  بناء خطط تفصيلية تتميز بالتأثير العالي على المؤشر والجهد
+                  المنخفض في التنفيذ.
+                </li>
+                <li>
+                  الإفادة بالبيانات المطلوبة لهذه البرامج في الأوقات المحددة
+                  لها.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج الحواضر والبوادي</div>
+          <div class="image-placeholder paper-image-large">
+            <img src="15.png" alt="" width="100%" />
+            <img src="16.png" alt="" width="100%" />
+          </div>
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  تم عقد اجتماع مع مدير المشروع في مكتب المدير العام للشؤون
+                  الإدارية والمالية.
+                </li>
+                <li>
+                  استعراض الخطة العامة للبرنامج ومناقشة أنشطته والأهداف المرحلية
+                  والجدول الزمني.
+                </li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  العمل على إعداد خطة تفصيلية تركز على المبادرات ذات الأثر
+                  العالي بجهد تنفيذي منخفض.
+                </li>
+                <li>
+                  التزام مدير التنفيذ بموافاة الفريق بالبيانات والتقارير في
+                  أوقاتها المحددة لضمان متابعة الأداء.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج تحول (التحول الرقمي)</div>
+
+          <div class="paper-content">
+            <div class="paper-section">
+              <h4>أهداف ورقة العمل والإجراء المتفق عليه</h4>
+              <ul>
+                <li>
+                  عقد اجتماع مع مدير المشروع لشرح المعطيات والمتطلبات لتنفيذ
+                  المبادرات.
+                </li>
+                <li>
+                  استعراض الخطة العامة للبرنامج وتحديد الأدوار والمسؤوليات
+                  لمواءمتها مع مستهدفات قياس الأداء.
+                </li>
+              </ul>
+            </div>
+            <div class="paper-section">
+              <h4>التوصيات وإجراءات العمل</h4>
+              <ul>
+                <li>
+                  إعداد خطة تفصيلية ترتكز على المبادرات ذات الأثر المرتفع لتعزيز
+                  كفاءة التنفيذ.
+                </li>
+                <li>
+                  التزام مدير التنفيذ بتوفير البيانات والتقارير الدورية لدعم
+                  اتخاذ القرارات في الوقت المناسب.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج رسالة سلام</div>
+          <div class="paper-content" style="grid-template-columns: 1fr">
+            <div class="paper-section" style="text-align: center; color: #888">
+              <p><em>لم يشارك الفريق في الورشة الخاصة بهذا البرنامج.</em></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="paper-card">
+          <div class="paper-title">عرض برنامج الإعلام كنشاط داعم ومحوري</div>
+
+          <div class="paper-content" style="grid-template-columns: 1fr">
+            <div class="paper-section">
+              <h4>الملاحظات والتوصيات</h4>
+              <ul>
+                <li>
+                  لم يشارك الفريق في الورشة، ولوحظ غياب دائرة الإعلام بحجة عدم
+                  الجدوى.
+                </li>
+                <li>
+                  التأكيد على أن نشاط الإعلام هو عنصر داعم وأساسي للبرامج،
+                  ويستمد ميزانيته منها، مما يستوجب تكامله الفعلي منذ التخطيط.
+                </li>
+                <li>
+                  نتج عن الغياب ضعف التغطية وغياب التفاعل المؤسسي، مما يؤثر
+                  سلباً على إبراز الإنجازات وقياس الأثر.
+                </li>
+                <li>
+                  <strong>التوصية:</strong> الحاجة الملحّة لإعادة تفعيل دور
+                  دائرة الإعلام، وضمان مشاركتها في الورش والأنشطة لتحقيق التكامل
+                  المؤسسي ودعم تحقيق المستهدفات.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        style="
+          text-align: center;
+          font-size: 1.3em;
+          font-weight: bold;
+          margin-top: 50px;
+          color: var(--primary-color);
+        "
+      >
+        تم بحمد الله
+      </div>
+
+      <div class="signatures">
+        <div class="signature-block">
+          <strong>أعد المحضر</strong>
+          <div class="signature-line"></div>
+          <p>مسعود بن سعيد بن علي المعولي</p>
+        </div>
+        <div class="signature-block">
+          <strong>يعتمد</strong>
+          <div class="signature-line"></div>
+          <p>معالي الوزير الموقر</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
