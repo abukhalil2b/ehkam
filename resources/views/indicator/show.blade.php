@@ -149,7 +149,7 @@
                 </div>
                 <div class="p-6">
                     @if ($calculatedTargets)
-                        <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             @foreach ($calculatedTargets as $item)
                                 @php
                                     $hasActual = !is_null($item['actual_value']);
@@ -178,8 +178,9 @@
 
                                     <div class="space-y-2">
                                         <div>
-                                            <span
-                                                class="text-[10px] block text-gray-400 uppercase leading-none mb-1">المستهدف</span>
+                                            <div
+                                                class="text-[10px] text-gray-400 leading-none mb-1">المستهدف  <span>بنسبة: {{ $item['target_increment'] }}</span>%</div>
+                                               
                                             <span class="text-md font-bold text-indigo-700">
                                                 {{ number_format($item['calculated_target'], 1) }}{{ $indicator->unit == 'percentage' ? '%' : '' }}
                                             </span>
@@ -284,8 +285,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        دليل احتساب المؤشر والأداء
+                        دليل احتساب المؤشر والأداء : نمو سنوي تراكمي بسيط يتم الحساب سنة بسنة
                     </h3>
+                    خط الأساس ( العوائد في العام السابق ) * نسبة المستهدف للعام الحالي + قيمة العام السابق
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8 text-sm text-gray-600">
                     <div>
