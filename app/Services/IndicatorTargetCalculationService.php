@@ -9,9 +9,14 @@ class IndicatorTargetCalculationService
 {
     public function calculateTargets(Indicator $indicator, $includeActuals = true): array
     {
+        if (!$indicator->baseline_year) {
+            abort(403, 'لابد من تحديد سنة الأساس');
+        }
+
         // 1. جلب المستهدفات السنوية المرتبطة بالمؤشر العام فقط
         $targets = $indicator->targets()
             ->where('target_for', 'indicator')
+            ->where('year', '>', $indicator->baseline_year)
             ->orderBy('year')
             ->get();
 
@@ -32,8 +37,7 @@ class IndicatorTargetCalculationService
 
         foreach ($targets as $target) {
             // 3. حساب المستهدف التراكمي (النمو المركب لجميع أنواع المؤشرات)
-            if ($target->year > $indicator->baseline_year) {
-                
+
                 // تطبيق النمو المركب 
                 $currentValue = $currentValue * (1 + ($target->target_value / 100));
 
@@ -41,13 +45,8 @@ class IndicatorTargetCalculationService
                 if ($indicator->unit === 'percentage') {
                     $currentValue = min(100, $currentValue);
                 }
-
-            } else {
-                // السنة التي تساوي أو تسبق سنة الأساس تعود لقيمة الأساس الأصلية
-                $currentValue = (float) $indicator->baseline_numeric;
-            }
-
-                        // الأولوية 1: السجل الذي تم إدخاله للمؤشر مباشرة (achieved_by = indicator)
+          
+            // الأولوية 1: السجل الذي تم إدخاله للمؤشر مباشرة (achieved_by = indicator)
             // الأولوية 2: مجموع/متوسط ما حققته القطاعات (achieved_by = sector)
             // 4. تحديد المحقق الفعلي بناءً على الأولوية
             $yearData = $actualsByYear->get($target->year);
@@ -74,7 +73,7 @@ class IndicatorTargetCalculationService
                 'target_increment'  => $target->target_value,
                 'calculated_target' => $currentValue,
                 'actual_value'      => $actualValue,
-                'data_source'       => $dataSource, 
+                'data_source'       => $dataSource,
                 'performance'       => ($actualValue !== null && $currentValue > 0) ? ($actualValue / $currentValue) * 100 : null,
             ];
         }
@@ -93,7 +92,7 @@ class IndicatorTargetCalculationService
             ->orderBy('year')
             ->get();
 
-        
+
         return $indicator->sectors_with_baseline->map(function ($sector) use ($indicator, $year, $targets) {
 
             $sectorBaseline = (float) $sector->pivot->baseline_numeric;
@@ -104,7 +103,7 @@ class IndicatorTargetCalculationService
                 // نتأكد أننا نحسب النمو للسنوات التي تلي خط أساس القطاع تحديداً
                 if ($target->year > $sector->pivot->baseline_year) {
                     $sectorTarget = $sectorTarget * (1 + ($target->target_value / 100));
-                    
+
                     if ($indicator->unit === 'percentage') {
                         $sectorTarget = min(100, $sectorTarget);
                     }

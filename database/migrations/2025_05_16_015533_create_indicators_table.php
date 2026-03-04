@@ -31,7 +31,6 @@ return new class extends Migration
             $table->text('survey_question')->nullable(); // اسئلة الاستبيان (سؤال للتحقق)
             $table->text('proposed_initiatives')->nullable(); // مبادرات ومشاريع مقترحة
             $table->string('evidence_type')->nullable();
-            $table->text('sectors')->nullable(); //array get it from sectors tables
             $table->foreignIdFor(Indicator::class, 'parent_id')->nullable();
             $table->string('period')->default('quarterly'); //annually - half_yearly - quarterly - monthly
             $table->string('baseline_value', 50)->nullable(); // Stores "3 Million (2022)"

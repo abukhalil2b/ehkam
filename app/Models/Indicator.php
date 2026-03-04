@@ -13,15 +13,6 @@ class Indicator extends Model
     // Allows mass assignment for all fields except the reserved ones.
     protected $guarded = [];
 
-    /**
-     * The attributes that should be cast.
-     * The 'sectors' column should be cast to an array/json.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'sectors' => 'array',
-    ];
 
     public function projects()
     {
@@ -65,26 +56,12 @@ class Indicator extends Model
         return $this->hasMany(Indicator::class, 'parent_id');
     }
 
-
-    protected function sectorsCollection(): Attribute
-    {
-        return Attribute::get(function () {
-            $sectors = $this->sectors;
-
-            // إذا كانت string تحتوي على JSON
-            if (is_string($sectors)) {
-                $sectors = json_decode($sectors, true);
-            }
-
-            // تأكد أنها array
-            $sectors = is_array($sectors) ? $sectors : [];
-
-            return Sector::whereIn('id', $sectors)->get();
-        });
-    }
-
     public function sectors()
     {
-        return $this->belongsToMany(Sector::class);
+        return $this->belongsToMany(
+            Sector::class,
+            'indicator_sector'
+        )->withPivot('baseline_numeric', 'baseline_year')
+            ->withTimestamps();
     }
 }

@@ -49,7 +49,7 @@
                             <p class="text-lg font-bold text-gray-800">
                                 {{ $indicator->baseline_numeric ? number_format($indicator->baseline_numeric) . ($indicator->unit == 'percentage' ? '%' : '') : 'N/A' }}
                                 <span class="text-xs text-gray-400 font-normal">
-                                    ({{ $indicator->first_observation_date ? \Carbon\Carbon::parse($indicator->first_observation_date)->year : 'N/A' }})
+                                    ({{ $indicator->baseline_year ?? 'N/A' }})
                                 </span>
                             </p>
                         </div>
@@ -115,19 +115,11 @@
                         </svg>
                         <div>
                             <h3 class="text-lg font-bold text-white">المستهدفات السنوية</h3>
-                            <p class="text-indigo-200 text-sm">الفترة من 2022 إلى 2040</p>
+                            <p class="text-indigo-200 text-sm">الفترة من 2025 إلى 2040</p>
                         </div>
                     </div>
 
                     <div class="flex gap-2">
-                        <a href="{{ route('indicator.baselines.edit', $indicator) }}"
-                            class="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg hover:bg-white/20 transition-colors flex items-center gap-2 text-sm font-medium">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
-                            أساس القطاعات
-                        </a>
                         <a href="{{ route('indicator.sectors.edit', $indicator) }}"
                             class="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors flex items-center gap-2 text-sm font-medium">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,6 +128,14 @@
                             </svg>
                             ربط قطاعات
                         </a>
+                        <a href="{{ route('indicator.baselines.edit', $indicator) }}"
+                            class="px-4 py-2 bg-white/10 text-white border border-white/20 rounded-lg hover:bg-white/20 transition-colors flex items-center gap-2 text-sm font-medium">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            أساس القطاعات
+                        </a>
                         <a href="{{ route('indicator_target.edit', $indicator) }}"
                             class="px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-400 transition-colors flex items-center gap-2 text-sm font-medium shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -143,12 +143,16 @@
                                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                                 </path>
                             </svg>
-                            تعديل المستهدف
+                            تعديل نسبة المستهدف
                         </a>
                     </div>
                 </div>
                 <div class="p-6">
                     @if ($calculatedTargets)
+                        <p class="p-1">
+                            المستهدف للمؤشر العام من سنة مابعد خط الأساس الى سنة 2040
+                        </p>
+
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             @foreach ($calculatedTargets as $item)
                                 @php
@@ -178,9 +182,9 @@
 
                                     <div class="space-y-2">
                                         <div>
-                                            <div
-                                                class="text-[10px] text-gray-400 leading-none mb-1">المستهدف  <span>بنسبة: {{ $item['target_increment'] }}</span>%</div>
-                                               
+                                            <div class="text-[10px] text-gray-400 leading-none mb-1">المستهدف
+                                                <span>بنسبة: {{ $item['target_increment'] }}</span>%</div>
+
                                             <span class="text-md font-bold text-indigo-700">
                                                 {{ number_format($item['calculated_target'], 1) }}{{ $indicator->unit == 'percentage' ? '%' : '' }}
                                             </span>
@@ -231,7 +235,7 @@
                                 </path>
                             </svg>
                             <p class="text-gray-500 text-lg font-medium">لا توجد مستهدفات مسجلة</p>
-                            <p class="text-gray-400 text-sm mt-1">الفترة المستهدفة (2022 - 2040)</p>
+                            <p class="text-gray-400 text-sm mt-1">الفترة المستهدفة (2025 - 2040)</p>
                         </div>
                     @endif
                 </div>
@@ -303,7 +307,7 @@
 
                     <div class="bg-indigo-50 p-4 rounded-lg border border-indigo-100">
                         <h4 class="font-bold text-indigo-900 mb-2 italic">مثال توضيحي (نمو 5%):</h4>
-                        <p>إذا كان <strong>خط الأساس (2022) = 100</strong></p>
+                        <p>إذا كان <strong>خط الأساس (2025) = 100</strong></p>
                         <div class="mt-2 space-y-1 font-mono text-xs">
                             <p>مستهدف 2023: 100 × 1.05 = <span class="text-indigo-700 font-bold">105.00</span></p>
                             <p>مستهدف 2024: 105 × 1.05 = <span class="text-indigo-700 font-bold">110.25</span></p>

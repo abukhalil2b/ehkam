@@ -8,6 +8,7 @@ use App\Models\Indicator;
 use App\Models\PeriodTemplate;
 use App\Models\Sector;
 use App\Services\IndicatorTargetCalculationService;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class IndicatorController extends Controller
@@ -72,65 +73,64 @@ class IndicatorController extends Controller
         $currentYear = now()->year;
         $lastYear    = $currentYear - 1;
 
-        // القطاعات
-        $sectors = $indicator->sectorsCollection;
+        // Load sectors once (eager)
+        $indicator->load('sectors');
 
-        // الفترات
-        switch ($indicator->period) {
-            case 'quarterly':
-                $periods = [1, 2, 3, 4];
-                break;
-            case 'half_yearly':
-                $periods = [1, 2];
-                break;
-            case 'monthly':
-                $periods = range(1, 12);
-                break;
-            default: // annually
-                $periods = [1];
-        }
+        $sectors  = $indicator->sectors;
+        $sectorId = $request->integer('sector_id');
+        // Resolve periods
+        $periods = match ($indicator->period) {
+            'quarterly'   => [1, 2, 3, 4],
+            'half_yearly' => [1, 2],
+            'monthly'     => range(1, 12),
+            default       => [1],
+        };
 
-        // القطاع المختار
-        $sectorId = $request->get('sector_id');
+        // Default values
+        $targets       = collect();
+        $sectorTarget  = null;
+        $achievement   = null;
+        $publicTarget  = null;
 
-        // مستهدفات القطاع للسنة الحالية
-        $targets = collect();
         if ($sectorId) {
-            $targets = IndicatorTarget::where('indicator_id', $indicator->id)
+
+            // Current year sector targets (indexed by period)
+            $targets = IndicatorTarget::query()
+                ->where('indicator_id', $indicator->id)
                 ->where('sector_id', $sectorId)
                 ->where('year', $currentYear)
                 ->get()
                 ->keyBy('period_index');
+
+            // Previous year annual achievement
+            $achievement = IndicatorAchievement::query()
+                ->where('indicator_id', $indicator->id)
+                ->where('sector_id', $sectorId)
+                ->where('year', $lastYear)
+                ->whereNull('period_index')
+                ->first();
+
+            // Public annual percentage target
+            $publicTarget = IndicatorTarget::query()
+                ->where('indicator_id', $indicator->id)
+                ->where('year', $currentYear)
+                ->whereNull('sector_id')
+                ->whereNull('period_index')
+                ->first();
+
+            // Calculate sector target
+            if ($achievement && $publicTarget) {
+                $sectorTarget = round(
+                    $achievement->achieved_value *
+                        (1 + ($publicTarget->target_value / 100)),
+                    2
+                );
+            }
         }
 
-        // إنجاز السنة الماضية (سنوي)
-        $achievement = IndicatorAchievement::where('indicator_id', $indicator->id)
-            ->where('sector_id', $sectorId)
-            ->where('year', $lastYear)
-            ->whereNull('period_index')
-            ->first();
-
-        // المستهدف العام (بدون قطاع)
-        $publicTarget = IndicatorTarget::where('indicator_id', $indicator->id)
-            ->where('year', $currentYear)
-            ->whereNull('sector_id')
-            ->first();
-
-        /**
-         * حساب مستهدف القطاع
-         * القاعدة:
-         * previous_value + (previous_value * percentage / 100)
-         */
-        $sectorTarget = null;
-
-        if ($achievement && $publicTarget) {
-            $sectorTarget = $achievement->achieved_value *
-                (1 + ($publicTarget->target_value / 100));
-        }
-
-        // fallback في حال عدم وجود بيانات
-        if (!$sectorTarget && $indicator->baseline_numeric) {
-            $sectorTarget = $indicator->baseline_numeric;
+        // Fallback baseline (deterministic)
+        if (!$sectorTarget) {
+            $sectorTarget = $indicator->baseline_numeric ?? 0;
         }
 
         return view('indicator.target', compact(
