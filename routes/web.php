@@ -118,6 +118,10 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:indicator.achieved')
         ->name('indicator.achieved');
 
+    Route::post('indicator/achieved/store/{indicator}', [IndicatorController::class, 'storeAchieved'])
+        ->middleware('permission:indicator.achieved.store')
+        ->name('indicator.achieved.store');
+
     Route::get('indicator/show/{indicator}', [IndicatorController::class, 'show'])
         ->middleware('permission:indicator.show')
         ->name('indicator.show');
@@ -126,13 +130,9 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:indicator.index')
         ->name('indicator.index');
 
-    Route::post('indicator/target/store/{indicator}', [IndicatorController::class, 'storeTarget'])
+    Route::post('indicator/target/store/{indicator}', [IndicatorController::class, 'storeSectorTarget'])
         ->middleware('permission:indicator.target.store')
         ->name('indicator.target.store');
-
-    Route::post('indicator/achieved/store/{indicator}', [IndicatorController::class, 'storeAchieved'])
-        ->middleware('permission:indicator.achieved.store')
-        ->name('indicator.achieved.store');
 
 
     // Create/Write Permissions

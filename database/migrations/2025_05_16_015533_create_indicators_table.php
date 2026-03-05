@@ -70,7 +70,6 @@ return new class extends Migration
 
         Schema::create('indicator_achievements', function (Blueprint $table) {
             $table->id();
-            $table->enum('achieved_by', ['indicator', 'sector'])->default('indicator');
             $table->foreignId('indicator_id')->constrained()->cascadeOnDelete();
             $table->foreignId('sector_id')->constrained()->cascadeOnDelete();
             $table->integer('year');

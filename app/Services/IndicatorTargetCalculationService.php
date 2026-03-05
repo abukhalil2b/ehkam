@@ -13,67 +13,48 @@ class IndicatorTargetCalculationService
             abort(403, 'لابد من تحديد سنة الأساس');
         }
 
-        // 1. جلب المستهدفات السنوية المرتبطة بالمؤشر العام فقط
         $targets = $indicator->targets()
             ->where('target_for', 'indicator')
             ->where('year', '>', $indicator->baseline_year)
             ->orderBy('year')
             ->get();
 
-        // 2. التحقق من وجود بيانات محققة ودمجها حسب الأولوية
         $actualsByYear = collect();
         if ($includeActuals) {
+            // بما أن المحقق يأتي من القطاعات فقط، نقوم بالتجميع مباشرة
             $aggregateFunction = ($indicator->unit === 'percentage') ? 'AVG(achieved_value)' : 'SUM(achieved_value)';
 
             $actualsByYear = $indicator->achieved()
-                ->select('year', 'achieved_by', DB::raw("$aggregateFunction as value"))
-                ->groupBy('year', 'achieved_by')
+                ->select('year', DB::raw("$aggregateFunction as value"))
+                ->groupBy('year')
                 ->get()
-                ->groupBy('year');
+                ->keyBy('year');
         }
 
         $currentValue = (float) ($indicator->baseline_numeric ?? 0);
         $results = [];
 
         foreach ($targets as $target) {
-            // 3. حساب المستهدف التراكمي (النمو المركب لجميع أنواع المؤشرات)
-
-                // تطبيق النمو المركب 
+            // التفريق بين النسبة والرقم في الحساب التراكمي
+            if ($target->unit === 'percentage') {
                 $currentValue = $currentValue * (1 + ($target->target_value / 100));
-
-                // إذا كان المؤشر نسبة مئوية، نضمن ألا يتجاوز السقف 100%
                 if ($indicator->unit === 'percentage') {
-                    $currentValue = min(100, $currentValue);
+                    $currentValue = min(100, $currentValue); // السقف 100%
                 }
-          
-            // الأولوية 1: السجل الذي تم إدخاله للمؤشر مباشرة (achieved_by = indicator)
-            // الأولوية 2: مجموع/متوسط ما حققته القطاعات (achieved_by = sector)
-            // 4. تحديد المحقق الفعلي بناءً على الأولوية
-            $yearData = $actualsByYear->get($target->year);
-
-            $actualValue = null;
-            $dataSource = null;
-
-            if ($yearData) {
-                $officialRecord = $yearData->where('achieved_by', 'indicator')->first();
-                $sectorRecord = $yearData->where('achieved_by', 'sector')->first();
-
-                if ($officialRecord) {
-                    $actualValue = $officialRecord->value;
-                    $dataSource = 'official';  // رقم معتمد من الوزارة
-                } elseif ($sectorRecord) {
-                    $actualValue = $sectorRecord->value;
-                    $dataSource = 'aggregated';  // رقم تجميعي من القطاعات
-                }
+            } else {
+                // إذا كان المستهدف عبارة عن رقم ثابت يضاف سنوياً
+                $currentValue += $target->target_value;
             }
 
-            // 5. بناء مصفوفة النتائج النهائية
+            $yearData = $actualsByYear->get($target->year);
+            $actualValue = $yearData ? (float) $yearData->value : null;
+
             $results[] = [
                 'year'              => $target->year,
                 'target_increment'  => $target->target_value,
                 'calculated_target' => $currentValue,
                 'actual_value'      => $actualValue,
-                'data_source'       => $dataSource,
+                'data_source'       => 'aggregated_sectors', // المصدر دائماً تجميعي الآن
                 'performance'       => ($actualValue !== null && $currentValue > 0) ? ($actualValue / $currentValue) * 100 : null,
             ];
         }
@@ -83,48 +64,36 @@ class IndicatorTargetCalculationService
 
     public function getSectorsRanking(Indicator $indicator, $year): \Illuminate\Support\Collection
     {
-        // 1. جلب المستهدفات بشكل متسلسل من سنة الأساس وحتى السنة المطلوبة
-        // هذا يضمن حساب النمو التراكمي الصحيح حتى لو اختلفت النسبة من سنة لأخرى
-        $targets = $indicator->targets()
-            ->where('target_for', 'indicator')
-            ->where('year', '>', $indicator->baseline_year)
-            ->where('year', '<=', $year)
-            ->orderBy('year')
-            ->get();
+        // تحديد دالة التجميع بناءً على نوع المؤشر (المجاميع للأرقام، والمتوسط للنسب)
+        $aggregateFunction = ($indicator->unit === 'percentage') ? 'avg' : 'sum';
 
+        return $indicator->sectors->map(function ($sector) use ($indicator, $year, $aggregateFunction) {
 
-        return $indicator->sectors_with_baseline->map(function ($sector) use ($indicator, $year, $targets) {
+            // 1. جلب المستهدف اليدوي للقطاع لهذه السنة
+            $sectorTarget = $indicator->targets()
+                ->where('target_for', 'sector')
+                ->where('sector_id', $sector->id)
+                ->where('year', $year)
+                ->$aggregateFunction('target_value') ?? 0;
 
-            $sectorBaseline = (float) $sector->pivot->baseline_numeric;
-            $sectorTarget = $sectorBaseline;
-
-            // 3. تطبيق النمو المركب تراكمياً على خط أساس القطاع
-            foreach ($targets as $target) {
-                // نتأكد أننا نحسب النمو للسنوات التي تلي خط أساس القطاع تحديداً
-                if ($target->year > $sector->pivot->baseline_year) {
-                    $sectorTarget = $sectorTarget * (1 + ($target->target_value / 100));
-
-                    if ($indicator->unit === 'percentage') {
-                        $sectorTarget = min(100, $sectorTarget);
-                    }
-                }
-            }
-
-            // 4. جلب المحقق لهذا القطاع في السنة المطلوبة
-            $aggregateFunction = ($indicator->unit === 'percentage') ? 'avg' : 'sum';
+            // 2. جلب المحقق الفعلي للقطاع لهذه السنة
             $actualValue = $indicator->achieved()
                 ->where('sector_id', $sector->id)
                 ->where('year', $year)
-                ->$aggregateFunction('achieved_value');
+                ->$aggregateFunction('achieved_value') ?? 0;
 
-            $performance = ($actualValue !== null && $sectorTarget > 0) ? ($actualValue / $sectorTarget) * 100 : 0;
+            // 3. حساب نسبة الإنجاز (الأداء)
+            $performance = ($actualValue > 0 && $sectorTarget > 0)
+                ? ($actualValue / $sectorTarget) * 100
+                : 0;
 
             return [
-                'name' => $sector->name,
-                'target' => $sectorTarget,
-                'actual' => $actualValue,
+                'name'        => $sector->name,
+                'target'      => (float) $sectorTarget,
+                'actual'      => (float) $actualValue,
                 'performance' => $performance,
             ];
-        })->sortByDesc('performance');
+        })->sortByDesc('performance')->values(); // values() لإعادة ترتيب مفاتيح المصفوفة
     }
+    
 }

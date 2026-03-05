@@ -5,12 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-
 class Indicator extends Model
 {
-    // Allows mass assignment for all fields except the reserved ones.
     protected $guarded = [];
 
 
@@ -64,4 +61,17 @@ class Indicator extends Model
         )->withPivot('baseline_numeric', 'baseline_year')
             ->withTimestamps();
     }
+
+    protected function periodLabel(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => match ($this->period) {
+                'quarterly'   => 'ربع سنوي',
+                'half_yearly' => 'نصف سنوي',
+                'monthly'     => 'شهري',
+                default       => 'سنوي',
+            }
+        );
+    }
+    
 }

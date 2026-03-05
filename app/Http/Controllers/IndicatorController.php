@@ -5,15 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\IndicatorAchievement;
 use App\Models\IndicatorTarget;
 use App\Models\Indicator;
-use App\Models\PeriodTemplate;
 use App\Models\Sector;
 use App\Services\IndicatorTargetCalculationService;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 
 class IndicatorController extends Controller
 {
-
 
     public function editSectors(Indicator $indicator)
     {
@@ -32,10 +29,10 @@ class IndicatorController extends Controller
         $sectorIds = $request->input('sectors', []);
 
         /*
-    * استخدام sync بدون حذف البيانات السابقة في الجدول الوسيط
-    * سنستخدم syncWithoutDetaching أو sync مع الحفاظ على قيم الـ baseline
-    * الأفضل هنا استخدام sync لأنه يسمح بإزالة القطاعات التي تم إلغاء تحديدها
-    */
+        * استخدام sync بدون حذف البيانات السابقة في الجدول الوسيط
+        * سنستخدم syncWithoutDetaching أو sync مع الحفاظ على قيم الـ baseline
+        * الأفضل هنا استخدام sync لأنه يسمح بإزالة القطاعات التي تم إلغاء تحديدها
+        */
 
         // ملاحظة: sync سيحذف القطاعات غير الموجودة في المصفوفة. 
         // إذا أردت الحفاظ على قيم baseline للقطاعات القديمة، سنقوم بعملية ذكية:
@@ -44,6 +41,7 @@ class IndicatorController extends Controller
         return redirect()->route('indicator.baselines.edit', $indicator)
             ->with('success', 'تم ربط القطاعات بنجاح، يرجى الآن تحديد خطوط الأساس لها.');
     }
+
     public function editBaselines(Indicator $indicator)
     {
         // جلب القطاعات المرتبطة بالمؤشر مع بيانات الجدول الوسيط
@@ -68,17 +66,16 @@ class IndicatorController extends Controller
             ->with('success', 'تم تحديث خطوط الأساس للقطاعات بنجاح');
     }
 
-    public function target(Indicator $indicator, Request $request)
+    public function target(Indicator $indicator, Request $request, IndicatorTargetCalculationService $service)
     {
-        $currentYear = now()->year;
-        $lastYear    = $currentYear - 1;
+        $currentYear = $request->integer('year', now()->year);
 
-        // Load sectors once (eager)
+        // تحميل القطاعات
         $indicator->load('sectors');
-
         $sectors  = $indicator->sectors;
         $sectorId = $request->integer('sector_id');
-        // Resolve periods
+
+        // تحديد الفترات
         $periods = match ($indicator->period) {
             'quarterly'   => [1, 2, 3, 4],
             'half_yearly' => [1, 2],
@@ -86,51 +83,36 @@ class IndicatorController extends Controller
             default       => [1],
         };
 
-        // Default values
-        $targets       = collect();
-        $sectorTarget  = null;
-        $achievement   = null;
-        $publicTarget  = null;
+        $baselineYear = $indicator->baseline_year ?? 2022;
 
+        // 1. حساب جميع المستهدفات (مررنا false لأننا لا نحتاج البيانات المحققة هنا، مما يحسن الأداء)
+        $calculatedTargets = $service->calculateTargets($indicator, false);
+
+        // 2. استخراج المستهدف للسنة المطلوبة فقط
+        $publicTarget = collect($calculatedTargets)->firstWhere('year', $currentYear);
+
+        // إذا كان هناك قطاع محدد، نجلب إنجازه في هذه السنة، وإلا نجلب الإنجاز التجميعي
         if ($sectorId) {
+            $achievementQuery = $indicator->achieved()
+                ->where('sector_id', $sectorId)
+                ->where('year', $currentYear);
+        } else {
+            $achievementQuery = $indicator->achieved()
+                ->where('year', $currentYear);
+        }
 
-            // Current year sector targets (indexed by period)
-            $targets = IndicatorTarget::query()
-                ->where('indicator_id', $indicator->id)
+        // يمكنك إرجاع المجاميع حسب الفترات أو المجموع الكلي
+        $achievement = $achievementQuery->get();
+
+        // جلب مستهدفات القطاع المحدد (إن وجد) لتعبئة الحقول بها
+        $sectorTargets = collect();
+        if ($sectorId) {
+            $sectorTargets = $indicator->targets()
+                ->where('target_for', 'sector')
                 ->where('sector_id', $sectorId)
                 ->where('year', $currentYear)
                 ->get()
-                ->keyBy('period_index');
-
-            // Previous year annual achievement
-            $achievement = IndicatorAchievement::query()
-                ->where('indicator_id', $indicator->id)
-                ->where('sector_id', $sectorId)
-                ->where('year', $lastYear)
-                ->whereNull('period_index')
-                ->first();
-
-            // Public annual percentage target
-            $publicTarget = IndicatorTarget::query()
-                ->where('indicator_id', $indicator->id)
-                ->where('year', $currentYear)
-                ->whereNull('sector_id')
-                ->whereNull('period_index')
-                ->first();
-
-            // Calculate sector target
-            if ($achievement && $publicTarget) {
-                $sectorTarget = round(
-                    $achievement->achieved_value *
-                        (1 + ($publicTarget->target_value / 100)),
-                    2
-                );
-            }
-        }
-
-        // Fallback baseline (deterministic)
-        if (!$sectorTarget) {
-            $sectorTarget = $indicator->baseline_numeric ?? 0;
+                ->keyBy('period_index'); // جعل مفتاح المصفوفة هو رقم الفترة لسهولة استدعائه في الـ Blade
         }
 
         return view('indicator.target', compact(
@@ -139,16 +121,14 @@ class IndicatorController extends Controller
             'sectors',
             'periods',
             'sectorId',
-            'sectorTarget',
-            'targets'
+            'baselineYear',
+            'publicTarget',
+            'sectorTargets' // أضفنا sectorTargets هنا
         ));
     }
 
-
-    public function storeTarget(Request $request, Indicator $indicator)
+    public function storeSectorTarget(Request $request, Indicator $indicator)
     {
-
-
         $current_year = $request->input('year');
         $sectorId = $request->input('sector_id');
         $values = $request->input('values', []);
@@ -161,74 +141,97 @@ class IndicatorController extends Controller
             IndicatorTarget::updateOrCreate(
                 [
                     'indicator_id' => $indicator->id,
-                    'sector_id' => $sectorId,
-                    'year' => $current_year,
+                    'sector_id'    => $sectorId,
+                    'year'         => $current_year,
                     'period_index' => $periodId,
+                    'target_for'   => 'sector',
                 ],
                 [
                     'target_value' => $value ?: 0,
+
+                    'unit'         => $indicator->unit,
                 ]
             );
         }
 
-        return back()->with('success', 'تم حفظ المستهدفات بنجاح');
+        return back()->with('success', 'تم حفظ مستهدفات القطاع بنجاح');
     }
 
-    public function achieved(Indicator $indicator)
+    // تأكد من استدعاء النموذج إذا لم يكن مستدعى
+    public function achieved(Indicator $indicator, Request $request)
     {
-        $current_year = date('Y');
-        $sectorsData = $indicator->sectors;
-        $selectedSectorIds = is_string($sectorsData) ? json_decode($sectorsData, true) : $sectorsData;
-        $selectedSectorIds = is_array($selectedSectorIds) ? $selectedSectorIds : [];
-        $sectors = Sector::whereIn('id', $selectedSectorIds)->get();
-        $periods = PeriodTemplate::where('cate', $indicator->period)->get();
+        $currentYear = $request->integer('year', now()->year);
 
-        // Load targets for context
-        $targets = IndicatorTarget::where('indicator_id', $indicator->id)
-            ->where('year', $current_year)
-            ->get()
-            ->keyBy(function ($item) {
-                return $item->sector_id . '-' . $item->period_index;
-            });
+        // تحميل القطاعات المرتبطة بالمؤشر
+        $indicator->load('sectors');
+        $sectors  = $indicator->sectors;
+        $sectorId = $request->integer('sector_id');
 
-        // Load achievements
-        $achievements = IndicatorAchievement::where('indicator_id', $indicator->id)
-            ->where('year', $current_year)
-            ->get()
-            ->keyBy(function ($item) {
-                return $item->sector_id . '-' . $item->period_index;
-            });
+        // تحديد الفترات بناءً على دورية المؤشر
+        $periods = match ($indicator->period) {
+            'quarterly'   => [1, 2, 3, 4],
+            'half_yearly' => [1, 2],
+            'monthly'     => range(1, 12),
+            default       => [1],
+        };
 
-        return view('indicator.achieved', compact('indicator', 'current_year', 'sectors', 'periods', 'targets', 'achievements'));
+        // جلب البيانات المحققة مسبقاً للقطاع المحدد (إن وجد) لتعبئة الحقول للتعديل
+        $sectorAchievements = collect();
+        if ($sectorId) {
+            $sectorAchievements = $indicator->achieved()
+                ->where('sector_id', $sectorId)
+                ->where('year', $currentYear)
+                ->get()
+                ->keyBy('period_index'); // جعل رقم الفترة هو المفتاح
+        }
+
+        return view('indicator.achieved', compact(
+            'indicator',
+            'currentYear',
+            'sectors',
+            'periods',
+            'sectorId',
+            'sectorAchievements'
+        ));
     }
 
     public function storeAchieved(Request $request, Indicator $indicator)
     {
-        $validated = $request->validate([
-            'year' => 'required|integer',
-            'achievements' => 'array',
-            'achievements.*.sector_id' => 'required|exists:sectors,id',
-            'achievements.*.period_index' => 'required|integer',
-            'achievements.*.value' => 'nullable|numeric|min:0',
-            'achievements.*.notes' => 'nullable|string',
+        // التحقق من المدخلات (اختياري ولكن محبذ)
+        $request->validate([
+            'year'      => 'required|integer',
+            'sector_id' => 'required|exists:sectors,id',
+            'values'    => 'array',
+            'notes'     => 'array',
         ]);
 
-        foreach ($validated['achievements'] ?? [] as $data) {
+        $currentYear = $request->input('year');
+        $sectorId    = $request->input('sector_id');
+        $values      = $request->input('values', []);
+        $notes       = $request->input('notes', []);
+
+        foreach ($values as $periodId => $value) {
+            // نتجاوز الفترات التي تركها المستخدم فارغة (ولكن نسمح بالصفر 0)
+            if ($value === null || $value === '') {
+                continue;
+            }
+
             IndicatorAchievement::updateOrCreate(
                 [
                     'indicator_id' => $indicator->id,
-                    'sector_id' => $data['sector_id'],
-                    'year' => $validated['year'],
-                    'period_index' => $data['period_index'],
+                    'sector_id'    => $sectorId,
+                    'year'         => $currentYear,
+                    'period_index' => $periodId,
                 ],
                 [
-                    'achieved_value' => $data['value'] ?? 0,
-                    'notes' => $data['notes'] ?? null,
+                    'achieved_value' => $value,
+                    'unit'           => $indicator->unit,
+                    'notes'          => $notes[$periodId] ?? null, // حفظ الملاحظة إن وجدت
                 ]
             );
         }
 
-        return back()->with('success', 'تم حفظ النتائج المحققة بنجاح');
+        return back()->with('success', 'تم حفظ القيم المحققة للقطاع بنجاح');
     }
 
     public function index()
@@ -239,16 +242,51 @@ class IndicatorController extends Controller
         return view('indicator.index', compact('indicators'));
     }
 
+   public function show(Indicator $indicator, IndicatorTargetCalculationService $service, Request $request)
+{
+    $currentYear = $request->integer('year', now()->year);
+    
+    // 1. حساب المستهدفات التراكمية (السلسلة كاملة للرسم الخطي)
+    $calculatedTargets = collect($service->calculateTargets($indicator, true));
+    
+    // 2. ترتيب القطاعات للسنة الحالية
+    $sectorRanking = $service->getSectorsRanking($indicator, $currentYear);
+    
+    // 3. استخراج بيانات KPI للسنة الحالية فقط
+    $currentYearKPI = $calculatedTargets->firstWhere('year', $currentYear);
 
-    public function show(Indicator $indicator, IndicatorTargetCalculationService $service)
-    {
-        $calculatedTargets = $service->calculateTargets($indicator, true);
+    // 4. جلب المحقق الفعلي للقطاعات في السنة الحالية (لتفاصيل الفترات والملاحظات)
+    $achievementsThisYear = $indicator->achieved()
+        ->with('sector') // تأكد من وجود علاقة sector في موديل IndicatorAchievement
+        ->where('year', $currentYear)
+        ->get();
 
-        $sectorRanking = $service->getSectorsRanking($indicator, now()->year);
-        return view('indicator.show', compact('calculatedTargets', 'indicator', 'sectorRanking'));
+    // 5. حساب إنجاز الفترات (الربع الأول، الربع الثاني...)
+    $periodBreakdown = [];
+    $periods = match ($indicator->period) {
+        'quarterly'   => [1 => 'الربع 1', 2 => 'الربع 2', 3 => 'الربع 3', 4 => 'الربع 4'],
+        'half_yearly' => [1 => 'النصف 1', 2 => 'النصف 2'],
+        'monthly'     => [1=>'يناير', 2=>'فبراير', 3=>'مارس', 4=>'أبريل', 5=>'مايو', 6=>'يونيو', 7=>'يوليو', 8=>'أغسطس', 9=>'سبتمبر', 10=>'أكتوبر', 11=>'نوفمبر', 12=>'ديسمبر'],
+        default       => [1 => 'سنوي'],
+    };
+
+    foreach ($periods as $index => $label) {
+        $periodData = $achievementsThisYear->where('period_index', $index);
+        $val = $indicator->unit === 'percentage' 
+            ? $periodData->avg('achieved_value') 
+            : $periodData->sum('achieved_value');
+        $periodBreakdown[$label] = $val ?? 0;
     }
 
+    // 6. سجل الملاحظات للسنة الحالية
+    $notesLog = $achievementsThisYear->whereNotNull('notes')->where('notes', '!=', '');
 
+    return view('indicator.show', compact(
+        'indicator', 'calculatedTargets', 'sectorRanking', 
+        'currentYear', 'currentYearKPI', 'achievementsThisYear', 
+        'periodBreakdown', 'notesLog'
+    ));
+}
 
     public function create()
     {
@@ -256,8 +294,6 @@ class IndicatorController extends Controller
 
         return view('indicator.create', compact('sectors'));
     }
-
-
 
     private function validateAndPrepareData(Request $request)
     {
@@ -281,7 +317,6 @@ class IndicatorController extends Controller
             'survey_question' => 'nullable|string',
             'proposed_initiatives' => 'nullable|string',
             'period' => 'required|string|max:11',
-            'sectors' => 'nullable|array',
             'parent_id' => 'nullable|exists:indicators,id',
         ]);
 
