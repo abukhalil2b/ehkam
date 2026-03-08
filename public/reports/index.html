@@ -1,14 +1,16 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>صفحة التقارير</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 font-[Cairo]">
   <div class="max-w-3xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-6">
-    
+
     <!-- الهيدر -->
     <div class="text-center bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6 rounded-lg shadow-md mb-6">
       <h1 class="text-2xl md:text-3xl font-bold">المديرية العامة للتخطيط والدراسات</h1>
@@ -16,18 +18,63 @@
     </div>
 
     <!-- الأزرار -->
-    <div class="flex flex-col gap-4">
-      <a href="/reports/1/index.html" 
-         class="block text-center bg-blue-700 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-lg shadow transition">
-         2025 ورشة إعداد الخطط التفصيلية
-      </a>
-      
-      <a href="/reports/7/index.html" 
-         class="block text-center bg-blue-700 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-lg shadow transition">
-         2026 تعزيز التكامل المؤسسي
-      </a>
+    <div class="flex flex-col gap-6">
+
+      <!-- Report 1 -->
+      <div class="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition">
+        <h2 class="text-xl font-bold text-blue-900 mb-4 text-center">2025 ورشة إعداد الخطط التفصيلية</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a href="/reports/1/index.html"
+            class="flex items-center justify-center gap-2 bg-blue-700 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+            التقرير كنص
+          </a>
+          <a href="https://youtu.be/c7jNSgIa5vU" target="_blank"
+            class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z">
+              </path>
+            </svg>
+            التقرير كفيديو
+          </a>
+        </div>
+      </div>
+
+      <!-- Report 2 -->
+      <div class="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition">
+        <h2 class="text-xl font-bold text-blue-900 mb-4 text-center">2026 تعزيز التكامل المؤسسي</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a href="/reports/7/index.html"
+            class="flex items-center justify-center gap-2 bg-blue-700 hover:bg-orange-500 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+              </path>
+            </svg>
+            التقرير كنص
+          </a>
+          <a href="https://www.youtube.com/watch?v=V9H2cCOoKng" target="_blank"
+            class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow transition">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z">
+              </path>
+            </svg>
+            التقرير كفيديو
+          </a>
+        </div>
+      </div>
+
     </div>
 
   </div>
 </body>
+
 </html>

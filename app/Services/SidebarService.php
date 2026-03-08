@@ -182,6 +182,10 @@ class SidebarService
                     ['route' => 'statistic.quran', 'permission' => 'statistic.index', 'label' => 'القرآن الكريم', 'params' => [1], 'keywords' => 'statistics quran'],
                     ['route' => 'statistic.zakah', 'permission' => 'statistic.index', 'label' => 'الزكاة', 'params' => [1], 'keywords' => 'statistics zakah'],
                     ['route' => 'statistic.bsc', 'permission' => 'statistic.bsc', 'label' => 'المؤشرات الاستراتيجية', 'keywords' => 'statistics bsc'],
+                    ['route' => 'guidance-statistics.index', 'permission' => 'guidance-statistics.index', 'label' => 'الوعظ والإرشاد', 'keywords' => 'guidance statistics awqaf'],
+                    ['route' => 'endowments.index', 'permission' => 'endowments.index', 'label' => 'المؤسسات الوقفية', 'keywords' => 'endowments awqaf'],
+                    ['route' => 'quran-schools.index', 'permission' => 'quran-schools.index', 'label' => 'مدارس القرآن الكريم (تفصيلي)', 'keywords' => 'quran schools statistics'],
+                    ['route' => 'dashboard_show', 'permission' => 'dashboard_show', 'label' => 'dashboard', 'keywords' => 'statistics'],
                 ]
             ],
             'qr' => [

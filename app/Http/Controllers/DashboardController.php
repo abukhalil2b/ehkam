@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Aim;
+use App\Models\GuidanceStatistic;
 use App\Models\Indicator;
+use App\Models\QuranSchoolStatistic;
 use App\Models\Sector;
 use App\Models\Step;
 use App\Models\Task;
@@ -21,8 +23,8 @@ class DashboardController extends Controller
         $loggedUser = auth()->user();
 
         $tasks = Task::where('assigned_to', $loggedUser->id)
-        ->whereIn('status', ['pending', 'in_progress'])
-        ->get();
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->get();
 
         // 1. Step Status/Phase Stats
         $stepsByPhase = Step::select('phase', DB::raw('count(*) as total'))
@@ -76,51 +78,4 @@ class DashboardController extends Controller
         return view('dashboard', compact('tasks', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Indicator $indicator)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Indicator $indicator)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Indicator $indicator)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Indicator $indicator)
-    {
-        //
-    }
 }

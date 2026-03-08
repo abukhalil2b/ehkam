@@ -17,10 +17,10 @@ return new class extends Migration {
             $table->string('ip_address', 45); // IPv6 support
             $table->integer('score')->default(0);
             $table->timestamps();
-            $table->foreignId('current_question_id')->nullable()->after('score')
+            $table->foreignId('current_question_id')->nullable()
                 ->constrained('com_questions')->nullOnDelete();
-            $table->timestamp('question_started_at')->nullable()->after('current_question_id');
-            $table->boolean('auto_mode')->default(false)->after('question_started_at');
+            $table->timestamp('question_started_at')->nullable();
+            $table->boolean('auto_mode')->default(false);
             $table->unique(['competition_id', 'ip_address']);
             $table->index('competition_id');
         });

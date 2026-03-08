@@ -38,7 +38,7 @@ use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminStepImportController;
 use App\Http\Controllers\Participant\CompetitionController as ParticipantCompetitionController;
 use App\Http\Controllers\SwotController;
-use App\Http\Controllers\KpiYearController;
+use App\Http\Controllers\KpiController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\ActivityAssignmentController;
 use Illuminate\Support\Facades\Route;
@@ -48,9 +48,13 @@ use App\Http\Controllers\Admin\WorkflowDefinitionController;
 use App\Http\Controllers\WorkflowActionController;
 use App\Http\Controllers\AppointmentRequestController;
 use App\Http\Controllers\AssessmentStageController;
+use App\Http\Controllers\EndowmentController;
+use App\Http\Controllers\EndowmentStatisticController;
 use App\Http\Controllers\FishboneController;
+use App\Http\Controllers\GuidanceStatisticController;
 use App\Http\Controllers\IndicatorTargetController;
 use App\Http\Controllers\PestleController;
+use App\Http\Controllers\QuranSchoolStatisticController;
 
 // Route::view('/', 'welcome2')->name('home');
 Route::view('/', 'welcome2')->name('home');
@@ -86,11 +90,8 @@ Route::get('explain_assessment_to_audience', [AssessmentQuestionController::clas
 
 // Dashboard - Usually just requires authentication
 Route::group(['middleware' => ['auth']], function () {
-    Route::get('dashboard', [DashboardController::class, 'dashboard'])
-        ->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 });
-
-
 
 
 // INDICATOR ROUTES
@@ -518,76 +519,89 @@ Route::group(['middleware' => ['auth']], function () {
         ->name('assessment_questions.update_ordered');
 });
 
-Route::get('statistic/bsc', [StatisticController::class, 'bsc'])
+
+Route::resource('guidance-statistics', GuidanceStatisticController::class);
+Route::resource('endowments', EndowmentController::class);
+Route::resource('quran-schools', QuranSchoolStatisticController::class);
+// مسارات إحصائيات المؤسسة الوقفية (متداخلة Nested Routes)
+Route::get('endowments/{endowment}/statistics', [EndowmentStatisticController::class, 'index'])->name('endowments.statistics.index');
+Route::get('endowments/{endowment}/statistics/create', [EndowmentStatisticController::class, 'create'])->name('endowments.statistics.create');
+Route::post('endowments/{endowment}/statistics', [EndowmentStatisticController::class, 'store'])->name('endowments.statistics.store');
+
+Route::get('dashboard_show', [StatisticController::class, 'show'])
+    ->middleware('permission:dashboard_show')
+    ->name('dashboard_show');
+
+Route::get('statistic/bsc', [KpiController::class, 'bsc'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.bsc');
 
 // BSC Report/Charts Page
-Route::get('statistic/bsc/report', [StatisticController::class, 'bscReport'])
+Route::get('statistic/bsc/report', [KpiController::class, 'bscReport'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.bsc.report');
 
 // KPI Indicator Management Routes
-Route::get('statistic/kpi/indicators', [StatisticController::class, 'kpiIndicators'])
+Route::get('statistic/kpi/indicators', [KpiController::class, 'kpiIndicators'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicators');
 
-Route::get('statistic/kpi/indicator/create', [StatisticController::class, 'createKpiIndicator'])
+Route::get('statistic/kpi/indicator/create', [KpiController::class, 'createKpiIndicator'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicator.create');
 
-Route::post('statistic/kpi/indicator/store', [StatisticController::class, 'storeKpiIndicator'])
+Route::post('statistic/kpi/indicator/store', [KpiController::class, 'storeKpiIndicator'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicator.store');
 
-Route::get('statistic/kpi/indicator/{indicator}/edit', [StatisticController::class, 'editKpiIndicator'])
+Route::get('statistic/kpi/indicator/{indicator}/edit', [KpiController::class, 'editKpiIndicator'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicator.edit');
 
-Route::put('statistic/kpi/indicator/{indicator}/update', [StatisticController::class, 'updateKpiIndicator'])
+Route::put('statistic/kpi/indicator/{indicator}/update', [KpiController::class, 'updateKpiIndicator'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicator.update');
 
-Route::delete('statistic/kpi/indicator/{indicator}/destroy', [StatisticController::class, 'destroyKpiIndicator'])
+Route::delete('statistic/kpi/indicator/{indicator}/destroy', [KpiController::class, 'destroyKpiIndicator'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.indicator.destroy');
 
 // Report Settings Routes
-Route::get('statistic/settings', [StatisticController::class, 'reportSettings'])
+Route::get('statistic/settings', [KpiController::class, 'reportSettings'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.settings');
 
-Route::post('statistic/settings/save', [StatisticController::class, 'saveReportSettings'])
+Route::post('statistic/settings/save', [KpiController::class, 'saveReportSettings'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.settings.save');
 
-Route::get('statistic/settings/data', [StatisticController::class, 'getReportSettings'])
+Route::get('statistic/settings/data', [KpiController::class, 'getReportSettings'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.settings.data');
 
 // KPI Years Management Routes
-Route::resource('admin/kpi-years', KpiYearController::class)
-    ->middleware('permission:admin.kpi-years');
-
-// KPI Years sorting routes
-Route::post('admin/kpi-years/{kpiYear}/move-up', [KpiYearController::class, 'moveUp'])
-    ->middleware('permission:admin.kpi-years')
-    ->name('kpi-years.move-up');
-
-Route::post('admin/kpi-years/{kpiYear}/move-down', [KpiYearController::class, 'moveDown'])
-    ->middleware('permission:admin.kpi-years')
-    ->name('kpi-years.move-down');
+Route::middleware(['auth', 'permission:admin.kpi-years'])->prefix('admin/kpi-years')->group(function () {
+    Route::get('/', [KpiController::class, 'yearsIndex'])->name('kpi-years.index');
+    Route::get('/create', [KpiController::class, 'createYear'])->name('kpi-years.create');
+    Route::post('/', [KpiController::class, 'storeYear'])->name('kpi-years.store');
+    Route::get('/{kpiYear}/edit', [KpiController::class, 'editYear'])->name('kpi-years.edit');
+    Route::put('/{kpiYear}', [KpiController::class, 'updateYear'])->name('kpi-years.update');
+    Route::delete('/{kpiYear}', [KpiController::class, 'destroyYear'])->name('kpi-years.destroy');
+    Route::post('/{kpiYear}/toggle', [KpiController::class, 'toggleYearActive'])->name('kpi-years.toggle');
+    Route::post('/{kpiYear}/move-up', [KpiController::class, 'moveYearUp'])->name('kpi-years.move-up');
+    Route::post('/{kpiYear}/move-down', [KpiController::class, 'moveYearDown'])->name('kpi-years.move-down');
+});
 
 // KPI API Routes
-Route::post('statistic/kpi/update-value', [StatisticController::class, 'updateKpiValue'])
+Route::post('statistic/kpi/update-value', [KpiController::class, 'updateKpiValue'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.update_value');
 
-Route::post('statistic/kpi/update-justification', [StatisticController::class, 'updateKpiJustification'])
+Route::post('statistic/kpi/update-justification', [KpiController::class, 'updateKpiJustification'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.update_justification');
 
-Route::get('statistic/kpi/data', [StatisticController::class, 'getKpiData'])
+Route::get('statistic/kpi/data', [KpiController::class, 'getKpiData'])
     ->middleware('permission:statistic.bsc')
     ->name('statistic.kpi.data');
 
