@@ -4,12 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Contracts\HasWorkflow;
-use App\Traits\Workflowable;
 
-class Task extends Model implements HasWorkflow
+class Task extends Model
 {
-    use SoftDeletes, Workflowable;
+    use SoftDeletes;
 
     protected $fillable = [
         'mission_id',

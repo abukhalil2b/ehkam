@@ -5,9 +5,6 @@ namespace Database\Seeders;
 use App\Models\AppointmentRequest;
 use App\Models\CalendarSlotProposal;
 use App\Models\User;
-use App\Models\Workflow;
-use App\Models\WorkflowTeam;
-use App\Models\WorkflowStage;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -28,73 +25,6 @@ class AppointmentRequestSeeder extends Seeder
             return;
         }
 
-        // Get or create workflow for appointments
-        $workflow = Workflow::firstOrCreate(
-            ['entity_type' => AppointmentRequest::class],
-            [
-                'name' => 'Appointment Request Workflow',
-                'description' => 'Workflow for managing appointment requests',
-                'is_active' => true,
-            ]
-        );
-
-        // Create workflow teams if they don't exist
-        $managerTeam = WorkflowTeam::firstOrCreate(
-            ['name' => 'Managers Team'],
-            ['description' => 'Team of managers who approve appointments']
-        );
-
-        $secretaryTeam = WorkflowTeam::firstOrCreate(
-            ['name' => 'Secretaries Team'],
-            ['description' => 'Team of secretaries who schedule appointments']
-        );
-
-        // Add users to teams
-        if ($users->count() >= 2) {
-            $managerTeam->users()->syncWithoutDetaching([$users[0]->id, $users[1]->id]);
-            $secretaryTeam->users()->syncWithoutDetaching([$users[2]->id ?? $users[0]->id]);
-        }
-
-        // Create workflow stages
-        $stages = [];
-        
-        // Stage 1: Manager Review
-        $stage1 = WorkflowStage::firstOrCreate(
-            [
-                'workflow_id' => $workflow->id,
-                'order' => 1,
-            ],
-            [
-                'name' => 'مراجعة المدير',
-                'team_id' => $managerTeam->id,
-                'assignment_type' => 'team',
-                'can_approve' => true,
-                'can_return' => true,
-                'can_reject' => true,
-                'allowed_days' => 3,
-            ]
-        );
-        $stages[] = $stage1;
-
-        // Stage 2: Secretary Scheduling
-        $stage2 = WorkflowStage::firstOrCreate(
-            [
-                'workflow_id' => $workflow->id,
-                'order' => 2,
-            ],
-            [
-                'name' => 'جدولة السكرتير',
-                'team_id' => $secretaryTeam->id,
-                'assignment_type' => 'team',
-                'can_approve' => true,
-                'can_return' => false,
-                'can_reject' => false,
-                'allowed_days' => 5,
-            ]
-        );
-        $stages[] = $stage2;
-
-        // Create dummy appointment requests
         $subjects = [
             'طلب موعد لمناقشة الميزانية',
             'طلب موعد لمراجعة الخطة الاستراتيجية',
@@ -143,41 +73,21 @@ class AppointmentRequestSeeder extends Seeder
             try {
                 $appointment = AppointmentRequest::create($appointmentData);
 
-                // Create workflow instance for some appointments
-                if (rand(0, 1)) {
-                    $currentStageId = null;
-                    if ($appointment->status === 'in_progress' && !empty($stages)) {
-                        $currentStageId = $stages[array_rand($stages)]->id;
-                    }
-
-                    DB::table('workflow_instances')->insert([
-                        'workflowable_type' => AppointmentRequest::class,
-                        'workflowable_id' => $appointment->id,
-                        'workflow_id' => $workflow->id,
-                        'status' => $appointment->status === 'draft' ? 'draft' : 'in_progress',
-                        'current_stage_id' => $currentStageId,
-                        'creator_id' => $appointment->requester_id,
-                        'stage_due_at' => $appointment->status === 'in_progress' ? Carbon::now()->addDays(rand(1, 5)) : null,
-                        'created_at' => $appointment->created_at,
-                        'updated_at' => $appointment->updated_at,
-                    ]);
-
-                    // Create some slot proposals for in_progress appointments
-                    if ($appointment->status === 'in_progress' && rand(0, 1)) {
-                        $secretaryUserId = $secretaryTeam->users()->first()->id ?? $users->first()->id;
-                        $slotCount = rand(2, 4);
-                        
-                        for ($j = 0; $j < $slotCount; $j++) {
-                            $startDate = Carbon::now()->addDays(rand(1, 30))->setHour(rand(9, 15))->setMinute(0);
-                            CalendarSlotProposal::create([
-                                'appointment_request_id' => $appointment->id,
-                                'start_date' => $startDate,
-                                'end_date' => $startDate->copy()->addHours(1),
-                                'location' => rand(0, 1) ? 'قاعة الاجتماعات الرئيسية' : 'مكتب الوزير',
-                                'status' => 'proposed',
-                                'created_by' => $secretaryUserId,
-                            ]);
-                        }
+                // Create some slot proposals for in_progress appointments
+                if ($appointment->status === 'in_progress' && rand(0, 1)) {
+                    $secretaryUserId = $users->first()->id;
+                    $slotCount = rand(2, 4);
+                    
+                    for ($j = 0; $j < $slotCount; $j++) {
+                        $startDate = Carbon::now()->addDays(rand(1, 30))->setHour(rand(9, 15))->setMinute(0);
+                        CalendarSlotProposal::create([
+                            'appointment_request_id' => $appointment->id,
+                            'start_date' => $startDate,
+                            'end_date' => $startDate->copy()->addHours(1),
+                            'location' => rand(0, 1) ? 'قاعة الاجتماعات الرئيسية' : 'م مكتب الوزير',
+                            'status' => 'proposed',
+                            'created_by' => $secretaryUserId,
+                        ]);
                     }
                 }
             } catch (\Exception $e) {
@@ -186,6 +96,6 @@ class AppointmentRequestSeeder extends Seeder
             }
         }
 
-        $this->command->info('Successfully seeded 20 appointment requests with workflow instances and slot proposals!');
+        $this->command->info('Successfully seeded 20 appointment requests with slot proposals!');
     }
 }

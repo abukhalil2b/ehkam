@@ -2,50 +2,6 @@
 
 namespace App\Services;
 
-/**
- * SidebarService - Navigation Structure and Search Functionality
- * 
- * This service provides the navigation structure for the application sidebar
- * and enables the global search functionality by returning searchable links.
- * 
- * Key responsibilities:
- * - Defining the sidebar navigation structure with sections and links
- * - Managing permission-based link visibility
- * - Providing searchable links with keywords for quick navigation
- * 
- * Structure:
- * The sidebar is organized into sections (e.g., 'workflow', 'calendar'), each containing:
- * - title: Display name for the section (Arabic)
- * - links: Array of navigation links with:
- *   - route: Laravel route name
- *   - permission: Required permission to view (null = public)
- *   - label: Display text (Arabic)
- *   - params: Optional route parameters
- *   - keywords: Search keywords (English) for quick navigation
- * 
- * Usage in Blade templates:
- * ```php
- * @inject('sidebar', 'App\Services\SidebarService')
- * @foreach($sidebar->getSidebarSections() as $key => $section)
- *     <h3>{{ $section['title'] }}</h3>
- *     @foreach($section['links'] as $link)
- *         @can($link['permission'] ?? 'always')
- *             <a href="{{ route($link['route'], $link['params'] ?? []) }}">
- *                 {{ $link['label'] }}
- *             </a>
- *         @endcan
- *     @endforeach
- * @endforeach
- * ```
- * 
- * For global search:
- * ```php
- * $searchableLinks = app(SidebarService::class)->getSearchableLinks();
- * // Returns flat array of links with URLs, labels, categories, and keywords
- * ```
- * 
- * @see resources/views/layouts/sidebar.blade.php
- */
 class SidebarService
 {
     /**
@@ -56,7 +12,6 @@ class SidebarService
      * display labels, optional parameters, and search keywords.
      * 
      * Section keys are used as identifiers and for CSS/JS targeting:
-     * - workflow: Workflow management
      * - indicator: KPI indicators
      * - activity: Activities and assessments
      * - aim: Sector aims and goals
@@ -80,14 +35,6 @@ class SidebarService
     public function getSidebarSections(): array
     {
         return [
-            'workflow' => [
-                'title' => 'سير العمل',
-                'links' => [
-                    ['route' => 'workflow.pending', 'permission' => 'workflow.pending', 'label' => 'الخطوات المعلقة لي', 'keywords' => 'workflow pending steps my tasks'],
-                    ['route' => 'admin.workflow.teams.index', 'permission' => 'workflow_team.index', 'label' => 'إدارة الفرق', 'keywords' => 'workflow teams management'],
-                    ['route' => 'admin.workflow.definitions.index', 'permission' => 'workflow_definition.index', 'label' => 'تعريفات سير العمل', 'keywords' => 'workflow definitions stages'],
-                ]
-            ],
             'indicator' => [
                 'title' => 'المؤشرات',
                 'links' => [
@@ -225,10 +172,13 @@ class SidebarService
             'documentation' => [
                 'title' => 'الوثائق التقنية',
                 'links' => [
-                    ['route' => 'docs.show', 'params' => ['step-workflow'], 'permission' => 'docs', 'label' => 'سير عمل الخطوات', 'keywords' => 'step workflow documentation guide steps'],
-                    ['route' => 'docs.show', 'params' => ['workflow-architecture'], 'permission' => 'docs', 'label' => 'بنية سير العمل', 'keywords' => 'workflow architecture documentation guide'],
-                    ['route' => 'docs.show', 'params' => ['roles-permissions'], 'permission' => 'docs', 'label' => 'شرح الصلاحيات', 'keywords' => 'roles permissions documentation guide'],
                     ['route' => 'docs.index', 'permission' => 'docs', 'label' => 'كل الوثائق', 'keywords' => 'documentation docs technical markdown all'],
+                ]
+            ],
+            'annual_plan' => [
+                'title' => 'الخطة السنوية',
+                'links' => [
+                    ['route' => 'admin.annual_plan.show', 'params' => ['2026'], 'permission' => 'admin.annual_plan.show', 'label' => 'الخطة السنوية', 'keywords' => 'الخطة السنوية'],
                 ]
             ],
         ];

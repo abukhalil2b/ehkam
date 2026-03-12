@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call(GeographicSeeder::class);
         $this->call(IndicatorSeeder::class);
         $this->call(StatisticsDashboardSeeder::class);
+        $this->call(ProjectRoleSeeder::class);
     }
 }

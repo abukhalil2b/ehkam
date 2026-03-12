@@ -24,8 +24,6 @@ class StepFactory extends Factory
             'name' => fake()->sentence(3),
             'description' => fake()->optional()->paragraph(),
             'status' => 'draft',
-            'workflow_id' => null,
-            'current_stage_id' => null,
             'creator_id' => null,
             'assigned_user_id' => null,
             'priority' => fake()->numberBetween(1, 5),
@@ -41,8 +39,6 @@ class StepFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'status' => 'draft',
-            'workflow_id' => null,
-            'current_stage_id' => null,
         ]);
     }
 
@@ -73,7 +69,6 @@ class StepFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'status' => 'completed',
-            'current_stage_id' => null,
         ]);
     }
 
@@ -84,7 +79,6 @@ class StepFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'status' => 'rejected',
-            'current_stage_id' => null,
         ]);
     }
 

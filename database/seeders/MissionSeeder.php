@@ -5,12 +5,6 @@ namespace Database\Seeders;
 use App\Models\Mission;
 use App\Models\Task;
 use App\Models\User;
-use App\Models\Workflow;
-use App\Models\WorkflowTeam;
-use App\Models\WorkflowStage;
-use App\Models\WorkflowInstance;
-use App\Models\WorkflowTransition;
-use App\Services\WorkflowService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -25,72 +19,6 @@ class MissionSeeder extends Seeder
             $this->command->warn('Need at least 4 users to seed missions. Creating basic mission only.');
             return;
         }
-
-        // Create workflow for tasks
-        $workflow = Workflow::firstOrCreate(
-            ['entity_type' => Task::class],
-            [
-                'name' => 'Task Approval Workflow',
-                'description' => 'Workflow for task approval and review',
-                'is_active' => true,
-            ]
-        );
-
-        // Create workflow teams
-        $reviewTeam = WorkflowTeam::firstOrCreate(
-            ['name' => 'Task Review Team'],
-            ['description' => 'Team responsible for reviewing tasks']
-        );
-
-        $approvalTeam = WorkflowTeam::firstOrCreate(
-            ['name' => 'Task Approval Team'],
-            ['description' => 'Team responsible for approving tasks']
-        );
-
-        // Add users to teams
-        if ($users->count() >= 4) {
-            $reviewTeam->users()->syncWithoutDetaching([$users[0]->id, $users[1]->id]);
-            $approvalTeam->users()->syncWithoutDetaching([$users[2]->id, $users[3]->id]);
-        }
-
-        // Create workflow stages
-        $stages = [];
-        
-        // Stage 1: Review
-        $stage1 = WorkflowStage::firstOrCreate(
-            [
-                'workflow_id' => $workflow->id,
-                'order' => 1,
-            ],
-            [
-                'name' => 'مراجعة المهمة',
-                'team_id' => $reviewTeam->id,
-                'assignment_type' => 'team',
-                'can_approve' => true,
-                'can_return' => true,
-                'can_reject' => true,
-                'allowed_days' => 2,
-            ]
-        );
-        $stages[] = $stage1;
-
-        // Stage 2: Approval
-        $stage2 = WorkflowStage::firstOrCreate(
-            [
-                'workflow_id' => $workflow->id,
-                'order' => 2,
-            ],
-            [
-                'name' => 'اعتماد المهمة',
-                'team_id' => $approvalTeam->id,
-                'assignment_type' => 'team',
-                'can_approve' => true,
-                'can_return' => false,
-                'can_reject' => true,
-                'allowed_days' => 1,
-            ]
-        );
-        $stages[] = $stage2;
 
         // Create missions
         $missionTitles = [
@@ -259,7 +187,6 @@ class MissionSeeder extends Seeder
             ],
         ];
 
-        $workflowService = app(WorkflowService::class);
 
         foreach ($tasks as $index => $taskData) {
             $task = Task::create([
@@ -277,57 +204,7 @@ class MissionSeeder extends Seeder
                 'new_values' => $task->toArray(),
             ]);
 
-            // Assign workflow to some tasks (70% chance)
-            if (rand(0, 9) < 7) {
-                try {
-                    $workflowService->assignWorkflow($task, $workflow->id, $createdUsers[0], true); // auto submit
-                    
-                    $instance = $task->workflowInstance;
-                    if ($instance) {
-                        // Randomly move some tasks through workflow stages
-                        $randomStage = rand(0, 1) ? $stages[0] : (rand(0, 1) ? $stages[1] : null);
-                        
-                        if ($randomStage) {
-                            $instance->update([
-                                'current_stage_id' => $randomStage->id,
-                                'status' => 'in_progress',
-                                'stage_due_at' => now()->addDays($randomStage->allowed_days),
-                            ]);
 
-                            // Create some transitions
-                            $actor = $reviewTeam->users()->first() ?? $users->first();
-                            
-                            // Transition 1: Submit
-                            WorkflowTransition::create([
-                                'workflowable_type' => Task::class,
-                                'workflowable_id' => $task->id,
-                                'actor_id' => $createdUsers[0]->id,
-                                'from_stage_id' => null,
-                                'to_stage_id' => $stages[0]->id,
-                                'action' => 'submit',
-                                'comments' => 'تم إرسال المهمة للمراجعة',
-                                'created_at' => now()->subDays(rand(1, 5)),
-                            ]);
-
-                            // Transition 2: Approve to next stage (if in second stage)
-                            if ($randomStage->id === $stages[1]->id) {
-                                WorkflowTransition::create([
-                                    'workflowable_type' => Task::class,
-                                    'workflowable_id' => $task->id,
-                                    'actor_id' => $actor->id,
-                                    'from_stage_id' => $stages[0]->id,
-                                    'to_stage_id' => $stages[1]->id,
-                                    'action' => 'approve',
-                                    'comments' => 'تمت الموافقة على المراجعة',
-                                    'created_at' => now()->subDays(rand(1, 3)),
-                                ]);
-                            }
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $this->command->warn("Failed to assign workflow to task {$task->id}: " . $e->getMessage());
-                }
-            }
 
             // إذا كانت المهمة مكتملة، أضف completed_at
             if ($task->status === 'completed') {
@@ -335,13 +212,7 @@ class MissionSeeder extends Seeder
                     'completed_at' => now()->subDays(rand(1, 3)),
                 ]);
 
-                // Complete workflow if exists
-                if ($task->workflowInstance) {
-                    $task->workflowInstance->update([
-                        'status' => 'completed',
-                        'current_stage_id' => null,
-                    ]);
-                }
+
             }
         }
 
@@ -361,14 +232,7 @@ class MissionSeeder extends Seeder
                     'order' => $i,
                 ]);
 
-                // Assign workflow to some tasks
-                if (rand(0, 9) < 5) {
-                    try {
-                        $workflowService->assignWorkflow($task, $workflow->id, $users->first(), true);
-                    } catch (\Exception $e) {
-                        // Silent fail
-                    }
-                }
+
             }
         }
 

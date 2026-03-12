@@ -84,60 +84,7 @@
                     </div>
                 </div>
 
-                <!-- Workflow Visualization -->
-                @include('appointments.partials.workflow-visualization')
 
-                <!-- Workflow Status Card -->
-                @if($appointmentRequest->workflowInstance)
-                    <div class="bg-white shadow rounded-lg p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">{{ __('حالة سير العمل') }}</h3>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">{{ __('سير العمل') }}</label>
-                                <p class="mt-1 text-sm text-gray-900">
-                                    {{ $appointmentRequest->workflowInstance->workflow->name ?? '—' }}
-                                </p>
-                            </div>
-
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">{{ __('المرحلة الحالية') }}</label>
-                                <p class="mt-1 text-sm text-gray-900">
-                                    {{ $appointmentRequest->workflowInstance->currentStage->name ?? '—' }}
-                                </p>
-                            </div>
-
-                            @if($appointmentRequest->workflowInstance->currentStage && $appointmentRequest->workflowInstance->currentStage->team)
-                                <div>
-                                    <label class="text-sm font-medium text-gray-500">{{ __('الفريق المسؤول') }}</label>
-                                    <p class="mt-1 text-sm text-gray-900">
-                                        {{ $appointmentRequest->workflowInstance->currentStage->team->name ?? '—' }}
-                                    </p>
-                                </div>
-                            @endif
-
-                            <div>
-                                <label class="text-sm font-medium text-gray-500">{{ __('حالة سير العمل') }}</label>
-                                <p class="mt-1">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
-                                        @if($appointmentRequest->workflowInstance->status == 'completed') bg-green-100 text-green-800
-                                        @elseif($appointmentRequest->workflowInstance->status == 'rejected') bg-red-100 text-red-800
-                                        @elseif($appointmentRequest->workflowInstance->status == 'returned') bg-yellow-100 text-yellow-800
-                                        @else bg-blue-100 text-blue-800
-                                        @endif">
-                                        @if($appointmentRequest->workflowInstance->status == 'draft') {{ __('مسودة') }}
-                                        @elseif($appointmentRequest->workflowInstance->status == 'in_progress') {{ __('قيد المعالجة') }}
-                                        @elseif($appointmentRequest->workflowInstance->status == 'completed') {{ __('مكتمل') }}
-                                        @elseif($appointmentRequest->workflowInstance->status == 'rejected') {{ __('مرفوض') }}
-                                        @elseif($appointmentRequest->workflowInstance->status == 'returned') {{ __('معاد') }}
-                                        @else {{ $appointmentRequest->workflowInstance->status }}
-                                        @endif
-                                    </span>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                @endif
 
                 <!-- Available Slots (for Secretary) -->
                 @if($availableSlots->isNotEmpty() && $appointmentRequest->canBeActedUpon())

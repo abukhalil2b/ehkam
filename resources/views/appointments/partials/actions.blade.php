@@ -5,7 +5,7 @@
         
         <div class="space-y-3">
             <!-- Approve Action -->
-            @if($appointmentRequest->workflowInstance && $appointmentRequest->workflowInstance->currentStage)
+            @if($appointmentRequest->status === 'in_progress')
                 <form action="{{ route('appointments.approve', $appointmentRequest) }}" method="POST" x-data="{ showComments: false }">
                     @csrf
                     
@@ -30,16 +30,6 @@
                     </div>
                 </form>
             @endif
-
-            <!-- Info Message -->
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
-                <p class="font-medium mb-1">{{ __('المرحلة الحالية') }}:</p>
-                <p>{{ $appointmentRequest->workflowInstance->currentStage->name ?? '—' }}</p>
-                @if($appointmentRequest->workflowInstance->currentStage && $appointmentRequest->workflowInstance->currentStage->team)
-                    <p class="mt-2 font-medium">{{ __('الفريق المسؤول') }}:</p>
-                    <p>{{ $appointmentRequest->workflowInstance->currentStage->team->name }}</p>
-                @endif
-            </div>
         </div>
     </div>
 @else
@@ -49,14 +39,7 @@
         <div class="space-y-3">
             @if($appointmentRequest->isTerminal())
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700">
-                    <p class="font-medium mb-1">{{ __('تم إكمال سير العمل') }}</p>
-                    <p>
-                        @if($appointmentRequest->workflowInstance->status == 'completed')
-                            {{ __('تمت الموافقة على الطلب بنجاح') }}
-                        @elseif($appointmentRequest->workflowInstance->status == 'rejected')
-                            {{ __('تم رفض الطلب') }}
-                        @endif
-                    </p>
+                    <p class="font-medium mb-1">{{ __('مكتمل') }}</p>
                 </div>
             @elseif($appointmentRequest->isDraft())
                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">

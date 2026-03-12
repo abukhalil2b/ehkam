@@ -25,7 +25,7 @@ class AppointmentRequestController extends Controller
      */
     public function index(Request $request)
     {
-        $query = AppointmentRequest::with(['requester', 'minister', 'workflowInstance.currentStage']);
+        $query = AppointmentRequest::with(['requester', 'minister']);
 
         // Filter by status if provided
         if ($request->has('status') && $request->status) {
@@ -125,10 +125,6 @@ class AppointmentRequestController extends Controller
         $appointmentRequest->load([
             'requester',
             'minister',
-            'workflowInstance.workflow',
-            'workflowInstance.currentStage.team',
-            'transitions.actor',
-            'transitions.toStage',
             'slotProposals'
         ]);
 
@@ -141,9 +137,7 @@ class AppointmentRequestController extends Controller
         return view('appointments.show', compact('appointmentRequest', 'availableSlots'));
     }
 
-    /**
-     * Approve the appointment request (workflow approval).
-     */
+
     public function approve(Request $request, AppointmentRequest $appointmentRequest)
     {
         $validated = $request->validate([

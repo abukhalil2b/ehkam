@@ -7,12 +7,11 @@ This guide provides comprehensive documentation for developers working with Ehka
 ## Table of Contents
 
 1. [Service Architecture](#service-architecture)
-2. [WorkflowService](#workflowservice)
-3. [AppointmentService](#appointmentservice)
-4. [SidebarService](#sidebarservice)
-5. [Creating New Services](#creating-new-services)
-6. [Testing Services](#testing-services)
-7. [Common Patterns](#common-patterns)
+2. [AppointmentService](#appointmentservice)
+3. [SidebarService](#sidebarservice)
+4. [Creating New Services](#creating-new-services)
+5. [Testing Services](#testing-services)
+6. [Common Patterns](#common-patterns)
 
 ---
 
@@ -41,157 +40,9 @@ app/Services/
 
 ### Dependency Graph
 
-```
 ┌─────────────────────┐
 │ AppointmentService  │
-└─────────┬───────────┘
-          │ depends on
-          ▼
-┌─────────────────────┐
-│  WorkflowService    │
-└─────────┬───────────┘
-          │ works with
-          ▼
-┌─────────────────────┐
-│ HasWorkflow Models  │
-│ (AppointmentRequest,│
-│  Step, etc.)        │
 └─────────────────────┘
-```
-
----
-
-## WorkflowService
-
-### Overview
-
-The `WorkflowService` is the core engine that manages workflow transitions for any model implementing the `HasWorkflow` interface.
-
-**Location**: `app/Services/WorkflowService.php`
-
-### Methods
-
-#### `assignWorkflow(Model $model, int $workflowId, User $actor, bool $autoSubmit = false): Model`
-
-Assigns a workflow to a model and optionally submits it.
-
-**Parameters:**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$model` | `Model` | Model implementing `HasWorkflow` |
-| `$workflowId` | `int` | ID of the workflow to assign |
-| `$actor` | `User` | User performing the action |
-| `$autoSubmit` | `bool` | Auto-submit after assignment (default: false) |
-
-**Returns:** The updated model instance
-
-**Example:**
-```php
-$service = app(WorkflowService::class);
-$step = Step::find(1);
-
-// Assign and auto-submit
-$step = $service->assignWorkflow($step, $workflowId = 1, $user, autoSubmit: true);
-
-// Or assign without submitting
-$step = $service->assignWorkflow($step, $workflowId = 1, $user);
-$step = $service->submitStep($step, $user, 'Ready for review');
-```
-
----
-
-#### `submitStep(Model $model, User $actor, ?string $comments = null): Model`
-
-Submits a model from draft state to the first workflow stage.
-
-**Parameters:**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$model` | `Model` | Model in draft status |
-| `$actor` | `User` | User submitting |
-| `$comments` | `string\|null` | Optional submission comments |
-
-**Throws:**
-- `Exception` if model not assigned to workflow
-- `Exception` if model is not in draft status
-- `Exception` if workflow has no stages
-
-**Events Fired:** `StepSubmitted`
-
----
-
-#### `approveStep(Model $model, User $actor, ?string $comments = null): Model`
-
-Approves a model and moves it to the next stage (or completes the workflow).
-
-**Authorization:** User must be in the team assigned to the current stage.
-
-**Parameters:**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$model` | `Model` | Model to approve |
-| `$actor` | `User` | User approving |
-| `$comments` | `string\|null` | Optional approval comments |
-
-**Throws:**
-- `Exception` if user not authorized
-- `Exception` if approval not allowed at current stage
-
-**Events Fired:** `StepApproved`
-
----
-
-#### `returnStep(Model $model, User $actor, ?int $targetStageId = null, ?string $comments = null, array $stepFeedbacks = []): Model`
-
-Returns a model to a previous stage.
-
-**Parameters:**
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `$model` | `Model` | Model to return |
-| `$actor` | `User` | User returning |
-| `$targetStageId` | `int\|null` | Specific stage to return to (null = previous) |
-| `$comments` | `string\|null` | Return reason |
-| `$stepFeedbacks` | `array` | Feedback for specific steps |
-
-**Events Fired:** `StepReturned`
-
----
-
-#### `rejectStep(Model $model, User $actor, ?string $comments = null): Model`
-
-Rejects a model and terminates the workflow.
-
-**Note:** Rejection is terminal - the model cannot re-enter the workflow.
-
-**Events Fired:** `StepRejected`
-
----
-
-#### `getPendingStepsForUser(User $user)`
-
-Retrieves all workflow items pending action from the specified user.
-
-**Returns:** Collection of pending items
-
----
-
-### Authorization Flow
-
-```
-verifyUserCanAct()
-    │
-    ├─► Check: Is instance in terminal state?
-    │   └─► If yes: throw Exception
-    │
-    ├─► Check: Does item have current stage?
-    │   └─► If no: throw Exception
-    │
-    └─► Check assignment type:
-        ├─► 'team': Is user in assigned team?
-        ├─► 'user': Is user the assigned user?
-        └─► 'role': Does user have assigned role?
-```
 
 ---
 
@@ -199,17 +50,15 @@ verifyUserCanAct()
 
 ### Overview
 
-Handles business logic for appointment requests, built on top of `WorkflowService`.
+Handles business logic for appointment requests.
 
 **Location**: `app/Services/AppointmentService.php`
-
-**Dependencies**: `WorkflowService` (injected via constructor)
 
 ### Methods
 
 #### `createRequest(array $data, User $user): AppointmentRequest`
 
-Creates a new appointment request with automatic workflow assignment.
+Creates a new appointment request.
 
 **Parameters:**
 ```php
@@ -235,14 +84,14 @@ $request = $service->createRequest([
     'priority' => 'high'
 ], auth()->user());
 
-// Request is now in workflow, pending manager approval
+// Request is now created, pending manager approval
 ```
 
 ---
 
 #### `approveRequest(AppointmentRequest $request, User $manager, ?string $comments = null): AppointmentRequest`
 
-Processes manager approval, moving request to secretary stage.
+Processes manager approval, moving request status to in-progress for scheduling.
 
 **Example:**
 ```php
@@ -255,9 +104,7 @@ $service->approveRequest($request, $manager, 'Approved - please schedule ASAP');
 
 Secretary selects a time slot for the appointment.
 
-**Authorization:**
-- For team assignment: User must be in assigned workflow team
-- For user assignment: User must be the assigned secretary
+**Authorization:** User must have secretary permissions.
 
 **Example:**
 ```php
@@ -269,18 +116,7 @@ $service->selectSlot($request, $secretary, $slot);
 // Appointment is now booked and appears on calendar
 ```
 
----
 
-#### `pendingForUser(User $user)`
-
-Returns all pending workflow items for a user.
-
-**Note:** Returns all workflow items, not just appointments. Filter if needed:
-
-```php
-$pending = $service->pendingForUser($user);
-$appointmentsOnly = $pending->filter(fn($item) => $item instanceof AppointmentRequest);
-```
 
 ---
 
@@ -448,7 +284,6 @@ namespace Tests\Unit\Services;
 
 use Tests\TestCase;
 use App\Services\AppointmentService;
-use App\Services\WorkflowService;
 use App\Models\AppointmentRequest;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -465,22 +300,18 @@ class AppointmentServiceTest extends TestCase
         $this->service = app(AppointmentService::class);
     }
 
-    public function test_create_request_assigns_workflow(): void
+    public function test_create_request(): void
     {
         $user = User::factory()->create();
         $minister = User::factory()->create();
         
-        // Seed workflow for AppointmentRequest
-        $this->artisan('db:seed', ['--class' => 'AppointmentRequestSeeder']);
-
         $request = $this->service->createRequest([
             'minister_id' => $minister->id,
             'subject' => 'Test Meeting',
             'priority' => 'normal'
         ], $user);
 
-        $this->assertNotNull($request->workflowInstance);
-        $this->assertEquals('in_progress', $request->workflowInstance->status);
+        $this->assertEquals('draft', $request->status);
     }
 }
 ```
@@ -561,8 +392,7 @@ try {
 DB_CONNECTION=mysql
 DB_DATABASE=ehkam
 
-# Workflow Settings
-WORKFLOW_DEFAULT_TIMEOUT_DAYS=7
+
 
 # Logging
 LOG_CHANNEL=stack

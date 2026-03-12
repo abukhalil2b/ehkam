@@ -1,60 +1,16 @@
 <x-app-layout>
 
-    @push('styles')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <style>
-            /* Optional: Improve RTL and Tailwind look */
-            .select2-container .select2-selection--single {
-                height: 42px;
-                border-radius: 0.5rem;
-                border: 1px solid #d1d5db;
-                /* Tailwind gray-300 */
-                display: flex;
-                align-items: center;
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                text-align: right;
-                padding-right: 1rem;
-                color: #374151;
-                /* Tailwind gray-700 */
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                left: 0.5rem;
-                right: auto;
-            }
-        </style>
-    @endpush
-
-    @push('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                $('#org_unit').select2({
-                    placeholder: 'اختر المنفذ',
-                    allowClear: true,
-                    dir: 'rtl',
-                    width: '100%'
-                });
-            });
-        </script>
-    @endpush
-
 
     <x-slot name="header">
         <h1 class="text-xl font-bold text-gray-800">{{ $project->title }}</h1>
         <div class="py-2">
             @foreach ($activities as $activityItem)
-                <a href="{{ route('step.index', ['project' => $project->id, 'activity' => $activityItem->id]) }}"
-                    class="inline-block px-3 py-1 rounded
-                    {{ request()->route('activity') == $activityItem->id
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 hover:bg-gray-200' }}">
-                    {{ $activityItem->title }}
-                </a>
+                    <a href="{{ route('step.index', ['project' => $project->id, 'activity' => $activityItem->id]) }}" class="inline-block px-3 py-1 rounded
+                                    {{ request()->route('activity') == $activityItem->id
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 hover:bg-gray-200' }}">
+                        {{ $activityItem->title }}
+                    </a>
             @endforeach
             <a href="{{ route('step.index', ['project' => $project->id]) }}"
                 class="inline-block px-3 py-1 rounded bg-blue-100 hover:bg-blue-200 font-semibold">
@@ -62,25 +18,41 @@
             </a>
         </div>
     </x-slot>
+    <div x-data="{ open: false, is_need_evidence_file: false, is_need_to_put_target: false }"
+        class="container mx-auto py-4 px-4 space-y-6">
 
-    <div class="px-4">
-        <a href="{{ route('project.index', $indicator->id) }}"
-            class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
-            المشروع
-        </a>
-    </div>
+        {{-- ── Shared project header + timeline ── --}}
+        @include('project.partials.project-header', [
+            'backRoute' => route('project.index', $indicator->id),
+            'backLabel' => 'المشاريع',
+        ])
 
-    <div x-data="{ open: false, is_need_evidence_file: false, is_need_to_put_target: false }" class="container mx-auto py-8 px-4">
         <!-- Work Steps Section -->
         <section class="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
                 <h2 class="text-xl font-bold text-green-700 mb-4 sm:mb-0">خطوات العمل</h2>
 
-                <button @click="open = true" type="button"
-                    class="flex items-center gap-2 text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
-                    <i class="fas fa-plus"></i>
-                    <span>إضافة خطوة جديدة</span>
-                </button>
+                <div class="flex items-center gap-3 flex-wrap">
+                    @if(in_array($project->status, ['draft', 'returned']))
+                        <button @click="open = true" type="button"
+                            class="flex items-center gap-2 text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 shadow-sm">
+                            <i class="fas fa-plus"></i>
+                            <span>إضافة خطوة جديدة</span>
+                        </button>
+                    @endif
+
+                    @can('submit', $project)
+                        <form action="{{ route('project.submit', $project->id) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit"
+                                onclick="return confirm('هل أنت متأكد من تقديم المشروع للمراجعة؟')"
+                                class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">
+                                <i class="fas fa-paper-plane text-xs"></i>
+                                تقديم للمراجعة
+                            </button>
+                        </form>
+                    @endcan
+                </div>
             </div>
 
             <!-- Steps Table -->
@@ -168,18 +140,12 @@
 
                 <!-- Tabs -->
                 <div class="px-6 py-4 border-b border-gray-200 flex gap-4">
-                    <button type="button" @click="activeTab = 'step'"
-                        :class="activeTab === 'step' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                            'text-gray-500'"
-                        class="pb-2">الخطوة</button>
-                    <button type="button" @click="activeTab = 'files'"
-                        :class="activeTab === 'files' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                            'text-gray-500'"
-                        class="pb-2">الملفات الداعمة</button>
-                    <button type="button" @click="activeTab = 'target'"
-                        :class="activeTab === 'target' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
-                            'text-gray-500'"
-                        class="pb-2">المستهدف</button>
+                    <button type="button" @click="activeTab = 'step'" :class="activeTab === 'step' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'" class="pb-2">الخطوة</button>
+                    <button type="button" @click="activeTab = 'files'" :class="activeTab === 'files' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'" class="pb-2">الملفات الداعمة</button>
+                    <button type="button" @click="activeTab = 'target'" :class="activeTab === 'target' ? 'border-b-2 border-green-600 text-green-700 font-semibold' :
+                            'text-gray-500'" class="pb-2">المستهدف</button>
 
                 </div>
 
@@ -222,7 +188,8 @@
                                 <option value="" disabled selected>اختر المرحلة</option>
                                 @foreach ($phases as $key => $phase)
                                     <option value="{{ $key }}">{{ $phase['title'] }} -
-                                        {{ $phase['weight'] }}</option>
+                                        {{ $phase['weight'] }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -257,54 +224,7 @@
                             </template>
                         </label>
 
-                        <template x-if="is_need_to_put_target">
-                            <div class="mt-3 space-y-4">
-                                <!-- Organizational Units -->
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">المنفذون</label>
-                                    <select id="org_unit" name="org_unit_ids[]" multiple
-                                        class="w-full rounded border-gray-300">
-                                        @foreach ($org_units as $unit)
-                                            <option value="{{ $unit->id }}">{{ $unit->name }}
-                                                ({{ $unit->type }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-                                <!-- Period Templates with Target Inputs -->
-                                @if ($periodTemplates->count() > 0)
-                                    <div class="border-t pt-3">
-                                        <label class="block text-sm font-medium text-gray-700 mb-2">توزيع
-                                            المستهدف</label>
-
-                                        <div class="space-y-2 max-h-56 overflow-y-auto">
-                                            @foreach ($periodTemplates as $period)
-                                                <div
-                                                    class="flex items-center gap-3 bg-gray-50 p-2 rounded-lg border border-gray-200">
-                                                    <div class="flex-1">
-                                                        <span
-                                                            class="font-medium text-gray-800">{{ $period->name ?? 'فترة غير مسماة' }}</span>
-                                                        <span
-                                                            class="text-gray-500 text-xs">({{ $period->cate }})</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-1">
-                                                        <input type="number" step="0.01" min="0"
-                                                            name="period_targets[{{ $period->id }}]"
-                                                            class="w-28 border border-gray-300 rounded-md p-1.5 text-sm focus:ring-green-500 focus:border-green-500"
-                                                            placeholder="المستهدف">
-                                                        <span class="text-gray-600 text-xs">%</span>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="mt-3 text-gray-500 text-sm">لا توجد فترات زمنية مرتبطة بهذا المؤشر.
-                                    </div>
-                                @endif
-                            </div>
-                        </template>
+                      
                     </div>
                 </div>
 

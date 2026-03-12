@@ -179,7 +179,6 @@ class AimSectorFeedbackController extends Controller
 
         $feedback->update([
             'status' => 'in_progress' // Used to represent 'Waiting for Approval' in this context
-            // In a real workflow system, we'd also set workflow_id and current_stage_id here
         ]);
 
         // Send Notification

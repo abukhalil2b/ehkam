@@ -74,4 +74,9 @@ class Indicator extends Model
         );
     }
     
+    public function visionItem()
+    {
+        return $this->belongsTo(VisionItem::class, 'vision_item_id');
+    }
+    
 }

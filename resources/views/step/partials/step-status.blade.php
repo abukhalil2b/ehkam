@@ -1,6 +1,5 @@
 @php
-    $instance = $step->workflowInstance;
-    $workflowStatus = $instance?->status ?? 'draft';
+    $workflowStatus = $step->status ?? 'draft';
 @endphp
 
 <span class="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full

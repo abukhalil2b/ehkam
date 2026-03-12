@@ -140,6 +140,16 @@ class ComprehensivePermissionSeeder extends Seeder
             // General Permissions
             ['slug' => 'permission.index', 'title' => 'عرض الصلاحيات', 'category' => 'permission'],
             ['slug' => 'task.index', 'title' => 'عرض المهام العامة', 'category' => 'task'],
+
+            // Evidence Files (Step Attachments)
+            ['slug' => 'evidence.upload',  'title' => 'رفع ملف إثبات للخطوة',       'category' => 'project'],
+            ['slug' => 'evidence.review',  'title' => 'مراجعة الأدلة الداعمة',       'category' => 'project'],
+            ['slug' => 'project.execute',  'title' => 'عرض المشاريع المعتمدة وتنفيذ الخطوات', 'category' => 'project'],
+
+            // Project workflow submit/approve
+            ['slug' => 'submit_projects',  'title' => 'تقديم المشروع للمراجعة', 'category' => 'project'],
+            ['slug' => 'approve_projects', 'title' => 'اعتماد / إعادة المشروع', 'category' => 'project'],
+            ['slug' => 'create_projects',  'title' => 'إنشاء مشروع',            'category' => 'project'],
         ];
 
         // Create Permissions
@@ -147,9 +157,9 @@ class ComprehensivePermissionSeeder extends Seeder
             Permission::updateOrCreate(
                 ['slug' => $perm['slug']],
                 [
-                    'title' => $perm['title'],
-                    'category' => $perm['category'],
-                    'description' => $perm['title'] // Use title as description for now
+                    'title'       => $perm['title'],
+                    'category'    => $perm['category'],
+                    'description' => $perm['title']
                 ]
             );
         }
@@ -162,5 +172,37 @@ class ComprehensivePermissionSeeder extends Seeder
 
         $allPermissionIds = Permission::pluck('id');
         $adminRole->permissions()->syncWithoutDetaching($allPermissionIds);
+
+        // ---- project_creator role ----
+        $creatorRole = Role::firstOrCreate(
+            ['slug' => 'project_creator'],
+            ['title' => 'منشئ المشروع', 'description' => 'يستطيع إنشاء وتقديم المشاريع']
+        );
+        $creatorPerms = Permission::whereIn('slug', [
+            'project.index', 'project.create', 'project.edit',
+            'create_projects', 'submit_projects',
+        ])->pluck('id');
+        $creatorRole->permissions()->syncWithoutDetaching($creatorPerms);
+
+        // ---- project_approver role ----
+        $approverRole = Role::firstOrCreate(
+            ['slug' => 'project_approver'],
+            ['title' => 'معتمد المشاريع', 'description' => 'يستطيع مراجعة واعتماد أو إعادة المشاريع والأدلة الداعمة']
+        );
+        $approverPerms = Permission::whereIn('slug', [
+            'project.index', 'approve_projects', 'evidence.review',
+        ])->pluck('id');
+        $approverRole->permissions()->syncWithoutDetaching($approverPerms);
+
+        // ---- project_executor role (User 3) ----
+        $executorRole = Role::firstOrCreate(
+            ['slug' => 'project_executor'],
+            ['title' => 'منفّذ المشروع', 'description' => 'يستطيع تنفيذ الخطوات ورفع الأدلة الداعمة']
+        );
+        $executorPerms = Permission::whereIn('slug', [
+            'project.index', 'project.execute', 'evidence.upload',
+        ])->pluck('id');
+        $executorRole->permissions()->syncWithoutDetaching($executorPerms);
     }
 }
+

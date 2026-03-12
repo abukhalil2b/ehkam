@@ -7,10 +7,13 @@ use App\Models\OrgUnit;
 use App\Models\Project;
 use App\Models\Sector;
 use Illuminate\Http\Request;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use PhpOffice\PhpSpreadsheet\Calculation\LookupRef\Indirect;
 
 class ProjectController extends Controller
 {
+    use AuthorizesRequests;
+
     /**
      * Display a listing of the resource.
      */
@@ -97,7 +100,7 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        $project->load(['indicator', 'activities','executor']);
+        $project->load(['indicator', 'activities.steps.feedbacks', 'executor']);
 
         // جلب الخطوات وحساب نسبة الإنجاز
         $steps = $project->steps; // تأكد من إضافة steps في الـ load أعلاه إذا أردت تحسين الأداء
@@ -117,4 +120,77 @@ class ProjectController extends Controller
         $project->load('executor');
         return view('project.task.show', compact('project'));
     }
+
+    // ==========================================
+    // WORKFLOW TRANSITIONS
+    // ==========================================
+
+    public function submit(Request $request, Project $project)
+    {
+        $this->authorize('submit', $project);
+
+        $project->update([
+            'status' => 'submitted'
+        ]);
+
+        return redirect()->back()->with('success', 'تم تقديم المشروع للمراجعة بنجاح.');
+    }
+
+    public function approve(Request $request, Project $project)
+    {
+        $this->authorize('approve', $project);
+
+        $project->update([
+            'status' => 'approved'
+        ]);
+
+        return redirect()->back()->with('success', 'تم اعتماد المشروع بنجاح.');
+    }
+
+    public function return(Request $request, Project $project)
+    {
+        $this->authorize('approve', $project); // Same permission group
+
+        $project->update([
+            'status' => 'returned'
+        ]);
+
+        if ($request->has('step_feedbacks') && is_array($request->step_feedbacks)) {
+            foreach ($request->step_feedbacks as $stepId => $notes) {
+                if (!empty($notes)) {
+                    \App\Models\StepFeedback::create([
+                        'step_id' => $stepId,
+                        'notes' => $notes,
+                        'created_by' => auth()->id(),
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with('info', 'تمت إعادة المشروع للتعديل.');
+    }
+
+    public function reject(Request $request, Project $project)
+    {
+        $this->authorize('approve', $project); // Same permission group
+
+        $project->update([
+            'status' => 'rejected'
+        ]);
+
+        if ($request->has('step_feedbacks') && is_array($request->step_feedbacks)) {
+            foreach ($request->step_feedbacks as $stepId => $notes) {
+                if (!empty($notes)) {
+                    \App\Models\StepFeedback::create([
+                        'step_id' => $stepId,
+                        'notes' => $notes,
+                        'created_by' => auth()->id(),
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->with('error', 'تم رفض المشروع وإغلاقه.');
+    }
+
 }

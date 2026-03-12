@@ -61,10 +61,7 @@ class DashboardController extends Controller
             $tasks->where('priority', 'low')->count()
         ];
 
-        // 6. Pending Workflows (My Pending Items)
-        // Note: Steps don't have workflows, only activities do
-        // TODO: Implement pendingWorkflowActivities() in User model if needed
-        $myWorkflows = collect();
+
 
         // Role-based dashboard selection
         $activeRole = $loggedUser->getActiveRole();
@@ -72,10 +69,10 @@ class DashboardController extends Controller
         if ($activeRole && $activeRole->slug === 'sector') {
             $sector = $loggedUser->sectors()->first();
             $aims = Aim::all();
-            return view('dashboard_sector', compact('tasks', 'sector', 'aims', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows', 'activeRole'));
+            return view('dashboard_sector', compact('tasks', 'sector', 'aims', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'activeRole'));
         }
 
-        return view('dashboard', compact('tasks', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities', 'myWorkflows'));
+        return view('dashboard', compact('tasks', 'chartData', 'activeAlerts', 'healthPercentage', 'recentNotifications', 'taskPriorities'));
     }
 
 }

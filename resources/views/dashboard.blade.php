@@ -3,45 +3,7 @@
     <div class="container py-6 mx-auto px-4 sm:px-6">
         <!-- Quick Stats Bar -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            @if (isset($myWorkflows) && $myWorkflows->count() > 0)
-                <div
-                    class="col-span-2 md:col-span-4 bg-blue-50/50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-800 mb-2">
-                    <h3 class="font-bold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                        <span class="material-icons text-blue-600 dark:text-blue-400 text-sm">pending_actions</span>
-                        مهامي المعلقة (Workflows)
-                    </h3>
-                    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                        @foreach ($myWorkflows as $workflow)
-                            <div
-                                class="bg-white dark:bg-[#1b2e4b] p-3 rounded-lg shadow-sm border border-gray-100 dark:border-[#191e3a] hover:shadow-md transition group relative overflow-hidden">
-                                <div
-                                    class="absolute top-0 right-0 w-1 h-full bg-{{ $workflow->status == 'pending' ? 'yellow-400' : 'blue-500' }}">
-                                </div>
-                                <div class="flex justify-between items-start mb-2">
-                                    <span
-                                        class="text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 dark:bg-[#0e1726] text-gray-600 dark:text-gray-400">
-                                        {{ __('step_stages.' . $workflow->stage) }}
-                                    </span>
-                                    <span
-                                        class="text-[10px] text-gray-400">{{ $workflow->created_at?->diffForHumans() ?? '' }}</span>
-                                </div>
-                                <h4 class="font-bold text-gray-800 dark:text-white-light text-sm mb-1 truncate">
-                                    {{ $workflow->step->name ?? 'خطوة بدون عنوان' }}
-                                </h4>
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 truncate">
-                                    {{ $workflow->step->project->name ?? '' }}
-                                </p>
 
-                                <a href="{{ route('step.show', $workflow->step_id) }}"
-                                    class="flex items-center justify-center w-full py-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 rounded transition-colors">
-                                    معالجة
-                                    <i class="fas fa-arrow-left mr-1 rtl:ml-1 rtl:mr-0 text-[10px]"></i>
-                                </a>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
 
             <p class="md:col-span-4 font-semibold text-gray-700 dark:text-gray-300 mt-2">مهام </p>
             @foreach ($tasks as $task)

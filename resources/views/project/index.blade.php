@@ -24,10 +24,12 @@
 
         <!-- Action Bar with better buttons -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
-            <a href="{{ route('project.create',$indicator->id) }}"
-                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
-                إضافة مشروع جديد
-            </a>
+            @can('create', \App\Models\Project::class)
+                <a href="{{ route('project.create',$indicator->id) }}"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 inline-block">
+                    إضافة مشروع جديد
+                </a>
+            @endcan
         </div>
 
         <!-- Data Table Container -->
@@ -79,8 +81,9 @@
                                     <div>إلى 31-12-2025</div>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded">تم
-                                        الأعتماد النهائي</span>
+                                    <span class="bg-{{ $project->status === 'approved' ? 'green' : ($project->status === 'draft' ? 'gray' : 'blue') }}-100 text-{{ $project->status === 'approved' ? 'green' : ($project->status === 'draft' ? 'gray' : 'blue') }}-800 text-xs font-medium px-2 py-0.5 rounded">
+                                        {{ $project->statusLabel ?? 'مسودة' }}
+                                    </span>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-2">
@@ -100,10 +103,12 @@
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         الخطوات
                                     </a>
-                                    <a href="{{ route('project.edit', $project->id) }}"
-                                        class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
-                                        تعديل
-                                    </a>
+                                    @can('update', $project)
+                                        <a href="{{ route('project.edit', $project->id) }}"
+                                            class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
+                                            تعديل
+                                        </a>
+                                    @endcan
                                     <a href="{{ route('admin.steps.import',$project->id) }}"
                                         class="block w-full text-center text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-xs px-2 py-1 transition-colors duration-200">
                                         upload

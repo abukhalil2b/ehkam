@@ -16,13 +16,11 @@ class StepFeedback extends Model
         'created_by',
     ];
 
-    /**
-     * The transition this feedback belongs to
-     */
-    public function transition(): BelongsTo
-    {
-        return $this->belongsTo(WorkflowTransition::class, 'workflow_transition_id');
-    }
+    // relationship removed
+    // public function transition(): BelongsTo
+    // {
+    //     return $this->belongsTo(WorkflowTransition::class, 'workflow_transition_id');
+    // }
 
     /**
      * The step this feedback is for

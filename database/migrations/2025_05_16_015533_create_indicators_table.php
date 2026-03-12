@@ -32,6 +32,8 @@ return new class extends Migration
             $table->text('proposed_initiatives')->nullable(); // مبادرات ومشاريع مقترحة
             $table->string('evidence_type')->nullable();
             $table->foreignIdFor(Indicator::class, 'parent_id')->nullable();
+            // نربط المبادرة بالعنصر المباشر (الأولوية)
+            $table->foreignId('vision_item_id')->constrained('vision_items');
             $table->string('period')->default('quarterly'); //annually - half_yearly - quarterly - monthly
             $table->string('baseline_value', 50)->nullable(); // Stores "3 Million (2022)"
             $table->decimal('baseline_numeric', 14, 2)->default(80); // Stores 3000000.00 for calculations
@@ -88,7 +90,7 @@ return new class extends Migration
             $table->foreignId('indicator_id')->constrained()->cascadeOnDelete();
             $table->foreignId('sector_id')->constrained()->cascadeOnDelete();
             $table->decimal('baseline_numeric', 14, 2)->default(0); // خط أساس القطاع
-            $table->smallInteger('baseline_year')->default(2022);// سنة أساس القطاع
+            $table->smallInteger('baseline_year')->default(2022); // سنة أساس القطاع
             $table->timestamps();
         });
     }

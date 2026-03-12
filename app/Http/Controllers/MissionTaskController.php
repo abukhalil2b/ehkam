@@ -344,13 +344,7 @@ class MissionTaskController extends Controller
         // Update task
         $task->update($validated);
 
-        // If task is completed and has workflow, complete the workflow
-        if (isset($validated['status']) && $validated['status'] === 'completed' && $task->workflowInstance) {
-            $task->workflowInstance->update([
-                'status' => 'completed',
-                'current_stage_id' => null,
-            ]);
-        }
+
 
         // تسجيل التغيير
         $task->logs()->create([

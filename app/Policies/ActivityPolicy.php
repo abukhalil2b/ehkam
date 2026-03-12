@@ -25,22 +25,6 @@ class ActivityPolicy
             return true;
         }
 
-        // 3. Workflow Participant (Current Actor)
-        if ($user->canActOnActivity($activity)) {
-            return true;
-        }
-
-        // 4. Determine if user was PREVIOUSLY involved (History)
-        // This query might be expensive, so use caching or simple check if needed.
-        // For now, let's allow if they are in any team that is part of the workflow?
-        // Or strictly: have they ever acted on it?
-        /*
-        $hasActed = $activity->transitions()
-            ->where('actor_id', $user->id)
-            ->exists();
-        if ($hasActed) return true;
-        */
-
         return false;
     }
 

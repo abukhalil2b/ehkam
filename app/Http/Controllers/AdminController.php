@@ -20,7 +20,8 @@ class AdminController extends Controller
     public function create()
     {
 
-        $users = User::where('user_type', 'staff')->get();
+        $staffRole = Role::where('slug', 'staff')->firstOrfail();
+        $users = User::where('active_role_id', $staffRole->id)->get();
         // Hierarchical data for units & positions
         $topLevelUnits = OrgUnit::whereNull('parent_id')
             ->with('children.children')
@@ -121,10 +122,10 @@ class AdminController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'sector_id' => 'required|array',
         ]);
-
+        $staffRole = Role::where('slug', 'staff')->firstOrfail();
         // Create User
         $user = User::create([
-            'user_type' => 'staff',
+            'active_role_id' => $staffRole->id,
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['email']), // default
@@ -197,10 +198,10 @@ class AdminController extends Controller
             'org_unit_id' => 'required|exists:org_units,id',
             'start_date' => 'required|date',
         ]);
-
+        $staffRole = Role::where('slug', 'staff')->firstOrfail();
         // 2. User Creation
         $user = User::create([
-            'user_type' => 'staff',
+            'active_role_id' => $staffRole->id,
             'name' => $validatedData['name'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['email']),

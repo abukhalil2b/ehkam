@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-class WorkflowStage
+class StepPhase
 {
     // Internal stage keys
     public const PLANNING = 'planning';

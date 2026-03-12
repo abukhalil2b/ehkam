@@ -5,17 +5,16 @@ namespace App\Enums;
 class StepStatus
 {
     public const DRAFT = 'draft';
+    public const REVIEW = 'review';
+    public const APPROVED = 'approved';
     public const IN_PROGRESS = 'in_progress';
     public const COMPLETED = 'completed';
     public const RETURNED = 'returned';
-    public const REJECTED = 'rejected';
-    public const DELAYED = 'delayed';
 
     // 1. Add this array for the dropdown in the Edit View
     public static array $editable = [
         self::IN_PROGRESS,
         self::COMPLETED,
-        self::DELAYED,
     ];
 
     public static array $meta = [
@@ -25,8 +24,20 @@ class StepStatus
             'text' => 'text-gray-800',
             'icon' => 'fas fa-exclamation-circle',
         ],
+        self::REVIEW => [
+            'label' => 'مراجعة',
+            'bg' => 'bg-blue-100',
+            'text' => 'text-blue-800',
+            'icon' => 'fas fa-search',
+        ],
+        self::APPROVED => [
+            'label' => 'معتمد',
+            'bg' => 'bg-indigo-100',
+            'text' => 'text-indigo-800',
+            'icon' => 'fas fa-check-double',
+        ],
         self::IN_PROGRESS => [
-            'label' => 'في الإجراء',
+            'label' => 'قيد التنفيذ',
             'bg' => 'bg-yellow-100',
             'text' => 'text-yellow-800',
             'icon' => 'fas fa-spinner',
@@ -37,23 +48,11 @@ class StepStatus
             'text' => 'text-green-800',
             'icon' => 'fas fa-check-circle',
         ],
-        self::DELAYED => [
-            'label' => 'متأخر',
-            'bg' => 'bg-red-100',
-            'text' => 'text-red-800',
-            'icon' => 'fas fa-exclamation-circle',
-        ],
         self::RETURNED => [
-            'label' => 'تم إعادته',
+            'label' => 'معاد',
             'bg' => 'bg-purple-100',
             'text' => 'text-purple-800',
-            'icon' => 'fas fa-exclamation-circle',
-        ],
-        self::REJECTED => [
-            'label' => 'مرفوض',
-            'bg' => 'bg-red-100',
-            'text' => 'text-red-800',
-            'icon' => 'fas fa-exclamation-circle',
+            'icon' => 'fas fa-undo',
         ],
     ];
 

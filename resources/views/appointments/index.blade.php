@@ -59,8 +59,7 @@
                                 {{ __('الوزير') }}</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('الحالة') }}</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                {{ __('المرحلة الحالية') }}</th>
+
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 {{ __('تاريخ الإنشاء') }}</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -94,9 +93,7 @@
                                         @endif
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {{ $appointment->workflowInstance->currentStage->name ?? '—' }}
-                                </td>
+
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {{ $appointment->created_at->format('Y-m-d H:i') }}
                                 </td>

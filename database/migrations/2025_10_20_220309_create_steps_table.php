@@ -39,7 +39,7 @@ return new class extends Migration {
                 'close'
             ])->comment('مرحلة العمل');
 
-            $table->enum('status', ['draft', 'review', 'completed', 'returned', 'rejected', 'delayed','approved'])->comment('draft');
+            $table->enum('status', ['draft', 'review', 'approved', 'in_progress', 'completed', 'returned'])->default('draft')->comment('draft');
 
 
             // Supporting documents / notes
@@ -57,12 +57,42 @@ return new class extends Migration {
 
         Schema::create('step_feedbacks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('workflow_transition_id');
             $table->foreignId('step_id');
             $table->text('notes');
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
+
+         Schema::create('step_evidence_files', function (Blueprint $table) {
+            $table->id();
+
+            $table->foreignId('step_id')
+                ->constrained('steps')
+                ->cascadeOnDelete();
+
+            $table->string('file_path');       // Stored path: evidence/step_{id}/filename
+            $table->string('file_name');       // Original filename
+
+            $table->enum('status', ['pending', 'approved', 'returned'])->default('pending');
+    
+               // Who uploaded it (User 3 - executor)
+            $table->foreignId('uploaded_by')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
+            // Who reviewed it (User 2 - approver)
+            $table->foreignId('reviewed_by')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            $table->text('reviewer_notes')->nullable();   // User 2 feedback when returning
+
+            $table->timestamp('reviewed_at')->nullable();
+
+            $table->timestamps();
+        });
+        
     }
 
     public function down(): void

@@ -7,8 +7,6 @@ use App\Models\Activity;
 use App\Models\AssessmentQuestion;
 use App\Models\AssessmentStage;
 use App\Models\Indicator;
-use App\Models\Workflow;
-use App\Models\WorkflowInstance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -52,28 +50,12 @@ class ActivityController extends Controller
             'project_id' => 'required|exists:projects,id|integer',
         ]);
 
-        // 2. Create the new Activity record with workflow defaults
         $activity = Activity::create([
             'title' => $request->title,
             'project_id' => $request->project_id,
             'creator_id' => Auth::id(),
             'status' => 'draft',
         ]);
-
-        // 3. Auto-assign Workflow if available
-        $workflow = Workflow::where('entity_type', Activity::class)
-            ->where('is_active', true)
-            ->first();
-
-        if ($workflow) {
-            WorkflowInstance::create([
-                'workflow_id' => $workflow->id,
-                'workflowable_type' => Activity::class,
-                'workflowable_id' => $activity->id,
-                'status' => 'draft',
-                'creator_id' => Auth::id(),
-            ]);
-        }
 
         // 3. Redirect with a success message
         return redirect()->route('project.show', $request->project_id)->with('success', 'النشاط "' . $activity->title . '" تم اضافته !');
@@ -83,11 +65,6 @@ class ActivityController extends Controller
     {
         $activity->load([
             'project',
-            'workflowInstance.workflow.stages.team',
-            'workflowInstance.currentStage.team',
-            'transitions.actor',
-            'transitions.fromStage',
-            'transitions.toStage',
             'creator',
             'steps',
         ]);

@@ -150,7 +150,7 @@ class User extends Authenticatable
     public function assignRole(Role|int $role): void
     {
         $roleId = $role instanceof Role ? $role->id : $role;
-        $this->roles()->syncWithoutDetaching($roleId);
+        $this->roles()->syncWithoutDetaching([$roleId]);
         $this->cachedPermissions = null; // Clear cache
     }
 
@@ -482,84 +482,13 @@ class User extends Authenticatable
             ->get();
     }
 
-    // ========== WORKFLOW ENGINE ==========
 
     /**
-     * Workflow teams this user belongs to
+     * The projects assigned to this user for evaluation.
      */
-    public function workflowTeams()
+    public function assignedProjects(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->belongsToMany(WorkflowTeam::class, 'user_workflow_team')
-            ->withTimestamps();
-    }
-
-    /**
-     * Get all workflow items pending action by this user (based on team membership)
-     * 
-     * This includes Activities, AppointmentRequests, Steps, and any other models
-     * that implement the HasWorkflow interface.
-     */
-    public function pendingWorkflowActivities()
-    {
-        $teamIds = $this->workflowTeams()->pluck('workflow_teams.id');
-
-        // Get Activities
-        $activities = Activity::whereHas('workflowInstance', function ($query) use ($teamIds) {
-            $query->whereHas('currentStage', function ($q) use ($teamIds) {
-                $q->whereIn('team_id', $teamIds);
-            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
-        })->get();
-
-        // Get AppointmentRequests
-        $appointments = AppointmentRequest::whereHas('workflowInstance', function ($query) use ($teamIds) {
-            $query->whereHas('currentStage', function ($q) use ($teamIds) {
-                $q->whereIn('team_id', $teamIds);
-            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
-        })->get();
-
-        // Get Steps
-        $steps = Step::whereHas('workflowInstance', function ($query) use ($teamIds) {
-            $query->whereHas('currentStage', function ($q) use ($teamIds) {
-                $q->whereIn('team_id', $teamIds);
-            })->whereNotIn('status', ['completed', 'draft', 'rejected']);
-        })->get();
-
-        // Merge all workflow items and add type identifier
-        return $activities->map(function ($item) {
-            $item->workflow_item_type = 'activity';
-            return $item;
-        })->merge($appointments->map(function ($item) {
-            $item->workflow_item_type = 'appointment';
-            return $item;
-        }))->merge($steps->map(function ($item) {
-            $item->workflow_item_type = 'step';
-            return $item;
-        }));
-    }
-
-    /**
-     * Check if user can act on a specific activity (is member of the activity's current stage team)
-     */
-    public function canActOnActivity(Activity $activity): bool
-    {
-        $currentStage = $activity->currentStage;
-
-        if (!$currentStage) {
-            return false;
-        }
-
-        $stageTeamId = $currentStage->team_id;
-
-        return $this->workflowTeams()
-            ->where('workflow_teams.id', $stageTeamId)
-            ->exists();
-    }
-    /**
-     * The activities assigned to this user for evaluation.
-     */
-    public function assignedActivities(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
-    {
-        return $this->belongsToMany(Activity::class, 'activity_user_assign')
+        return $this->belongsToMany(Project::class, 'project_user_assign')
             ->withTimestamps();
     }
 }

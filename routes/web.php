@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ActivityController;
-use App\Http\Controllers\Admin\WorkflowController;
+
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\RolePermissionController;
 use App\Http\Controllers\Admin\UserRoleController;
@@ -14,6 +14,7 @@ use App\Http\Controllers\AssessmentResultController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\FinanceFormController;
 use App\Http\Controllers\Admin\FinanceNeedController;
+use App\Http\Controllers\Admin\AdminAnnualPlanController;
 use App\Http\Controllers\Admin\AdminAimSectorFeedbackController;
 use App\Http\Controllers\AnnualCalendarController;
 use App\Http\Controllers\IndicatorController;
@@ -28,6 +29,7 @@ use App\Http\Controllers\QuestionnaireController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\StatisticController;
 use App\Http\Controllers\StepController;
+use App\Http\Controllers\EvidenceFileController;
 use App\Http\Controllers\StructureController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CalendarDelegationController;
@@ -42,10 +44,9 @@ use App\Http\Controllers\KpiController;
 use App\Http\Controllers\DocumentationController;
 use App\Http\Controllers\ActivityAssignmentController;
 use Illuminate\Support\Facades\Route;
+
 // ========== WORKFLOW ENGINE ROUTES ==========
-use App\Http\Controllers\Admin\WorkflowTeamController;
-use App\Http\Controllers\Admin\WorkflowDefinitionController;
-use App\Http\Controllers\WorkflowActionController;
+
 use App\Http\Controllers\AppointmentRequestController;
 use App\Http\Controllers\AssessmentStageController;
 use App\Http\Controllers\EndowmentController;
@@ -54,6 +55,7 @@ use App\Http\Controllers\FishboneController;
 use App\Http\Controllers\GuidanceStatisticController;
 use App\Http\Controllers\IndicatorTargetController;
 use App\Http\Controllers\PestleController;
+use App\Http\Controllers\ProjectReviewController;
 use App\Http\Controllers\QuranSchoolStatisticController;
 
 // Route::view('/', 'welcome2')->name('home');
@@ -203,11 +205,21 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:project.index') // Assuming view access is sufficient
         ->name('project.task.show');
 
+    // Workflow Transitions
+    Route::post('project/{project}/submit', [ProjectController::class, 'submit'])->name('project.submit');
+    Route::post('project/{project}/approve', [ProjectController::class, 'approve'])->name('project.approve');
+    Route::post('project/{project}/return', [ProjectController::class, 'return'])->name('project.return');
+    Route::post('project/{project}/reject', [ProjectController::class, 'reject'])->name('project.reject');
+
     // مسار جلب الوحدات التابعة (للـ Ajax)
     Route::get('/api/units/{parentId}/children', [ProjectController::class, 'getUnitChildren']);
 });
 
 
+
+Route::group(['middleware' => ['auth']], function () {
+    Route::get('admin/annual_plan/{year?}', [AdminAnnualPlanController::class, 'show'])->name('admin.annual_plan.show');
+});
 
 Route::group(['middleware' => ['auth']], function () {
     Route::get('admin/projects/{project}/steps/import', [AdminStepImportController::class, 'create'])->name('admin.steps.import');
@@ -248,6 +260,24 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:workflow.reject')
         ->name('step.reject');
 });
+
+// ========== EVIDENCE FILE ROUTES ==========
+Route::group(['middleware' => ['auth']], function () {
+    // User 3: Upload evidence for a step
+    Route::post('steps/{step}/evidence', [EvidenceFileController::class, 'store'])
+        ->middleware('permission:evidence.upload')
+        ->name('evidence.store');
+
+    // User 2: Approve or return an evidence file
+    Route::post('evidence/{file}/review', [EvidenceFileController::class, 'review'])
+        ->middleware('permission:evidence.review')
+        ->name('evidence.review');
+
+    // Download evidence file
+    Route::get('evidence/{file}/download', [EvidenceFileController::class, 'download'])
+        ->name('evidence.download');
+});
+
 
 Route::group(['middleware' => ['auth']], function () {
 
@@ -966,10 +996,7 @@ Route::group(['middleware' => ['auth']], function () {
         ->middleware('permission:org_unit.delete')
         ->name('org_unit.destroy');
 
-    // Admin Workflows Dashboard
-    Route::get('/admin/workflows', [WorkflowController::class, 'index'])
-        ->middleware('permission:admin.workflow.index')
-        ->name('admin.workflows.index');
+
 
     // POSITIONS MANAGEMENT (Refactored)
     Route::resource('positions', PositionController::class)->middleware('permission:admin_position.index');
@@ -1173,143 +1200,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 
-// ========== WORKFLOW ENGINE ROUTES ==========
 
-// USER WORKFLOW ROUTES
-Route::group(['middleware' => ['auth']], function () {
-
-    Route::get('workflow/pending', [WorkflowActionController::class, 'pendingSteps'])
-        ->middleware('permission:workflow.pending')
-        ->name('workflow.pending');
-
-    Route::post('workflow/steps/{activity}/submit', [WorkflowActionController::class, 'submit'])
-        ->middleware('permission:workflow.pending')
-        ->name('workflow.submit');
-
-    Route::post('workflow/steps/{activity}/approve', [WorkflowActionController::class, 'approve'])
-        ->middleware('permission:workflow.approve')
-        ->name('workflow.approve');
-
-    Route::post('workflow/steps/{activity}/return', [WorkflowActionController::class, 'return'])
-        ->middleware('permission:workflow.return')
-        ->name('workflow.return');
-
-    Route::post('workflow/steps/{activity}/reject', [WorkflowActionController::class, 'reject'])
-        ->middleware('permission:workflow.reject')
-        ->name('workflow.reject');
-
-    Route::post('workflow/steps/{activity}/assign-workflow', [WorkflowActionController::class, 'assignWorkflow'])
-        ->middleware('permission:workflow.pending')
-        ->name('workflow.assign');
-
-    Route::post('workflow/steps/{activity}/start', [WorkflowActionController::class, 'start'])
-        ->middleware('permission:workflow.pending')
-        ->name('workflow.start');
-
-    Route::get('workflow/steps/{activity}/history', [WorkflowActionController::class, 'history'])
-        ->middleware('permission:workflow.history')
-        ->name('workflow.history');
-
-    Route::get('workflow/available', [WorkflowActionController::class, 'availableWorkflows'])
-        ->name('workflow.available');
-});
-
-// ADMIN WORKFLOW TEAMS
-Route::group(['middleware' => ['auth']], function () {
-
-    Route::get('admin/workflow/teams', [WorkflowTeamController::class, 'index'])
-        ->middleware('permission:workflow_team.index')
-        ->name('admin.workflow.teams.index');
-
-    Route::get('admin/workflow/teams/create', [WorkflowTeamController::class, 'create'])
-        ->middleware('permission:workflow_team.create')
-        ->name('admin.workflow.teams.create');
-
-    Route::post('admin/workflow/teams', [WorkflowTeamController::class, 'store'])
-        ->middleware('permission:workflow_team.create')
-        ->name('admin.workflow.teams.store');
-
-    Route::get('admin/workflow/teams/{team}', [WorkflowTeamController::class, 'show'])
-        ->middleware('permission:workflow_team.index')
-        ->name('admin.workflow.teams.show');
-
-    Route::get('admin/workflow/teams/{team}/edit', [WorkflowTeamController::class, 'edit'])
-        ->middleware('permission:workflow_team.edit')
-        ->name('admin.workflow.teams.edit');
-
-    Route::put('admin/workflow/teams/{team}', [WorkflowTeamController::class, 'update'])
-        ->middleware('permission:workflow_team.edit')
-        ->name('admin.workflow.teams.update');
-
-    Route::delete('admin/workflow/teams/{team}', [WorkflowTeamController::class, 'destroy'])
-        ->middleware('permission:workflow_team.delete')
-        ->name('admin.workflow.teams.destroy');
-
-    Route::post('admin/workflow/teams/{team}/add-user', [WorkflowTeamController::class, 'addUser'])
-        ->middleware('permission:workflow_team.edit')
-        ->name('admin.workflow.teams.add-user');
-
-    Route::post('admin/workflow/teams/{team}/remove-user', [WorkflowTeamController::class, 'removeUser'])
-        ->middleware('permission:workflow_team.edit')
-        ->name('admin.workflow.teams.remove-user');
-});
-
-// ADMIN WORKFLOW DEFINITIONS
-Route::group(['middleware' => ['auth']], function () {
-
-    Route::get('admin/workflow/definitions', [WorkflowDefinitionController::class, 'index'])
-        ->middleware('permission:workflow_definition.index')
-        ->name('admin.workflow.definitions.index');
-
-    Route::get('admin/workflow/definitions/create', [WorkflowDefinitionController::class, 'create'])
-        ->middleware('permission:workflow_definition.create')
-        ->name('admin.workflow.definitions.create');
-
-    Route::post('admin/workflow/definitions', [WorkflowDefinitionController::class, 'store'])
-        ->middleware('permission:workflow_definition.create')
-        ->name('admin.workflow.definitions.store');
-
-    Route::get('admin/workflow/definitions/{definition}', [WorkflowDefinitionController::class, 'show'])
-        ->middleware('permission:workflow_definition.index')
-        ->name('admin.workflow.definitions.show');
-
-    Route::get('admin/workflow/definitions/{definition}/edit', [WorkflowDefinitionController::class, 'edit'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.definitions.edit');
-
-    Route::put('admin/workflow/definitions/{definition}', [WorkflowDefinitionController::class, 'update'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.definitions.update');
-
-    Route::delete('admin/workflow/definitions/{definition}', [WorkflowDefinitionController::class, 'destroy'])
-        ->middleware('permission:workflow_definition.delete')
-        ->name('admin.workflow.definitions.destroy');
-
-    // Stage Management
-    Route::post('admin/workflow/definitions/{workflow}/stages', [WorkflowDefinitionController::class, 'storeStage'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.store');
-
-    Route::patch('admin/workflow/stages/{stage}', [WorkflowDefinitionController::class, 'updateStage'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.update');
-
-    Route::delete('admin/workflow/stages/{stage}', [WorkflowDefinitionController::class, 'destroyStage'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.destroy');
-
-    Route::post('admin/workflow/definitions/{workflow}/stages/reorder', [WorkflowDefinitionController::class, 'reorderStages'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.reorder');
-
-    Route::post('admin/workflow/definitions/{workflow}/stages/insert', [WorkflowDefinitionController::class, 'insertStage'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.insert');
-
-    Route::post('admin/workflow/definitions/{workflow}/reindex', [WorkflowDefinitionController::class, 'reindexStages'])
-        ->middleware('permission:workflow_definition.edit')
-        ->name('admin.workflow.stages.reindex');
-});
 
 // ========== APPOINTMENT REQUESTS ROUTES ==========
 Route::group(['middleware' => ['auth']], function () {
